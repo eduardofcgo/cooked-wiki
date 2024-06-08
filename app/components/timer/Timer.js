@@ -1,9 +1,11 @@
 import { View, Text } from 'react-native'
 import Picker from './Picker'
 import { useEffect, useRef, useState } from 'react'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome'
 
-import StopwatchTimer, { StopwatchTimerMethods } from 'react-native-animated-stopwatch-timer'
+import StopwatchTimer, {
+  StopwatchTimerMethods,
+} from 'react-native-animated-stopwatch-timer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 async function createTimer(totalSeconds) {
@@ -32,26 +34,26 @@ export default function Timer({ totalSeconds }) {
   const [finished, setFinished] = useState(false)
 
   function play() {
-    stopwatchTimerRef.current.play();
+    stopwatchTimerRef.current.play()
   }
 
   function pause() {
-    stopwatchTimerRef.current.pause();
+    stopwatchTimerRef.current.pause()
   }
 
   function reset() {
-    stopwatchTimerRef.current.reset();
+    stopwatchTimerRef.current.reset()
   }
 
   useEffect(() => {
     if (paused) {
-      stopwatchTimerRef.current.pause();
+      stopwatchTimerRef.current.pause()
     } else {
-      stopwatchTimerRef.current.play();
+      stopwatchTimerRef.current.play()
     }
 
     if (finished) {
-      stopwatchTimerRef.current.reset();
+      stopwatchTimerRef.current.reset()
     }
   }, [paused, finished])
 
@@ -64,37 +66,41 @@ export default function Timer({ totalSeconds }) {
   }, [paused])
 
   return (
-    <View style={{
-      position: "absolute",
-      alignSelf: 'center',
-      padding: 20,
-      marginLeft: 10,
-      marginRight: 10,
-      bottom: 60,
-      backgroundColor: '#efede3',
+    <View
+      style={{
+        position: 'absolute',
+        alignSelf: 'center',
+        padding: 20,
+        marginLeft: 10,
+        marginRight: 10,
+        bottom: 60,
+        backgroundColor: '#efede3',
 
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 8,
-      },
-      shadowOpacity: 0.44,
-      shadowRadius: 10.32,
-      elevation: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 8,
+        },
+        shadowOpacity: 0.44,
+        shadowRadius: 10.32,
+        elevation: 16,
 
-      borderColor: '#d97757',
-      borderWidth: 2,
-      borderRadius: 5,}}>
+        borderColor: '#d97757',
+        borderWidth: 2,
+        borderRadius: 5,
+      }}>
       <Picker />
 
-      <View style={{
-        flex: 1,
-        flexDirection: 'row',
-        gap: 20,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width:'100%'}}>
-        <Text style={{fontSize: 20}}>⏲️</Text>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          gap: 20,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+        }}>
+        <Text style={{ fontSize: 20 }}>⏲️</Text>
         <StopwatchTimer
           ref={stopwatchTimerRef}
           mode='timer'
@@ -108,61 +114,67 @@ export default function Timer({ totalSeconds }) {
             setFinished(true)
           }}
         />
-        <View style={{
-          flex: 1,
-          gap: 10,
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'center'}}>
-        {finished ?
-          <Icon.Button
-            name="check"
-            type='font-awesome'
-            color='#706b57'
-            backgroundColor='white'
-            iconStyle={{marginRight:0}}
-            onPress={() => {
-              //todo remove both
-              setFinished(false)
-              setPaused(false)
-              // TODO: go to the recipe step
-            }}
-          /> :
-          paused ?
+        <View
+          style={{
+            flex: 1,
+            gap: 10,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}>
+          {finished ? (
+            <Icon.Button
+              name='check'
+              type='font-awesome'
+              color='#706b57'
+              backgroundColor='white'
+              iconStyle={{ marginRight: 0 }}
+              onPress={() => {
+                //todo remove both
+                setFinished(false)
+                setPaused(false)
+                // TODO: go to the recipe step
+              }}
+            />
+          ) : paused ? (
             <>
               <Icon.Button
-                name="remove"
+                name='remove'
                 type='font-awesome'
                 color='#706b57'
                 backgroundColor='white'
-                iconStyle={{marginRight:0}}
+                iconStyle={{ marginRight: 0 }}
                 onPress={() => {
                   setPaused(false)
                   setFinished(false)
-                }} />
+                }}
+              />
               <Icon.Button
-                name="play"
+                name='play'
                 type='font-awesome'
                 color='#706b57'
                 backgroundColor='white'
-                iconStyle={{marginRight:0}}
+                iconStyle={{ marginRight: 0 }}
                 onPress={() => {
                   setPaused(false)
                   setFinished(false)
-                }} />
+                }}
+              />
             </>
-          : <Icon.Button
-            name="pause"
-            type='font-awesome'
-            color='#706b57'
-            backgroundColor='white'
-            iconStyle={{marginRight:0}}
-            onPress={() => {
-              setPaused(true)
-            }}
-          />}
+          ) : (
+            <Icon.Button
+              name='pause'
+              type='font-awesome'
+              color='#706b57'
+              backgroundColor='white'
+              iconStyle={{ marginRight: 0 }}
+              onPress={() => {
+                setPaused(true)
+              }}
+            />
+          )}
         </View>
-    </View>
+      </View>
     </View>
   )
 }

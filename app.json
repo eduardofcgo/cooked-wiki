@@ -22,13 +22,8 @@
             "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
             "NSExtensionActivationSupportsImageWithMaxCount": 2
           },
-          "androidIntentFilters": [
-            "text/*",
-            "image/*"
-          ],
-          "androidMultiIntentFilters": [
-            "image/*"
-          ]
+          "androidIntentFilters": ["text/*", "image/*"],
+          "androidMultiIntentFilters": ["image/*"]
         }
       ]
     ],
@@ -49,8 +44,7 @@
     "extra": {
       "eas": {
         "build": {
-          "experimental": {
-          }
+          "experimental": {}
         },
         "projectId": "d9a7bbdf-7d13-4654-b120-999f8c4af016"
       }

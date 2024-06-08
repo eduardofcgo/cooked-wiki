@@ -86,7 +86,9 @@ export default function CookedWebView({
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      webViewRef.current.injectJavaScript('window.closeModals && window.closeModals()')
+      webViewRef.current.injectJavaScript(
+        'window.closeModals && window.closeModals()'
+      )
     })
 
     return unsubscribe

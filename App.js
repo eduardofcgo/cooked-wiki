@@ -25,7 +25,7 @@ Notifications.setNotificationHandler({
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
-});
+})
 
 const TabNavigator = createBottomTabNavigator()
 const StackNavigator = createNativeStackNavigator()
