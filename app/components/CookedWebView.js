@@ -67,7 +67,8 @@ export default function CookedWebView({
 
     if (refresh) {
       webViewRef.current.injectJavaScript(
-        `window.location.href = "${startUrl}"`
+        `window.location.href = "${startUrl}";
+         window.location.reload();`
       )
       webViewRef.current.clearHistory()
       scrollToTop()

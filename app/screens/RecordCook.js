@@ -1,0 +1,194 @@
+import { useEffect, useState } from 'react'
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from 'react-native'
+import CookedButton from '../components/CookedButton'
+import {
+  useCameraPermission,
+  useCameraDevice,
+  Camera,
+} from 'react-native-vision-camera'
+import * as ImagePicker from 'expo-image-picker'
+import { Camera as CameraIcon, Images as ImagesIcon } from 'lucide-react-native'
+import FullScreenCamera from '../components/FullScreenCamera'
+
+function PickImageButton() {
+  const [image, setImage] = useState(null)
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    })
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri)
+    }
+  }
+  //      {image && <Image source={{ uri: image }} style={styles.image} />}
+
+  return (
+    <View style={styles.pickImage}>
+      <CookedButton onPress={pickImage}>
+        <ImagesIcon color='white' size={15} /> Pick from camera roll
+      </CookedButton>
+    </View>
+  )
+}
+
+function RequestCameraPermission({ children }) {
+  const [denied, setDenied] = useState(false)
+  const { hasPermission, requestPermission } = useCameraPermission()
+
+  useEffect(() => {
+    if (!hasPermission) {
+      const accepted = requestPermission()
+      setDenied(!accepted)
+    }
+  }, [hasPermission, denied])
+
+  if (denied) {
+    return <Text>Denied Permission</Text>
+  } else if (hasPermission) {
+    return children
+  } else {
+    return <Text>Permission Needed</Text>
+  }
+}
+
+export default function RecordCook({ navigation, route }) {
+  const [isFullScreenCameraVisible, setIsFullScreenCameraVisible] = useState(false)
+  const { hasPermission } = useCameraPermission()
+  const device = useCameraDevice('back')
+
+  const openFullScreenCamera = () => {
+    console.log('press full screen')
+    setIsFullScreenCameraVisible(true)
+  }
+
+  const closeFullScreenCamera = () => {
+    setIsFullScreenCameraVisible(false)
+  }
+
+  const handleCapture = imagePath => {
+    // setCapturedImage(imagePath);
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View>
+        <Text style={styles.titleText}>
+          Just <Text style={styles.primaryText}>cook</Text>
+          <Text>ed</Text>
+        </Text>
+        <Text style={styles.subtitleText}>Showcase your creation.</Text>
+
+        <RequestCameraPermission>
+          {device ? (
+            <View style={styles.cameraContainer}>
+              <Camera
+                style={styles.camera}
+                device={device}
+                isActive={true}
+                photo={true}
+              />
+              <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>
+                <CameraIcon color='white' size={48} />
+                <Text style={styles.overlayText}>Open camera</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text>Device does not support camera</Text>
+          )}
+        </RequestCameraPermission>
+
+        <Text style={{ textAlign: 'center', paddingTop: 20 }}>or</Text>
+
+        <PickImageButton />
+
+        <View style={styles.bottomSection}>
+          <Text style={styles.uiText}>Your creation will be published:</Text>
+          <Text style={styles.uiText}>
+            - On your cooked section, in your profile.
+          </Text>
+          <Text style={styles.uiText}>- On your friends feed.</Text>
+          <Text style={styles.uiText}>
+            - On similar recipes, inspiring other cooks.
+          </Text>
+        </View>
+
+        <FullScreenCamera
+          isVisible={isFullScreenCameraVisible}
+          onClose={closeFullScreenCamera}
+          onCapture={handleCapture}
+        />
+      </View>
+    </SafeAreaView>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 50,
+    padding: 25,
+    backgroundColor: '#efede3',
+  },
+  uiText: {
+    fontFamily: 'Arial',
+    fontSize: 13,
+    color: 'gray',
+  },
+  titleText: {
+    fontFamily: 'Times-New-Roman',
+    fontSize: 45,
+    color: '#292521',
+  },
+  subtitleText: {
+    fontSize: 20,
+    fontFamily: 'Times-New-Roman',
+  },
+  primaryText: {
+    color: '#d97757',
+  },
+  cameraContainer: {
+    width: '100%',
+    aspectRatio: 1,
+    marginTop: 20,
+    borderRadius: 5,
+    borderWidth: 5,
+    borderColor: '#d97757',
+    overflow: 'hidden',
+  },
+  camera: {
+    flex: 1,
+  },
+  bottomSection: {
+    paddingTop: 20,
+    color: 'gray',
+  },
+  fullscreenCamera: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayText: {
+    color: 'white',
+    fontSize: 16,
+    marginTop: 10,
+  },
+  pickImage: {
+    paddingTop: 20,
+  },
+})

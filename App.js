@@ -1,3 +1,5 @@
+import { useFonts } from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, Text, View } from 'react-native'
 import { useEffect } from 'react'
@@ -9,6 +11,7 @@ import { ShareIntentProvider } from 'expo-share-intent'
 import * as Notifications from 'expo-notifications'
 
 import ShoppingList from './app/screens/ShoppingList'
+import RecordCook from './app/screens/RecordCook'
 import Profile from './app/screens/Profile'
 import Community from './app/screens/Community'
 import Contact from './app/screens/Contact'
@@ -56,7 +59,23 @@ function Tabs() {
         })}
       />
       <TabNavigator.Screen
-        {...tabProps({ name: 'Community', component: Community, emogi: '🌍' })}
+        {...tabProps({
+          name: 'RecordCook',
+          component: RecordCook,
+          emogi: '📝',
+          title: 'Just Cooked',
+          options: {
+            headerShown: false,
+          },
+        })}
+      />
+      <TabNavigator.Screen
+        {...tabProps({
+          name: 'Community',
+          title: 'Community',
+          component: Community,
+          emogi: '🌍',
+        })}
       />
     </TabNavigator.Navigator>
   )
@@ -66,6 +85,20 @@ export default function App() {
   useEffect(() => {
     // registerForPushNotifications()
   }, [])
+
+  const [loaded, error] = useFonts({
+    'Times-New-Roman': require('./assets/fonts/Times-New-Roman.ttf'),
+  })
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync()
+    }
+  }, [loaded, error])
+
+  if (!loaded && !error) {
+    return null
+  }
 
   return (
     <>

@@ -68,12 +68,13 @@ export default function Profile({ route, navigation }) {
         component={ProfileWebView}
         options={{
           title: 'Profile',
-          headerTitle: 'Profile',
+          headerTitle: '📕 Profile',
           headerStyle: {
-            backgroundColor: '#fafaf7',
+            backgroundColor: '#efede3',
           },
           headerTitleStyle: {
             color: '#292521',
+            fontFamily: 'Times-New-Roman',
           },
         }}
       />
