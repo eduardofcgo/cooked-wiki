@@ -8,6 +8,7 @@ import {
   Button,
 } from 'react-native'
 import CookedButton from '../components/CookedButton'
+import CookedInput from '../components/CookedInput'
 import {
   useCameraPermission,
   useCameraDevice,
@@ -17,22 +18,24 @@ import * as ImagePicker from 'expo-image-picker'
 import { Camera as CameraIcon, Images as ImagesIcon } from 'lucide-react-native'
 import FullScreenCamera from '../components/FullScreenCamera'
 
-function PickImageButton() {
-  const [image, setImage] = useState(null)
-
+function PickImageButton({onPicked}) {
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    })
+    try {
+      let result =
+        await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        })
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri)
+      if (!result.canceled) {
+        onPicked(result.assets[0].uri)
+      }
+    } catch (e) {
+      console.error(e)
     }
   }
-  //      {image && <Image source={{ uri: image }} style={styles.image} />}
 
   return (
     <View style={styles.pickImage}>
@@ -69,7 +72,6 @@ export default function RecordCook({ navigation, route }) {
   const device = useCameraDevice('back')
 
   const openFullScreenCamera = () => {
-    console.log('press full screen')
     setIsFullScreenCameraVisible(true)
   }
 
@@ -78,7 +80,12 @@ export default function RecordCook({ navigation, route }) {
   }
 
   const handleCapture = imagePath => {
+    console.log('captured', imagePath)
     // setCapturedImage(imagePath);
+  }
+
+  const handlePicked = imagePath => {
+    console.log('picked', imagePath)
   }
 
   return (
@@ -90,45 +97,47 @@ export default function RecordCook({ navigation, route }) {
         </Text>
         <Text style={styles.subtitleText}>Showcase your creation.</Text>
 
-        <RequestCameraPermission>
-          {device ? (
-            <View style={styles.cameraContainer}>
-              <Camera
-                style={styles.camera}
-                device={device}
-                isActive={true}
-                photo={true}
-              />
-              <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>
-                <CameraIcon color='white' size={48} />
-                <Text style={styles.overlayText}>Open camera</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <Text>Device does not support camera</Text>
-          )}
-        </RequestCameraPermission>
+        <CookedInput></CookedInput>
 
-        <Text style={{ textAlign: 'center', paddingTop: 20 }}>or</Text>
+        {/*<RequestCameraPermission>*/}
+        {/*  {device ? (*/}
+        {/*    <View style={styles.cameraContainer}>*/}
+        {/*      <Camera*/}
+        {/*        style={styles.camera}*/}
+        {/*        device={device}*/}
+        {/*        isActive={true}*/}
+        {/*        photo={true}*/}
+        {/*      />*/}
+        {/*      <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>*/}
+        {/*        <CameraIcon color='white' size={48} />*/}
+        {/*        <Text style={styles.overlayText}>Open camera</Text>*/}
+        {/*      </TouchableOpacity>*/}
+        {/*    </View>*/}
+        {/*  ) : (*/}
+        {/*    <Text>Device does not support camera</Text>*/}
+        {/*  )}*/}
+        {/*</RequestCameraPermission>*/}
 
-        <PickImageButton />
+        {/*<Text style={{ textAlign: 'center', paddingTop: 20 }}>or</Text>*/}
 
-        <View style={styles.bottomSection}>
-          <Text style={styles.uiText}>Your creation will be published:</Text>
-          <Text style={styles.uiText}>
-            - On your cooked section, in your profile.
-          </Text>
-          <Text style={styles.uiText}>- On your friends feed.</Text>
-          <Text style={styles.uiText}>
-            - On similar recipes, inspiring other cooks.
-          </Text>
-        </View>
+        {/*<PickImageButton onPicked={handlePicked}/>*/}
 
-        <FullScreenCamera
-          isVisible={isFullScreenCameraVisible}
-          onClose={closeFullScreenCamera}
-          onCapture={handleCapture}
-        />
+        {/*<View style={styles.bottomSection}>*/}
+        {/*  <Text style={styles.uiText}>Your creation will be published:</Text>*/}
+        {/*  <Text style={styles.uiText}>*/}
+        {/*    - On your profile journal.*/}
+        {/*  </Text>*/}
+        {/*  <Text style={styles.uiText}>- On your friends feed.</Text>*/}
+        {/*  <Text style={styles.uiText}>*/}
+        {/*    - On similar recipes, inspiring other cooks.*/}
+        {/*  </Text>*/}
+        {/*</View>*/}
+
+        {/*<FullScreenCamera*/}
+        {/*  isVisible={isFullScreenCameraVisible}*/}
+        {/*  onClose={closeFullScreenCamera}*/}
+        {/*  onCapture={handleCapture}*/}
+        {/*/>*/}
       </View>
     </SafeAreaView>
   )
@@ -139,7 +148,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     padding: 25,
-    backgroundColor: '#efede3',
+    backgroundColor: '#fafaf7',
   },
   uiText: {
     fontFamily: 'Arial',

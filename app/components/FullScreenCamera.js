@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, StatusBar, SafeAreaVie
 import { useCameraDevice, Camera } from 'react-native-vision-camera';
 import { X as XIcon, Zap as FlashIcon } from 'lucide-react-native';
 
-function FullScreenCamera({ isVisible, onClose, onCapture }) {
+export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
   const device = useCameraDevice('back');
   const camera = useRef(null);
   const [flash, setFlash] = useState('off');
@@ -139,5 +139,3 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
-
-export default FullScreenCamera;
