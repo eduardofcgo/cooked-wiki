@@ -15,5 +15,11 @@ export function defaultOnRequest(navigation, request) {
     return disableRequest
   }
 
+  if (url.startsWith('cooked.wiki/saved')) {
+    navigation.navigate('Contact')
+
+    return disableRequest
+  }
+
   return undefined
 }

@@ -8,25 +8,31 @@ export default function Extract({ navigation, route }) {
   const extractUrl =
     hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
 
-  const onBeforeLoad = request => {
+  const onRequest = request => {
     const url = request.url
 
-    if (url.endsWith('cooked.wiki/recipes')) {
-      navigation.navigate('Profile', { reset: true })
+    if (url.match(/\/user\/.*/) || url.endsWith('/recipes')) {
+      navigation.navigate('ProfileView', { refresh: true })
 
       return false
-    } else {
-      return true
     }
+
+    if (url.endsWith('/shopping-list') || url.endsWith('/buy')) {
+      navigation.navigate('ShoppingList', { refresh: true })
+      
+      return false
+    }
+
+    return true
   }
 
   return (
     extractUrl && (
       <CookedWebView
         startUrl={`https://cooked.wiki/${extractUrl}`}
+        onRequest={onRequest}
         navigation={navigation}
         route={route}
-        onBeforeLoad={onBeforeLoad}
       />
     )
   )

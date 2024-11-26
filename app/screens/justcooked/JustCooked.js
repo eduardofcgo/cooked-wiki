@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   Button,
 } from 'react-native'
-import CookedButton from '../components/CookedButton'
-import CookedInput from '../components/CookedInput'
+import CookedButton from '../../components/CookedButton'
+import CookedInput from '../../components/CookedInput'
 import {
   useCameraPermission,
   useCameraDevice,
@@ -16,7 +16,7 @@ import {
 } from 'react-native-vision-camera'
 import * as ImagePicker from 'expo-image-picker'
 import { Camera as CameraIcon, Images as ImagesIcon } from 'lucide-react-native'
-import FullScreenCamera from '../components/FullScreenCamera'
+import FullScreenCamera from '../../components/FullScreenCamera'
 
 function PickImageButton({onPicked}) {
   const pickImage = async () => {
@@ -66,8 +66,9 @@ function RequestCameraPermission({ children }) {
   }
 }
 
-export default function RecordCook({ navigation, route }) {
+export default function JustCooked({ navigation, route }) {
   const [isFullScreenCameraVisible, setIsFullScreenCameraVisible] = useState(false)
+  const [imagePath, setImagePath] = useState(null)
   const { hasPermission } = useCameraPermission()
   const device = useCameraDevice('back')
 
@@ -81,11 +82,16 @@ export default function RecordCook({ navigation, route }) {
 
   const handleCapture = imagePath => {
     console.log('captured', imagePath)
-    // setCapturedImage(imagePath);
+    setImagePath(imagePath)
   }
 
   const handlePicked = imagePath => {
     console.log('picked', imagePath)
+    setImagePath(imagePath)
+  }
+
+  const onUndo = () => {
+    setImagePath(null)
   }
 
   return (
@@ -97,47 +103,55 @@ export default function RecordCook({ navigation, route }) {
         </Text>
         <Text style={styles.subtitleText}>Showcase your creation.</Text>
 
-        <CookedInput></CookedInput>
+        {imagePath
+          ? <CookedInput
+              route={route}
+              navigation={navigation}
+              imagePath={imagePath}
+              onUndo={onUndo}></CookedInput>
+          : (
+            <>
+              <RequestCameraPermission>
+                {device ? (
+                  <View style={styles.cameraContainer}>
+                    <Camera
+                      style={styles.camera}
+                      device={device}
+                      isActive={true}
+                      photo={true}
+                    />
+                    <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>
+                      <CameraIcon color='white' size={48} />
+                      <Text style={styles.overlayText}>Open camera</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Text>Device does not support camera</Text>
+                )}
+              </RequestCameraPermission>
 
-        {/*<RequestCameraPermission>*/}
-        {/*  {device ? (*/}
-        {/*    <View style={styles.cameraContainer}>*/}
-        {/*      <Camera*/}
-        {/*        style={styles.camera}*/}
-        {/*        device={device}*/}
-        {/*        isActive={true}*/}
-        {/*        photo={true}*/}
-        {/*      />*/}
-        {/*      <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>*/}
-        {/*        <CameraIcon color='white' size={48} />*/}
-        {/*        <Text style={styles.overlayText}>Open camera</Text>*/}
-        {/*      </TouchableOpacity>*/}
-        {/*    </View>*/}
-        {/*  ) : (*/}
-        {/*    <Text>Device does not support camera</Text>*/}
-        {/*  )}*/}
-        {/*</RequestCameraPermission>*/}
+              <Text style={{ textAlign: 'center', paddingTop: 20 }}>or</Text>
 
-        {/*<Text style={{ textAlign: 'center', paddingTop: 20 }}>or</Text>*/}
+              <PickImageButton onPicked={handlePicked}/>
 
-        {/*<PickImageButton onPicked={handlePicked}/>*/}
+              <View style={styles.bottomSection}>
+                <Text style={styles.uiText}>Your creation will be published:</Text>
+                <Text style={styles.uiText}>
+                  - On your profile journal.
+                </Text>
+                <Text style={styles.uiText}>- On your friends feed.</Text>
+                <Text style={styles.uiText}>
+                  - On similar recipes, inspiring other cooks.
+                </Text>
+              </View>
 
-        {/*<View style={styles.bottomSection}>*/}
-        {/*  <Text style={styles.uiText}>Your creation will be published:</Text>*/}
-        {/*  <Text style={styles.uiText}>*/}
-        {/*    - On your profile journal.*/}
-        {/*  </Text>*/}
-        {/*  <Text style={styles.uiText}>- On your friends feed.</Text>*/}
-        {/*  <Text style={styles.uiText}>*/}
-        {/*    - On similar recipes, inspiring other cooks.*/}
-        {/*  </Text>*/}
-        {/*</View>*/}
-
-        {/*<FullScreenCamera*/}
-        {/*  isVisible={isFullScreenCameraVisible}*/}
-        {/*  onClose={closeFullScreenCamera}*/}
-        {/*  onCapture={handleCapture}*/}
-        {/*/>*/}
+              <FullScreenCamera
+                isVisible={isFullScreenCameraVisible}
+                onClose={closeFullScreenCamera}
+                onCapture={handleCapture}
+              />
+            </>
+          )}
       </View>
     </SafeAreaView>
   )

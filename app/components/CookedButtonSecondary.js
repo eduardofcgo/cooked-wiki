@@ -1,7 +1,7 @@
 import React from 'react'
 import { Pressable, Text, StyleSheet } from 'react-native'
 
-export default function CookedButton({ onPress, children }) {
+export default function CookedButtonSecondary({ onPress, children }) {
   return (
     <Pressable style={styles.button} onPress={onPress}>
       <Text style={styles.text}>{children}</Text>
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     borderRadius: 5,
     elevation: 3,
-    backgroundColor: '#d97757',
+    backgroundColor: '#706b57',
   },
   text: {
     fontWeight: 'bold',

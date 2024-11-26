@@ -10,22 +10,26 @@ import { View, Text } from 'react-native'
 const Drawer = createDrawerNavigator()
 
 function ProfileWebView({ route, navigation }) {
-  const onBeforeLoad = request => {
+  const onRequest = request => {
     const url = request.url
 
-    if (url.endsWith('cooked.wiki/buy')) {
-      navigation.navigate('ShoppingList', { refresh: true })
+    if (url.match(/\/user\/.*/) || url.endsWith('/recipes')) {
+      return true
+    }
+
+    if (/\/saved\/[a-zA-Z0-9]+/.test(url)) {
+      navigation.navigate('Recipe', { recipeUrl: url })
 
       return false
     }
 
-    return true
+    return false
   }
 
   return (
     <CookedWebView
       startUrl='https://cooked.wiki/recipes'
-      onBeforeLoad={onBeforeLoad}
+      onRequest={onRequest}
       navigation={navigation}
       route={route}
     />
@@ -49,6 +53,10 @@ function Patron() {
 }
 
 export default function Profile({ route, navigation }) {
+  const refresh = route.params && route.params.refresh === true
+
+  console.log('passed refresh to profile', refresh)
+
   return (
     <Drawer.Navigator
       initialRouteName='ProfileView'
@@ -66,6 +74,7 @@ export default function Profile({ route, navigation }) {
       <Drawer.Screen
         name='ProfileView'
         component={ProfileWebView}
+        // initialParams={{ refresh }}
         options={{
           title: 'Profile',
           headerTitle: '📕 Profile',
@@ -75,20 +84,6 @@ export default function Profile({ route, navigation }) {
           headerTitleStyle: {
             color: '#292521',
             fontFamily: 'Times-New-Roman',
-          },
-        }}
-      />
-      <Drawer.Screen
-        name='ProfileNotifications'
-        component={ProfileNotifications}
-        options={{
-          title: 'Notifications',
-          headerTitle: 'Notifications',
-          headerStyle: {
-            backgroundColor: '#fafaf7',
-          },
-          headerTitleStyle: {
-            color: '#292521',
           },
         }}
       />

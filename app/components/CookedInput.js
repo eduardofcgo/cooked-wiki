@@ -1,43 +1,84 @@
 import React, { useState } from 'react';
-import { View, TextInput, Image, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import CookedButton from './CookedButton'
+import { View, TextInput, Image, TouchableOpacity, Text, StyleSheet, Dimensions, Modal } from 'react-native';
+import { ArrowLeft as ArrowLeftIcon } from 'lucide-react-native'
+import CookedButton from './CookedButton';
+import CookedButtonSecondary from './CookedButtonSecondary';
 
-const CookedInput = () => {
-  const [note, setNote] = useState('');
-  const [image, setImage] = useState(null);
+const CookedInput = ({imagePath, onUndo, route, navigation}) => {
+  const [notes, setNotes] = useState('');
+  const [recipeName, setRecipeName] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleUndo = () => {
+    onUndo()
+  }
+
+  const openFullScreenImage = () => {
+    if (imagePath) {
+      navigation.navigate('CookedFullScreenImage', { imagePath });
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.imageContainer}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.image} />
+    <View style={styles.container} >
+      <TouchableOpacity style={styles.imageContainer} onPress={openFullScreenImage}>
+        {imagePath ? (
+          <Image source={{ uri: imagePath }} style={styles.image}/>
         ) : (
-          <Text style={styles.addPhotoText}>Add photo</Text>
+          <Text style={styles.addPhotoText}>No photo</Text>
         )}
       </TouchableOpacity>
 
+      <Text style={styles.tip}>You can select one of your recipes</Text>
+      <View style={styles.recipeNameContainer}>
         <TextInput
           style={styles.recipeNameInput}
           placeholder={'Recipe name'}
+          value={recipeName}
+          onChangeText={setRecipeName}
         />
+        <TouchableOpacity style={styles.modalButton} onPress={openModal}>
+          <Text style={styles.modalButtonText}>⋯</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.tip}>Customize your notes</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.placeholder}> ✏️ Tip: customize your notes</Text>
         <TextInput
           style={styles.input}
+          placeholder={'Customize your notes'}
           multiline
-          value={note}
-          onChangeText={setNote}
+          value={notes}
+          onChangeText={setNotes}
         />
       </View>
 
-      <CookedButton>Save</CookedButton>
+      <View style={styles.buttonContainer}>
+        <CookedButtonSecondary onPress={handleUndo}> <ArrowLeftIcon color='white' size={10} /> Undo</CookedButtonSecondary>
+        <CookedButton>Save</CookedButton>
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <Text>This is a modal!</Text>
+          <CookedButton onPress={() => setModalVisible(false)}>Close Modal</CookedButton>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -53,6 +94,9 @@ const styles = StyleSheet.create({
     height: 150,
     backgroundColor: '#fafaf7',
     borderRadius: 5,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#706b57',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -64,17 +108,36 @@ const styles = StyleSheet.create({
   addPhotoText: {
     color: '#888',
   },
-  recipeNameInputContainer: {
-    height: 70,
+  recipeNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
     backgroundColor: 'white',
     borderColor: '#706b57',
     borderWidth: 1,
     borderRadius: 5,
+    overflow: 'hidden',
+  },
+  recipeNameInput: {
+    flex: 1,
+    fontSize: 20,
     padding: 8,
-    marginBottom: 16,
+  },
+  modalButton: {
+    paddingRight: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: '#f0f0f0',
+    // borderLeftWidth: 1,
+    borderLeftColor: '#706b57',
+  },
+  modalButtonText: {
+    color: '#706b57',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   inputContainer: {
-    height: '50%',
+    height: '43%',
     backgroundColor: 'white',
     borderColor: '#706b57',
     borderWidth: 1,
@@ -83,34 +146,39 @@ const styles = StyleSheet.create({
     minHeight: 100,
     marginBottom: 16,
   },
-  placeholder: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
+  tip: {
     color: 'gray',
-    zIndex: 1,
-  },
-  recipeNameInput: {
-    fontSize: 20,
-    // fontFamily: 'Times-New-Roman',
-    backgroundColor: 'white',
-    borderColor: '#706b57',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 8,
-    marginBottom: 16,
   },
   input: {
     flex: 1,
-    paddingTop: 24, // Space for the placeholder
     fontSize: 16,
-    textAlignVertical: 'top', // Ensures text starts from the top
+    textAlignVertical: 'top',
   },
-  saveButton: {
-    backgroundColor: '#8D7B68',
-    padding: 12,
-    borderRadius: 4,
-    alignItems: 'center',
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  undoButton: {
+    backgroundColor: '#6c757d', // A neutral color for the undo button
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
   },
 });
 

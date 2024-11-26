@@ -1,46 +1,28 @@
 import CookedWebView from '../components/CookedWebView'
-import { useShareIntentContext } from 'expo-share-intent'
-import { useCallback, useEffect, useState } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
 
 export default function Community({ navigation, route }) {
-  // const { hasShareIntent, shareIntent } = useShareIntentContext()
-  // const extractUrl = hasShareIntent && shareIntent.type === "weburl" && shareIntent.webUrl
-  //
-  const defaultUrl = 'https://cooked.wiki/community'
-  // const [url, setUrl] = useState(defaultUrl)
+  const onRequest = request => {
+    const url = request.url
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (extractUrl) {
-  //       setUrl(`https://cooked.wiki/${extractUrl}`)
-  //     }
-  //   }, [extractUrl])
-  // )
+    if (url.match(/\/user\/.*/) || url.endsWith('/recipes')) {
+      return true
+    }
 
-  // const onBeforeLoad = request => {
-  //   const url = request.url
-  //
-  //
-  //   if (url.endsWith('cooked.wiki/recipes')) {
-  //     navigation.navigate('Profile', { reset: true })
-  //     setUrl(defaultUrl)
-  //
-  //     console.log('URL', url)
-  //
-  //     return false
-  //   } else {
-  //     return true
-  //   }
-  // }
+    if (/\/saved\/[a-zA-Z0-9]+/.test(url)) {
+      navigation.navigate('Recipe', { recipeUrl: url })
+
+      return false
+    }
+
+    return false
+  }
 
   return (
     <CookedWebView
-      startUrl={defaultUrl}
-      // startUrl={url}
+      startUrl={'https://cooked.wiki/community'}
       navigation={navigation}
       route={route}
-      // onBeforeLoad={onBeforeLoad}
+      onRequest={onRequest}
     />
   )
 }

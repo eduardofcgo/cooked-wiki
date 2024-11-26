@@ -16,11 +16,10 @@ function Loading() {
   return (
     <View
       style={{
-        flex: 1,
-        justifyContent: 'center',
         backgroundColor: '#fafaf7',
-        flexDirection: 'row',
-        padding: 10,
+        justifyContent: 'flex-start',
+        flexDirection: 'column',
+        flex: 1,
       }}>
       <ActivityIndicator color='#d97757' size='large' />
     </View>
@@ -33,8 +32,11 @@ export default function CookedWebView({
   route,
   onBeforeLoad,
   onLoad,
+  onRequest
 }) {
   const webViewRef = useRef()
+  const [currentUrl, setCurrentUrl] = useState(startUrl)
+
   const [canGoBack, setCanGoBack] = useState(false)
 
   const clientLogging = `
@@ -47,9 +49,9 @@ export default function CookedWebView({
     console.warn = console.log;
     console.error = console.log;`
 
-  const onMessage = payload => {
-    //console.log(payload)
-  }
+  // const onMessage = payload => {
+  //   //console.log(payload)
+  // }
 
   const scrollToTop = () => {
     webViewRef.current.injectJavaScript(`
@@ -61,29 +63,43 @@ export default function CookedWebView({
     `)
   }
 
-  useEffect(() => {
-    const reset = route && route.params && route.params.reset
-    const refresh = route && route.params && route.params.refresh
+  const refreshWebView = () => {
+    webViewRef.current.injectJavaScript(
+      `window.location.href = "${startUrl}";
+       window.location.reload();`
+    )
+    webViewRef.current.clearHistory()
+    scrollToTop()  
+  }
 
-    if (refresh) {
-      webViewRef.current.injectJavaScript(
-        `window.location.href = "${startUrl}";
-         window.location.reload();`
-      )
-      webViewRef.current.clearHistory()
-      scrollToTop()
-    }
 
-    if (reset) {
-      if (canGoBack)
-        webViewRef.current.injectJavaScript(
-          `window.location.href = "${startUrl}"`
-        )
-      else scrollToTop()
+  // useEffect(() => {
+  //   console.log('refresh effect')
 
-      webViewRef.current.clearHistory()
-    }
-  }, [route])
+  //   // const reset = route && route.params && route.params.reset
+  //   const refresh = route && route.params && route.params.refresh
+
+  //   console.log('refresh', refresh)
+
+  //   if (refresh) {
+  //     webViewRef.current.injectJavaScript(
+  //       `window.location.href = "${startUrl}";
+  //        window.location.reload();`
+  //     )
+  //     webViewRef.current.clearHistory()
+  //     scrollToTop()
+  //   }
+
+  //   // if (reset) {
+  //   //   if (canGoBack)
+  //   //     webViewRef.current.injectJavaScript(
+  //   //       `window.location.href = "${startUrl}"`
+  //   //     )
+  //   //   else scrollToTop()
+
+  //   //   webViewRef.current.clearHistory()
+  //   // }
+  // }, [route])
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
@@ -95,39 +111,19 @@ export default function CookedWebView({
     return unsubscribe
   })
 
-  const onRequest = request => {
-    const canLoad = defaultOnRequest(navigation, request)
-    const unhandled = canLoad === undefined
-
-    if (unhandled) {
-      if (onBeforeLoad) return onBeforeLoad(request)
-      else return true
-    } else return canLoad
-  }
-
-  const onAndroidBackPress = () => {
-    if (canGoBack) {
-      webViewRef.current.goBack()
-      return true // prevent default behavior (exit app)
-    }
-    return false
-  }
-
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      BackHandler.addEventListener('hardwareBackPress', onAndroidBackPress)
-      return () => {
-        BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPress)
-      }
+    const refresh = route.params && route.params.refresh
+
+    if (refresh) {
+      refreshWebView()
     }
-  }, [])
+  }, [route.params])
 
   const handleNavigationStateChange = navState => {
     setCanGoBack(navState.canGoBack)
 
     if (navState.canGoBack) {
       navigation.setOptions({
-        headerShown: true,
         headerLeft: props => (
           <HeaderBackButton
             onPress={() => {
@@ -141,32 +137,59 @@ export default function CookedWebView({
     }
   }
 
+  const onWebViewRequest = request => {
+    if (request.url === startUrl)
+      return true
+
+    if (onRequest !== undefined)
+      return onRequest(request)
+    
+    else 
+      return false
+  }
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
+        justifyContent: 'flex-start',
+        flexDirection: 'column',
         backgroundColor: '#efede3',
       }}>
       <WebView
         source={{ uri: startUrl }}
         ref={webViewRef}
-        onNavigationStateChange={handleNavigationStateChange}
-        injectedJavaScript={clientLogging}
-        onMessage={onMessage}
-        onShouldStartLoadWithRequest={onRequest}
-        onLoad={onLoad}
+
+        // injectedJavaScript={clientLogging}
+        // onMessage={onMessage}
+        onShouldStartLoadWithRequest={onWebViewRequest}
+        // onLoad={onLoad}
         nativeConfig={{
           props: {
             webContentsDebuggingEnabled: true,
           },
         }}
-        domStorageEnabled={true}
         userAgent={'app'}
-        startInLoadingState={true}
+
+
         allowsBackForwardNavigationGestures={true}
+        onNavigationStateChange={handleNavigationStateChange}
+
+
+        domStorageEnabled={true}
         sharedCookiesEnabled={true}
-        pullToRefreshEnabled={true}
+        pullToRefreshEnabled={true}       
+        startInLoadingState={true}
+
         renderLoading={Loading}
+        //The background color when loading
+        style={{ 
+          backgroundColor: '#fafaf7',
+          justifyContent: 'flex-start',
+          flexDirection: 'column',
+          flex: 1,
+          // marginBottom: 60,
+         }}
       />
     </SafeAreaView>
   )
