@@ -13,6 +13,7 @@
     },
     "scheme": "cooked",
     "plugins": [
+      "expo-apple-authentication",
       [
         "expo-share-intent",
         {

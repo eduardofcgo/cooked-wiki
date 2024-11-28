@@ -1,6 +1,6 @@
 import { Text } from 'react-native'
 
-export function tabProps({ name, component, emogi, title, options }) {
+export function tabProps({ name, component, emogi, title, options,  }) {
   return {
     name: name,
     component: component,
@@ -20,10 +20,10 @@ export function tabProps({ name, component, emogi, title, options }) {
     },
     listeners: ({ navigation }) => ({
       tabPress: () => {
-        if (navigation.isFocused()) {
-          // TODO: get current focused and go there
-          navigation.navigate('Main', { screen: name, params: { reset: true } })
-        }
+        // if (navigation.isFocused()) {
+        //   // TODO: get current focused and go there
+        //   navigation.navigate('Main', { screen: name, params: { reset: true } })
+        // }
       },
     }),
   }

@@ -16,7 +16,9 @@ import JustCooked from './app/screens/justcooked/JustCooked'
 import Profile from './app/screens/Profile'
 import Community from './app/screens/Community'
 import Contact from './app/screens/Contact'
+import Start from './app/screens/Start'
 import Login from './app/screens/Login'
+import Register from './app/screens/Register'
 import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
 import Timer from './app/components/timer/Timer'
@@ -36,21 +38,14 @@ Notifications.setNotificationHandler({
 const TabNavigator = createBottomTabNavigator()
 const StackNavigator = createNativeStackNavigator()
 
-/* <TabNavigator.Screen
-  {...tabProps({
-    name: 'RecordCook',
-    component: JustCooked,
-    emogi: '📝',
-    title: 'Just Cooked',
-    options: {
-      headerShown: false,
-    },
-  })}
-/> */
+function Tabs({ route }) {
+  console.log('tabs params', route.params)
 
-function Tabs() {
+  const username= route.params.username
+
   return (
     <TabNavigator.Navigator
+      initialRouteName='Profile'
       screenOptions={{
         tabBarActiveTintColor: '#292521',
         tabBarInactiveTintColor: '#292521',
@@ -85,6 +80,7 @@ function Tabs() {
       />
 
       <TabNavigator.Screen
+        initialParams={{username: username}}
         {...tabProps({
           name: 'Profile',
           component: Profile,
@@ -132,7 +128,7 @@ export default function App() {
 
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationContainer linking={linking}>
-            <StackNavigator.Navigator initialRouteName='Main'>
+            <StackNavigator.Navigator initialRouteName='Start'>
               <StackNavigator.Screen
                 name='Main'
                 options={{ headerShown: false }}
@@ -158,10 +154,23 @@ export default function App() {
                 />
 
               <StackNavigator.Screen
+                name='Start'
+                component={Start}
+                options={{ title: 'Start', headerShown: false}}
+              />
+
+            <StackNavigator.Screen
                 name='Login'
                 component={Login}
-                options={{ headerShown: false }}
+                options={{ title: 'Login', headerStyle: { backgroundColor: '#efede3' } }}
               />
+
+            <StackNavigator.Screen
+                name='Register'
+                component={Register}
+                options={{ title: 'Register', headerStyle: { backgroundColor: '#efede3' } }}
+              />
+
 
               <StackNavigator.Screen
                 name="CookedFullScreenImage"
@@ -172,8 +181,6 @@ export default function App() {
           </NavigationContainer>
         </GestureHandlerRootView>
       </ShareIntentProvider>
-
-      {/*<Timer/>*/}
     </>
   )
 }

@@ -10,26 +10,9 @@ import { View, Text } from 'react-native'
 const Drawer = createDrawerNavigator()
 
 function ProfileWebView({ route, navigation }) {
-  const onRequest = request => {
-    const url = request.url
-
-    if (url.match(/\/user\/.*/) || url.endsWith('/recipes')) {
-      return true
-    }
-
-    if (/\/saved\/[a-zA-Z0-9]+/.test(url)) {
-      navigation.navigate('Recipe', { recipeUrl: url })
-
-      return false
-    }
-
-    return false
-  }
-
   return (
     <CookedWebView
-      startUrl='https://cooked.wiki/recipes'
-      onRequest={onRequest}
+      startUrl={`https://cooked.wiki/user/${route.params.username}`}
       navigation={navigation}
       route={route}
     />
@@ -53,9 +36,7 @@ function Patron() {
 }
 
 export default function Profile({ route, navigation }) {
-  const refresh = route.params && route.params.refresh === true
-
-  console.log('passed refresh to profile', refresh)
+  console.log('profile params', route.params)
 
   return (
     <Drawer.Navigator
@@ -74,7 +55,7 @@ export default function Profile({ route, navigation }) {
       <Drawer.Screen
         name='ProfileView'
         component={ProfileWebView}
-        // initialParams={{ refresh }}
+        initialParams={{username: route.params.username}}
         options={{
           title: 'Profile',
           headerTitle: '📕 Profile',

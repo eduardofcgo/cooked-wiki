@@ -8,36 +8,25 @@ import {
 import { WebView } from 'react-native-webview'
 import { BackHandler, Platform } from 'react-native'
 import { HeaderBackButton } from '@react-navigation/elements'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { defaultOnRequest } from '../navigation/navigation'
 import { useEffect, useRef, useState } from 'react'
-
-function Loading() {
-  return (
-    <View
-      style={{
-        backgroundColor: '#fafaf7',
-        justifyContent: 'flex-start',
-        flexDirection: 'column',
-        flex: 1,
-      }}>
-      <ActivityIndicator color='#d97757' size='large' />
-    </View>
-  )
-}
+import { defaultOnRequest } from '../navigation/webview';
+import Loading from './Loading';
 
 export default function CookedWebView({
   startUrl,
   navigation,
   route,
-  onBeforeLoad,
   onLoad,
   onRequest
 }) {
   const webViewRef = useRef()
-  const [currentUrl, setCurrentUrl] = useState(startUrl)
+  const [currentURI, setURI] = useState(startUrl)
+  const [cookies, setCookies] = useState(null)
 
   const [canGoBack, setCanGoBack] = useState(false)
+
 
   const clientLogging = `
     console = new Object();
@@ -119,6 +108,23 @@ export default function CookedWebView({
     }
   }, [route.params])
 
+  useEffect(() => {
+    async function restoreCookiesFromStorage() {
+      if (cookies === null) {
+        const storedCookies = await AsyncStorage.getItem('cookies')
+        
+        if (storedCookies) {
+          setCookies(storedCookies)
+        } else {
+          navigation.navigate('Start')
+        }
+      }
+    }
+
+    restoreCookiesFromStorage()
+
+  }, [currentURI])
+
   const handleNavigationStateChange = navState => {
     setCanGoBack(navState.canGoBack)
 
@@ -138,59 +144,104 @@ export default function CookedWebView({
   }
 
   const onWebViewRequest = request => {
+    // If this function returns disableRequest (false value),
+    // the WebView will not navigate to this URL.
+    const disableRequest = false
+
+    // Always load normally the WebView at the beggining,
+    // only further requests will be checked (when the user navigates)
     if (request.url === startUrl)
       return true
 
-    if (onRequest !== undefined)
-      return onRequest(request)
+    // Some webpages have native screens, so we always check
+    // for the default behaviour.
+    const shouldHandleRequestDefault = defaultOnRequest(navigation, request)
+
+    return shouldHandleRequestDefault
     
-    else 
-      return false
+    // The default behaviour is not defined for every URL.
+    // if (shouldHandleRequestDefault !=== undefined) {
+    //   return shouldHandleRequestDefault
+    // }
+    
+    // If this component received a custom onRequest,
+    // it is expected to know how to navigate every URL.
+    // else if (onRequest) {
+    //   const customHandle = onRequest(request)
+    //   if (customHandle === undefined) { 
+    //     console.error("WebView attempted to navigate to unhandled URL", request.url)
+
+    //     return disableRequest
+    //   }
+    // }
+
+    // By default do not navigate to unknown URLs
+    // else disableRequest
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'flex-start',
-        flexDirection: 'column',
-        backgroundColor: '#efede3',
-      }}>
-      <WebView
-        source={{ uri: startUrl }}
-        ref={webViewRef}
+    <>
+      {cookies === null ? (
+        <Loading />
+      ) : (
+        <SafeAreaView
+          style={{
+            flex: 1,
+            justifyContent: 'flex-start',
+            flexDirection: 'column',
+            backgroundColor: '#efede3',
+          }}>
+          <WebView
+            source={{ 
+              uri: startUrl,
+              headers: {
+                Cookie: cookies,
+              }
+            }}
 
-        // injectedJavaScript={clientLogging}
-        // onMessage={onMessage}
-        onShouldStartLoadWithRequest={onWebViewRequest}
-        // onLoad={onLoad}
-        nativeConfig={{
-          props: {
-            webContentsDebuggingEnabled: true,
-          },
-        }}
-        userAgent={'app'}
+            onShouldStartLoadWithRequest={(request) => {
+              // If we're loading the current URI, allow it to load
+              if (request.url === currentURI) return true;
+              // We're loading a new URL -- change state first
+              setURI(request.url);
+              return false;
+            }}
 
+            // injectedJavaScript={clientLogging}
+            // onMessage={onMessage}
+            onShouldStartLoadWithRequest={onWebViewRequest}
+            // onLoad={onLoad}
+            nativeConfig={{
+              props: {
+                webContentsDebuggingEnabled: true,
+              },
+            }}
 
-        allowsBackForwardNavigationGestures={true}
-        onNavigationStateChange={handleNavigationStateChange}
+            userAgent={'app'}
 
+            // only for iOS
+            allowsBackForwardNavigationGestures={true}
+            // onNavigationStateChange={handleNavigationStateChange}
 
-        domStorageEnabled={true}
-        sharedCookiesEnabled={true}
-        pullToRefreshEnabled={true}       
-        startInLoadingState={true}
+            domStorageEnabled={true}
+            sharedCookiesEnabled={true}
+            pullToRefreshEnabled={true}       
+            startInLoadingState={true}
 
-        renderLoading={Loading}
-        //The background color when loading
-        style={{ 
-          backgroundColor: '#fafaf7',
-          justifyContent: 'flex-start',
-          flexDirection: 'column',
-          flex: 1,
-          // marginBottom: 60,
-         }}
-      />
-    </SafeAreaView>
+            renderLoading={Loading}
+            ref={webViewRef}
+            
+            //The background color when loading
+            style={{ 
+              backgroundColor: '#fafaf7',
+              justifyContent: 'flex-start',
+              flexDirection: 'column',
+              flex: 1,
+              // marginBottom: 60,
+            }}
+          />
+        </SafeAreaView>
+      )}
+    </>
   )
 }
