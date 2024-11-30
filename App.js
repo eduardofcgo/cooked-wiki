@@ -10,6 +10,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { ShareIntentProvider } from 'expo-share-intent'
 import * as Notifications from 'expo-notifications'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
+import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 
 import ShoppingList from './app/screens/ShoppingList'
 import JustCooked from './app/screens/justcooked/JustCooked'
@@ -39,8 +43,6 @@ const TabNavigator = createBottomTabNavigator()
 const StackNavigator = createNativeStackNavigator()
 
 function Tabs({ route }) {
-  console.log('tabs params', route.params)
-
   const username= route.params.username
 
   return (
@@ -75,7 +77,7 @@ function Tabs({ route }) {
           name: 'Explore',
           title: 'Explore',
           component: Community,
-          emogi: '🌍',
+          emogi: <FontAwesomeIcon icon={faSearch} />,
         })}
       />
 
@@ -84,7 +86,8 @@ function Tabs({ route }) {
         {...tabProps({
           name: 'Profile',
           component: Profile,
-          emogi: '📕',
+          // emogi: '📕',
+          emogi: <FontAwesomeIcon icon={faBook} />,
           options: { headerShown: false },
         })}
       />
@@ -93,7 +96,7 @@ function Tabs({ route }) {
         {...tabProps({
           name: 'ShoppingList',
           component: ShoppingList,
-          emogi: '🛒',
+          emogi: <FontAwesomeIcon icon={faCartShopping} />,
           title: 'Shopping',
         })}
       />
@@ -145,6 +148,12 @@ export default function App() {
                 name='Recipe'
                 component={Recipe}
                 options={{ title: 'Recipe', headerStyle: { backgroundColor: '#efede3' } } }
+              />
+
+              <StackNavigator.Screen
+                name='User'
+                component={Profile}
+                options={{ title: 'Profile', headerStyle: { backgroundColor: '#efede3' } } }
               />
 
               <StackNavigator.Screen 

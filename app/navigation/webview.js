@@ -1,4 +1,3 @@
-
 export function defaultOnRequest(navigation, request) {
   const url = request.url
   const disableRequest = false
@@ -12,7 +11,7 @@ export function defaultOnRequest(navigation, request) {
   }
 
   if (/\/saved\/[a-zA-Z0-9]+/.test(url)) {
-    navigation.navigate('Recipe', { recipeUrl: url })
+    navigation.push('Recipe', { recipeUrl: url })
 
     return disableRequest
   }
@@ -22,6 +21,13 @@ export function defaultOnRequest(navigation, request) {
     navigation.navigate('Start')
 
     return disableRequest
+  }
+
+  if (/\/user\/([a-zA-Z0-9]+)/.test(url)) {
+    const username = url.match(/\/user\/([a-zA-Z0-9]+)/)[1];
+    navigation.push('User', { username });
+
+    return disableRequest;
   }
 
   // return undefined

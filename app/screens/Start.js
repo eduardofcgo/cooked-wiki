@@ -7,9 +7,6 @@ import Logo from '../components/Logo'
 import LoadingScreen from '../screens/Loading'
 
 export default function Start({ navigation, route }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
   const [isLoading, setIsLoading] = useState(true)
 
   const handleLogin = () => {
@@ -26,20 +23,13 @@ export default function Start({ navigation, route }) {
     // it's the responsability of the webview navigator to intercept the URL and
     // take the user to the apropriate screen.
     async function skipToProfile() {
-      const previouslyLoggedInUsername = await AsyncStorage.getItem('username')
+      const username = await AsyncStorage.getItem('username')
 
-      if (previouslyLoggedInUsername) {
-        navigation.navigate('Main', { refresh: true, username: previouslyLoggedInUsername })
-
-        // Let's delay the loading a bit because the navigation is async
-        // and we don't want this page to flash
-        setTimeout(
-          () => setIsLoading(false),
-          250
-        )
-      } else {
-        setIsLoading(false)
+      if (username) {
+        navigation.navigate('Main', { refresh: true, username: username })
       }
+
+      setIsLoading(false)
     }
 
     skipToProfile()

@@ -6,7 +6,7 @@ export function tabProps({ name, component, emogi, title, options,  }) {
     component: component,
     options: {
       title: title,
-      headerTitle: emogi ? `${emogi} ${title}` : title,
+      headerTitle: typeof emogi === 'string' ? `${emogi} ${title}` : title,
       headerStyle: {
         backgroundColor: '#efede3',
         shadowOpacity: 0,
@@ -15,7 +15,11 @@ export function tabProps({ name, component, emogi, title, options,  }) {
         color: '#292521',
         fontFamily: 'Times-New-Roman',
       },
-      tabBarIcon: () => <Text style={{ fontSize: 20 }}>{emogi}</Text>,
+      tabBarIcon: () => (
+        typeof emogi === 'string' ? 
+          <Text style={{ fontSize: 20 }}>{emogi}</Text> : 
+          emogi // Render emogi as a component if it's not a string
+      ),
       ...(options || {}),
     },
     listeners: ({ navigation }) => ({
