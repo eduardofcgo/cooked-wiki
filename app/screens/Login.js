@@ -1,72 +1,65 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useContext } from 'react'
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from 'react-native'
+import * as AppleAuthentication from 'expo-apple-authentication'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
+import { AuthContext } from '../context/auth'
 import Logo from '../components/Logo'
 import LoadingScreen from '../screens/Loading'
 
-
 export default function Login({ navigation, route }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [isLoading, setIsLoading] = useState(false);
+  const authContext = useContext(AuthContext)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
-      // TODO: change to post
-      const response = await fetch(`https://cooked.wiki/app/login?username=${username}&password=${password}`);
-      if (response.ok) {
-        const cookies = response.headers.get('set-cookie');
-        await AsyncStorage.setItem('cookies', cookies);
-        await AsyncStorage.setItem('username', username);
-
-        navigation.navigate('Main', { refresh: true, username: username })
-
-      } else if (response.status === 401) {
-        //const errorResponse = await response.json();
-        alert("unauthorized");
-      
-      } else {
-        alert('Unexpected response code');
-      }
+      await authContext.login(username, password)
     } catch (error) {
-      console.error(error)
+      setIsLoading(false)
 
-      alert('Unexpected error');
-    } finally {
-      setIsLoading(false);
+      alert(error.message)
+
+      console.error(error)
     }
-  };
+
+    setIsLoading(false)
+  }
 
   return (
     <View style={styles.container}>
-        {isLoading && (
-          <View style={styles.loadingOverlay}>
-            <LoadingScreen />
-          </View>
-        )}
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <LoadingScreen />
+        </View>
+      )}
 
-      <Text style={styles.helpText}>
-        or
-      </Text>
+      <Text style={styles.helpText}>or</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Username"
+        placeholder='Username'
         value={username}
         onChangeText={setUsername}
-        autoCapitalize="none"
+        autoCapitalize='none'
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder='Password'
         value={password}
         onChangeText={setPassword}
-        autoCapitalize="none"
+        autoCapitalize='none'
         secureTextEntry
       />
 
@@ -75,8 +68,8 @@ export default function Login({ navigation, route }) {
           <Text style={styles.registerButtonText}>Login</Text>
         </TouchableOpacity>
       </View>
-    </View> 
-  );
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -139,25 +132,25 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 }, // Increased height for a more pronounced shadow
     shadowOpacity: 0.25, // Increased opacity for a more pronounced shadow
     shadowRadius: 8, // Increased radius for a more pronounced shadow
- },
- registerButton: {
-  borderRadius: 5,
-  borderWidth: 1,
-  borderColor: '#706b57',
-  backgroundColor: '#706b57',
-  paddingVertical: 10,
-  alignItems: 'center',
-  elevation: 10,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 }, // Increased height for a more pronounced shadow
-  shadowOpacity: 0.25, // Increased opacity for a more pronounced shadow
-  shadowRadius: 8, // Increased radius for a more pronounced shadow
- },
- registerButtonText: {
-  color: 'white',
-  fontSize: 16,
- },
- buttonText: {
+  },
+  registerButton: {
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#706b57',
+    backgroundColor: '#706b57',
+    paddingVertical: 10,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 }, // Increased height for a more pronounced shadow
+    shadowOpacity: 0.25, // Increased opacity for a more pronounced shadow
+    shadowRadius: 8, // Increased radius for a more pronounced shadow
+  },
+  registerButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  buttonText: {
     color: '#706b57',
     fontSize: 16,
   },
@@ -165,4 +158,4 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
   },
-});
+})

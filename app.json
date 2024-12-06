@@ -13,6 +13,13 @@
     },
     "scheme": "cooked",
     "plugins": [
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ],
       "expo-apple-authentication",
       [
         "expo-share-intent",
@@ -30,7 +37,7 @@
       [
         "expo-font",
         {
-          "fonts": ["assets/fonts/Times-New-Roman.ttf"]
+          "fonts": ["assets/fonts/EBGaramond-VariableFont_wght.ttf"]
         }
       ],
       [
@@ -44,7 +51,8 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "ios": {
       "supportsTablet": true,

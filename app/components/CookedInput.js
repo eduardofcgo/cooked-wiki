@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
-import { View, TextInput, Image, TouchableOpacity, Text, StyleSheet, Dimensions, Modal } from 'react-native';
+import React, { useState } from 'react'
+import {
+  View,
+  TextInput,
+  Image,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Modal,
+} from 'react-native'
 import { ArrowLeft as ArrowLeftIcon } from 'lucide-react-native'
-import CookedButton from './CookedButton';
-import CookedButtonSecondary from './CookedButtonSecondary';
+import CookedButton from './CookedButton'
+import CookedButtonSecondary from './CookedButtonSecondary'
 
-const CookedInput = ({imagePath, onUndo, route, navigation}) => {
-  const [notes, setNotes] = useState('');
-  const [recipeName, setRecipeName] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+const CookedInput = ({ imagePath, onUndo, route, navigation }) => {
+  const [notes, setNotes] = useState('')
+  const [recipeName, setRecipeName] = useState('')
+  const [modalVisible, setModalVisible] = useState(false)
 
   const openModal = () => {
-    setModalVisible(true);
-  };
+    setModalVisible(true)
+  }
 
   const handleUndo = () => {
     onUndo()
@@ -19,15 +28,17 @@ const CookedInput = ({imagePath, onUndo, route, navigation}) => {
 
   const openFullScreenImage = () => {
     if (imagePath) {
-      navigation.navigate('CookedFullScreenImage', { imagePath });
+      navigation.navigate('CookedFullScreenImage', { imagePath })
     }
-  };
+  }
 
   return (
-    <View style={styles.container} >
-      <TouchableOpacity style={styles.imageContainer} onPress={openFullScreenImage}>
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.imageContainer}
+        onPress={openFullScreenImage}>
         {imagePath ? (
-          <Image source={{ uri: imagePath }} style={styles.image}/>
+          <Image source={{ uri: imagePath }} style={styles.image} />
         ) : (
           <Text style={styles.addPhotoText}>No photo</Text>
         )}
@@ -59,26 +70,30 @@ const CookedInput = ({imagePath, onUndo, route, navigation}) => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <CookedButtonSecondary onPress={handleUndo}> <ArrowLeftIcon color='white' size={10} /> Undo</CookedButtonSecondary>
+        <CookedButtonSecondary onPress={handleUndo}>
+          {' '}
+          <ArrowLeftIcon color='white' size={10} /> Undo
+        </CookedButtonSecondary>
         <CookedButton>Save</CookedButton>
       </View>
 
       <Modal
-        animationType="slide"
+        animationType='slide'
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+        onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalView}>
           <Text>This is a modal!</Text>
-          <CookedButton onPress={() => setModalVisible(false)}>Close Modal</CookedButton>
+          <CookedButton onPress={() => setModalVisible(false)}>
+            Close Modal
+          </CookedButton>
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
-const { height, width } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
@@ -156,18 +171,18 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -180,6 +195,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
   },
-});
+})
 
-export default CookedInput;
+export default CookedInput

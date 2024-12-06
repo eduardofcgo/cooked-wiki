@@ -1,17 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react'
+import { View, Text, StyleSheet } from 'react-native'
 
 const Logo = () => {
   return (
     <View style={styles.logoWithHeadline}>
-        <View style={styles.logoContainer}>
-            <Text style={[styles.logo, styles.firstWordColor]}>Cook</Text>
-            <Text style={[styles.logo, styles.lastWord]}>ed</Text>
-        </View>
-        <Text style={styles.logoHeadline}>Your smart cookbook</Text>
+      <View style={styles.logoContainer}>
+        <Text style={[styles.logo, styles.firstWordColor]}>Cook</Text>
+        <Text style={[styles.logo, styles.lastWord]}>ed</Text>
+      </View>
+      <Text style={styles.logoHeadline}>Your smart cookbook</Text>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   logoWithHeadline: {
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   logoHeadline: {
     color: '#706b57',
     fontSize: 16,
-    fontFamily: 'Times-New-Roman',
+    fontFamily: 'EBGaramond',
   },
   logoContainer: {
     flexDirection: 'row',
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: 70,
-    fontFamily: 'Times-New-Roman',
+    fontFamily: 'EBGaramond',
   },
   firstWordColor: {
     color: '#d97757',
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   lastWord: {
     color: '#706b57',
     letterSpacing: -5.5,
-  }
-});
+  },
+})
 
-export default Logo;
+export default Logo

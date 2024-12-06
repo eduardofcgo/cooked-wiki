@@ -1,35 +1,47 @@
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
-import { StyleSheet, Text, View } from 'react-native'
-import { useEffect } from 'react'
+import { StyleSheet, Text, View, Share } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import * as Sharing from 'expo-sharing'
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Provider as PaperProvider, IconButton } from 'react-native-paper'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { ShareIntentProvider } from 'expo-share-intent'
 import * as Notifications from 'expo-notifications'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
+import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
+import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 
+import { theme, screenStyle, titleStyle } from './app/style/style'
+import paperTheme from './app/style/paper'
+import { defaultScreenOptions } from './app/screens/screen'
+import { AuthContext } from './app/context/auth'
+import BottomTabs from './app/components/BottomTabs'
 import ShoppingList from './app/screens/ShoppingList'
 import JustCooked from './app/screens/justcooked/JustCooked'
-import Profile from './app/screens/Profile'
+import { PublicProfile, LoggedInProfile } from './app/screens/Profile'
 import Community from './app/screens/Community'
 import Contact from './app/screens/Contact'
+import Settings from './app/screens/Settings'
+import Team from './app/screens/Team'
 import Start from './app/screens/Start'
 import Login from './app/screens/Login'
 import Register from './app/screens/Register'
 import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
 import Timer from './app/components/timer/Timer'
-import { tabProps } from './app/navigation/tab'
 import linking from './app/navigation/linking'
 import registerForPushNotifications from './app/notifications/register'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
+import AuthService from './app/auth/service'
+import AuthStore from './app/auth/store'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -39,157 +51,174 @@ Notifications.setNotificationHandler({
   }),
 })
 
-const TabNavigator = createBottomTabNavigator()
 const StackNavigator = createNativeStackNavigator()
 
-function Tabs({ route }) {
-  const username= route.params.username
-
-  return (
-    <TabNavigator.Navigator
-      initialRouteName='Profile'
-      screenOptions={{
-        tabBarActiveTintColor: '#292521',
-        tabBarInactiveTintColor: '#292521',
-        tabBarActiveBackgroundColor: 'rgba(239, 237, 227, 1)',
-        tabBarStyle: {
-          height: 60,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: '#ccc',
-          backgroundColor: 'rgba(250, 250, 247, 1)',
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          elevation: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 }, // Increased height for a more pronounced shadow
-          shadowOpacity: 0.25, // Increased opacity for a more pronounced shadow
-          shadowRadius: 8, // Increased radius for a more pronounced shadow
-        },
-      }}>
-
-      <TabNavigator.Screen
-        {...tabProps({
-          name: 'Explore',
-          title: 'Explore',
-          component: Community,
-          emogi: <FontAwesomeIcon icon={faSearch} />,
-        })}
-      />
-
-      <TabNavigator.Screen
-        initialParams={{username: username}}
-        {...tabProps({
-          name: 'Profile',
-          component: Profile,
-          // emogi: '📕',
-          emogi: <FontAwesomeIcon icon={faBook} />,
-          options: { headerShown: false },
-        })}
-      />
-
-      <TabNavigator.Screen
-        {...tabProps({
-          name: 'ShoppingList',
-          component: ShoppingList,
-          emogi: <FontAwesomeIcon icon={faCartShopping} />,
-          title: 'Shopping',
-        })}
-      />
-
-    </TabNavigator.Navigator>
-  )
-}
+SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  useEffect(() => {
-    // registerForPushNotifications()
-  }, [])
+  // useEffect(() => {
+  //   // registerForPushNotifications()
+  // }, [])
 
-  const [loaded, error] = useFonts({
-    'Times-New-Roman': require('./assets/fonts/Times-New-Roman.ttf'),
+  const [loadedFonts, errorFonts] = useFonts({
+    [theme.fonts
+      .title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
   })
 
+  const [credentials, setCredentials] = useState(null)
+  const [loggedIn, setLoggedIn] = useState(null)
+
+  const loadedApp = loadedFonts && loggedIn !== null
+
   useEffect(() => {
-    if (loaded || error) {
+    if (loadedApp) {
       SplashScreen.hideAsync()
     }
-  }, [loaded, error])
+  }, [loadedApp])
 
-  if (!loaded && !error) {
-    return null
-  }
+  useEffect(() => {
+    const checkCredentials = async () => {
+      const credentials = await AuthStore.getCredentials()
+      if (credentials) {
+        setLoggedIn(true)
+        setCredentials(credentials)
+      } else {
+        setLoggedIn(false)
+        setCredentials(null)
+      }
+    }
 
-  return (
-    <>
-      <ShareIntentProvider>
-        <StatusBar backgroundColor='#efede3'></StatusBar>
+    checkCredentials()
+  }, [])
 
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <NavigationContainer linking={linking}>
-            <StackNavigator.Navigator initialRouteName='Start'>
-              <StackNavigator.Screen
-                name='Main'
-                options={{ headerShown: false }}
-                component={Tabs}
-              />
+  const authContext = useMemo(
+    () => ({
+      credentials,
+      loggedIn,
 
-              <StackNavigator.Screen
-                name='Extract'
-                component={Extract}
-                options={{ title: 'New Recipe', headerStyle: { backgroundColor: '#efede3' } }}
-              />
+      login: async (username, password) => {
+        await AuthService.login(username, password)
 
-              <StackNavigator.Screen
-                name='Recipe'
-                component={Recipe}
-                options={{ title: 'Recipe', headerStyle: { backgroundColor: '#efede3' } } }
-              />
+        setLoggedIn(true)
+      },
 
-              <StackNavigator.Screen
-                name='User'
-                component={Profile}
-                options={{ title: 'Profile', headerStyle: { backgroundColor: '#efede3' } } }
-              />
+      logout: async () => {
+        await AuthService.logout()
 
-              <StackNavigator.Screen 
-                name='Contact' 
-                component={Contact}
-                options={{ title: 'Contact', headerStyle: { backgroundColor: '#efede3' } }}
-                />
-
-              <StackNavigator.Screen
-                name='Start'
-                component={Start}
-                options={{ title: 'Start', headerShown: false}}
-              />
-
-            <StackNavigator.Screen
-                name='Login'
-                component={Login}
-                options={{ title: 'Login', headerStyle: { backgroundColor: '#efede3' } }}
-              />
-
-            <StackNavigator.Screen
-                name='Register'
-                component={Register}
-                options={{ title: 'Register', headerStyle: { backgroundColor: '#efede3' } }}
-              />
-
-
-              <StackNavigator.Screen
-                name="CookedFullScreenImage"
-                component={FullScreenImage}
-                options={{ headerShown: false }}
-              />
-            </StackNavigator.Navigator>
-          </NavigationContainer>
-        </GestureHandlerRootView>
-      </ShareIntentProvider>
-    </>
+        setLoggedIn(false)
+      },
+    }),
+    [loggedIn, credentials]
   )
+
+  if (!loadedApp) {
+    return null
+  } else
+    return (
+      <PaperProvider theme={paperTheme}>
+        <AuthContext.Provider value={authContext}>
+          <ShareIntentProvider>
+            <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
+
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <NavigationContainer linking={linking}>
+                <StackNavigator.Navigator
+                  initialRouteName={loggedIn ? 'Main' : 'Start'}
+                  screenOptions={defaultScreenOptions}>
+                  {loggedIn ? (
+                    <>
+                      <StackNavigator.Screen
+                        name='Main'
+                        options={{ headerShown: false }}
+                        component={BottomTabs}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Extract'
+                        component={Extract}
+                        options={{ title: 'New Recipe', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Contact'
+                        component={Contact}
+                        options={{ title: 'Contact', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Settings'
+                        component={Settings}
+                        options={{ title: 'Settings', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Team'
+                        component={Team}
+                        options={{ title: 'Patron', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='CookedFullScreenImage'
+                        component={FullScreenImage}
+                        options={{ headerShown: false }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Recipe'
+                        component={Recipe}
+                        options={({ navigation, route }) => ({
+                          title: 'Recipe',
+                          headerRight: () => (
+                            <IconButton
+                              icon='send'
+                              size={20}
+                              style={{ margin: 0, marginRight: -10 }}
+                              backgroundColor={theme.colors.secondary}
+                              color={theme.colors.black}
+                              onPress={() => {
+                                const shareUrl = `https://cooked.wik/recipe`
+                                Share.share({
+                                  message: shareUrl,
+                                  url: shareUrl,
+                                })
+                              }}
+                            />
+                          ),
+                        })}
+                      />
+
+                      <StackNavigator.Screen
+                        name='PublicProfile'
+                        component={PublicProfile}
+                        options={{ title: 'Profile', ...screenStyle }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <StackNavigator.Screen
+                        name='Start'
+                        component={Start}
+                        options={{ title: 'Start', headerShown: false }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Login'
+                        component={Login}
+                        options={{ title: 'Login', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name='Register'
+                        component={Register}
+                        options={{ title: 'Register', ...screenStyle }}
+                      />
+                    </>
+                  )}
+                </StackNavigator.Navigator>
+              </NavigationContainer>
+            </GestureHandlerRootView>
+          </ShareIntentProvider>
+        </AuthContext.Provider>
+      </PaperProvider>
+    )
 }

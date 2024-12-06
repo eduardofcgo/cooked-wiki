@@ -1,56 +1,72 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, StatusBar, SafeAreaView, Dimensions } from 'react-native';
-import { useCameraDevice, Camera } from 'react-native-vision-camera';
-import { X as XIcon, Zap as FlashIcon } from 'lucide-react-native';
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  StatusBar,
+  SafeAreaView,
+  Dimensions,
+} from 'react-native'
+import { useCameraDevice, Camera } from 'react-native-vision-camera'
+import { X as XIcon, Zap as FlashIcon } from 'lucide-react-native'
 
 export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
-  const device = useCameraDevice('back');
-  const camera = useRef(null);
-  const [flash, setFlash] = useState('off');
+  const device = useCameraDevice('back')
+  const camera = useRef(null)
+  const [flash, setFlash] = useState('off')
 
-  const screenWidth = Dimensions.get('window').width;
-  const cameraSize = screenWidth;
+  const screenWidth = Dimensions.get('window').width
+  const cameraSize = screenWidth
 
   useEffect(() => {
     if (isVisible) {
-      StatusBar.setHidden(true, 'fade');
+      StatusBar.setHidden(true, 'fade')
     }
     return () => {
-      StatusBar.setHidden(false, 'fade');
-    };
-  }, [isVisible]);
+      StatusBar.setHidden(false, 'fade')
+    }
+  }, [isVisible])
 
   const capturePhoto = async () => {
     if (camera.current) {
       const photo = await camera.current.takePhoto({
         flash: flash,
         qualityPrioritization: 'quality',
-      });
-      onCapture(photo.path);
-      onClose();
+      })
+      onCapture(photo.path)
+      onClose()
     }
-  };
+  }
 
   const toggleFlash = () => {
     setFlash(prevFlash => {
       switch (prevFlash) {
-        case 'off': return 'on';
-        case 'on': return 'auto';
-        case 'auto': return 'off';
-        default: return 'off';
+        case 'off':
+          return 'on'
+        case 'on':
+          return 'auto'
+        case 'auto':
+          return 'off'
+        default:
+          return 'off'
       }
-    });
-  };
+    })
+  }
 
-  const cameraStyle = useMemo(() => ({
-    width: cameraSize,
-    height: cameraSize,
-  }), [cameraSize]);
+  const cameraStyle = useMemo(
+    () => ({
+      width: cameraSize,
+      height: cameraSize,
+    }),
+    [cameraSize]
+  )
 
-  if (!device) return null;
+  if (!device) return null
 
   return (
-    <Modal visible={isVisible} animationType="slide" statusBarTranslucent>
+    <Modal visible={isVisible} animationType='slide' statusBarTranslucent>
       <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.cameraContainer}>
@@ -64,22 +80,24 @@ export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={onClose} style={styles.topButton}>
-              <XIcon color="white" size={24} />
+              <XIcon color='white' size={24} />
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleFlash} style={styles.topButton}>
-              <FlashIcon color="white" size={24} />
+              <FlashIcon color='white' size={24} />
               <Text style={styles.flashText}>{flash.toUpperCase()}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.captureContainer}>
-            <TouchableOpacity onPress={capturePhoto} style={styles.captureButton}>
+            <TouchableOpacity
+              onPress={capturePhoto}
+              style={styles.captureButton}>
               <View style={styles.captureButtonInner} />
             </TouchableOpacity>
           </View>
         </SafeAreaView>
       </View>
     </Modal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -138,4 +156,4 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: 'white',
   },
-});
+})

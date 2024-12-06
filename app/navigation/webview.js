@@ -2,8 +2,6 @@ export function defaultOnRequest(navigation, request) {
   const url = request.url
   const disableRequest = false
 
-  console.log("navigating", url)
-
   if (url.endsWith('/contact')) {
     navigation.navigate('Contact')
 
@@ -18,16 +16,25 @@ export function defaultOnRequest(navigation, request) {
 
   if (url.endsWith('/login') || url.endsWith('cooked.wiki/')) {
     // TODO: should clean cookies from localstorage?
-    navigation.navigate('Start')
+    // navigation.navigate('Start')
+
+    return disableRequest
+  }
+
+  if (url.endsWith('/shopping-list') || url.endsWith('/buy')) {
+    navigation.push('Main', {
+      screen: 'LoggedInProfile',
+      params: { screen: 'Shopping' },
+    })
 
     return disableRequest
   }
 
   if (/\/user\/([a-zA-Z0-9]+)/.test(url)) {
-    const username = url.match(/\/user\/([a-zA-Z0-9]+)/)[1];
-    navigation.push('User', { username });
+    const username = url.match(/\/user\/([a-zA-Z0-9]+)/)[1]
+    navigation.push('PublicProfile', { username })
 
-    return disableRequest;
+    return disableRequest
   }
 
   // return undefined

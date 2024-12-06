@@ -8,25 +8,26 @@ import {
 import { WebView } from 'react-native-webview'
 import { BackHandler, Platform } from 'react-native'
 import { HeaderBackButton } from '@react-navigation/elements'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useEffect, useRef, useState } from 'react'
-import { defaultOnRequest } from '../navigation/webview';
-import Loading from './Loading';
+import AuthStore from '../auth/store'
+import { defaultOnRequest } from '../navigation/webview'
+import Loading from './Loading'
 
 export default function CookedWebView({
   startUrl,
   navigation,
   route,
   onLoad,
-  onRequest
+  onRequest,
 }) {
   const webViewRef = useRef()
   const [currentURI, setURI] = useState(startUrl)
   const [cookies, setCookies] = useState(null)
 
-  const [canGoBack, setCanGoBack] = useState(false)
+  console.log('CookedWebView', currentURI, cookies)
 
+  const [canGoBack, setCanGoBack] = useState(false)
 
   const clientLogging = `
     console = new Object();
@@ -43,13 +44,13 @@ export default function CookedWebView({
   // }
 
   const scrollToTop = () => {
-    webViewRef.current.injectJavaScript(`
-      window.scroll({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-      })
-    `)
+    // webViewRef.current.injectJavaScript(`
+    //   window.scroll({
+    //     top: 0,
+    //     left: 0,
+    //     behavior: 'smooth'
+    //   })
+    // `)
   }
 
   const refreshWebView = () => {
@@ -58,9 +59,8 @@ export default function CookedWebView({
        window.location.reload();`
     )
     webViewRef.current.clearHistory()
-    scrollToTop()  
+    // scrollToTop()
   }
-
 
   // useEffect(() => {
   //   console.log('refresh effect')
@@ -109,20 +109,19 @@ export default function CookedWebView({
   }, [route.params])
 
   useEffect(() => {
-    async function restoreCookiesFromStorage() {
+    async function getCredentials() {
       if (cookies === null) {
-        const storedCookies = await AsyncStorage.getItem('cookies')
-        
-        if (storedCookies) {
-          setCookies(storedCookies)
+        const { username, token } = await AuthStore.getCredentials()
+
+        if (token) {
+          setCookies(token)
         } else {
-          navigation.navigate('Start')
+          console.log('WebView: Loading without credentials', currentURI)
         }
       }
     }
 
-    restoreCookiesFromStorage()
-
+    getCredentials()
   }, [currentURI])
 
   const handleNavigationStateChange = navState => {
@@ -150,25 +149,24 @@ export default function CookedWebView({
 
     // Always load normally the WebView at the beggining,
     // only further requests will be checked (when the user navigates)
-    if (request.url === startUrl)
-      return true
+    if (request.url === startUrl) return true
 
     // Some webpages have native screens, so we always check
     // for the default behaviour.
     const shouldHandleRequestDefault = defaultOnRequest(navigation, request)
 
     return shouldHandleRequestDefault
-    
+
     // The default behaviour is not defined for every URL.
     // if (shouldHandleRequestDefault !=== undefined) {
     //   return shouldHandleRequestDefault
     // }
-    
+
     // If this component received a custom onRequest,
     // it is expected to know how to navigate every URL.
     // else if (onRequest) {
     //   const customHandle = onRequest(request)
-    //   if (customHandle === undefined) { 
+    //   if (customHandle === undefined) {
     //     console.error("WebView attempted to navigate to unhandled URL", request.url)
 
     //     return disableRequest
@@ -192,21 +190,19 @@ export default function CookedWebView({
             backgroundColor: '#efede3',
           }}>
           <WebView
-            source={{ 
+            source={{
               uri: startUrl,
               headers: {
                 Cookie: cookies,
-              }
+              },
             }}
-
-            onShouldStartLoadWithRequest={(request) => {
+            onShouldStartLoadWithRequest={request => {
               // If we're loading the current URI, allow it to load
-              if (request.url === currentURI) return true;
+              if (request.url === currentURI) return true
               // We're loading a new URL -- change state first
-              setURI(request.url);
-              return false;
+              setURI(request.url)
+              return false
             }}
-
             // injectedJavaScript={clientLogging}
             // onMessage={onMessage}
             onShouldStartLoadWithRequest={onWebViewRequest}
@@ -216,23 +212,19 @@ export default function CookedWebView({
                 webContentsDebuggingEnabled: true,
               },
             }}
-
             userAgent={'app'}
-
             // only for iOS
             allowsBackForwardNavigationGestures={true}
             // onNavigationStateChange={handleNavigationStateChange}
 
             domStorageEnabled={true}
             sharedCookiesEnabled={true}
-            pullToRefreshEnabled={true}       
+            pullToRefreshEnabled={true}
             startInLoadingState={true}
-
             renderLoading={Loading}
             ref={webViewRef}
-            
             //The background color when loading
-            style={{ 
+            style={{
               backgroundColor: '#fafaf7',
               justifyContent: 'flex-start',
               flexDirection: 'column',

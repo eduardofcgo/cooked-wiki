@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 import { View, Image, StyleSheet, Dimensions, SafeAreaView } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import { X as XIcon } from 'lucide-react-native'
 
 const FullScreenImage = ({ route, navigation }) => {
-  const { imagePath } = route.params;
+  const { imagePath } = route.params
 
   const onClose = () => {
     navigation.goBack()
@@ -17,20 +17,20 @@ const FullScreenImage = ({ route, navigation }) => {
           <Image
             source={{ uri: imagePath }}
             style={styles.image}
-            resizeMode="contain"
+            resizeMode='contain'
           />
         </View>
         <View style={styles.controlsContainer}>
           <TouchableOpacity onPress={onClose} style={styles.topButton}>
-            <XIcon color="white" size={24} />
+            <XIcon color='white' size={24} />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     </View>
-  );
-};
+  )
+}
 
-const styles= StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
@@ -65,6 +65,6 @@ const styles= StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-});
+})
 
-export default FullScreenImage;
+export default FullScreenImage

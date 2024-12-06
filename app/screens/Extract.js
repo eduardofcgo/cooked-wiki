@@ -19,7 +19,7 @@ export default function Extract({ navigation, route }) {
 
     if (url.endsWith('/shopping-list') || url.endsWith('/buy')) {
       navigation.navigate('ShoppingList', { refresh: true })
-      
+
       return false
     }
 
@@ -30,7 +30,7 @@ export default function Extract({ navigation, route }) {
     extractUrl && (
       <CookedWebView
         startUrl={`https://cooked.wiki/${extractUrl}`}
-        onRequest={onRequest}
+        // onRequest={onRequest}
         navigation={navigation}
         route={route}
       />
