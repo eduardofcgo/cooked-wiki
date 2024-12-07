@@ -17,6 +17,7 @@ export function defaultOnRequest(navigation, request) {
   if (url.endsWith('/login') || url.endsWith('cooked.wiki/')) {
     // TODO: should clean cookies from localstorage?
     // navigation.navigate('Start')
+    return disableRequest
 
     return disableRequest
   }

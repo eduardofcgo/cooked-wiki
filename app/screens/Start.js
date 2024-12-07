@@ -19,14 +19,14 @@ export default function Start({ navigation, route }) {
       </View>
 
       <View style={styles.buttonsContainer}>
+        <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
+          <Text style={styles.registerButtonText}>Login</Text>
+        </TouchableOpacity>
+        
         <TouchableOpacity
           onPress={handleRegister}
-          style={styles.registerButton}>
-          <Text style={styles.registerButtonText}>Register</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
+          style={styles.button}>
+          <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
 
         <Text style={styles.helpText}>

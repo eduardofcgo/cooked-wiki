@@ -7,7 +7,7 @@ export default function ShoppingList({ navigation, route }) {
 
   return (
     <CookedWebView
-      startUrl={`https://cooked.wiki/user/${credentials.username}/shopping-list`}
+      startUrl={`http://192.168.1.96:3000/user/${credentials.username}/shopping-list`}
       navigation={navigation}
       route={route}
     />

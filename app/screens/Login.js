@@ -6,18 +6,18 @@ import {
   Text,
   StyleSheet,
 } from 'react-native'
-import * as AppleAuthentication from 'expo-apple-authentication'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { IconButton } from 'react-native-paper';
 
+import { theme } from '../style/style'
 import { AuthContext } from '../context/auth'
 import Logo from '../components/Logo'
 import LoadingScreen from '../screens/Loading'
 
 export default function Login({ navigation, route }) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
   const authContext = useContext(AuthContext)
+
+  const [username, setUsername] = useState(authContext?.credentials?.username || '')
+  const [password, setPassword] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -37,6 +37,16 @@ export default function Login({ navigation, route }) {
     setIsLoading(false)
   }
 
+  const handleAppleLogin = async () => {
+    try {
+      // Implement your native Apple sign-in logic here
+      console.log('Apple sign-in pressed');
+    } catch (error) {
+      console.error('Apple authentication error:', error);
+      alert('Apple sign in failed. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -45,28 +55,54 @@ export default function Login({ navigation, route }) {
         </View>
       )}
 
-      <Text style={styles.helpText}>or</Text>
+      <View style={styles.contentContainer}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Welcome back</Text>
+          <Text style={styles.subHeaderText}>Sign in to continue</Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder='Username'
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize='none'
-      />
-      <TextInput
-        style={styles.input}
-        placeholder='Password'
-        value={password}
-        onChangeText={setPassword}
-        autoCapitalize='none'
-        secureTextEntry
-      />
+        <View style={styles.formContainer}>
+          <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
+            <View style={styles.appleButtonContent}>
+              <IconButton
+                icon="apple"
+                iconColor="white"
+                size={20}
+                style={styles.appleIcon}
+              />
+              <Text style={styles.appleButtonText}>Sign in with Apple</Text>
+            </View>
+          </TouchableOpacity>
 
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
-          <Text style={styles.registerButtonText}>Login</Text>
-        </TouchableOpacity>
+          <Text style={styles.helpText}>or</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder='Username'
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize='none'
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='Password'
+            value={password}
+            onChangeText={setPassword}
+            autoCapitalize='none'
+            secureTextEntry
+          />
+
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
+              <Text style={styles.registerButtonText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.helpText}>
+            Forgot your password?
+            <Text style={{ color: '#d97757' }}> Reset</Text>
+          </Text>
+        </View>
       </View>
     </View>
   )
@@ -89,9 +125,18 @@ const styles = StyleSheet.create({
     zIndex: 100,
     opacity: 0.5,
   },
-  topSection: {
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  headerContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  formContainer: {
+    width: '100%',
+    marginBottom: 20,
   },
   logo: {
     flex: 1,
@@ -154,8 +199,34 @@ const styles = StyleSheet.create({
     color: '#706b57',
     fontSize: 16,
   },
+  appleButton: {
+    backgroundColor: 'black',
+    borderRadius: theme.borderRadius.small,
+    paddingVertical: 5,
+    alignItems: 'center',
+  },
+  appleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  appleIcon: {
+    margin: 0,
+  },
   appleButtonText: {
-    color: '#000',
+    color: 'white',
     fontSize: 16,
+    fontWeight: '500',
+  },
+  headerText: {
+    fontFamily: theme.fonts.title,
+    fontSize: 40,
+    color: theme.colors.black,
+    marginBottom: 8,
+  },
+  subHeaderText: {
+    fontSize: 16,
+    color: '#706b57',
+    opacity: 0.8,
   },
 })

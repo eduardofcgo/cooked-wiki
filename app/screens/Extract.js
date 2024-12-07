@@ -29,7 +29,7 @@ export default function Extract({ navigation, route }) {
   return (
     extractUrl && (
       <CookedWebView
-        startUrl={`https://cooked.wiki/${extractUrl}`}
+        startUrl={`http://192.168.1.96:3000/${extractUrl}`}
         // onRequest={onRequest}
         navigation={navigation}
         route={route}

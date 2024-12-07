@@ -10,6 +10,7 @@ export const theme = {
     black: '#292521',
     white: 'white',
     softBlack: '#706b57',
+    border: '#ccc'
   },
   fonts: {
     title: 'EBGaramond',

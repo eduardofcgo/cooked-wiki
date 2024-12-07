@@ -53,7 +53,7 @@ function BottomTabs({ route }) {
         name='ShareCook'
         component={LoggedInProfile}
         options={{
-          title: 'Profile',
+          title: 'Share a Cooked',
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon icon={faCamera} focused={focused} />
@@ -65,6 +65,7 @@ function BottomTabs({ route }) {
 }
 
 const tabScreenStyle = {
+  tabBarHideOnKeyboard: true,
   tabBarActiveTintColor: theme.colors.black,
   tabBarInactiveTintColor: theme.colors.softBlack,
   tabBarActiveBackgroundColor: theme.colors.secondary,

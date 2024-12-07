@@ -21,6 +21,7 @@ import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 
 import { theme, screenStyle, titleStyle } from './app/style/style'
 import paperTheme from './app/style/paper'
+import navigationTheme from './app/style/navigation'
 import { defaultScreenOptions } from './app/screens/screen'
 import { AuthContext } from './app/context/auth'
 import BottomTabs from './app/components/BottomTabs'
@@ -65,10 +66,24 @@ export default function App() {
       .title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
   })
 
-  const [credentials, setCredentials] = useState(null)
-  const [loggedIn, setLoggedIn] = useState(null)
+  const [authContext, setAuthContext] = useState({
+    credentials: undefined,
+    loggedIn: false,
 
-  const loadedApp = loadedFonts && loggedIn !== null
+    login: async (username, password) => {
+      const newCredentials = await AuthService.login(username, password)
+
+      setAuthContext({...authContext, credentials: newCredentials, loggedIn: true})
+    },
+
+    logout: async () => {
+      await AuthService.logout()
+
+      setAuthContext({...authContext, credentials: null, loggedIn: false})
+    },
+  })
+
+  const loadedApp = loadedFonts && authContext.credentials !== undefined
 
   useEffect(() => {
     if (loadedApp) {
@@ -77,42 +92,23 @@ export default function App() {
   }, [loadedApp])
 
   useEffect(() => {
-    const checkCredentials = async () => {
-      const credentials = await AuthStore.getCredentials()
-      if (credentials) {
-        setLoggedIn(true)
-        setCredentials(credentials)
+    const tryRestoreCredentials = async () => {
+      const validCredentials = await AuthService.validateStoredCredentials()
+
+      if (validCredentials) {
+        setAuthContext({...authContext, credentials: validCredentials, loggedIn: true})
+
       } else {
-        setLoggedIn(false)
-        setCredentials(null)
+        setAuthContext({...authContext, credentials: null, loggedIn: false})
       }
     }
 
-    checkCredentials()
+    tryRestoreCredentials()
   }, [])
-
-  const authContext = useMemo(
-    () => ({
-      credentials,
-      loggedIn,
-
-      login: async (username, password) => {
-        await AuthService.login(username, password)
-
-        setLoggedIn(true)
-      },
-
-      logout: async () => {
-        await AuthService.logout()
-
-        setLoggedIn(false)
-      },
-    }),
-    [loggedIn, credentials]
-  )
 
   if (!loadedApp) {
     return null
+  
   } else
     return (
       <PaperProvider theme={paperTheme}>
@@ -121,11 +117,11 @@ export default function App() {
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
 
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <NavigationContainer linking={linking}>
+              <NavigationContainer linking={linking} theme={navigationTheme}>
                 <StackNavigator.Navigator
-                  initialRouteName={loggedIn ? 'Main' : 'Start'}
+                  initialRouteName={authContext.loggedIn ? 'Main' : 'Start'}
                   screenOptions={defaultScreenOptions}>
-                  {loggedIn ? (
+                  {authContext.loggedIn ? (
                     <>
                       <StackNavigator.Screen
                         name='Main'
@@ -155,12 +151,6 @@ export default function App() {
                         name='Team'
                         component={Team}
                         options={{ title: 'Patron', ...screenStyle }}
-                      />
-
-                      <StackNavigator.Screen
-                        name='CookedFullScreenImage'
-                        component={FullScreenImage}
-                        options={{ headerShown: false }}
                       />
 
                       <StackNavigator.Screen

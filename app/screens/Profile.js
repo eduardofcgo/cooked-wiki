@@ -108,7 +108,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`https://cooked.wiki/user/${username}/journal`}
+              startUrl={`http://192.168.1.96:3000/user/${username}/journal`}
               navigation={navigation}
               route={route}
             />
@@ -123,7 +123,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`https://cooked.wiki/user/${username}`}
+              startUrl={`http://192.168.1.96:3000/user/${username}`}
               navigation={navigation}
               route={route}
             />
@@ -142,7 +142,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`https://cooked.wiki/user/${username}/shopping-list`}
+              startUrl={`http://192.168.1.96:3000/user/${username}/shopping-list`}
               navigation={navigation}
               route={route}
             />
@@ -167,6 +167,11 @@ export function PublicProfile({ route, navigation }) {
 
 export function LoggedInProfile({ route, navigation }) {
   const { credentials } = useContext(AuthContext)
+
+  if (!credentials) {
+    return null
+  }
+
   return (
     // LoggedInProfile does not have navigation header, so we need to adjust
     // the padding to account for the status bar manually.

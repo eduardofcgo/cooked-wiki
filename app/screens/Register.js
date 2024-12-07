@@ -15,7 +15,7 @@ export default function Extract({ navigation, route }) {
 
   return (
     <CookedWebView
-      startUrl={`https://cooked.wiki/register`}
+      startUrl={`http://192.168.1.96:3000/register`}
       // onRequest={onRequest}
       navigation={navigation}
       route={route}

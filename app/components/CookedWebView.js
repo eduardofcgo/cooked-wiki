@@ -9,35 +9,28 @@ import { WebView } from 'react-native-webview'
 import { BackHandler, Platform } from 'react-native'
 import { HeaderBackButton } from '@react-navigation/elements'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useContext } from 'react'
 import AuthStore from '../auth/store'
 import { defaultOnRequest } from '../navigation/webview'
 import Loading from './Loading'
+import LoadingScreen from '../screens/Loading'
+import { AuthContext } from '../context/auth'
 
 export default function CookedWebView({
   startUrl,
   navigation,
   route,
-  onLoad,
   onRequest,
 }) {
   const webViewRef = useRef()
-  const [currentURI, setURI] = useState(startUrl)
-  const [cookies, setCookies] = useState(null)
+  
+  const auth = useContext(AuthContext)
+  const { credentials } = auth
+  const { token } = credentials
 
-  console.log('CookedWebView', currentURI, cookies)
+  const [currentURI, setURI] = useState(startUrl)
 
   const [canGoBack, setCanGoBack] = useState(false)
-
-  const clientLogging = `
-    console = new Object();
-    console.log = function(log) {
-      window.ReactNativeWebView.postMessage(log)
-    };
-    console.debug = console.log;
-    console.info = console.log;
-    console.warn = console.log;
-    console.error = console.log;`
 
   // const onMessage = payload => {
   //   //console.log(payload)
@@ -54,11 +47,11 @@ export default function CookedWebView({
   }
 
   const refreshWebView = () => {
-    webViewRef.current.injectJavaScript(
-      `window.location.href = "${startUrl}";
-       window.location.reload();`
-    )
-    webViewRef.current.clearHistory()
+    // webViewRef.current.injectJavaScript(
+    //   `window.location.href = "${startUrl}";
+    //    window.location.reload();`
+    // )
+    // webViewRef.current.clearHistory()
     // scrollToTop()
   }
 
@@ -108,40 +101,6 @@ export default function CookedWebView({
     }
   }, [route.params])
 
-  useEffect(() => {
-    async function getCredentials() {
-      if (cookies === null) {
-        const { username, token } = await AuthStore.getCredentials()
-
-        if (token) {
-          setCookies(token)
-        } else {
-          console.log('WebView: Loading without credentials', currentURI)
-        }
-      }
-    }
-
-    getCredentials()
-  }, [currentURI])
-
-  const handleNavigationStateChange = navState => {
-    setCanGoBack(navState.canGoBack)
-
-    if (navState.canGoBack) {
-      navigation.setOptions({
-        headerLeft: props => (
-          <HeaderBackButton
-            onPress={() => {
-              webViewRef.current.goBack()
-            }}
-          />
-        ),
-      })
-    } else {
-      navigation.setOptions({ headerLeft: () => null })
-    }
-  }
-
   const onWebViewRequest = request => {
     // If this function returns disableRequest (false value),
     // the WebView will not navigate to this URL.
@@ -177,10 +136,79 @@ export default function CookedWebView({
     // else disableRequest
   }
 
+  const handleMessage = (event) => {
+    const data = event.nativeEvent.data
+
+    try {
+      const message = JSON.parse(data);
+      if (message.type === 'logged-user') {
+        if (message.username === undefined) {
+          console.error('Logged user is undefined, this should not happen')
+        
+        } else if (message.username === null) {
+          console.log('Logged user is null, logging out', currentURI)
+
+          auth.logout()
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing message:', error);
+    }
+  };
+
+  const injectedJavaScript = `
+    console = new Object();
+    console.log = function(log) {
+      window.ReactNativeWebView.postMessage(log)
+    };
+    console.debug = console.log;
+    console.info = console.log;
+    console.warn = console.log;
+    console.error = console.log;
+
+    const message = {
+      type: 'logged-user',
+      username: undefined
+    }
+
+    const serverTimingEntries = performance.getEntriesByType('navigation')
+    
+    if (serverTimingEntries && serverTimingEntries.length > 0) {
+      const serverTiming = serverTimingEntries[0].serverTiming;
+
+      if (serverTiming && serverTiming.length > 0) {
+        const loggedUserEntry = serverTiming.find(entry => entry.name === 'Logged-User');
+        const username = loggedUserEntry?.description;
+        message.username = username === "null" ? null : username
+      }
+    }
+
+    window.ReactNativeWebView.postMessage(JSON.stringify(message))
+
+    document.addEventListener('htmx:afterOnLoad', function(event) {
+      const loggedUserMessage = {
+        type: 'logged-user',
+        username: undefined
+      }
+
+      const loggedUserHeader = event.detail.xhr.getResponseHeader('X-Logged-User');
+
+      if (loggedUserHeader) {
+        loggedUserMessage.username = loggedUserHeader === "null" ? null : loggedUserHeader;
+      }
+      window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
+    });
+    `;
+  
+    const onLoad = e => {
+      console.log('onLoad', e.nativeEvent.url)
+    }
+
   return (
     <>
-      {cookies === null ? (
-        <Loading />
+      {!credentials ? (
+        <LoadingScreen
+          backgroundColor={theme.colors.background} />
       ) : (
         <SafeAreaView
           style={{
@@ -191,22 +219,18 @@ export default function CookedWebView({
           }}>
           <WebView
             source={{
-              uri: startUrl,
-              headers: {
-                Cookie: cookies,
-              },
+              uri: startUrl + `?ring-session=${encodeURIComponent(token)}`,
             }}
             onShouldStartLoadWithRequest={request => {
+              console.log('request', request.url)
+
               // If we're loading the current URI, allow it to load
               if (request.url === currentURI) return true
               // We're loading a new URL -- change state first
               setURI(request.url)
               return false
             }}
-            // injectedJavaScript={clientLogging}
-            // onMessage={onMessage}
             onShouldStartLoadWithRequest={onWebViewRequest}
-            // onLoad={onLoad}
             nativeConfig={{
               props: {
                 webContentsDebuggingEnabled: true,
@@ -219,6 +243,10 @@ export default function CookedWebView({
 
             domStorageEnabled={true}
             sharedCookiesEnabled={true}
+            thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
+            incognito={false}
+            cacheEnabled={true}
+
             pullToRefreshEnabled={true}
             startInLoadingState={true}
             renderLoading={Loading}
@@ -231,6 +259,12 @@ export default function CookedWebView({
               flex: 1,
               // marginBottom: 60,
             }}
+            onLoad={onLoad}
+            // onLoadEnd={onLoadEnd}
+            injectedJavaScript={injectedJavaScript}
+            onMessage={handleMessage}
+            // Make sure JavaScript is enabled
+            javaScriptEnabled={true}
           />
         </SafeAreaView>
       )}

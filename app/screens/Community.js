@@ -19,10 +19,10 @@ export default function Community({ navigation, route }) {
 
   return (
     <CookedWebView
-      startUrl={'https://cooked.wiki/community'}
+      startUrl={'http://192.168.1.96:3000/community'}
       navigation={navigation}
       route={route}
-      onRequest={onRequest}
+      // onRequest={onRequest}
     />
   )
 }
