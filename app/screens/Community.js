@@ -12,9 +12,10 @@ export default function Community({ navigation, route }) {
       headerRight: () => (
         <TouchableOpacity
           style={{marginRight: 16}}
+          hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
           onPress={handleAddFriends}
         >
-        <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
+          <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),
     })

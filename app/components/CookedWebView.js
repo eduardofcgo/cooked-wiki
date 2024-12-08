@@ -22,6 +22,7 @@ export default function CookedWebView({
   navigation,
   route,
   onRequest,
+  disableRefresh,
 }) {
   const webViewRef = useRef()
   
@@ -52,18 +53,20 @@ export default function CookedWebView({
   }
 
   const refreshWebView = () => {
-    setRefreshing(true)
+    if (!disableRefresh) {
+      setRefreshing(true)
 
-    webViewRef.current.injectJavaScript(
-      `window.location.href = "${startUrl}";`
-    )
-    webViewRef.current.clearHistory()
-    // scrollToTop()
+      webViewRef.current.injectJavaScript(
+        `window.location.href = "${startUrl}";`
+      )
+      webViewRef.current.clearHistory()
+      // scrollToTop()
 
     // For now, we are not waiting for the load event.
-    setTimeout(() => {
-      setRefreshing(false)
-    }, 1000)
+      setTimeout(() => {
+        setRefreshing(false)
+      }, 1000)
+    }
   }
 
   // useEffect(() => {
@@ -137,12 +140,8 @@ export default function CookedWebView({
 
           auth.logout()
         }
-      } else if (message.type === 'refreshed') {
-        setRefreshing(false)
-      } else if (message.type === 'scroll') {        
-        if (message.startPosition == 0 && message.endPosition === 0) {
-          refreshWebView();
-        }
+      } else if (message.type === 'refresh') {        
+        refreshWebView();
       }
     } catch (error) {
       console.error('Error parsing message:', error);
@@ -159,6 +158,69 @@ export default function CookedWebView({
     console.warn = console.log;
     console.error = console.log;
 
+    // Add pull-to-refresh detection
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const THRESHOLD = 150; // Minimum pull distance to trigger refresh
+    const MAX_PULL = 200; // Maximum pull distance for visual feedback
+
+    // Create or get the content wrapper
+    function getContentWrapper() {
+      let wrapper = document.getElementById('pull-to-refresh-wrapper');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.id = 'pull-to-refresh-wrapper';
+        wrapper.style.transition = 'transform 0.2s';
+        // Wrap the body contents
+        while (document.body.firstChild) {
+          wrapper.appendChild(document.body.firstChild);
+        }
+        document.body.appendChild(wrapper);
+      }
+      return wrapper;
+    }
+
+    document.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+      getContentWrapper().style.transition = 'none';
+    }, false);
+
+    document.addEventListener('touchmove', function(e) {
+      if (window.scrollY === 0) {
+        touchEndY = e.touches[0].clientY;
+        const pullDistance = touchEndY - touchStartY;
+        
+        if (pullDistance > 0) {
+          e.preventDefault();
+          // Apply transform with damping effect
+          const damping = 0.4;
+          const movement = Math.min(pullDistance * damping, MAX_PULL);
+          getContentWrapper().style.transform = \`translateY(\${movement}px)\`;
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', function() {
+      if (window.scrollY === 0) {
+        const pullDistance = touchEndY - touchStartY;
+        
+        // Smoothly animate back to original position
+        getContentWrapper().style.transition = 'transform 0.2s';
+        getContentWrapper().style.transform = 'translateY(0)';
+        
+        if (pullDistance > THRESHOLD) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'refresh',
+            pullDistance: pullDistance
+          }));
+        }
+      }
+      // Reset values
+      touchStartY = 0;
+      touchEndY = 0;
+    }, false);
+
+    // Existing message handling code
     const message = {
       type: 'logged-user',
       username: undefined
@@ -192,20 +254,7 @@ export default function CookedWebView({
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
     });
 
-    let scrollStartPosition = 0;
     
-    document.addEventListener('touchstart', function(e) {
-      scrollStartPosition = window.scrollY;
-    }, false);
-
-    document.addEventListener('touchend', function(e) {
-      const currentPosition = window.scrollY;
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'scroll',
-        startPosition: scrollStartPosition,
-        endPosition: currentPosition
-      }));
-    }, false);
     `;
   
   const onLoad = e => {
