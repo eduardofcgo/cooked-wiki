@@ -13,7 +13,7 @@ export default function Community({ navigation, route }) {
         <TouchableOpacity
           style={{marginRight: 16}}
           onPress={handleAddFriends}
-          >
+        >
         <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),

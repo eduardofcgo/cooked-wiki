@@ -188,7 +188,7 @@ export default function App() {
                         name="FindFriends"
                         component={FindFriends}
                         options={{
-                          title: 'Find Friends',
+                          title: 'Find friends',
                           headerBackTitle: 'Back',
                         }}
                       />

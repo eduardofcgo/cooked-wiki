@@ -6,11 +6,12 @@ import {
   View,
 } from 'react-native'
 import { WebView } from 'react-native-webview'
-import { BackHandler, Platform } from 'react-native'
+import { BackHandler, Platform, ScrollView, Dimensions, RefreshControl } from 'react-native'
 import { HeaderBackButton } from '@react-navigation/elements'
 
 import { useEffect, useRef, useState, useContext } from 'react'
 import AuthStore from '../auth/store'
+import { theme } from '../style/style'
 import { defaultOnRequest } from '../navigation/webview'
 import Loading from './Loading'
 import LoadingScreen from '../screens/Loading'
@@ -30,6 +31,10 @@ export default function CookedWebView({
 
   const [currentURI, setURI] = useState(startUrl + `?token=${token}`)
 
+  const [height, setHeight] = useState(Dimensions.get('screen').height);
+  const [isRefreshing, setRefreshing] = useState(false);
+
+
   const [canGoBack, setCanGoBack] = useState(false)
 
   // const onMessage = payload => {
@@ -47,12 +52,18 @@ export default function CookedWebView({
   }
 
   const refreshWebView = () => {
-    // webViewRef.current.injectJavaScript(
-    //   `window.location.href = "${startUrl}";
-    //    window.location.reload();`
-    // )
-    // webViewRef.current.clearHistory()
+    setRefreshing(true)
+
+    webViewRef.current.injectJavaScript(
+      `window.location.href = "${startUrl}";`
+    )
+    webViewRef.current.clearHistory()
     // scrollToTop()
+
+    // For now, we are not waiting for the load event.
+    setTimeout(() => {
+      setRefreshing(false)
+    }, 1000)
   }
 
   // useEffect(() => {
@@ -126,6 +137,12 @@ export default function CookedWebView({
 
           auth.logout()
         }
+      } else if (message.type === 'refreshed') {
+        setRefreshing(false)
+      } else if (message.type === 'scroll') {        
+        if (message.startPosition == 0 && message.endPosition === 0) {
+          refreshWebView();
+        }
       }
     } catch (error) {
       console.error('Error parsing message:', error);
@@ -174,6 +191,21 @@ export default function CookedWebView({
       }
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
     });
+
+    let scrollStartPosition = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+      scrollStartPosition = window.scrollY;
+    }, false);
+
+    document.addEventListener('touchend', function(e) {
+      const currentPosition = window.scrollY;
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'scroll',
+        startPosition: scrollStartPosition,
+        endPosition: currentPosition
+      }));
+    }, false);
     `;
   
   const onLoad = e => {
@@ -186,15 +218,24 @@ export default function CookedWebView({
         <LoadingScreen
           backgroundColor={theme.colors.background} />
       ) : (
-        <SafeAreaView
+        <ScrollView
           style={{
             flex: 1,
-            justifyContent: 'flex-start',
-            flexDirection: 'column',
-            backgroundColor: '#efede3',
-          }}>
+            height: '100%',
+            backgroundColor: theme.colors.background,
+          }}
+          onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              enabled={false}
+              tintColor={theme.colors.primary}
+              progressBackgroundColor={theme.colors.background}
+              colors={[theme.colors.primary]}
+            />
+          }          
+          >
           <WebView 
-            nestedScrollEnabled
             source={{
               uri: currentURI,
             }}
@@ -231,10 +272,11 @@ export default function CookedWebView({
             ref={webViewRef}
             //The background color when loading
             style={{
-              backgroundColor: '#fafaf7',
+              backgroundColor: theme.colors.background,
               justifyContent: 'flex-start',
               flexDirection: 'column',
               flex: 1,
+              height: height,
             }}
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
@@ -242,7 +284,7 @@ export default function CookedWebView({
             onMessage={handleMessage}
             javaScriptEnabled={true}
           />
-        </SafeAreaView>
+        </ScrollView>
       )}
     </>
   )
