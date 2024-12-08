@@ -194,6 +194,7 @@ export default function CookedWebView({
             backgroundColor: '#efede3',
           }}>
           <WebView 
+            nestedScrollEnabled
             source={{
               uri: currentURI,
             }}

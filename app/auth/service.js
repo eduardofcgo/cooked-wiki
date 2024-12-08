@@ -27,7 +27,7 @@ export default class AuthService {
 
       const token = Base64.encodeURI(session)
 
-      console.log('settings credentials', username, cookies, session, token)
+      console.log('Setting credentials', username, session, token)
       
       await AuthStore.setCredentials(username, token)
 
@@ -56,10 +56,12 @@ export default class AuthService {
 
     const { token } = credentials
     let session
-    
+
     try {
       session = Base64.decode(token)
     } catch (error) {
+      console.error('Error decoding session token', error)
+
       await AuthStore.clearCredentials()
       
       return false

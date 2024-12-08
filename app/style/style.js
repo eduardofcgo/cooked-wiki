@@ -2,6 +2,7 @@ export const theme = {
   fontSizes: {
     small: 12,
     default: 15,
+    large: 25
   },
   colors: {
     primary: '#d97757',
@@ -24,7 +25,7 @@ export const theme = {
 }
 
 export const titleStyle = {
-  fontSize: 25,
+  fontSize: theme.fontSizes.large,
   fontFamily: theme.fonts.title,
   fontWeight: 'normal',
 }

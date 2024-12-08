@@ -25,10 +25,7 @@ import navigationTheme from './app/style/navigation'
 import { defaultScreenOptions } from './app/screens/screen'
 import { AuthContext } from './app/context/auth'
 import BottomTabs from './app/components/BottomTabs'
-import ShoppingList from './app/screens/ShoppingList'
-import JustCooked from './app/screens/justcooked/JustCooked'
-import { PublicProfile, LoggedInProfile } from './app/screens/Profile'
-import Community from './app/screens/Community'
+import { PublicProfile } from './app/screens/Profile'
 import Contact from './app/screens/Contact'
 import Settings from './app/screens/Settings'
 import Team from './app/screens/Team'
@@ -42,7 +39,7 @@ import linking from './app/navigation/linking'
 import registerForPushNotifications from './app/notifications/register'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
-import AuthStore from './app/auth/store'
+import FindFriends from './app/screens/FindFriends'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -105,6 +102,10 @@ export default function App() {
 
     tryRestoreCredentials()
   }, [])
+
+  // useEffect(() => {
+  //   registerForPushNotifications()
+  // }, [])
 
   if (!loadedApp) {
     return null
@@ -181,6 +182,15 @@ export default function App() {
                         name='PublicProfile'
                         component={PublicProfile}
                         options={{ title: 'Profile', ...screenStyle }}
+                      />
+
+                      <StackNavigator.Screen
+                        name="FindFriends"
+                        component={FindFriends}
+                        options={{
+                          title: 'Find Friends',
+                          headerBackTitle: 'Back',
+                        }}
                       />
                     </>
                   ) : (
