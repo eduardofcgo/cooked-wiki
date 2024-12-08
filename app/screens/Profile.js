@@ -12,8 +12,14 @@ import { theme, titleStyle } from '../style/style'
 
 import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
+import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
 
 const Tab = createMaterialTopTabNavigator()
+
+const tabLabelTextStyle = {
+  color: theme.colors.softBlack,
+  fontSize: theme.fontSizes.default,
+}
 
 const TabBarLabel = ({ icon, label, focused }) => (
   <View style={tabBarLabelStyle}>
@@ -21,9 +27,11 @@ const TabBarLabel = ({ icon, label, focused }) => (
       icon={icon}
       color={focused ? theme.colors.black : theme.colors.softBlack}
     />
-
     <Text
-      style={{ color: focused ? theme.colors.black : theme.colors.softBlack }}>
+      style={{
+        ...tabLabelTextStyle,
+        color: focused ? theme.colors.black : theme.colors.softBlack,
+      }}>
       {label}
     </Text>
   </View>
@@ -37,7 +45,7 @@ const ProfileHeader = ({ username, bio, navigation }) => {
       <View style={styles.profileContainer}>
         <Image
           source={{
-            uri: 'http://cooked.wiki/image/thumbnail/profile/eduardo/e4038d2e-53b8-4cbb-80ee-c71c1ba2f4b0',
+            uri: getProfileImageUrl(username),
           }}
           style={styles.profileImage}
         />
@@ -108,7 +116,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`http://192.168.1.96:3000/user/${username}/journal`}
+              startUrl={getJournalUrl(username)}
               navigation={navigation}
               route={route}
             />
@@ -123,7 +131,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`http://192.168.1.96:3000/user/${username}`}
+              startUrl={getProfileUrl(username)}
               navigation={navigation}
               route={route}
             />
@@ -142,7 +150,7 @@ function Profile({ route, navigation, username }) {
           }}>
           {() => (
             <CookedWebView
-              startUrl={`http://192.168.1.96:3000/user/${username}/shopping-list`}
+              startUrl={getShoppingListUrl(username)}
               navigation={navigation}
               route={route}
             />
@@ -198,7 +206,6 @@ const tabStyle = {
   tabBarStyle: {
     backgroundColor: theme.colors.secondary,
   },
-  tabBarLabelStyle: { fontSize: theme.fontSizes.default },
   swipeEnabled: false,
 }
 

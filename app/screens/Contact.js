@@ -1,9 +1,10 @@
 import CookedWebView from '../components/CookedWebView'
+import { getContactUrl } from '../urls'
 
 export default function Contact({ navigation, route }) {
   return (
     <CookedWebView
-      startUrl='http://192.168.1.96:3000/contact'
+      startUrl={getContactUrl()}
       navigation={navigation}
       route={route}
     />

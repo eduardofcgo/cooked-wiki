@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Button,
 } from 'react-native'
+
+import { theme } from '../../style/style'
 import CookedButton from '../../components/CookedButton'
 import CookedInput from '../../components/CookedInput'
 import {
@@ -187,9 +189,9 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     marginTop: 20,
-    borderRadius: 5,
-    borderWidth: 5,
-    borderColor: '#d97757',
+    borderRadius: theme.borderRadius.default,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
     overflow: 'hidden',
   },
   camera: {

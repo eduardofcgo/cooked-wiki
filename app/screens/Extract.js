@@ -1,36 +1,16 @@
 import CookedWebView from '../components/CookedWebView'
 import { useShareIntentContext } from 'expo-share-intent'
-import { useCallback, useEffect, useState } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
+import { getExtractUrl } from '../urls'
 
 export default function Extract({ navigation, route }) {
   const { hasShareIntent, shareIntent } = useShareIntentContext()
   const extractUrl =
     hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
 
-  const onRequest = request => {
-    const url = request.url
-
-    if (url.match(/\/user\/.*/) || url.endsWith('/recipes')) {
-      navigation.navigate('ProfileView', { refresh: true })
-
-      return false
-    }
-
-    if (url.endsWith('/shopping-list') || url.endsWith('/buy')) {
-      navigation.navigate('ShoppingList', { refresh: true })
-
-      return false
-    }
-
-    return true
-  }
-
   return (
     extractUrl && (
       <CookedWebView
-        startUrl={`http://192.168.1.96:3000/${extractUrl}`}
-        // onRequest={onRequest}
+        startUrl={getExtractUrl(extractUrl)}
         navigation={navigation}
         route={route}
       />

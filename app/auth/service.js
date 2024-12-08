@@ -1,4 +1,7 @@
+import { Base64 } from 'js-base64';
+
 import AuthStore from './store'
+import { getAppLoginUrl, getCommunityJournalUrl } from '../urls'
 
 export default class AuthService {
 
@@ -6,7 +9,7 @@ export default class AuthService {
   
   static async login(username, password) {
     const response = await fetch(
-      `http://192.168.1.96:3000/app/login`,
+      getAppLoginUrl(),
       {
         method: 'POST',
         headers: {
@@ -17,13 +20,15 @@ export default class AuthService {
     )
     if (response.ok) {
       const cookies = response.headers.get('set-cookie')
-      const rawToken = cookies
+      const session = cookies
         .split(';')
         .find(cookie => cookie.trim().startsWith(AuthService.sessionKey + '='))
         .split('=')[1].trim()
 
-      const token = decodeURIComponent(rawToken)
+      const token = Base64.encodeURI(session)
 
+      console.log('settings credentials', username, cookies, session, token)
+      
       await AuthStore.setCredentials(username, token)
 
       return { username, token }
@@ -50,10 +55,20 @@ export default class AuthService {
     }
 
     const { token } = credentials
+    let session
+    
+    try {
+      session = Base64.decode(token)
+    } catch (error) {
+      await AuthStore.clearCredentials()
+      
+      return false
+    }
 
-    const response = await fetch('http://192.168.1.96:3000/community/journal', {
+    // Could be any URL that requires authentication
+    const response = await fetch(getCommunityJournalUrl(), {
       headers: {
-        'Cookie': `ring-session=${token}`
+        'Cookie': `${AuthService.sessionKey}=${session}`
       }
     })
     const headers = response.headers

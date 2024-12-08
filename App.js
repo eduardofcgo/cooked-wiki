@@ -166,7 +166,7 @@ export default function App() {
                               backgroundColor={theme.colors.secondary}
                               color={theme.colors.black}
                               onPress={() => {
-                                const shareUrl = `https://cooked.wik/recipe`
+                                const shareUrl = `http://192.168.1.96:3000/recipe`
                                 Share.share({
                                   message: shareUrl,
                                   url: shareUrl,

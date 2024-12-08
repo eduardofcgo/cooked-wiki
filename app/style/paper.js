@@ -8,7 +8,11 @@ const paperTheme = {
   fonts: {
     ...MD3LightTheme.fonts,
     labelLarge: {
-      fontSize: theme.fontSizes.small,
+      fontSize: theme.fontSizes.default,
+    },
+    bodyLarge: {
+      fontSize: theme.fontSizes.default,
+      fontFamily: theme.fonts.ui,
     },
   },
   colors: {

@@ -28,7 +28,7 @@ export default function CookedWebView({
   const { credentials } = auth
   const { token } = credentials
 
-  const [currentURI, setURI] = useState(startUrl)
+  const [currentURI, setURI] = useState(startUrl + `?token=${token}`)
 
   const [canGoBack, setCanGoBack] = useState(false)
 
@@ -102,38 +102,14 @@ export default function CookedWebView({
   }, [route.params])
 
   const onWebViewRequest = request => {
-    // If this function returns disableRequest (false value),
-    // the WebView will not navigate to this URL.
-    const disableRequest = false
-
     // Always load normally the WebView at the beggining,
-    // only further requests will be checked (when the user navigates)
+    // only further requests will be checked - when the user navigates
     if (request.url === startUrl) return true
 
-    // Some webpages have native screens, so we always check
-    // for the default behaviour.
+    // Default navigation
     const shouldHandleRequestDefault = defaultOnRequest(navigation, request)
 
     return shouldHandleRequestDefault
-
-    // The default behaviour is not defined for every URL.
-    // if (shouldHandleRequestDefault !=== undefined) {
-    //   return shouldHandleRequestDefault
-    // }
-
-    // If this component received a custom onRequest,
-    // it is expected to know how to navigate every URL.
-    // else if (onRequest) {
-    //   const customHandle = onRequest(request)
-    //   if (customHandle === undefined) {
-    //     console.error("WebView attempted to navigate to unhandled URL", request.url)
-
-    //     return disableRequest
-    //   }
-    // }
-
-    // By default do not navigate to unknown URLs
-    // else disableRequest
   }
 
   const handleMessage = (event) => {
@@ -143,7 +119,7 @@ export default function CookedWebView({
       const message = JSON.parse(data);
       if (message.type === 'logged-user') {
         if (message.username === undefined) {
-          console.error('Logged user is undefined, this should not happen')
+          console.log('Logged user is undefined, this should not happen')
         
         } else if (message.username === null) {
           console.log('Logged user is null, logging out', currentURI)
@@ -200,9 +176,9 @@ export default function CookedWebView({
     });
     `;
   
-    const onLoad = e => {
-      console.log('onLoad', e.nativeEvent.url)
-    }
+  const onLoad = e => {
+    console.log('onLoad', e.nativeEvent.url)
+  }
 
   return (
     <>
@@ -217,9 +193,9 @@ export default function CookedWebView({
             flexDirection: 'column',
             backgroundColor: '#efede3',
           }}>
-          <WebView
+          <WebView 
             source={{
-              uri: startUrl + `?ring-session=${encodeURIComponent(token)}`,
+              uri: currentURI,
             }}
             onShouldStartLoadWithRequest={request => {
               console.log('request', request.url)
@@ -237,6 +213,7 @@ export default function CookedWebView({
               },
             }}
             userAgent={'app'}
+
             // only for iOS
             allowsBackForwardNavigationGestures={true}
             // onNavigationStateChange={handleNavigationStateChange}
@@ -257,13 +234,11 @@ export default function CookedWebView({
               justifyContent: 'flex-start',
               flexDirection: 'column',
               flex: 1,
-              // marginBottom: 60,
             }}
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
             injectedJavaScript={injectedJavaScript}
             onMessage={handleMessage}
-            // Make sure JavaScript is enabled
             javaScriptEnabled={true}
           />
         </SafeAreaView>

@@ -1,23 +1,34 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { List, Button } from 'react-native-paper';
 import { theme } from '../style/style';
 import { AuthContext } from '../context/auth';
+import LoadingScreen from '../screens/Loading';
 
 export default function Settings({ navigation }) {
   const { logout } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
       await logout();
     } catch (error) {
+      setIsLoading(false);
+
       console.error('Logout error:', error);
       alert('Failed to logout. Please try again.');
     }
+    setIsLoading(false);
   };
 
   return (
     <View style={styles.container}>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <LoadingScreen />
+        </View>
+      )}
       <ScrollView style={styles.scrollView}>
         <List.Section>
           <List.Subheader>Account</List.Subheader>
@@ -89,5 +100,16 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+    opacity: 0.5,
   },
 });

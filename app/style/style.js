@@ -1,7 +1,7 @@
 export const theme = {
   fontSizes: {
     small: 12,
-    default: 16,
+    default: 15,
   },
   colors: {
     primary: '#d97757',
@@ -13,6 +13,7 @@ export const theme = {
     border: '#ccc'
   },
   fonts: {
+    ui: 'system-ui, System',
     title: 'EBGaramond',
     primary: 'EBGaramond',
   },

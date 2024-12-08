@@ -1,9 +1,10 @@
 import CookedWebView from '../components/CookedWebView'
+import { getTeamUrl } from '../urls'
 
 export default function Team({ navigation, route }) {
   return (
     <CookedWebView
-      startUrl={`http://192.168.1.96:3000/team`}
+      startUrl={getTeamUrl()}
       navigation={navigation}
       route={route}
     />

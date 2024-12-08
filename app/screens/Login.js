@@ -94,7 +94,7 @@ export default function Login({ navigation, route }) {
 
           <View style={styles.buttonsContainer}>
             <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
-              <Text style={styles.registerButtonText}>Login</Text>
+              <Text style={styles.registerButtonText}>Sign in</Text>
             </TouchableOpacity>
           </View>
 
