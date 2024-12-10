@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useLayoutEffect, useEffect } from 'react'
 import { View, Text, Image, StyleSheet, StatusBar } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -7,12 +7,18 @@ import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { Menu, IconButton } from 'react-native-paper'
+import { observer } from 'mobx-react-lite'
 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { useStore } from '../context/store/StoreContext'
 import { theme, titleStyle } from '../style/style'
 
 import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
+import { ApiContext } from '../context/api'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
+import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -37,18 +43,75 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileHeader = ({ username, bio, navigation }) => {
+const ProfileMenu = () => {
   const [menuVisible, setMenuVisible] = React.useState(false)
+
+  return (
+      <Menu
+      visible={menuVisible}
+      onDismiss={() => setMenuVisible(false)}
+      anchor={
+        <IconButton
+          icon='dots-vertical'
+          iconColor={theme.colors.softBlack}
+          size={20}
+          onPress={() => setMenuVisible(true)}
+        />
+      }
+      anchorPosition='bottom'>
+      <Menu.Item
+        onPress={() => {
+          setMenuVisible(false)
+          navigation.navigate('Settings')
+        }}
+        title='Share'
+      />
+      <Menu.Item
+        onPress={() => {
+          setMenuVisible(false)
+          navigation.navigate('Settings')
+        }}
+        title='Settings'
+      />
+      <Menu.Item
+        onPress={() => {
+          setMenuVisible(false)
+          navigation.navigate('Team')
+        }}
+        title='Patron'
+      />
+      <Menu.Item
+        onPress={() => {
+          setMenuVisible(false)
+          navigation.navigate('Help')
+        }}
+        title='Help'
+      />
+    </Menu>
+  )
+}
+
+const ProfileHeader = ({ username, bio, navigation, menu }) => {
+  const showImage = false
 
   return (
     <View style={styles.header}>
       <View style={styles.profileContainer}>
-        <Image
-          source={{
-            uri: getProfileImageUrl(username),
-          }}
-          style={styles.profileImage}
-        />
+        {showImage ? (
+          <Image
+            source={{
+              uri: getProfileImageUrl(username),
+            }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <Icon 
+            name="account" 
+            size={64} 
+            color={theme.colors.softBlack} 
+            style={styles.avatarPlaceholder} 
+          />
+        )}
         <View style={styles.profileText}>
           <Text style={styles.username}>{username}</Text>
           <Text style={styles.bio}>
@@ -57,55 +120,15 @@ const ProfileHeader = ({ username, bio, navigation }) => {
         </View>
       </View>
 
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
-          <IconButton
-            icon='dots-vertical'
-            iconColor={theme.colors.softBlack}
-            size={20}
-            onPress={() => setMenuVisible(true)}
-          />
-        }
-        anchorPosition='bottom'>
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Settings')
-          }}
-          title='Share'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Settings')
-          }}
-          title='Settings'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Team')
-          }}
-          title='Patron'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Help')
-          }}
-          title='Help'
-        />
-      </Menu>
+      {menu}
     </View>
   )
 }
 
-function Profile({ route, navigation, username }) {
+function Profile({ route, navigation, username, menu }) {
   return (
     <>
-      <ProfileHeader username={username} navigation={navigation} />
+      <ProfileHeader username={username} navigation={navigation} menu={menu} />
       <Tab.Navigator screenOptions={tabStyle}>
         <Tab.Screen
           name='Cooked'
@@ -161,17 +184,63 @@ function Profile({ route, navigation, username }) {
   )
 }
 
-export function PublicProfile({ route, navigation }) {
+const FollowButton = observer(({ username }) => {
+  const { profileStore } = useStore()
+  const { isLoadingFollowing } = profileStore
+  const isFollowing = profileStore.isFollowing(username)
+
+  if (isLoadingFollowing) {
+    return undefined
+  }
+  
+  return (
+    <View
+      style={{ 
+        flexDirection: 'row', 
+        alignItems: 'center',
+      }}>
+      {isFollowing ? (
+        <SecondaryButton
+          title="Following"
+          onPress={() => profileStore.unfollow(username)}
+        />
+      ) : (
+        <Button
+          title="Follow" 
+          onPress={() => profileStore.follow(username)}
+        />
+      )}
+    </View>
+  );
+})
+
+export const PublicProfile = observer(({ route, navigation }) => {
+  const { profileStore } = useStore()
+  const username = route.params.username
+
+  useEffect(() => {
+    profileStore.loadFollowing()
+  }, [navigation])
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <FollowButton username={username} />
+      ),
+    })
+  }, [navigation])
+
   return (
     <View style={{ ...styles.container, paddingTop: 0 }}>
       <Profile
         route={route}
         navigation={navigation}
-        username={route.params.username}
+        username={username}
+        menu={null}
       />
     </View>
   )
-}
+})
 
 export function LoggedInProfile({ route, navigation }) {
   const { credentials } = useContext(AuthContext)
@@ -181,13 +250,12 @@ export function LoggedInProfile({ route, navigation }) {
   }
 
   return (
-    // LoggedInProfile does not have navigation header, so we need to adjust
-    // the padding to account for the status bar manually.
     <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight }}>
       <Profile
         route={route}
         navigation={navigation}
         username={credentials.username}
+        menu={<ProfileMenu />}
       />
     </View>
   )
@@ -233,6 +301,17 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
+    borderWidth: 2,
+    borderColor: theme.colors.softBlack,
+    overflow: 'hidden',
+  },
+  avatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileText: {
     display: 'flex',

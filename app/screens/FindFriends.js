@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,71 +9,63 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { observer } from 'mobx-react-lite'
+import { useStore } from '../context/store/StoreContext'
+
+import RefreshControl from '../components/RefreshControl';
+import Loading from '../components/Loading';
+import { Button, PrimaryButton, SecondaryButton } from '../components/Button';
 import { theme } from '../style/style';
+import { ApiContext } from '../context/api';
 
-export default function FindFriends({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [following, setFollowing] = useState([]);
-  const [loading, setLoading] = useState(false);
+const UserItem = observer(({ user, navigation }) => {  
+  const { findFriendsStore } = useStore()
 
-  // TODO: Replace with actual API calls
-  const searchUsers = async (query) => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setSearchResults([
-        { id: '1', username: 'gordon_ramsay', name: 'Gordon Ramsay', isFollowing: true },
-        { id: '2', username: 'jamie_oliver', name: 'Jamie Oliver', isFollowing: false },
-        // Add more mock data as needed
-      ]);
-      setLoading(false);
-    }, 500);
-  };
-
-  const toggleFollow = async (userId) => {
-    // TODO: Implement follow/unfollow API call
-    setSearchResults(searchResults.map(user => 
-      user.id === userId ? { ...user, isFollowing: !user.isFollowing } : user
-    ));
-  };
-
-  useEffect(() => {
-    if (searchQuery.length > 0) {
-      searchUsers(searchQuery);
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchQuery]);
-
-  const renderUserItem = ({ item }) => (
-    <View style={styles.userItem}>
+  return (
+    <TouchableOpacity 
+      style={styles.userItem}
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
+    >
       <View style={styles.userInfo}>
         <View style={styles.avatarPlaceholder}>
-          <Icon name="account" size={24} color={theme.colors.softBlack} />
+          <Icon name="account" size={20} color={theme.colors.softBlack} />
         </View>
         <View>
-          <Text style={styles.userName}>{item.name}</Text>
-          <Text style={styles.userHandle}>@{item.username}</Text>
+          <Text 
+            style={styles.userName} 
+            color={theme.colors.black}>{user.username}</Text>
         </View>
       </View>
-      <TouchableOpacity
-        style={[
-          styles.followButton,
-          item.isFollowing && styles.followingButton,
-        ]}
-        onPress={() => toggleFollow(item.id)}
-      >
-        <Text style={[
-          styles.followButtonText,
-          item.isFollowing && styles.followingButtonText,
-        ]}>
-          {item.isFollowing ? 'Following' : 'Follow'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
 
+      {user["is-following"] ? (
+        <SecondaryButton 
+          title="Following"
+          style={styles.toggleFollowButton}
+          onPress={() => findFriendsStore.unfollow(user.username)}
+        />
+      ) : (
+        <Button 
+          title="Follow" 
+          style={styles.toggleFollowButton} 
+          onPress={() => findFriendsStore.follow(user.username)}
+        />
+      )}
+    </TouchableOpacity>
+  )
+})
+
+function FindFriends({ navigation }) {
+  const { findFriendsStore } = useStore()
+  const { isEmptySearch, searchQuery, users, loading } = findFriendsStore
+  
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      findFriendsStore.resetSearch();
+    });
+
+    return unsubscribe;
+  }, [navigation])
+  
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -82,23 +74,45 @@ export default function FindFriends({ navigation }) {
           style={styles.searchInput}
           placeholder="Search for friends"
           value={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={(query) => findFriendsStore.setSearchQuery(query)}
+          selectionColor={theme.colors.primary}
+          autoCapitalize="none"
         />
+        {searchQuery ? (
+          <TouchableOpacity onPress={() => findFriendsStore.resetSearch()}>
+            <Icon name="close" size={20} color={theme.colors.softBlack} />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
+
       {loading ? (
-        <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
+        <Loading />
       ) : (
-        <FlatList
-          data={searchResults}
-          renderItem={renderUserItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-        />
+        isEmptySearch ? (
+          <Text style={styles.emptySearchText}>
+            Search for friends by username
+          </Text>
+        ) : (
+          users.length > 0 ? (
+            <FlatList
+              data={users}
+              renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
+              keyExtractor={(item) => item.username}
+              contentContainerStyle={styles.listContainer}
+            />
+          ) : (
+            <Text style={styles.emptySearchText}>
+              No users found
+            </Text>
+          )
+        )
       )}
     </View>
-  );
+  )
 }
+
+export default observer(FindFriends)
 
 const styles = StyleSheet.create({
   container: {
@@ -145,20 +159,16 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: theme.fontSizes.default,
-    fontFamily: theme.fonts.ui,
-    fontWeight: '600',
-    color: theme.colors.softBlack,
+    fontFamily: theme.fonts.title,
+    color: theme.colors.black,
   },
   userHandle: {
     fontSize: theme.fontSizes.small,
     fontFamily: theme.fonts.ui,
     color: theme.colors.gray,
   },
-  followButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.small,
+  toggleFollowButton: {
+    width: 85,
   },
   followingButton: {
     backgroundColor: theme.colors.secondary,

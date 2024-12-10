@@ -19,6 +19,8 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 
+import RootStore from './app/store/RootStore'
+import { ApiClient } from './app/api/client'
 import { theme, screenStyle, titleStyle } from './app/style/style'
 import paperTheme from './app/style/paper'
 import navigationTheme from './app/style/navigation'
@@ -40,6 +42,8 @@ import registerForPushNotifications from './app/notifications/register'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
+import { ApiContext } from './app/context/api'
+import { StoreContext } from './app/context/store/StoreContext'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -80,6 +84,9 @@ export default function App() {
     },
   })
 
+  const apiClient = new ApiClient(authContext.credentials)
+  const rootStore = new RootStore(apiClient)
+
   const loadedApp = loadedFonts && authContext.credentials !== undefined
 
   useEffect(() => {
@@ -89,18 +96,22 @@ export default function App() {
   }, [loadedApp])
 
   useEffect(() => {
-    const tryRestoreCredentials = async () => {
-      const validCredentials = await AuthService.validateStoredCredentials()
-
-      if (validCredentials) {
-        setAuthContext({...authContext, credentials: validCredentials, loggedIn: true})
-
-      } else {
-        setAuthContext({...authContext, credentials: null, loggedIn: false})
+    const restoreCredentials = async () => {
+      let storedCredentials = null
+      try {
+        storedCredentials = await AuthService.getStoredCredentials()
+      } catch (error) {
+        console.error('Error restoring credentials', error)
       }
+
+      setAuthContext({
+        ...authContext,
+        credentials: storedCredentials,
+        loggedIn: Boolean(storedCredentials)
+      })
     }
 
-    tryRestoreCredentials()
+    restoreCredentials()
   }, [])
 
   // useEffect(() => {
@@ -112,113 +123,117 @@ export default function App() {
   
   } else
     return (
-      <PaperProvider theme={paperTheme}>
-        <AuthContext.Provider value={authContext}>
-          <ShareIntentProvider>
-            <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
+      <StoreContext.Provider value={rootStore}>
+        <PaperProvider theme={paperTheme}>
+          <AuthContext.Provider value={authContext}>
+            <ApiContext.Provider value={apiClient}>
+              <ShareIntentProvider>
+                <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
 
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <NavigationContainer linking={linking} theme={navigationTheme}>
-                <StackNavigator.Navigator
-                  initialRouteName={authContext.loggedIn ? 'Main' : 'Start'}
-                  screenOptions={defaultScreenOptions}>
-                  {authContext.loggedIn ? (
-                    <>
-                      <StackNavigator.Screen
-                        name='Main'
-                        options={{ headerShown: false }}
-                        component={BottomTabs}
-                      />
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <NavigationContainer linking={linking} theme={navigationTheme}>
+                    <StackNavigator.Navigator
+                      initialRouteName={authContext.loggedIn ? 'Main' : 'Start'}
+                      screenOptions={defaultScreenOptions}>
+                      {authContext.loggedIn ? (
+                        <>
+                          <StackNavigator.Screen
+                            name='Main'
+                            options={{ headerShown: false }}
+                            component={BottomTabs}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Extract'
-                        component={Extract}
-                        options={{ title: 'New Recipe', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='Extract'
+                            component={Extract}
+                            options={{ title: 'New Recipe', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Contact'
-                        component={Contact}
-                        options={{ title: 'Contact', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='Contact'
+                            component={Contact}
+                            options={{ title: 'Contact', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Settings'
-                        component={Settings}
-                        options={{ title: 'Settings', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='Settings'
+                            component={Settings}
+                            options={{ title: 'Settings', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Team'
-                        component={Team}
-                        options={{ title: 'Patron', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='Team'
+                            component={Team}
+                            options={{ title: 'Patron', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Recipe'
-                        component={Recipe}
-                        options={({ navigation, route }) => ({
-                          title: 'Recipe',
-                          headerRight: () => (
-                            <IconButton
-                              icon='send'
-                              size={20}
-                              style={{ margin: 0, marginRight: -10 }}
-                              backgroundColor={theme.colors.secondary}
-                              color={theme.colors.black}
-                              onPress={() => {
-                                const shareUrl = `http://192.168.1.96:3000/recipe`
-                                Share.share({
-                                  message: shareUrl,
-                                  url: shareUrl,
-                                })
-                              }}
-                            />
-                          ),
-                        })}
-                      />
+                          <StackNavigator.Screen
+                            name='Recipe'
+                            component={Recipe}
+                            options={({ navigation, route }) => ({
+                              title: 'Recipe',
+                              headerRight: () => (
+                                <IconButton
+                                  icon='send'
+                                  size={20}
+                                  style={{ margin: 0, marginRight: -10 }}
+                                  backgroundColor={theme.colors.secondary}
+                                  color={theme.colors.black}
+                                  onPress={() => {
+                                    const shareUrl = `http://192.168.1.96:3000/recipe`
+                                    Share.share({
+                                      message: shareUrl,
+                                      url: shareUrl,
+                                    })
+                                  }}
+                                />
+                              ),
+                            })}
+                          />
 
-                      <StackNavigator.Screen
-                        name='PublicProfile'
-                        component={PublicProfile}
-                        options={{ title: 'Profile', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='PublicProfile'
+                            component={PublicProfile}
+                            options={{ title: 'Profile', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name="FindFriends"
-                        component={FindFriends}
-                        options={{
-                          title: 'Find friends',
-                          headerBackTitle: 'Back',
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <StackNavigator.Screen
-                        name='Start'
-                        component={Start}
-                        options={{ title: 'Start', headerShown: false }}
-                      />
+                          <StackNavigator.Screen
+                            name="FindFriends"
+                            component={FindFriends}
+                            options={{
+                              title: 'Find friends',
+                              headerBackTitle: 'Back',
+                            }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <StackNavigator.Screen
+                            name='Start'
+                            component={Start}
+                            options={{ title: 'Start', headerShown: false }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Login'
-                        component={Login}
-                        options={{ title: 'Login', ...screenStyle }}
-                      />
+                          <StackNavigator.Screen
+                            name='Login'
+                            component={Login}
+                            options={{ title: 'Login', ...screenStyle }}
+                          />
 
-                      <StackNavigator.Screen
-                        name='Register'
-                        component={Register}
-                        options={{ title: 'Register', ...screenStyle }}
-                      />
-                    </>
-                  )}
-                </StackNavigator.Navigator>
-              </NavigationContainer>
-            </GestureHandlerRootView>
-          </ShareIntentProvider>
-        </AuthContext.Provider>
-      </PaperProvider>
+                          <StackNavigator.Screen
+                            name='Register'
+                            component={Register}
+                            options={{ title: 'Register', ...screenStyle }}
+                          />
+                        </>
+                      )}
+                    </StackNavigator.Navigator>
+                  </NavigationContainer>
+                </GestureHandlerRootView>
+              </ShareIntentProvider>
+            </ApiContext.Provider>
+          </AuthContext.Provider>
+        </PaperProvider>
+      </StoreContext.Provider>
     )
 }

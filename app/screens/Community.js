@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { theme } from '../style/style'
+import { Button, PrimaryButton } from '../components/Button'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 
@@ -44,12 +45,11 @@ export default function Community({ navigation, route }) {
                 Get notified when your friends cook something new.
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.button}
+            <Button
               onPress={handleEnableNotifications}
-            >
-              <Text style={styles.buttonText}>Turn on</Text>
-            </TouchableOpacity>
+              style={styles.cardButton}
+              title="Turn on"
+            />
           </View>
         </View>
 
@@ -63,12 +63,11 @@ export default function Community({ navigation, route }) {
                 Connect with your friends to see what they're cooking.
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.button}
+            <Button
               onPress={handleAddFriends}
-            >
-              <Text style={styles.buttonText}>Add friends</Text>
-            </TouchableOpacity>
+              style={styles.cardButton}
+              title="Add friends"
+            />
           </View>
         </View>
 
@@ -130,19 +129,8 @@ const styles = StyleSheet.create({
     color: theme.colors.black,
     marginBottom: 0,
   },
-  button: {
-    backgroundColor: theme.colors.softBlack,
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignSelf: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: theme.fontSizes.small,
-    fontWeight: '500',
-    width: 60,
-    textAlign: 'center',
+  cardButton: {
+    width: 95,
   },
   emptyStateContainer: {
     flex: 1,

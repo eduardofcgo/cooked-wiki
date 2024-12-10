@@ -8,6 +8,7 @@ export default function Recipe({ navigation, route }) {
       startUrl={recipeUrl} 
       navigation={navigation} 
       route={route}
+      disableRefresh={true}
     />
   )
 }

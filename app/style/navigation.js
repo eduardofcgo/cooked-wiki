@@ -8,12 +8,12 @@ const WEB_FONT_STACK =
 export const navigationTheme = {
   dark: false,
   colors: {
-    primary: 'rgb(255, 45, 85)',
-    background: 'rgb(242, 242, 242)',
-    card: 'rgb(255, 255, 255)',
-    text: 'rgb(28, 28, 30)',
-    border: 'rgb(199, 199, 204)',
-    notification: 'rgb(255, 69, 58)',
+    primary: theme.colors.primary,
+    background: theme.colors.background,
+    card: theme.colors.secondary,
+    text: theme.colors.black,
+    border: theme.colors.primary,
+    notification: theme.colors.primary,
   },
   fonts: Platform.select({
     web: {

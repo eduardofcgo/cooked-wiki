@@ -26,7 +26,7 @@ const TabIcon = ({ icon, focused }) => (
 function BottomTabs({ route }) {
   return (
     <TabNavigator.Navigator
-      initialRouteName='LoggedInProfile'
+      initialRouteName='Explore'
       screenOptions={tabScreenStyle}>
       <TabNavigator.Screen
         name='Explore'

@@ -85,6 +85,10 @@ export default class AuthService {
     }
   }
 
+  static async getStoredCredentials() {
+    return await AuthStore.getCredentials()
+  }
+
   static async logout() {
     await AuthStore.clearCredentials()
   }

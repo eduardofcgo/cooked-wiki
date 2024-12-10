@@ -23,6 +23,7 @@ export default function CookedWebView({
   route,
   onRequest,
   disableRefresh,
+  disableBottomMargin
 }) {
   const webViewRef = useRef()
   
@@ -252,38 +253,23 @@ export default function CookedWebView({
         loggedUserMessage.username = loggedUserHeader === "null" ? null : loggedUserHeader;
       }
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
-    });
-
-    
-    `;
+    });`;
   
   const onLoad = e => {
     console.log('onLoad', e.nativeEvent.url)
   }
 
   return (
-    <>
+    <SafeAreaView 
+      style={{ 
+        flex: 1,
+      }}
+    >
       {!credentials ? (
         <LoadingScreen
           backgroundColor={theme.colors.background} />
       ) : (
-        <ScrollView
-          style={{
-            flex: 1,
-            height: '100%',
-            backgroundColor: theme.colors.background,
-          }}
-          onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              enabled={false}
-              tintColor={theme.colors.primary}
-              progressBackgroundColor={theme.colors.background}
-              colors={[theme.colors.primary]}
-            />
-          }          
-          >
+        <>
           <WebView 
             source={{
               uri: currentURI,
@@ -325,7 +311,8 @@ export default function CookedWebView({
               justifyContent: 'flex-start',
               flexDirection: 'column',
               flex: 1,
-              height: height,
+              // Optional: add bottom margin if needed
+              marginBottom: 0
             }}
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
@@ -333,8 +320,31 @@ export default function CookedWebView({
             onMessage={handleMessage}
             javaScriptEnabled={true}
           />
-        </ScrollView>
+          {isRefreshing && (
+            <ActivityIndicator
+              style={{
+                borderRadius: 50,
+                backgroundColor: theme.colors.background,
+                position: 'absolute',
+                top: 20,
+                alignSelf: 'center',
+                zIndex: 1000,
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                padding: 5,
+              }}
+              size="small"
+              color={theme.colors.primary}
+            />
+          )}
+        </>
       )}
-    </>
+    </SafeAreaView>
   )
 }
