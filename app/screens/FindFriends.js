@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
+  Linking,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { observer } from 'mobx-react-lite'
@@ -17,6 +20,7 @@ import Loading from '../components/Loading';
 import { Button, PrimaryButton, SecondaryButton } from '../components/Button';
 import { theme } from '../style/style';
 import { ApiContext } from '../context/api';
+import * as Contacts from 'expo-contacts';
 
 const UserItem = observer(({ user, navigation }) => {  
   const { findFriendsStore } = useStore()
@@ -57,14 +61,56 @@ const UserItem = observer(({ user, navigation }) => {
 function FindFriends({ navigation }) {
   const { findFriendsStore } = useStore()
   const { isEmptySearch, searchQuery, users, loading } = findFriendsStore
-  
+  const [hasPermission, setHasPermission] = useState(null);
+
   useEffect(() => {
+    checkContactsPermission();
+    
     const unsubscribe = navigation.addListener('beforeRemove', () => {
       findFriendsStore.resetSearch();
     });
 
     return unsubscribe;
   }, [navigation])
+
+  const checkContactsPermission = async () => {
+    const { status } = await Contacts.getPermissionsAsync();
+    setHasPermission(status === 'granted');
+  };
+
+  const requestContactsPermission = async () => {
+    const { status } = await Contacts.requestPermissionsAsync();
+    
+    console.log('status', status)
+
+    if (status === 'granted') {
+      setHasPermission(true);
+      // Here you can add logic to fetch contacts
+    } else {
+      Alert.alert(
+        "Permission Required",
+        "Please enable contacts access to find your friends",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => Linking.openSettings() }
+        ]
+      );
+    }
+  };
+
+  const ContactsPermissionCard = () => (
+    <View style={styles.permissionCard}>
+      <Icon name="account-group" size={48} color={theme.colors.primary} />
+      <Text style={styles.permissionTitle}>Find friends from contacts</Text>
+      <Text style={styles.permissionDescription}>
+        Connect with friends already using the app by allowing access to your contacts.
+      </Text>
+      <PrimaryButton
+        title={hasPermission ? "Sync" : "Allow access"}
+        onPress={requestContactsPermission}
+      />
+    </View>
+  );
   
   return (
     <View style={styles.container}>
@@ -72,7 +118,7 @@ function FindFriends({ navigation }) {
         <Icon name="magnify" size={20} color={theme.colors.softBlack} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for friends"
+          placeholder="Search by username"
           value={searchQuery}
           onChangeText={(query) => findFriendsStore.setSearchQuery(query)}
           selectionColor={theme.colors.primary}
@@ -85,27 +131,28 @@ function FindFriends({ navigation }) {
         ) : null}
       </View>
 
-
       {loading ? (
-        <Loading />
+        <View style={styles.resultsContainer}>
+          <Loading />
+        </View>
       ) : (
         isEmptySearch ? (
-          <Text style={styles.emptySearchText}>
-            Search for friends by username
-          </Text>
+          <ContactsPermissionCard />
         ) : (
-          users.length > 0 ? (
-            <FlatList
-              data={users}
-              renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
-              keyExtractor={(item) => item.username}
-              contentContainerStyle={styles.listContainer}
-            />
-          ) : (
-            <Text style={styles.emptySearchText}>
-              No users found
-            </Text>
-          )
+          <View style={styles.resultsContainer}>
+            {users.length > 0 ? (
+              <FlatList
+                data={users}
+                renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
+                keyExtractor={(item) => item.username}
+                contentContainerStyle={styles.listContainer}
+              />
+            ) : (
+              <Text style={styles.emptySearchText}>
+                No users found
+              </Text>
+            )}
+          </View>
         )
       )}
     </View>
@@ -125,6 +172,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: theme.colors.secondary,
     margin: 16,
+    marginBottom: 0,
     borderRadius: theme.borderRadius.default,
   },
   searchInput: {
@@ -134,7 +182,9 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.ui,
   },
   listContainer: {
+    marginBottom: 16,
     padding: 16,
+    paddingTop: 0,
   },
   userItem: {
     flexDirection: 'row',
@@ -184,5 +234,43 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginTop: 20,
+  },
+  permissionCard: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.default,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: theme.colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  permissionTitle: {
+    fontSize: theme.fontSizes.large,
+    fontFamily: theme.fonts.title,
+    color: theme.colors.black,
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  permissionDescription: {
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  resultsContainer: {
+    marginTop: 16,
+    flex: 1,
+  },
+  emptySearchText: {
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
+    textAlign: 'center',
+    marginBottom: 24,
   },
 }); 

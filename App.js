@@ -2,8 +2,12 @@ import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, Text, View, Share } from 'react-native'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import * as Sharing from 'expo-sharing'
+import { Platform } from 'react-native';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
 
 import { Provider as PaperProvider, IconButton } from 'react-native-paper'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -38,12 +42,13 @@ import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
 import Timer from './app/components/timer/Timer'
 import linking from './app/navigation/linking'
-import registerForPushNotifications from './app/notifications/register'
+import { registerForPushNotifications } from './app/notifications/register'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
 import { ApiContext } from './app/context/api'
 import { StoreContext } from './app/context/store/StoreContext'
+import OnboardingScreen from './app/screens/Onboarding'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -51,16 +56,47 @@ Notifications.setNotificationHandler({
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
-})
+});
 
 const StackNavigator = createNativeStackNavigator()
 
 SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  // useEffect(() => {
-  //   // registerForPushNotifications()
-  // }, [])
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [channels, setChannels] = useState([]);
+  const [notification, setNotification] = useState(undefined);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  const tokenListener = useRef();
+
+  useEffect(() => {
+    registerForPushNotifications().then(token => token && setExpoPushToken(token));
+
+    tokenListener.current = Notifications.addPushTokenListener(token => {
+      setExpoPushToken(token.data);
+    });
+
+    if (Platform.OS === 'android') {
+      Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+    }
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+      tokenListener.current &&
+        Notifications.removeNotificationSubscription(tokenListener.current);
+    };
+  }, []);
 
   const [loadedFonts, errorFonts] = useFonts({
     [theme.fonts
@@ -133,7 +169,7 @@ export default function App() {
                 <GestureHandlerRootView style={{ flex: 1 }}>
                   <NavigationContainer linking={linking} theme={navigationTheme}>
                     <StackNavigator.Navigator
-                      initialRouteName={authContext.loggedIn ? 'Main' : 'Start'}
+                      initialRouteName={authContext.loggedIn ? 'Main' : 'Onboarding'}
                       screenOptions={defaultScreenOptions}>
                       {authContext.loggedIn ? (
                         <>
@@ -192,6 +228,12 @@ export default function App() {
                           />
 
                           <StackNavigator.Screen
+                            name='Onboarding'
+                            options={{ headerShown: false }}
+                            component={OnboardingScreen}
+                          />
+
+                          <StackNavigator.Screen
                             name='PublicProfile'
                             component={PublicProfile}
                             options={{ title: 'Profile', ...screenStyle }}
@@ -237,3 +279,4 @@ export default function App() {
       </StoreContext.Provider>
     )
 }
+

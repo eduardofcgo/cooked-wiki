@@ -32,7 +32,7 @@
     "expo-haptics": "^13.0.1",
     "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "^13.0.2",
-    "expo-notifications": "^0.28.7",
+    "expo-notifications": "~0.28.19",
     "expo-secure-store": "~13.0.2",
     "expo-share-intent": "^2.0.1",
     "expo-sharing": "~12.0.1",
@@ -63,7 +63,8 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-vision-camera": "^4.5.1",
     "react-native-web": "~0.19.10",
-    "react-native-webview": "^13.12.5"
+    "react-native-webview": "^13.12.5",
+    "expo-contacts": "~13.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

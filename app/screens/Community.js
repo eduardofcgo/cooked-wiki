@@ -1,11 +1,26 @@
 import React, { useEffect } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { Notifications, scheduleNotificationAsync } from 'expo-notifications'
 
 import { theme } from '../style/style'
 import { Button, PrimaryButton } from '../components/Button'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
+
+async function schedulePushNotification() {
+  await scheduleNotificationAsync({
+    content: {
+      title: "You've got mail!",
+      body: 'Here is the notification body',
+      data: { data: 'goes here', test: { test1: 'more data' } },
+    },
+    trigger: {
+      // type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 2,
+    },
+  });
+}
 
 export default function Community({ navigation, route }) {
   useEffect(() => {
@@ -26,8 +41,8 @@ export default function Community({ navigation, route }) {
     navigation.navigate('FindFriends');
   };
 
-  const handleEnableNotifications = () => {
-    // TODO: Implement notifications permission request
+  const handleEnableNotifications = async () => {
+    await schedulePushNotification();
   }
 
   return (
@@ -45,7 +60,7 @@ export default function Community({ navigation, route }) {
                 Get notified when your friends cook something new.
               </Text>
             </View>
-            <Button
+            <PrimaryButton
               onPress={handleEnableNotifications}
               style={styles.cardButton}
               title="Turn on"
@@ -63,7 +78,7 @@ export default function Community({ navigation, route }) {
                 Connect with your friends to see what they're cooking.
               </Text>
             </View>
-            <Button
+            <PrimaryButton
               onPress={handleAddFriends}
               style={styles.cardButton}
               title="Add friends"

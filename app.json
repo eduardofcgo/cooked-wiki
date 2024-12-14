@@ -52,6 +52,12 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        }
+      ],
       "expo-secure-store"
     ],
     "ios": {
@@ -63,7 +69,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#efede3"
       },
-      "package": "wiki.cooked"
+      "package": "wiki.cooked",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
