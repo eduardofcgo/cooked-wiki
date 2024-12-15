@@ -1,67 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Contacts from 'expo-contacts';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { useStore } from '../context/store/StoreContext'
+import { requestPushNotificationsPermission } from '../notifications/push'
+
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { theme } from '../style/style';
 
+const notificationScreen = {
+  icon: "bell-outline",
+  title: "Never miss a recipe",
+  description: "Get notified when friends cook your recipes.",
+  primaryButton: "Enable notifications",
+  secondaryButton: "Skip",
+  action: async () => {
+    await requestPushNotificationsPermission();
+  }
+};
+
+const contactsScreen = {
+  icon: "account-group-outline",
+  title: "Cook together",
+  description: "Find your friends recipes and see what they are cooking.",
+  primaryButton: "Connect contacts",
+  secondaryButton: "Skip",
+  action: async () => {
+    const { status } = await Contacts.requestPermissionsAsync();
+    return status === 'granted';
+  }
+};
+
 const OnboardingScreen = ({ navigation }) => {
   const [currentScreen, setCurrentScreen] = useState(0);
-
-  const screens = [
+  const [screens, setScreens] = useState([
     {
       icon: "chef-hat",
       title: "Welcome to Cooked.wiki",
       description: "Save, and share your recipes with friends.",
-      primaryButton: "Get started",
-    //   secondaryButton: "Skip",
+      primaryButton: "How it works"
     },
     {
-      icon: "bell-outline",
-      title: "Never miss a recipe",
-      description: "Get notified when friends cook your recipes.",
-      primaryButton: "Enable notifications",
-      secondaryButton: "Skip",
-      action: async () => {
-        const { status } = await Notifications.requestPermissionsAsync();
-        return status === 'granted';
-      }
-    },
-    {
-      icon: "account-group-outline",
-      title: "Cook together",
-      description: "Find your friends recipes and see what they are cooking.",
-      primaryButton: "Connect contacts",
-      secondaryButton: "Skip",
-      action: async () => {
-        const { status } = await Contacts.requestPermissionsAsync();
-        return status === 'granted';
-      }
+      icon: "help",
+      title: "How it works",
+      description: "Transform any page or video into a step by step recipe.",
+      primaryButton: "Let's start!"
     }
-  ];
+  ])
 
-  const handleNext = async () => {
+  useEffect(() => {
+    (async () => {
+      const notificationsPermission = await Notifications.getPermissionsAsync();
+      const contactsPermission = await Contacts.requestPermissionsAsync();
+      
+      if (notificationsPermission.status !== 'granted') {
+        setScreens([...screens, notificationScreen])
+      }
+
+      if (contactsPermission.status !== 'granted') {
+        setScreens([...screens, contactsScreen])
+      }
+    })();
+  }, [])
+
+  const nextScreen = () => {
     if (currentScreen === screens.length - 1) {
       navigation.replace('Start');
       return;
     }
 
+    setCurrentScreen(currentScreen + 1);
+  };
+
+  const handleAction = async () => {
     const screen = screens[currentScreen];
     if (screen.action) {
       await screen.action();
     }
-    
-    setCurrentScreen(currentScreen + 1);
-  };
-
-  const handleSkip = () => {
-    if (currentScreen === screens.length - 1) {
-      navigation.replace('Start');
-      return;
-    }
-
-    setCurrentScreen(currentScreen + 1);
+    nextScreen();
   };
 
   const currentScreenData = screens[currentScreen];
@@ -83,7 +101,7 @@ const OnboardingScreen = ({ navigation }) => {
         <View style={styles.buttonsContainer}>
           <PrimaryButton
             title={currentScreenData.primaryButton}
-            onPress={handleNext}
+            onPress={handleAction}
           />
         </View>
       </View>
@@ -105,7 +123,7 @@ const OnboardingScreen = ({ navigation }) => {
         <View style={styles.footerButton}>
           <SecondaryButton
             title={currentScreenData.secondaryButton}
-            onPress={handleSkip}
+            onPress={nextScreen}
             style={{ backgroundColor: 'transparent' }}
           />
         </View>

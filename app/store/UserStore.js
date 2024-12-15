@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 
 export class UserStore {
-    notificationToken = ''
+    notificationToken = null
     
     constructor(apiClient) {
       this.apiClient = apiClient
@@ -31,5 +31,9 @@ export class UserStore {
             }
         }
       )
+    }
+
+    setNotificationToken(notificationToken) {
+        this.notificationToken = notificationToken;
     }
 }

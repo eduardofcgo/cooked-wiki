@@ -43,7 +43,7 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileMenu = () => {
+const ProfileMenu = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = React.useState(false)
 
   return (
@@ -255,7 +255,7 @@ export function LoggedInProfile({ route, navigation }) {
         route={route}
         navigation={navigation}
         username={credentials.username}
-        menu={<ProfileMenu />}
+        menu={<ProfileMenu navigation={navigation} />}
       />
     </View>
   )

@@ -30,7 +30,7 @@ import paperTheme from './app/style/paper'
 import navigationTheme from './app/style/navigation'
 import { defaultScreenOptions } from './app/screens/screen'
 import { AuthContext } from './app/context/auth'
-import BottomTabs from './app/components/BottomTabs'
+import Main from './app/screens/Main'
 import { PublicProfile } from './app/screens/Profile'
 import Contact from './app/screens/Contact'
 import Settings from './app/screens/Settings'
@@ -42,7 +42,6 @@ import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
 import Timer from './app/components/timer/Timer'
 import linking from './app/navigation/linking'
-import { registerForPushNotifications } from './app/notifications/register'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
@@ -50,54 +49,11 @@ import { ApiContext } from './app/context/api'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
 const StackNavigator = createNativeStackNavigator()
 
 SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = useState('');
-  const [channels, setChannels] = useState([]);
-  const [notification, setNotification] = useState(undefined);
-  const notificationListener = useRef();
-  const responseListener = useRef();
-  const tokenListener = useRef();
-
-  useEffect(() => {
-    registerForPushNotifications().then(token => token && setExpoPushToken(token));
-
-    tokenListener.current = Notifications.addPushTokenListener(token => {
-      setExpoPushToken(token.data);
-    });
-
-    if (Platform.OS === 'android') {
-      Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
-    }
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
-
-    return () => {
-      notificationListener.current &&
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      responseListener.current &&
-        Notifications.removeNotificationSubscription(responseListener.current);
-      tokenListener.current &&
-        Notifications.removeNotificationSubscription(tokenListener.current);
-    };
-  }, []);
-
   const [loadedFonts, errorFonts] = useFonts({
     [theme.fonts
       .title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
@@ -123,7 +79,7 @@ export default function App() {
   const apiClient = new ApiClient(authContext.credentials)
   const rootStore = new RootStore(apiClient)
 
-  const loadedApp = loadedFonts && authContext.credentials !== undefined
+  const loadedApp = (loadedFonts || errorFonts) && authContext.credentials !== undefined
 
   useEffect(() => {
     if (loadedApp) {
@@ -150,10 +106,6 @@ export default function App() {
     restoreCredentials()
   }, [])
 
-  // useEffect(() => {
-  //   registerForPushNotifications()
-  // }, [])
-
   if (!loadedApp) {
     return null
   
@@ -176,7 +128,7 @@ export default function App() {
                           <StackNavigator.Screen
                             name='Main'
                             options={{ headerShown: false }}
-                            component={BottomTabs}
+                            component={Main}
                           />
 
                           <StackNavigator.Screen
@@ -228,12 +180,6 @@ export default function App() {
                           />
 
                           <StackNavigator.Screen
-                            name='Onboarding'
-                            options={{ headerShown: false }}
-                            component={OnboardingScreen}
-                          />
-
-                          <StackNavigator.Screen
                             name='PublicProfile'
                             component={PublicProfile}
                             options={{ title: 'Profile', ...screenStyle }}
@@ -250,6 +196,12 @@ export default function App() {
                         </>
                       ) : (
                         <>
+                          <StackNavigator.Screen
+                            name='Onboarding'
+                            options={{ headerShown: false }}
+                            component={OnboardingScreen}
+                          />
+
                           <StackNavigator.Screen
                             name='Start'
                             component={Start}
