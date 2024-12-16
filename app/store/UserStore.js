@@ -1,39 +1,63 @@
 import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 
 export class UserStore {
-    notificationToken = null
-    
-    constructor(apiClient) {
-      this.apiClient = apiClient
+  notificationToken = null
+  notificationPermissionStatus = null
+  enabledNotifications = true
 
-      makeAutoObservable(this)
+  contactsPermissionStatus = null
+  showFindFriendsCard = true
 
-      reaction(
-        () => this.notificationToken,
-        async (newToken, previousToken) => {
-            console.log('notificationToken', newToken)
+  contactHashes = null
+  loadingFriendsProfiles = null
+  syncedContactsHashedDate = null
+  suggestedFriendsProfiles = null
 
-            try {
-                if (previousToken) {
-                    await this.apiClient.delete('/user/tokens', {
-                        params: { "notification-token": previousToken }
-                    })
-                }
+  constructor(apiClient) {
+    this.apiClient = apiClient
 
-                if (newToken) {
-                    await this.apiClient.put(
-                        '/user/tokens',
-                        { "notification-token": newToken }
-                    )
-                }
-            } catch (error) {
-                console.error('Error updating notification tokens', error)
-            }
+    makeAutoObservable(this)
+
+    reaction(
+      () => this.notificationToken,
+      async (newToken, previousToken) => {
+        console.log('notificationToken', newToken)
+      }
+    )
+
+    reaction(
+      () => this.contacts,
+      async newContactHashes => {
+        if (newContactHashes.length > 0) {
+          this.syncedContactsHashedDate = new Date()
+
+          console.log('new contacts')
         }
-      )
-    }
+      }
+    )
+  }
 
-    setNotificationToken(notificationToken) {
-        this.notificationToken = notificationToken;
-    }
+  setNotificationToken(notificationToken) {
+    this.notificationToken = notificationToken
+  }
+
+  setNotificationPermissionStatus(status) {
+    this.notificationPermissionStatus = status
+  }
+
+  setContactsPermissionStatus(status) {
+    this.contactsPermissionStatus = status
+  }
+
+  setEnabledNotifications(enabled) {
+    this.enabledNotifications = enabled
+  }
+
+  setLoadingFriendsProfiles() {
+    this.loadingFriendsProfiles = true
+  }
+
+  setContactsHashes(contactHashes) {
+    this.contactHashes = contactHashes
+  }
 }

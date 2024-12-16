@@ -14,11 +14,7 @@ const FullScreenImage = ({ route, navigation }) => {
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: imagePath }}
-            style={styles.image}
-            resizeMode='contain'
-          />
+          <Image source={{ uri: imagePath }} style={styles.image} resizeMode='contain' />
         </View>
         <View style={styles.controlsContainer}>
           <TouchableOpacity onPress={onClose} style={styles.topButton}>

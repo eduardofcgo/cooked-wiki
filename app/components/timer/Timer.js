@@ -3,9 +3,7 @@ import Picker from './Picker'
 import { useEffect, useRef, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
-import StopwatchTimer, {
-  StopwatchTimerMethods,
-} from 'react-native-animated-stopwatch-timer'
+import StopwatchTimer, { StopwatchTimerMethods } from 'react-native-animated-stopwatch-timer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 async function createTimer(totalSeconds) {

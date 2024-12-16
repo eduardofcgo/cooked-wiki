@@ -1,9 +1,9 @@
-import { Platform } from 'react-native';
+import { Platform } from 'react-native'
 
-import { theme } from "./style";
+import { theme } from './style'
 
 const WEB_FONT_STACK =
-  'system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
+  'system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
 
 export const navigationTheme = {
   dark: false,
@@ -71,6 +71,6 @@ export const navigationTheme = {
       },
     },
   }),
-};
+}
 
 export default navigationTheme

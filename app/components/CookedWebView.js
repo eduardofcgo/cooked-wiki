@@ -1,10 +1,4 @@
-import {
-  ActivityIndicator,
-  Button,
-  SafeAreaView,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { ActivityIndicator, Button, SafeAreaView, TouchableOpacity, View } from 'react-native'
 import { WebView } from 'react-native-webview'
 import { BackHandler, Platform, ScrollView, Dimensions, RefreshControl } from 'react-native'
 import { HeaderBackButton } from '@react-navigation/elements'
@@ -17,25 +11,17 @@ import Loading from './Loading'
 import LoadingScreen from '../screens/Loading'
 import { AuthContext } from '../context/auth'
 
-export default function CookedWebView({
-  startUrl,
-  navigation,
-  route,
-  onRequest,
-  disableRefresh,
-  disableBottomMargin
-}) {
+export default function CookedWebView({ startUrl, navigation, route, onRequest, disableRefresh, disableBottomMargin }) {
   const webViewRef = useRef()
-  
+
   const auth = useContext(AuthContext)
   const { credentials } = auth
   const { token } = credentials
 
   const [currentURI, setURI] = useState(startUrl + `?token=${token}`)
 
-  const [height, setHeight] = useState(Dimensions.get('screen').height);
-  const [isRefreshing, setRefreshing] = useState(false);
-
+  const [height, setHeight] = useState(Dimensions.get('screen').height)
+  const [isRefreshing, setRefreshing] = useState(false)
 
   const [canGoBack, setCanGoBack] = useState(false)
 
@@ -57,13 +43,11 @@ export default function CookedWebView({
     if (!disableRefresh) {
       setRefreshing(true)
 
-      webViewRef.current.injectJavaScript(
-        `window.location.href = "${startUrl}";`
-      )
+      webViewRef.current.injectJavaScript(`window.location.href = "${startUrl}";`)
       webViewRef.current.clearHistory()
       // scrollToTop()
 
-    // For now, we are not waiting for the load event.
+      // For now, we are not waiting for the load event.
       setTimeout(() => {
         setRefreshing(false)
       }, 1000)
@@ -100,9 +84,7 @@ export default function CookedWebView({
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      webViewRef.current.injectJavaScript(
-        'window.closeModals && window.closeModals()'
-      )
+      webViewRef.current.injectJavaScript('window.closeModals && window.closeModals()')
     })
 
     return unsubscribe
@@ -127,27 +109,26 @@ export default function CookedWebView({
     return shouldHandleRequestDefault
   }
 
-  const handleMessage = (event) => {
+  const handleMessage = event => {
     const data = event.nativeEvent.data
 
     try {
-      const message = JSON.parse(data);
+      const message = JSON.parse(data)
       if (message.type === 'logged-user') {
         if (message.username === undefined) {
           console.log('Logged user is undefined, this should not happen')
-        
         } else if (message.username === null) {
           console.log('Logged user is null, logging out', currentURI)
 
           auth.logout()
         }
-      } else if (message.type === 'refresh') {        
-        refreshWebView();
+      } else if (message.type === 'refresh') {
+        refreshWebView()
       }
     } catch (error) {
-      console.error('Error parsing message:', error);
+      console.error('Error parsing message:', error)
     }
-  };
+  }
 
   const injectedJavaScript = `
     console = new Object();
@@ -253,24 +234,22 @@ export default function CookedWebView({
         loggedUserMessage.username = loggedUserHeader === "null" ? null : loggedUserHeader;
       }
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
-    });`;
-  
+    });`
+
   const onLoad = e => {
     console.log('onLoad', e.nativeEvent.url)
   }
 
   return (
-    <SafeAreaView 
-      style={{ 
+    <SafeAreaView
+      style={{
         flex: 1,
-      }}
-    >
+      }}>
       {!credentials ? (
-        <LoadingScreen
-          backgroundColor={theme.colors.background} />
+        <LoadingScreen backgroundColor={theme.colors.background} />
       ) : (
         <>
-          <WebView 
+          <WebView
             source={{
               uri: currentURI,
             }}
@@ -290,7 +269,6 @@ export default function CookedWebView({
               },
             }}
             userAgent={'app'}
-
             // only for iOS
             allowsBackForwardNavigationGestures={true}
             // onNavigationStateChange={handleNavigationStateChange}
@@ -300,7 +278,6 @@ export default function CookedWebView({
             thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
             incognito={false}
             cacheEnabled={true}
-
             pullToRefreshEnabled={true}
             startInLoadingState={true}
             renderLoading={Loading}
@@ -312,7 +289,7 @@ export default function CookedWebView({
               flexDirection: 'column',
               flex: 1,
               // Optional: add bottom margin if needed
-              marginBottom: 0
+              marginBottom: 0,
             }}
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
@@ -329,7 +306,7 @@ export default function CookedWebView({
                 top: 20,
                 alignSelf: 'center',
                 zIndex: 1000,
-                shadowColor: "#000",
+                shadowColor: '#000',
                 shadowOffset: {
                   width: 0,
                   height: 2,
@@ -339,7 +316,7 @@ export default function CookedWebView({
                 elevation: 5,
                 padding: 5,
               }}
-              size="small"
+              size='small'
               color={theme.colors.primary}
             />
           )}

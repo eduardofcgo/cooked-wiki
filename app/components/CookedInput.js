@@ -1,14 +1,5 @@
 import React, { useState } from 'react'
-import {
-  View,
-  TextInput,
-  Image,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Modal,
-} from 'react-native'
+import { View, TextInput, Image, TouchableOpacity, Text, StyleSheet, Dimensions, Modal } from 'react-native'
 import { ArrowLeft as ArrowLeftIcon } from 'lucide-react-native'
 import CookedButton from './CookedButton'
 import CookedButtonSecondary from './CookedButtonSecondary'
@@ -34,9 +25,7 @@ const CookedInput = ({ imagePath, onUndo, route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.imageContainer}
-        onPress={openFullScreenImage}>
+      <TouchableOpacity style={styles.imageContainer} onPress={openFullScreenImage}>
         {imagePath ? (
           <Image source={{ uri: imagePath }} style={styles.image} />
         ) : (
@@ -84,9 +73,7 @@ const CookedInput = ({ imagePath, onUndo, route, navigation }) => {
         onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalView}>
           <Text>This is a modal!</Text>
-          <CookedButton onPress={() => setModalVisible(false)}>
-            Close Modal
-          </CookedButton>
+          <CookedButton onPress={() => setModalVisible(false)}>Close Modal</CookedButton>
         </View>
       </Modal>
     </View>

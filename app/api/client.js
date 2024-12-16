@@ -17,28 +17,28 @@ export class ApiClient {
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     })
 
     this.client.interceptors.request.use(
-      (config) => {
+      config => {
         if (credentials?.token) {
           const session = Base64.decode(credentials.token)
           config.headers.Cookie = `ring-session=${session}`
         }
         return config
       },
-      (error) => {
+      error => {
         return Promise.reject(error)
       }
     )
 
     this.client.interceptors.response.use(
-      (response) => {
+      response => {
         return response.data
       },
-      (error) => {
+      error => {
         if (error.response) {
           throw new ApiError(
             error.response.data.message || 'An error occurred: ' + error.response.status,
@@ -53,8 +53,8 @@ export class ApiClient {
 
   onUnauthorized(callback) {
     this.client.interceptors.response.use(
-      (response) => response,
-      (error) => {
+      response => response,
+      error => {
         if (error.response?.status === 401) {
           callback(error.response)
         }
@@ -80,4 +80,3 @@ export class ApiClient {
     return this.client.delete(url, config)
   }
 }
-

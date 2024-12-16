@@ -4,10 +4,10 @@ import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, Text, View, Share } from 'react-native'
 import { useEffect, useMemo, useState, useRef } from 'react'
 import * as Sharing from 'expo-sharing'
-import { Platform } from 'react-native';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
-import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import { Platform } from 'react-native'
+import * as Device from 'expo-device'
+import Constants from 'expo-constants'
+import { SchedulableTriggerInputTypes } from 'expo-notifications'
 
 import { Provider as PaperProvider, IconButton } from 'react-native-paper'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -22,7 +22,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
-
+import { observer } from 'mobx-react-lite'
 import RootStore from './app/store/RootStore'
 import { ApiClient } from './app/api/client'
 import { theme, screenStyle, titleStyle } from './app/style/style'
@@ -45,7 +45,6 @@ import linking from './app/navigation/linking'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
-import { ApiContext } from './app/context/api'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
 
@@ -53,10 +52,9 @@ const StackNavigator = createNativeStackNavigator()
 
 SplashScreen.preventAutoHideAsync()
 
-export default function App() {
+function App() {
   const [loadedFonts, errorFonts] = useFonts({
-    [theme.fonts
-      .title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
+    [theme.fonts.title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
   })
 
   const [authContext, setAuthContext] = useState({
@@ -66,20 +64,20 @@ export default function App() {
     login: async (username, password) => {
       const newCredentials = await AuthService.login(username, password)
 
-      setAuthContext({...authContext, credentials: newCredentials, loggedIn: true})
+      setAuthContext({ ...authContext, credentials: newCredentials, loggedIn: true })
     },
 
     logout: async () => {
       await AuthService.logout()
 
-      setAuthContext({...authContext, credentials: null, loggedIn: false})
+      setAuthContext({ ...authContext, credentials: null, loggedIn: false })
     },
   })
 
   const apiClient = new ApiClient(authContext.credentials)
   const rootStore = new RootStore(apiClient)
 
-  const loadedApp = (loadedFonts || errorFonts) && authContext.credentials !== undefined
+  const loadedApp = loadedFonts && authContext.credentials !== undefined
 
   useEffect(() => {
     if (loadedApp) {
@@ -99,7 +97,7 @@ export default function App() {
       setAuthContext({
         ...authContext,
         credentials: storedCredentials,
-        loggedIn: Boolean(storedCredentials)
+        loggedIn: Boolean(storedCredentials),
       })
     }
 
@@ -108,127 +106,121 @@ export default function App() {
 
   if (!loadedApp) {
     return null
-  
   } else
     return (
       <StoreContext.Provider value={rootStore}>
         <PaperProvider theme={paperTheme}>
           <AuthContext.Provider value={authContext}>
-            <ApiContext.Provider value={apiClient}>
-              <ShareIntentProvider>
-                <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
+            <ShareIntentProvider>
+              <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
 
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <NavigationContainer linking={linking} theme={navigationTheme}>
-                    <StackNavigator.Navigator
-                      initialRouteName={authContext.loggedIn ? 'Main' : 'Onboarding'}
-                      screenOptions={defaultScreenOptions}>
-                      {authContext.loggedIn ? (
-                        <>
-                          <StackNavigator.Screen
-                            name='Main'
-                            options={{ headerShown: false }}
-                            component={Main}
-                          />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <NavigationContainer linking={linking} theme={navigationTheme}>
+                  <StackNavigator.Navigator
+                    initialRouteName={authContext.loggedIn ? 'Main' : 'Onboarding'}
+                    screenOptions={defaultScreenOptions}>
+                    {authContext.loggedIn ? (
+                      <>
+                        <StackNavigator.Screen name='Main' options={{ headerShown: false }} component={Main} />
 
-                          <StackNavigator.Screen
-                            name='Extract'
-                            component={Extract}
-                            options={{ title: 'New Recipe', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='Extract'
+                          component={Extract}
+                          options={{ title: 'New Recipe', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Contact'
-                            component={Contact}
-                            options={{ title: 'Contact', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='Contact'
+                          component={Contact}
+                          options={{ title: 'Contact', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Settings'
-                            component={Settings}
-                            options={{ title: 'Settings', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='Settings'
+                          component={Settings}
+                          options={{ title: 'Settings', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Team'
-                            component={Team}
-                            options={{ title: 'Patron', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='Team'
+                          component={Team}
+                          options={{ title: 'Patron', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Recipe'
-                            component={Recipe}
-                            options={({ navigation, route }) => ({
-                              title: 'Recipe',
-                              headerRight: () => (
-                                <IconButton
-                                  icon='send'
-                                  size={20}
-                                  style={{ margin: 0, marginRight: -10 }}
-                                  backgroundColor={theme.colors.secondary}
-                                  color={theme.colors.black}
-                                  onPress={() => {
-                                    const shareUrl = `http://192.168.1.96:3000/recipe`
-                                    Share.share({
-                                      message: shareUrl,
-                                      url: shareUrl,
-                                    })
-                                  }}
-                                />
-                              ),
-                            })}
-                          />
+                        <StackNavigator.Screen
+                          name='Recipe'
+                          component={Recipe}
+                          options={({ navigation, route }) => ({
+                            title: 'Recipe',
+                            headerRight: () => (
+                              <IconButton
+                                icon='send'
+                                size={20}
+                                style={{ margin: 0, marginRight: -10 }}
+                                backgroundColor={theme.colors.secondary}
+                                color={theme.colors.black}
+                                onPress={() => {
+                                  const shareUrl = `http://192.168.1.96:3000/recipe`
+                                  Share.share({
+                                    message: shareUrl,
+                                    url: shareUrl,
+                                  })
+                                }}
+                              />
+                            ),
+                          })}
+                        />
 
-                          <StackNavigator.Screen
-                            name='PublicProfile'
-                            component={PublicProfile}
-                            options={{ title: 'Profile', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='PublicProfile'
+                          component={PublicProfile}
+                          options={{ title: 'Profile', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name="FindFriends"
-                            component={FindFriends}
-                            options={{
-                              title: 'Find friends',
-                              headerBackTitle: 'Back',
-                            }}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <StackNavigator.Screen
-                            name='Onboarding'
-                            options={{ headerShown: false }}
-                            component={OnboardingScreen}
-                          />
+                        <StackNavigator.Screen
+                          name='FindFriends'
+                          component={FindFriends}
+                          options={{
+                            title: 'Find friends',
+                            headerBackTitle: 'Back',
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <StackNavigator.Screen
+                          name='Onboarding'
+                          options={{ headerShown: false }}
+                          component={OnboardingScreen}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Start'
-                            component={Start}
-                            options={{ title: 'Start', headerShown: false }}
-                          />
+                        <StackNavigator.Screen
+                          name='Start'
+                          component={Start}
+                          options={{ title: 'Start', headerShown: false }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Login'
-                            component={Login}
-                            options={{ title: 'Login', ...screenStyle }}
-                          />
+                        <StackNavigator.Screen
+                          name='Login'
+                          component={Login}
+                          options={{ title: 'Login', ...screenStyle }}
+                        />
 
-                          <StackNavigator.Screen
-                            name='Register'
-                            component={Register}
-                            options={{ title: 'Register', ...screenStyle }}
-                          />
-                        </>
-                      )}
-                    </StackNavigator.Navigator>
-                  </NavigationContainer>
-                </GestureHandlerRootView>
-              </ShareIntentProvider>
-            </ApiContext.Provider>
+                        <StackNavigator.Screen
+                          name='Register'
+                          component={Register}
+                          options={{ title: 'Register', ...screenStyle }}
+                        />
+                      </>
+                    )}
+                  </StackNavigator.Navigator>
+                </NavigationContainer>
+              </GestureHandlerRootView>
+            </ShareIntentProvider>
           </AuthContext.Provider>
         </PaperProvider>
       </StoreContext.Provider>
     )
 }
 
+export default observer(App)

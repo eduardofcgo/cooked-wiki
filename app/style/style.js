@@ -2,7 +2,7 @@ export const theme = {
   fontSizes: {
     small: 12,
     default: 15,
-    large: 25
+    large: 25,
   },
   colors: {
     primary: '#d97757',
@@ -11,7 +11,7 @@ export const theme = {
     black: '#292521',
     white: 'white',
     softBlack: '#706b57',
-    border: '#ccc'
+    border: '#ccc',
   },
   fonts: {
     ui: 'system-ui, System',

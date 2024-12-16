@@ -13,4 +13,4 @@ export function useStores() {
 
 // Convenience hooks for individual stores
 export const useSocialStore = () => useStores().socialStore
-export const useAuthStore = () => useStores().authStore 
+export const useAuthStore = () => useStores().authStore

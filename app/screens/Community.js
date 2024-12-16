@@ -1,101 +1,113 @@
-import React, { useEffect } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useEffect, useCallback } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { Notifications, scheduleNotificationAsync } from 'expo-notifications'
+import * as Notifications from 'expo-notifications'
+import * as Contacts from 'expo-contacts'
+import { observer } from 'mobx-react-lite'
+import { useFocusEffect } from '@react-navigation/native'
 
+import { useStore } from '../context/store/StoreContext'
+import { requestPushNotificationsPermission } from '../notifications/push'
 import { theme } from '../style/style'
 import { Button, PrimaryButton } from '../components/Button'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 
-async function schedulePushNotification() {
-  await scheduleNotificationAsync({
-    content: {
-      title: "You've got mail!",
-      body: 'Here is the notification body',
-      data: { data: 'goes here', test: { test1: 'more data' } },
-    },
-    trigger: {
-      // type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 2,
-    },
-  });
-}
+export default Community = observer(({ navigation, route }) => {
+  const { userStore } = useStore()
+  const notificationPermissionStatus = userStore.notificationPermissionStatus
+  const contactsPermissionStatus = userStore.contactsPermissionStatus
+  const showFindFriendsCard = userStore.showFindFriendsCard
 
-export default function Community({ navigation, route }) {
+  useFocusEffect(() => {
+    ;(async () => {
+      const notificationPermission = await Notifications.getPermissionsAsync()
+      userStore.setNotificationPermissionStatus(notificationPermission.status)
+
+      const contactsPermission = await Contacts.getPermissionsAsync()
+      userStore.setContactsPermissionStatus(contactsPermission.status)
+    })()
+  })
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          style={{marginRight: 16}}
+          style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
-          onPress={handleAddFriends}
-        >
-          <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
+          onPress={handleAddFriends}>
+          <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),
     })
   }, [navigation])
 
-  const handleAddFriends = () => {
-    navigation.navigate('FindFriends');
-  };
+  const handleAddFriends = async () => {
+    navigation.navigate('FindFriends')
+  }
 
   const handleEnableNotifications = async () => {
-    await schedulePushNotification();
+    const permission = await requestPushNotificationsPermission()
+
+    if (permission.status === 'denied' && permission.canAskAgain) {
+      userStore.setNotificationPermissionStatus(null)
+    } else {
+      userStore.setNotificationPermissionStatus(permission.status)
+    }
   }
+
+  const openSettings = () => {
+    if (Platform.OS === 'ios') {
+      Notifications.openSettings()
+    } else {
+      Linking.openSettings()
+    }
+  }
+
+  const showCardsBar = showFindFriendsCard || notificationPermissionStatus !== 'granted'
 
   return (
     <View style={styles.container}>
-
-      <View style={styles.cardsContainer}>
-
-        <View style={styles.card}>
-          <View style={styles.iconContainer}>
-            <Icon name="bell-outline" size={20} color={theme.colors.softBlack} />
-          </View>
-          <View style={styles.contentContainer}>
-            <View style={styles.textContainer}>
-              <Text style={styles.description}>
-                Get notified when your friends cook something new.
-              </Text>
+      {showCardsBar && (
+        <View style={styles.cardsContainer}>
+          {notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && (
+            <View style={styles.card}>
+              <View style={styles.iconContainer}>
+                <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
+              </View>
+              <View style={styles.contentContainer}>
+                <View style={styles.textContainer}>
+                  <Text style={styles.description}>Get notified when your friends cook something new.</Text>
+                </View>
+                {notificationPermissionStatus === 'denied' ? (
+                  <Button onPress={openSettings} style={styles.cardButton} title='Settings' />
+                ) : (
+                  <PrimaryButton onPress={handleEnableNotifications} style={styles.cardButton} title='Turn on' />
+                )}
+              </View>
             </View>
-            <PrimaryButton
-              onPress={handleEnableNotifications}
-              style={styles.cardButton}
-              title="Turn on"
-            />
-          </View>
-        </View>
+          )}
 
-        <View style={styles.card}>
-          <View style={styles.iconContainer}>
-            <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
-          </View>
-          <View style={styles.contentContainer}>
-            <View style={styles.textContainer}>
-              <Text style={styles.description}>
-                Connect with your friends to see what they're cooking.
-              </Text>
+          {showFindFriendsCard && (
+            <View style={styles.card}>
+              <View style={styles.iconContainer}>
+                <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
+              </View>
+              <View style={styles.contentContainer}>
+                <View style={styles.textContainer}>
+                  <Text style={styles.description}>Connect with your friends to see what they're cooking.</Text>
+                </View>
+                <PrimaryButton onPress={handleAddFriends} style={styles.cardButton} title='Add friends' />
+              </View>
             </View>
-            <PrimaryButton
-              onPress={handleAddFriends}
-              style={styles.cardButton}
-              title="Add friends"
-            />
-          </View>
+          )}
         </View>
+      )}
 
-      </View>
-
-      <CookedWebView
-        startUrl={getCommunityJournalUrl()}
-        navigation={navigation}
-        route={route}
-      />
+      <CookedWebView startUrl={getCommunityJournalUrl()} navigation={navigation} route={route} />
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {

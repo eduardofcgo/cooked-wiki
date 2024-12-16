@@ -4,19 +4,13 @@ import { theme } from '../style/style'
 
 export function PrimaryButton({ onPress, title, style }) {
   return (
-    <Button 
-      onPress={onPress} 
-      title={title} 
-      style={[styles.button, {backgroundColor: theme.colors.primary}, style]}
-    />
+    <Button onPress={onPress} title={title} style={[styles.button, { backgroundColor: theme.colors.primary }, style]} />
   )
 }
 
 export function SecondaryButton({ onPress, title, style }) {
   return (
-    <Button 
-      onPress={onPress} 
-      style={[styles.button, styles.secondaryButton, style]}>
+    <Button onPress={onPress} style={[styles.button, styles.secondaryButton, style]}>
       <Text style={[styles.buttonText, styles.secondaryButtonText]}>{title}</Text>
     </Button>
   )
@@ -24,15 +18,8 @@ export function SecondaryButton({ onPress, title, style }) {
 
 export function Button({ onPress, title, style, children }) {
   return (
-    <TouchableOpacity
-      style={[styles.button, style]}
-      onPress={onPress}
-    >
-      {title ? (
-        <Text style={[styles.buttonText]}>
-          {title}
-        </Text>
-      ) : children}
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      {title ? <Text style={[styles.buttonText]}>{title}</Text> : children}
     </TouchableOpacity>
   )
 }

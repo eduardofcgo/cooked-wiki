@@ -9,14 +9,13 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { Menu, IconButton } from 'react-native-paper'
 import { observer } from 'mobx-react-lite'
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { useStore } from '../context/store/StoreContext'
 import { theme, titleStyle } from '../style/style'
 
 import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
-import { ApiContext } from '../context/api'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
 import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
 
@@ -29,10 +28,7 @@ const tabLabelTextStyle = {
 
 const TabBarLabel = ({ icon, label, focused }) => (
   <View style={tabBarLabelStyle}>
-    <FontAwesomeIcon
-      icon={icon}
-      color={focused ? theme.colors.black : theme.colors.softBlack}
-    />
+    <FontAwesomeIcon icon={icon} color={focused ? theme.colors.black : theme.colors.softBlack} />
     <Text
       style={{
         ...tabLabelTextStyle,
@@ -47,7 +43,7 @@ const ProfileMenu = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = React.useState(false)
 
   return (
-      <Menu
+    <Menu
       visible={menuVisible}
       onDismiss={() => setMenuVisible(false)}
       anchor={
@@ -105,18 +101,11 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
             style={styles.profileImage}
           />
         ) : (
-          <Icon 
-            name="account" 
-            size={64} 
-            color={theme.colors.softBlack} 
-            style={styles.avatarPlaceholder} 
-          />
+          <Icon name='account' size={64} color={theme.colors.softBlack} style={styles.avatarPlaceholder} />
         )}
         <View style={styles.profileText}>
           <Text style={styles.username}>{username}</Text>
-          <Text style={styles.bio}>
-            I love baking and other things. This is my bio.
-          </Text>
+          <Text style={styles.bio}>I love baking and other things. This is my bio.</Text>
         </View>
       </View>
 
@@ -133,51 +122,23 @@ function Profile({ route, navigation, username, menu }) {
         <Tab.Screen
           name='Cooked'
           options={{
-            tabBarLabel: ({ focused }) => (
-              <TabBarLabel icon={faBook} label='Cooked' focused={focused} />
-            ),
+            tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
           }}>
-          {() => (
-            <CookedWebView
-              startUrl={getJournalUrl(username)}
-              navigation={navigation}
-              route={route}
-            />
-          )}
+          {() => <CookedWebView startUrl={getJournalUrl(username)} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Recipes'
           options={{
-            tabBarLabel: ({ focused }) => (
-              <TabBarLabel icon={faBox} label='Recipes' focused={focused} />
-            ),
+            tabBarLabel: ({ focused }) => <TabBarLabel icon={faBox} label='Recipes' focused={focused} />,
           }}>
-          {() => (
-            <CookedWebView
-              startUrl={getProfileUrl(username)}
-              navigation={navigation}
-              route={route}
-            />
-          )}
+          {() => <CookedWebView startUrl={getProfileUrl(username)} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Shopping'
           options={{
-            tabBarLabel: ({ focused }) => (
-              <TabBarLabel
-                icon={faCartShopping}
-                label='Shopping'
-                focused={focused}
-              />
-            ),
+            tabBarLabel: ({ focused }) => <TabBarLabel icon={faCartShopping} label='Shopping' focused={focused} />,
           }}>
-          {() => (
-            <CookedWebView
-              startUrl={getShoppingListUrl(username)}
-              navigation={navigation}
-              route={route}
-            />
-          )}
+          {() => <CookedWebView startUrl={getShoppingListUrl(username)} navigation={navigation} route={route} />}
         </Tab.Screen>
       </Tab.Navigator>
     </>
@@ -192,26 +153,20 @@ const FollowButton = observer(({ username }) => {
   if (isLoadingFollowing) {
     return undefined
   }
-  
+
   return (
     <View
-      style={{ 
-        flexDirection: 'row', 
+      style={{
+        flexDirection: 'row',
         alignItems: 'center',
       }}>
       {isFollowing ? (
-        <SecondaryButton
-          title="Following"
-          onPress={() => profileStore.unfollow(username)}
-        />
+        <SecondaryButton title='Following' onPress={() => profileStore.unfollow(username)} />
       ) : (
-        <Button
-          title="Follow" 
-          onPress={() => profileStore.follow(username)}
-        />
+        <Button title='Follow' onPress={() => profileStore.follow(username)} />
       )}
     </View>
-  );
+  )
 })
 
 export const PublicProfile = observer(({ route, navigation }) => {
@@ -224,20 +179,13 @@ export const PublicProfile = observer(({ route, navigation }) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <FollowButton username={username} />
-      ),
+      headerRight: () => <FollowButton username={username} />,
     })
   }, [navigation])
 
   return (
     <View style={{ ...styles.container, paddingTop: 0 }}>
-      <Profile
-        route={route}
-        navigation={navigation}
-        username={username}
-        menu={null}
-      />
+      <Profile route={route} navigation={navigation} username={username} menu={null} />
     </View>
   )
 })

@@ -4,13 +4,7 @@ import { Audio } from 'expo-av'
 import * as Haptics from 'expo-haptics'
 import { View } from 'react-native'
 
-export default function Picker({
-  initialValue,
-  visible,
-  setVisible,
-  onConfirm,
-  onCancel,
-}) {
+export default function Picker({ initialValue, visible, setVisible, onConfirm, onCancel }) {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <TimerPickerModal

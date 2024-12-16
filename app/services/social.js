@@ -41,11 +41,11 @@ export default class SocialService {
       return {
         posts: [],
         hasMore: false,
-        nextPage: null
+        nextPage: null,
       }
     } catch (error) {
       console.error('Error getting feed:', error)
       throw error
     }
   }
-} 
+}

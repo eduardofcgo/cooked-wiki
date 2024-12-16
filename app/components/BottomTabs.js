@@ -1,12 +1,7 @@
 import { Text } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import {
-  faSearch,
-  faBook,
-  faCamera,
-  faUser,
-} from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faBook, faCamera, faUser } from '@fortawesome/free-solid-svg-icons'
 
 import { theme, screenStyle } from '../style/style'
 
@@ -17,31 +12,25 @@ import { LoggedInProfile } from '../screens/Profile'
 const TabNavigator = createBottomTabNavigator()
 
 const TabIcon = ({ icon, focused }) => (
-  <FontAwesomeIcon
-    icon={icon}
-    color={focused ? theme.colors.primary : theme.colors.softBlack}
-  />
+  <FontAwesomeIcon icon={icon} color={focused ? theme.colors.primary : theme.colors.softBlack} />
 )
 
 function BottomTabs({ route }) {
   return (
-    <TabNavigator.Navigator
-      initialRouteName='Explore'
-      screenOptions={tabScreenStyle}>
+    <TabNavigator.Navigator initialRouteName='Explore' screenOptions={tabScreenStyle}>
       <TabNavigator.Screen
         name='Explore'
         component={Community}
         options={({ route }) => ({
           ...screenStyle,
           title: 'Explore',
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon={faSearch} focused={focused} />
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon icon={faSearch} focused={focused} />,
           tabBarLabel: ({ focused }) => (
-            <Text style={{
-              ...tabScreenStyle.tabBarLabelStyle, 
-              color: focused ? 'black' : theme.colors.softBlack,
-            }}>
+            <Text
+              style={{
+                ...tabScreenStyle.tabBarLabelStyle,
+                color: focused ? 'black' : theme.colors.softBlack,
+              }}>
               Explore
             </Text>
           ),
@@ -54,14 +43,13 @@ function BottomTabs({ route }) {
         options={{
           title: 'Share a Cook',
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon={faCamera} focused={focused} />
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon icon={faCamera} focused={focused} />,
           tabBarLabel: ({ focused }) => (
-            <Text style={{
-              ...tabScreenStyle.tabBarLabelStyle,
-              color: focused ? 'black' : theme.colors.softBlack,
-            }}>
+            <Text
+              style={{
+                ...tabScreenStyle.tabBarLabelStyle,
+                color: focused ? 'black' : theme.colors.softBlack,
+              }}>
               Share a Cook
             </Text>
           ),
@@ -74,14 +62,13 @@ function BottomTabs({ route }) {
         options={{
           title: 'Profile',
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon={faUser} focused={focused} />
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon icon={faUser} focused={focused} />,
           tabBarLabel: ({ focused }) => (
-            <Text style={{
-              ...tabScreenStyle.tabBarLabelStyle,
-              color: focused ? 'black' : theme.colors.softBlack,
-            }}>
+            <Text
+              style={{
+                ...tabScreenStyle.tabBarLabelStyle,
+                color: focused ? 'black' : theme.colors.softBlack,
+              }}>
               Profile
             </Text>
           ),

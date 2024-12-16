@@ -1,12 +1,6 @@
 import React, { useState, useContext } from 'react'
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-} from 'react-native'
-import { IconButton } from 'react-native-paper';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import { IconButton } from 'react-native-paper'
 
 import { theme } from '../style/style'
 import { AuthContext } from '../context/auth'
@@ -40,12 +34,12 @@ export default function Login({ navigation, route }) {
   const handleAppleLogin = async () => {
     try {
       // Implement your native Apple sign-in logic here
-      console.log('Apple sign-in pressed');
+      console.log('Apple sign-in pressed')
     } catch (error) {
-      console.error('Apple authentication error:', error);
-      alert('Apple sign in failed. Please try again.');
+      console.error('Apple authentication error:', error)
+      alert('Apple sign in failed. Please try again.')
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -64,12 +58,7 @@ export default function Login({ navigation, route }) {
         <View style={styles.formContainer}>
           <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
             <View style={styles.appleButtonContent}>
-              <IconButton
-                icon="apple"
-                iconColor="white"
-                size={20}
-                style={styles.appleIcon}
-              />
+              <IconButton icon='apple' iconColor='white' size={20} style={styles.appleIcon} />
               <Text style={styles.appleButtonText}>Sign in with Apple</Text>
             </View>
           </TouchableOpacity>

@@ -4,16 +4,7 @@ import { getExtractUrl } from '../urls'
 
 export default function Extract({ navigation, route }) {
   const { hasShareIntent, shareIntent } = useShareIntentContext()
-  const extractUrl =
-    hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
+  const extractUrl = hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
 
-  return (
-    extractUrl && (
-      <CookedWebView
-        startUrl={getExtractUrl(extractUrl)}
-        navigation={navigation}
-        route={route}
-      />
-    )
-  )
+  return extractUrl && <CookedWebView startUrl={getExtractUrl(extractUrl)} navigation={navigation} route={route} />
 }

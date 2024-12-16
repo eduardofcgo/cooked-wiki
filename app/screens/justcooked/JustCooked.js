@@ -1,21 +1,10 @@
 import { useEffect, useState } from 'react'
-import {
-  SafeAreaView,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Button,
-} from 'react-native'
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native'
 
 import { theme } from '../../style/style'
 import CookedButton from '../../components/CookedButton'
 import CookedInput from '../../components/CookedInput'
-import {
-  useCameraPermission,
-  useCameraDevice,
-  Camera,
-} from 'react-native-vision-camera'
+import { useCameraPermission, useCameraDevice, Camera } from 'react-native-vision-camera'
 import * as ImagePicker from 'expo-image-picker'
 import { Camera as CameraIcon, Images as ImagesIcon } from 'lucide-react-native'
 import FullScreenCamera from '../../components/FullScreenCamera'
@@ -68,8 +57,7 @@ function RequestCameraPermission({ children }) {
 }
 
 export default function JustCooked({ navigation, route }) {
-  const [isFullScreenCameraVisible, setIsFullScreenCameraVisible] =
-    useState(false)
+  const [isFullScreenCameraVisible, setIsFullScreenCameraVisible] = useState(false)
   const [imagePath, setImagePath] = useState(null)
   const { hasPermission } = useCameraPermission()
   const device = useCameraDevice('back')
@@ -106,25 +94,14 @@ export default function JustCooked({ navigation, route }) {
         <Text style={styles.subtitleText}>Showcase your creation.</Text>
 
         {imagePath ? (
-          <CookedInput
-            route={route}
-            navigation={navigation}
-            imagePath={imagePath}
-            onUndo={onUndo}></CookedInput>
+          <CookedInput route={route} navigation={navigation} imagePath={imagePath} onUndo={onUndo}></CookedInput>
         ) : (
           <>
             <RequestCameraPermission>
               {device ? (
                 <View style={styles.cameraContainer}>
-                  <Camera
-                    style={styles.camera}
-                    device={device}
-                    isActive={true}
-                    photo={true}
-                  />
-                  <TouchableOpacity
-                    style={styles.overlay}
-                    onPress={openFullScreenCamera}>
+                  <Camera style={styles.camera} device={device} isActive={true} photo={true} />
+                  <TouchableOpacity style={styles.overlay} onPress={openFullScreenCamera}>
                     <CameraIcon color='white' size={48} />
                     <Text style={styles.overlayText}>Open camera</Text>
                   </TouchableOpacity>
@@ -139,14 +116,10 @@ export default function JustCooked({ navigation, route }) {
             <PickImageButton onPicked={handlePicked} />
 
             <View style={styles.bottomSection}>
-              <Text style={styles.uiText}>
-                Your creation will be published:
-              </Text>
+              <Text style={styles.uiText}>Your creation will be published:</Text>
               <Text style={styles.uiText}>- On your profile journal.</Text>
               <Text style={styles.uiText}>- On your friends feed.</Text>
-              <Text style={styles.uiText}>
-                - On similar recipes, inspiring other cooks.
-              </Text>
+              <Text style={styles.uiText}>- On similar recipes, inspiring other cooks.</Text>
             </View>
 
             <FullScreenCamera

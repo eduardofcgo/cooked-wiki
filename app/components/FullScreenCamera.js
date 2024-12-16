@@ -1,14 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  StatusBar,
-  SafeAreaView,
-  Dimensions,
-} from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Modal, StatusBar, SafeAreaView, Dimensions } from 'react-native'
 import { useCameraDevice, Camera } from 'react-native-vision-camera'
 import { X as XIcon, Zap as FlashIcon } from 'lucide-react-native'
 
@@ -70,13 +61,7 @@ export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
       <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.cameraContainer}>
-            <Camera
-              ref={camera}
-              style={cameraStyle}
-              device={device}
-              isActive={true}
-              photo={true}
-            />
+            <Camera ref={camera} style={cameraStyle} device={device} isActive={true} photo={true} />
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={onClose} style={styles.topButton}>
@@ -88,9 +73,7 @@ export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
             </TouchableOpacity>
           </View>
           <View style={styles.captureContainer}>
-            <TouchableOpacity
-              onPress={capturePhoto}
-              style={styles.captureButton}>
+            <TouchableOpacity onPress={capturePhoto} style={styles.captureButton}>
               <View style={styles.captureButtonInner} />
             </TouchableOpacity>
           </View>

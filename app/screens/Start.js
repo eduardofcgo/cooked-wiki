@@ -22,10 +22,8 @@ export default function Start({ navigation, route }) {
         <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
           <Text style={styles.registerButtonText}>Login</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={handleRegister}
-          style={styles.button}>
+
+        <TouchableOpacity onPress={handleRegister} style={styles.button}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
 

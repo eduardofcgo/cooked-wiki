@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   View,
   Text,
@@ -10,47 +11,55 @@ import {
   Platform,
   Linking,
   Alert,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+} from 'react-native'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../context/store/StoreContext'
 
-import RefreshControl from '../components/RefreshControl';
-import Loading from '../components/Loading';
-import { Button, PrimaryButton, SecondaryButton } from '../components/Button';
-import { theme } from '../style/style';
-import { ApiContext } from '../context/api';
-import * as Contacts from 'expo-contacts';
+import RefreshControl from '../components/RefreshControl'
+import Loading from '../components/Loading'
+import { Button, PrimaryButton, SecondaryButton } from '../components/Button'
+import { theme } from '../style/style'
+import { normalizeEmail, normalizePhoneNumber, normalizePhoneNumberNaive } from '../contacts/normalize'
+import * as Contacts from 'expo-contacts'
+import { getContactHashes } from '../contacts/contacts'
 
-const UserItem = observer(({ user, navigation }) => {  
+function openSettings() {
+  if (Platform.OS === 'ios') {
+    Notifications.openSettings()
+  } else {
+    Linking.openSettings()
+  }
+}
+
+const UserItem = observer(({ user, navigation }) => {
   const { findFriendsStore } = useStore()
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
-    >
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}>
       <View style={styles.userInfo}>
         <View style={styles.avatarPlaceholder}>
-          <Icon name="account" size={20} color={theme.colors.softBlack} />
+          <Icon name='account' size={20} color={theme.colors.softBlack} />
         </View>
         <View>
-          <Text 
-            style={styles.userName} 
-            color={theme.colors.black}>{user.username}</Text>
+          <Text style={styles.userName} color={theme.colors.black}>
+            {user.username}
+          </Text>
         </View>
       </View>
 
-      {user["is-following"] ? (
-        <SecondaryButton 
-          title="Following"
+      {user['is-following'] ? (
+        <SecondaryButton
+          title='Following'
           style={styles.toggleFollowButton}
           onPress={() => findFriendsStore.unfollow(user.username)}
         />
       ) : (
-        <Button 
-          title="Follow" 
-          style={styles.toggleFollowButton} 
+        <Button
+          title='Follow'
+          style={styles.toggleFollowButton}
           onPress={() => findFriendsStore.follow(user.username)}
         />
       )}
@@ -59,74 +68,87 @@ const UserItem = observer(({ user, navigation }) => {
 })
 
 function FindFriends({ navigation }) {
-  const { findFriendsStore } = useStore()
+  const { findFriendsStore, userStore } = useStore()
   const { isEmptySearch, searchQuery, users, loading } = findFriendsStore
-  const [hasPermission, setHasPermission] = useState(null);
+  const { contactsPermissionStatus } = userStore
+
+  useFocusEffect(() => {
+    ;(async () => {
+      const contactsPermission = await Contacts.getPermissionsAsync()
+
+      if (contactsPermission.canAskAgain && contactsPermission.status === 'denied') {
+        userStore.setContactsPermissionStatus(null)
+      } else {
+        userStore.setContactsPermissionStatus(contactsPermission.status)
+      }
+    })()
+  })
 
   useEffect(() => {
-    checkContactsPermission();
-    
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
-      findFriendsStore.resetSearch();
-    });
+    if (contactsPermissionStatus === 'granted') {
+      ;(async () => {
+        // TODO: check the userStore if the user needs to sync again. For now we always sync here.
 
-    return unsubscribe;
+        userStore.setLoadingFriendsProfiles()
+
+        const contactHashes = await getContactHashes()
+        userStore.setContactsHashes(contactHashes)
+
+        console.log(contactHashes)
+      })()
+    }
+  }, [contactsPermissionStatus])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      findFriendsStore.resetSearch()
+    })
+
+    return unsubscribe
   }, [navigation])
 
-  const checkContactsPermission = async () => {
-    const { status } = await Contacts.getPermissionsAsync();
-    setHasPermission(status === 'granted');
-  };
-
   const requestContactsPermission = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    
-    console.log('status', status)
-
-    if (status === 'granted') {
-      setHasPermission(true);
-      // Here you can add logic to fetch contacts
-    } else {
-      Alert.alert(
-        "Permission Required",
-        "Please enable contacts access to find your friends",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Open Settings", onPress: () => Linking.openSettings() }
-        ]
-      );
-    }
-  };
+    const contactsPermission = await Contacts.requestPermissionsAsync()
+    userStore.setContactsPermissionStatus(contactsPermission.status)
+  }
 
   const ContactsPermissionCard = () => (
     <View style={styles.permissionCard}>
-      <Icon name="account-group" size={48} color={theme.colors.primary} />
+      <Icon name='account-group' size={48} color={theme.colors.primary} />
       <Text style={styles.permissionTitle}>Find friends from contacts</Text>
-      <Text style={styles.permissionDescription}>
-        Connect with friends already using the app by allowing access to your contacts.
-      </Text>
-      <PrimaryButton
-        title={hasPermission ? "Sync" : "Allow access"}
-        onPress={requestContactsPermission}
-      />
+      {contactsPermissionStatus === 'denied' ? (
+        <Text style={styles.permissionDescription}>
+          You have not granted permission to access contacts. Please allow access in settings.
+        </Text>
+      ) : (
+        <Text style={styles.permissionDescription}>
+          Connect with friends already using the app by allowing access to your contacts.
+        </Text>
+      )}
+
+      {contactsPermissionStatus === 'denied' ? (
+        <Button title='Settings' onPress={openSettings} />
+      ) : (
+        <PrimaryButton title='Allow access' onPress={requestContactsPermission} />
+      )}
     </View>
-  );
-  
+  )
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <Icon name="magnify" size={20} color={theme.colors.softBlack} />
+        <Icon name='magnify' size={20} color={theme.colors.softBlack} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by username"
+          placeholder='Search by username'
           value={searchQuery}
-          onChangeText={(query) => findFriendsStore.setSearchQuery(query)}
+          onChangeText={query => findFriendsStore.setSearchQuery(query)}
           selectionColor={theme.colors.primary}
-          autoCapitalize="none"
+          autoCapitalize='none'
         />
         {searchQuery ? (
           <TouchableOpacity onPress={() => findFriendsStore.resetSearch()}>
-            <Icon name="close" size={20} color={theme.colors.softBlack} />
+            <Icon name='close' size={20} color={theme.colors.softBlack} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -135,25 +157,23 @@ function FindFriends({ navigation }) {
         <View style={styles.resultsContainer}>
           <Loading />
         </View>
-      ) : (
-        isEmptySearch ? (
+      ) : isEmptySearch ? (
+        contactsPermissionStatus !== 'granted' ? (
           <ContactsPermissionCard />
-        ) : (
-          <View style={styles.resultsContainer}>
-            {users.length > 0 ? (
-              <FlatList
-                data={users}
-                renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
-                keyExtractor={(item) => item.username}
-                contentContainerStyle={styles.listContainer}
-              />
-            ) : (
-              <Text style={styles.emptySearchText}>
-                No users found
-              </Text>
-            )}
-          </View>
-        )
+        ) : null
+      ) : (
+        <View style={styles.resultsContainer}>
+          {users.length > 0 ? (
+            <FlatList
+              data={users}
+              renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
+              keyExtractor={item => item.username}
+              contentContainerStyle={styles.listContainer}
+            />
+          ) : (
+            <Text style={styles.emptySearchText}>No users found</Text>
+          )}
+        </View>
       )}
     </View>
   )
@@ -273,4 +293,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
-}); 
+})

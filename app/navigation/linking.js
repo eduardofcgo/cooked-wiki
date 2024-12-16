@@ -1,17 +1,10 @@
 import Constants from 'expo-constants'
 import * as Linking from 'expo-linking'
-import {
-  addStateListener,
-  getScheme,
-  getShareExtensionKey,
-  hasShareIntent,
-} from 'expo-share-intent'
+import { addStateListener, getScheme, getShareExtensionKey, hasShareIntent } from 'expo-share-intent'
 import { getStateFromPath } from '@react-navigation/native'
 
 const PREFIX = Linking.createURL('/')
-const PACKAGE_NAME =
-  Constants.expoConfig?.android?.package ||
-  Constants.expoConfig?.ios?.bundleIdentifier
+const PACKAGE_NAME = Constants.expoConfig?.android?.package || Constants.expoConfig?.ios?.bundleIdentifier
 
 export default {
   prefixes: [
@@ -40,9 +33,7 @@ export default {
     // REQUIRED FOR iOS FIRST LAUNCH
     if (path.includes(`dataUrl=${getShareExtensionKey()}`)) {
       // redirect to the ShareIntent Screen to handle data with the hook
-      console.debug(
-        'react-navigation[getStateFromPath] redirect to ShareIntent screen'
-      )
+      console.debug('react-navigation[getStateFromPath] redirect to ShareIntent screen')
       return {
         routes: [
           {
@@ -58,10 +49,7 @@ export default {
     const onReceiveURL = ({ url }) => {
       if (url.includes(getShareExtensionKey())) {
         // REQUIRED FOR iOS WHEN APP IS IN BACKGROUND
-        console.debug(
-          'react-navigation[onReceiveURL] Redirect to ShareIntent Screen',
-          url
-        )
+        console.debug('react-navigation[onReceiveURL] Redirect to ShareIntent Screen', url)
         console.log(`${getScheme()}://extract`)
         listener(`${getScheme()}://extract`)
       } else {
@@ -72,10 +60,7 @@ export default {
     }
     const shareIntentEventSubscription = addStateListener(event => {
       // REQUIRED FOR ANDROID WHEN APP IS IN BACKGROUND
-      console.debug(
-        'react-navigation[subscribe] shareIntentStateListener',
-        event.value
-      )
+      console.debug('react-navigation[subscribe] shareIntentStateListener', event.value)
       if (event.value === 'pending') {
         console.log(`${getScheme()}://extract`)
         listener(`${getScheme()}://extract`)
@@ -92,10 +77,7 @@ export default {
   async getInitialURL() {
     // REQUIRED FOR ANDROID FIRST LAUNCH
     const needRedirect = hasShareIntent(getShareExtensionKey())
-    console.debug(
-      'react-navigation[getInitialURL] redirect to ShareIntent screen:',
-      needRedirect
-    )
+    console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
     if (needRedirect) {
       return `${Constants.expoConfig?.scheme}://extract`
     }
