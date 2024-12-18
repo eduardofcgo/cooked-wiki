@@ -12,22 +12,20 @@ export async function getContactHashes() {
   for (const contact of data) {
     if (contact.phoneNumbers) {
       for (const { number } of contact.phoneNumbers) {
-        if (number) {
-          if (number.length > 8) {
+        if (number?.length > 8) {
+          try {
+            uniqueContacts.add(normalizePhoneNumber(number))
+          } catch (e) {
+            console.log('Error normalizing phone number', number)
+
             try {
-              uniqueContacts.add(normalizePhoneNumber(number))
-            } catch (e) {
-              console.log('Error normalizing phone number', number)
+              const normalizedPhoneNumber = normalizePhoneNumberNaive(number)
 
-              try {
-                const normalizedPhoneNumber = normalizePhoneNumberNaive(number)
-
-                if (normalizedPhoneNumber) {
-                  uniqueContacts.add(normalizedPhoneNumber)
-                }
-              } catch (e) {
-                console.log('Error normalizing phone number naive', number)
+              if (normalizedPhoneNumber) {
+                uniqueContacts.add(normalizedPhoneNumber)
               }
+            } catch (e) {
+              console.log('Error normalizing phone number naive', number)
             }
           }
         }
@@ -36,13 +34,11 @@ export async function getContactHashes() {
 
     if (contact.emails) {
       for (const { email } of contact.emails) {
-        if (email) {
-          if (email.length > 8) {
-            const normalizedEmail = normalizeEmail(email)
+        if (email?.length > 8) {
+          const normalizedEmail = normalizeEmail(email)
 
-            if (normalizedEmail) {
-              uniqueContacts.add(normalizedEmail)
-            }
+          if (normalizedEmail) {
+            uniqueContacts.add(normalizedEmail)
           }
         }
       }

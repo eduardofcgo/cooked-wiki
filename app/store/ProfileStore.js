@@ -15,7 +15,6 @@ export class ProfileStore {
 
     runInAction(() => {
       this.followingUsernames.add(username)
-      console.log('added followingUsernames', this.followingUsernames)
     })
   }
 

@@ -1,16 +1,21 @@
 import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 
+import { getContactHashes } from '../contacts/contacts'
+
+
 export class UserStore {
   notificationToken = null
   notificationPermissionStatus = null
   enabledNotifications = true
 
+  hiddenNotificationsCard = false
+  hiddenFindFriendsCard = false
+
   contactsPermissionStatus = null
-  showFindFriendsCard = true
 
   contactHashes = null
   loadingFriendsProfiles = null
-  syncedContactsHashedDate = null
+  syncedContactsHashedDate = observable.box(null)
   suggestedFriendsProfiles = null
 
   constructor(apiClient) {
@@ -21,20 +26,71 @@ export class UserStore {
     reaction(
       () => this.notificationToken,
       async (newToken, previousToken) => {
-        console.log('notificationToken', newToken)
+        if (newToken) {
+          console.log('Sending new token to server', newToken)
+
+          await this.apiClient.put('/tokens', { token: newToken })
+        }
       }
     )
 
     reaction(
-      () => this.contacts,
-      async newContactHashes => {
-        if (newContactHashes.length > 0) {
-          this.syncedContactsHashedDate = new Date()
+      () => this.syncedContactsHashedDate.get(),
+      async syncedDate => {
+        console.log('Synced contacts hashed date changed', syncedDate)
 
-          console.log('new contacts')
-        }
+        await this.refreshSuggestedFriendsProfiles()
+      },
+      {
+        fireImmediately: true,
       }
     )
+  }
+
+  async refreshSuggestedFriendsProfiles() {
+    console.log('Refreshing suggested friends')
+
+    runInAction(() => {
+      this.loadingFriendsProfiles = true
+    })
+
+    const newSuggestedFriendsProfiles = await this.apiClient.get('/contacts/recommendations')
+
+    runInAction(() => {
+      this.suggestedFriendsProfiles = newSuggestedFriendsProfiles.users
+      this.loadingFriendsProfiles = false
+    })
+  }
+
+  async trySyncContacts() {
+    const lastSyncDate = this.syncedContactsHashedDate.get()
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+    if (!lastSyncDate || lastSyncDate < oneDayAgo) {
+      runInAction(() => {
+        this.loadingFriendsProfiles = true
+      })
+
+      const newContactHashes = await getContactHashes()
+
+      console.log('Syncing contacts', newContactHashes.length)
+
+      if (newContactHashes.length > 0) {
+        await this.apiClient.post('/contacts', { contacts: newContactHashes })
+
+        runInAction(() => {
+          this.contactHashes = newContactHashes
+          this.syncedContactsHashedDate.set(new Date())
+          this.loadingFriendsProfiles = false
+        })
+      } else {
+        runInAction(() => {
+          this.loadingFriendsProfiles = false
+        })
+      }
+
+      console.log('Synced contacts')
+    }
   }
 
   setNotificationToken(notificationToken) {
@@ -57,7 +113,11 @@ export class UserStore {
     this.loadingFriendsProfiles = true
   }
 
-  setContactsHashes(contactHashes) {
-    this.contactHashes = contactHashes
+  hideNotificationsCard() {
+    this.hiddenNotificationsCard = true
+  }
+
+  hideFindFriendsCard() {
+    this.hiddenFindFriendsCard = true
   }
 }

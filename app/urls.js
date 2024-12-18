@@ -5,7 +5,8 @@ export const getAppLoginUrl = () => `${BASE_URL}/app/login`
 export const getContactUrl = () => `${BASE_URL}/contact`
 export const getTeamUrl = () => `${BASE_URL}/team`
 export const getExtractUrl = url => `${BASE_URL}/extract/${url}`
-export const getCommunityJournalUrl = () => `${BASE_URL}/community/journal`
+export const getCookedUrl = cookId => `${BASE_URL}/cook/${cookId}`
+export const getCommunityJournalUrl = () => `${BASE_URL}/community/journal?following=true`
 export const getProfileImageUrl = username => `${BASE_URL}/user/${username}/profile/image`
 export const getJournalUrl = username => `${BASE_URL}/user/${username}/journal`
 export const getProfileUrl = username => `${BASE_URL}/user/${username}`

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Base64 } from 'js-base64'
+import { btoa, atob } from 'react-native-quick-base64';
 
 import { API_BASE_URL } from '../urls'
 
@@ -24,8 +24,12 @@ export class ApiClient {
     this.client.interceptors.request.use(
       config => {
         if (credentials?.token) {
-          const session = Base64.decode(credentials.token)
-          config.headers.Cookie = `ring-session=${session}`
+          try {
+            const session = atob(credentials.token)
+            config.headers.Cookie = `ring-session=${session}`  
+          } catch (e) {
+            console.error(e)
+          }
         }
         return config
       },
@@ -46,6 +50,9 @@ export class ApiClient {
             error.response.data.code
           )
         }
+
+        console.error(error)
+
         throw new ApiError('Network error', 0, 'NETWORK_ERROR')
       }
     )

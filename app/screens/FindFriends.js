@@ -22,7 +22,6 @@ import { Button, PrimaryButton, SecondaryButton } from '../components/Button'
 import { theme } from '../style/style'
 import { normalizeEmail, normalizePhoneNumber, normalizePhoneNumberNaive } from '../contacts/normalize'
 import * as Contacts from 'expo-contacts'
-import { getContactHashes } from '../contacts/contacts'
 
 function openSettings() {
   if (Platform.OS === 'ios') {
@@ -70,7 +69,7 @@ const UserItem = observer(({ user, navigation }) => {
 function FindFriends({ navigation }) {
   const { findFriendsStore, userStore } = useStore()
   const { isEmptySearch, searchQuery, users, loading } = findFriendsStore
-  const { contactsPermissionStatus } = userStore
+  const { contactsPermissionStatus, loadingFriendsProfiles, suggestedFriendsProfiles } = userStore
 
   useFocusEffect(() => {
     ;(async () => {
@@ -87,14 +86,7 @@ function FindFriends({ navigation }) {
   useEffect(() => {
     if (contactsPermissionStatus === 'granted') {
       ;(async () => {
-        // TODO: check the userStore if the user needs to sync again. For now we always sync here.
-
-        userStore.setLoadingFriendsProfiles()
-
-        const contactHashes = await getContactHashes()
-        userStore.setContactsHashes(contactHashes)
-
-        console.log(contactHashes)
+        await userStore.trySyncContacts()
       })()
     }
   }, [contactsPermissionStatus])
@@ -160,7 +152,28 @@ function FindFriends({ navigation }) {
       ) : isEmptySearch ? (
         contactsPermissionStatus !== 'granted' ? (
           <ContactsPermissionCard />
-        ) : null
+        ) : (
+          <View style={styles.resultsContainer}>
+            <Text style={styles.permissionTitle}>Suggested friends</Text>
+            {suggestedFriendsProfiles?.length > 0 ? (
+              <FlatList
+                data={suggestedFriendsProfiles}
+                renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
+                keyExtractor={item => item.username}
+                contentContainerStyle={styles.listContainer}
+              />
+            ) : (
+              <Text style={styles.emptySearchText}>
+                {loadingFriendsProfiles ? 'Loading...' : 'No friends found, try searching by username.'}
+              </Text>
+            )}
+          {loadingFriendsProfiles && (
+            <View style={{ marginTop: 16 }}>
+              <Loading />
+            </View>
+          )}
+          </View>
+        )
       ) : (
         <View style={styles.resultsContainer}>
           {users.length > 0 ? (

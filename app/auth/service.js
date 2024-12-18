@@ -1,4 +1,4 @@
-import { Base64 } from 'js-base64'
+import { btoa, atob, trimBase64Padding } from 'react-native-quick-base64';
 
 import AuthStore from './store'
 import { getAppLoginUrl, getCommunityJournalUrl } from '../urls'
@@ -22,7 +22,8 @@ export default class AuthService {
         .split('=')[1]
         .trim()
 
-      const token = Base64.encodeURI(session)
+      // const token = Base64.encodeURI(session)
+      const token = trimBase64Padding(btoa(session))
 
       console.log('Setting credentials', username, session, token)
 
@@ -54,7 +55,7 @@ export default class AuthService {
     let session
 
     try {
-      session = Base64.decode(token)
+      session = atob(token)
     } catch (error) {
       console.error('Error decoding session token', error)
 
