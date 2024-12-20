@@ -22,7 +22,6 @@ export default class AuthService {
         .split('=')[1]
         .trim()
 
-      // const token = Base64.encodeURI(session)
       const token = trimBase64Padding(btoa(session))
 
       console.log('Setting credentials', username, session, token)

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.96:3000'
+const BASE_URL = 'https://qa.cooked.wiki'
 export const API_BASE_URL = `${BASE_URL}/api`
 
 export const getAppLoginUrl = () => `${BASE_URL}/app/login`

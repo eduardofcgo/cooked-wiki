@@ -10,7 +10,8 @@ export function defaultOnRequest(navigation, request) {
   }
 
   if (/\/saved\/[a-zA-Z0-9]+/.test(url)) {
-    navigation.push('Recipe', { recipeUrl: url })
+    // navigation.push('Recipe', { recipeUrl: url })
+    navigation.push('Cooked', { recipeUrl: url })
 
     return !defaultNavigate
   }

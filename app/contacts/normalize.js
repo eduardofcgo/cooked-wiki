@@ -1,10 +1,12 @@
 import { getLocales } from 'expo-localization'
 import { parsePhoneNumberWithError, getCountryCallingCode } from 'libphonenumber-js'
 
+const defaultCountryCode = 'US'
+
 function getCountryCode() {
   const locales = getLocales()
 
-  return locales[0]?.regionCode || 'US'
+  return locales[0]?.regionCode || defaultCountryCode
 }
 
 export function normalizePhoneNumberNaive(phoneNumber) {

@@ -40,6 +40,7 @@ import Login from './app/screens/Login'
 import Register from './app/screens/Register'
 import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
+import Cooked from './app/screens/Cooked'
 import Timer from './app/components/timer/Timer'
 import linking from './app/navigation/linking'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
@@ -145,6 +146,12 @@ function App() {
                           name='Team'
                           component={Team}
                           options={{ title: 'Patron', ...screenStyle }}
+                        />
+
+                        <StackNavigator.Screen
+                          name='Cooked'
+                          component={Cooked}
+                          options={{ title: 'Cooked', ...screenStyle }}
                         />
 
                         <StackNavigator.Screen
