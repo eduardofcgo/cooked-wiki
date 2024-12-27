@@ -36,9 +36,6 @@
       ],
       [
         "expo-font",
-        {
-          "fonts": ["assets/fonts/EBGaramond-VariableFont_wght.ttf"]
-        }
       ],
       [
         "react-native-vision-camera",

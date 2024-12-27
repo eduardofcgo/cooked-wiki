@@ -14,6 +14,14 @@ const paperTheme = {
       fontSize: theme.fontSizes.default,
       fontFamily: theme.fonts.ui,
     },
+    bodyMedium: {
+      fontSize: theme.fontSizes.default,
+      fontFamily: theme.fonts.ui,
+    },
+    body: {
+      fontSize: theme.fontSizes.default,
+      fontFamily: theme.fonts.ui,
+    },
   },
   colors: {
     ...MD3LightTheme.colors,

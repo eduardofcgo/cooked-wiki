@@ -9,6 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/atkinson-hyperlegible": "^0.2.3",
+    "@expo-google-fonts/eb-garamond": "^0.2.3",
     "@expo/metro-runtime": "~3.2.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",

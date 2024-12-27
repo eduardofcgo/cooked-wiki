@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useStore } from '../context/store/StoreContext'
 import { theme, titleStyle } from '../style/style'
 
+import ProfileCooked from './ProfileCooked'
 import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
@@ -23,6 +24,7 @@ const Tab = createMaterialTopTabNavigator()
 
 const tabLabelTextStyle = {
   color: theme.colors.softBlack,
+  fontFamily: theme.fonts.ui,
   fontSize: theme.fontSizes.default,
 }
 
@@ -88,7 +90,7 @@ const ProfileMenu = ({ navigation }) => {
 }
 
 const ProfileHeader = ({ username, bio, navigation, menu }) => {
-  const showImage = false
+  const showImage = true
 
   return (
     <View style={styles.header}>
@@ -118,13 +120,16 @@ function Profile({ route, navigation, username, menu }) {
   return (
     <>
       <ProfileHeader username={username} navigation={navigation} menu={menu} />
-      <Tab.Navigator screenOptions={tabStyle}>
+      <Tab.Navigator screenOptions={{
+        ...tabStyle,
+        lazy: true,
+      }}>
         <Tab.Screen
           name='Cooked'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
           }}>
-          {() => <CookedWebView startUrl={getJournalUrl(username)} navigation={navigation} route={route} />}
+          {() => <ProfileCooked username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Recipes'
@@ -249,8 +254,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    borderWidth: 2,
-    borderColor: theme.colors.softBlack,
     overflow: 'hidden',
   },
   avatarPlaceholder: {

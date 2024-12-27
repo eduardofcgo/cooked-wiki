@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Linking, Platform } from 'react-native'
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Linking, Platform, Alert } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { List, Button, Switch } from 'react-native-paper'
 import { theme } from '../style/style'
@@ -24,17 +24,36 @@ export default Settings = observer(({ navigation }) => {
     })()
   })
 
-  const handleLogout = async () => {
-    setIsLoading(true)
-    try {
-      await logout()
-    } catch (error) {
-      setIsLoading(false)
-
-      console.error('Logout error:', error)
-      alert('Failed to logout. Please try again.')
-    }
-    setIsLoading(false)
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "Logout", 
+          onPress: async () => {
+            setIsLoading(true)
+            try {
+              await logout()
+            } catch (error) {
+              setIsLoading(false)
+              console.error('Logout error:', error)
+              alert('Failed to logout. Please try again.')
+            }
+            setIsLoading(false)
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          },
+          style: "destructive"
+        }
+      ]
+    );
   }
 
   const handleNotificationToggle = async value => {

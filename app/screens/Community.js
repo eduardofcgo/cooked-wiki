@@ -1,6 +1,6 @@
-import React, { useEffect, useCallback, useState } from 'react'
+import React, { useEffect, useCallback, useState, memo } from 'react'
 import Svg, { Path } from 'react-native-svg';
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Linking, Platform, Modal } from 'react-native'
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Linking, Platform, Modal, FlatList } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
@@ -10,21 +10,28 @@ import * as Contacts from 'expo-contacts'
 import { observer } from 'mobx-react-lite'
 import { useFocusEffect } from '@react-navigation/native'
 
+import { getSavedRecipeUrl } from '../urls'
+
 import { useStore } from '../context/store/StoreContext'
 import { requestPushNotificationsPermission } from '../notifications/push'
 import { theme } from '../style/style'
 import { Button, PrimaryButton } from '../components/Button'
 import Loading from '../components/Loading'
+import RefreshControl from '../components/RefreshControl';
+import DrawnArrow from '../components/DrawnArrow'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
+import Cooked from '../components/Cooked/Cooked'
 
-const HandDrawnArrow = () => (
-<Svg width="120px" height="120px" viewBox="-50 0 175 175" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <Path
-      d="M20.1871 175C15.7485 172.891 13.0008 172.469 12.1553 170.992C8.98489 165.508 5.39173 160.024 3.70083 153.908C-1.37187 137.666 -0.737781 121.214 2.64402 104.762C8.35081 76.7092 21.0325 51.8201 36.8847 28.1966C38.5756 25.6655 40.0552 23.1344 41.7461 20.3924C41.7461 20.1814 41.5347 19.7596 41.112 19.1268C36.462 20.3923 31.6007 21.6579 26.9507 22.7125C24.4144 23.1344 21.4552 23.1344 18.9189 22.2907C17.4394 21.8688 15.3258 19.5486 15.3258 18.0722C15.3258 16.1739 16.8053 13.8537 18.0735 12.1663C19.1303 11.1117 21.0326 10.9008 22.7235 10.4789C35.4052 7.31508 48.087 3.72935 60.9801 0.776411C71.9709 -1.75468 75.564 1.83105 74.9299 12.5882C74.2959 23.7672 74.0845 34.9462 73.6618 45.9142C73.4505 49.289 72.8164 52.8747 72.3936 56.6714C63.5164 52.6638 63.5164 52.6638 60.346 18.494C47.0301 33.2588 38.1529 49.289 29.9098 65.7411C21.6666 82.1932 16.1712 99.489 13.2121 117.839C10.2531 136.823 13.8462 154.751 20.1871 175Z" 
-      fill={theme.colors.primary} />
-</Svg>
-);
+const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
+  <View style={styles.feedItem}>
+    <Cooked 
+      post={post}
+      onUserPress={onUserPress}
+      onRecipePress={onRecipePress}
+    />
+  </View>
+));
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore } = useStore()
@@ -32,20 +39,20 @@ export default Community = observer(({ navigation, route }) => {
   const contactsPermissionStatus = userStore.contactsPermissionStatus
 
   const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
-  const { followingUsernames } = profileStore
+  const { isLoadingFollowing, followingUsernames, 
+          communityFeed, isLoadingCommunityFeed, isLoadingCommunityFeedNextPage } = profileStore
 
-  const [isLoading, setIsLoading] = useState(true)
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   useEffect(() => {
     ;(async () => {
       try {
-        await profileStore.loadFollowing()
+        await Promise.all([
+          profileStore.loadFollowing(),
+          profileStore.loadCommunityFeed()
+        ])
       } catch (e) {
-        // TODO: user should know there was an error
         console.error(e)
-      } finally {
-        setIsLoading(false)
       }
     })()
   }, [])
@@ -113,6 +120,35 @@ export default Community = observer(({ navigation, route }) => {
     };
   });
 
+  const onRefresh = useCallback(async () => {
+    await profileStore.loadCommunityFeed()
+  }, [])
+
+  const renderItem = useCallback(({ item: post }) => (
+    <CookedItem 
+      post={post}
+      onUserPress={() => navigation.navigate('PublicProfile', { username: post.username })}
+      onRecipePress={() => navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })}
+    />
+  ), [navigation]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingCommunityFeedNextPage) {
+      profileStore.loadNextCommunityFeedPage()
+    }
+  }
+
+  const ListFooter = () => {
+    if (isLoadingCommunityFeedNextPage) {
+      return (
+        <View style={styles.footerLoader}>
+          <Loading />
+        </View>
+      )
+    }
+    return null
+  }
+
   return (
     <View style={styles.container}>
       {showNotificationsCard || showFindFriendsCard && (
@@ -179,7 +215,7 @@ export default Community = observer(({ navigation, route }) => {
         </View>
       )}
 
-      {isLoading ? (
+      {isLoadingFollowing || (isLoadingCommunityFeed && communityFeed.length === 0) ? (
         <View style={styles.emptyStateContainer}>
           <Loading />
         </View>
@@ -190,10 +226,20 @@ export default Community = observer(({ navigation, route }) => {
             <Text style={styles.emptySearchText}>Follow your friends to see what they're cooking.</Text>
           </View>
         ) : (
-          <CookedWebView 
-            startUrl={getCommunityJournalUrl()} 
-            navigation={navigation} 
-            route={route} 
+          <FlatList
+            data={communityFeed}
+            renderItem={renderItem}
+            keyExtractor={post => post.id}
+            contentContainerStyle={styles.feedContent}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={1} 
+            ListFooterComponent={ListFooter}
+            refreshControl={
+              <RefreshControl
+                refreshing={profileStore.isLoadingCommunityFeed}
+                onRefresh={onRefresh}
+              />
+            }
           />
         )
       )}
@@ -210,7 +256,7 @@ export default Community = observer(({ navigation, route }) => {
           </Reanimated.View>
             
           <View style={[styles.arrowContainer]}>
-            <HandDrawnArrow />
+            <DrawnArrow />
           </View>
           
           <View style={styles.modalTouchable}>
@@ -378,5 +424,21 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     textAlign: 'center',
     marginBottom: 24,
+  },
+  feedContainer: {
+    flex: 1,
+  },
+  feedContent: {
+    paddingBottom: 20,
+  },
+  feedItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.secondary,
+  },
+  footerLoader: {
+    padding: 20,
+    paddingBottom: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

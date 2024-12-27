@@ -1,6 +1,8 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
+import { theme } from '../style/style'
+
 const Logo = () => {
   return (
     <View style={styles.logoWithHeadline}>
@@ -22,7 +24,7 @@ const styles = StyleSheet.create({
   logoHeadline: {
     color: '#706b57',
     fontSize: 16,
-    fontFamily: 'EBGaramond',
+    fontFamily: theme.fonts.title,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -31,7 +33,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: 70,
-    fontFamily: 'EBGaramond',
+    fontFamily: theme.fonts.title,
   },
   firstWordColor: {
     color: '#d97757',

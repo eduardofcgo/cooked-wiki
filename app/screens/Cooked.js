@@ -1,15 +1,16 @@
 import React, { useEffect, useLayoutEffect, useContext } from 'react'
-import { View } from 'react-native'
+import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import { observer } from 'mobx-react-lite'
 
-import { getCookedUrl } from '../urls'
+import { getSavedRecipeUrl } from '../urls'
 
 import { AuthContext } from '../context/auth'
 
 import CookedWebView from '../components/CookedWebView'
 import { useStore } from '../context/store/StoreContext'
 import { Button, SecondaryButton } from '../components/Button'
-import Cooked from '../components/Cooked'
+import Cooked from '../components/Cooked/Cooked'
+import { theme } from '../style/style'
 
 const FollowButton = observer(({ username }) => {
   const { credentials } = useContext(AuthContext)
@@ -52,9 +53,19 @@ export default observer(({ navigation, route }) => {
     })
   }, [navigation])
 
+  const onRecipePress = () => {
+    navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post.recipeId) })
+  }
+
+  const onUserPress = () => {
+    console.log('onUserPress', post.username)
+    navigation.navigate('PublicProfile', { username: post.username })
+  }
+
   const post = {
     authorName: "eduardo",
-    canEdit: false,
+    canEdit: true,
+    recipeId: "fb67f0f4-bfb6-4972-bfc5-17a026a57ffc",
     recipe: {
       image: "https://cooked.wiki/image/thumbnail/38594179-6b77-4fb6-848d-a700bd1a00fc",
       title: "Croissants À Moda Do Porto",
@@ -65,5 +76,39 @@ export default observer(({ navigation, route }) => {
     isLiked: false,
   };
 
-  return <Cooked post={post} />
+  return (
+    <ScrollView style={styles.container}>
+      <Cooked 
+        post={post}
+        onRecipePress={onRecipePress}
+        onUserPress={onUserPress}
+      />
+      
+      <View style={styles.similarSection}>
+        <Text style={styles.similarHeader}>Similar Cooked</Text>
+        {/* TODO: Add similar cookeds content here */}
+      </View>
+    </ScrollView>
+  )
 })
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  similarSection: {
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.secondary,
+  },
+  similarHeader: {
+    fontFamily: theme.fonts.title,
+    fontSize: theme.fontSizes.large,
+    marginBottom: 15,
+    marginTop: 15,
+    color: theme.colors.black,
+    textAlign: 'center',
+  },
+});

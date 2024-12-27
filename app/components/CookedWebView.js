@@ -117,6 +117,8 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
       if (message.type === 'logged-user') {
         if (message.username === undefined) {
           console.log('Logged user is undefined, this should not happen')
+
+          auth.logout()
         } else if (message.username === null) {
           console.log('Logged user is null, logging out', currentURI)
 

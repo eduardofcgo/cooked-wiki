@@ -23,6 +23,26 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 import { observer } from 'mobx-react-lite'
+
+import {
+  AtkinsonHyperlegible_400Regular,
+  AtkinsonHyperlegible_400Regular_Italic,
+  AtkinsonHyperlegible_700Bold,
+  AtkinsonHyperlegible_700Bold_Italic,
+} from '@expo-google-fonts/atkinson-hyperlegible';
+import {
+  EBGaramond_400Regular,
+  EBGaramond_500Medium,
+  EBGaramond_600SemiBold,
+  EBGaramond_700Bold,
+  EBGaramond_800ExtraBold,
+  EBGaramond_400Regular_Italic,
+  EBGaramond_500Medium_Italic,
+  EBGaramond_600SemiBold_Italic,
+  EBGaramond_700Bold_Italic,
+  EBGaramond_800ExtraBold_Italic,
+} from '@expo-google-fonts/eb-garamond';
+
 import RootStore from './app/store/RootStore'
 import { ApiClient } from './app/api/client'
 import { theme, screenStyle, titleStyle } from './app/style/style'
@@ -55,7 +75,21 @@ SplashScreen.preventAutoHideAsync()
 
 function App() {
   const [loadedFonts, errorFonts] = useFonts({
-    [theme.fonts.title]: require('./assets/fonts/EBGaramond-VariableFont_wght.ttf'),
+    AtkinsonHyperlegible_400Regular,
+    AtkinsonHyperlegible_400Regular_Italic,
+    AtkinsonHyperlegible_700Bold,
+    AtkinsonHyperlegible_700Bold_Italic,
+
+    EBGaramond_400Regular,
+    EBGaramond_500Medium,
+    EBGaramond_600SemiBold,
+    EBGaramond_700Bold,
+    EBGaramond_800ExtraBold,
+    EBGaramond_400Regular_Italic,
+    EBGaramond_500Medium_Italic,
+    EBGaramond_600SemiBold_Italic,
+    EBGaramond_700Bold_Italic,
+    EBGaramond_800ExtraBold_Italic,
   })
 
   const [authContext, setAuthContext] = useState({
@@ -79,6 +113,10 @@ function App() {
   const rootStore = new RootStore(apiClient)
 
   const loadedApp = loadedFonts && authContext.credentials !== undefined
+
+  if (errorFonts) {
+    console.error('Error loading fonts', errorFonts)
+  }
 
   useEffect(() => {
     if (loadedApp) {

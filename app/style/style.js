@@ -14,9 +14,9 @@ export const theme = {
     border: '#ccc',
   },
   fonts: {
-    ui: 'system-ui, System',
-    title: 'EBGaramond',
-    primary: 'EBGaramond',
+    ui: 'AtkinsonHyperlegible_400Regular',
+    uiBold: 'Atkinson Hyperlegible',
+    title: 'EBGaramond_400Regular',
   },
   borderRadius: {
     default: 12,
