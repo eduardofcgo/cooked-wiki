@@ -22,35 +22,42 @@ const ProfileCookedHeader = observer(({ username }) => {
 
 const ProfileCooked = observer(({ navigation, route, username }) => {
   const { profileStore } = useStore()
-  const { profileCookeds, isLoadingProfileCookeds, isLoadingProfileCookedsNextPage } = profileStore
+  const profileCookeds = profileStore.getProfileCookeds(username)
+  const isLoadingProfileCookeds = profileStore.isLoadingProfileCookeds(username)
+  const isLoadingProfileCookedsNextPage = profileStore.isLoadingProfileCookedsNextPage(username)
+  const hasMore = profileStore.hasMoreProfileCookeds(username)
 
   useEffect(() => {
-    (async () => {
-      await profileStore.loadProfileCooked(username)
-    })()
+    profileStore.loadProfileCooked(username)
   }, [])
 
   const onRefresh = useCallback(async () => {
-    await profileStore.loadProfileCooked(username)
+    await profileStore.reloadProfileCooked(username)
   }, [])
 
+  const handleSave = useCallback(
+    (id, newNotes, newCookedPhotosPath) => {
+      profileStore.updateProfileCooked(username, id, newNotes, newCookedPhotosPath)
+    },
+    [username]
+  )
+
   const renderItem = ({ item: post }) => (
-    <View style={styles.feedItem}>
-      <Cooked 
-        post={post}
-        hideAuthor={true}
-        onUserPress={() => {
-          navigation.navigate('PublicProfile', { username: post.username })
-        }}
-        onRecipePress={() => {
-          navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })
-        }}
-      />
-    </View>
+    <Cooked
+      post={post}
+      hideAuthor={true}
+      onSave={handleSave}
+      onUserPress={() => {
+        navigation.navigate('PublicProfile', { username: post.username })
+      }}
+      onRecipePress={() => {
+        navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })
+      }}
+    />
   )
 
   const handleLoadMore = () => {
-    if (!isLoadingProfileCookedsNextPage) {
+    if (!isLoadingProfileCookedsNextPage && hasMore) {
       profileStore.loadNextProfileCookedsPage(username)
     }
   }
@@ -66,7 +73,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     return null
   }
 
-  if (isLoadingProfileCookeds && profileCookeds.length === 0) {
+  if (isLoadingProfileCookeds && (!profileCookeds || profileCookeds.length === 0)) {
     return (
       <View style={styles.loadingContainer}>
         <Loading />
@@ -74,7 +81,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     )
   }
 
-  if (profileCookeds.length === 0) {
+  if (!profileCookeds || profileCookeds.length === 0) {
     return (
       <View style={styles.emptyStateContainer}>
         <Text style={styles.emptyStateText}>No cooked recipes yet.</Text>
@@ -90,15 +97,10 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         keyExtractor={post => post.id.toString()}
         contentContainerStyle={styles.feedContent}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={1}
         ListHeaderComponent={<ProfileCookedHeader username={username} />}
         ListFooterComponent={ListFooter}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoadingProfileCookeds}
-            onRefresh={onRefresh}
-          />
-        }
+        refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
       />
     </View>
   )
@@ -134,10 +136,6 @@ const styles = StyleSheet.create({
   },
   feedContent: {
     paddingBottom: 20,
-  },
-  feedItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.secondary,
   },
   footerLoader: {
     padding: 20,

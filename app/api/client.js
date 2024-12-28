@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { btoa, atob } from 'react-native-quick-base64';
+import { btoa, atob } from 'react-native-quick-base64'
 
 import { API_BASE_URL } from '../urls'
 
@@ -26,7 +26,7 @@ export class ApiClient {
         if (credentials?.token) {
           try {
             const session = atob(credentials.token)
-            config.headers.Cookie = `ring-session=${session}`  
+            config.headers.Cookie = `ring-session=${session}`
           } catch (e) {
             console.error(e)
           }

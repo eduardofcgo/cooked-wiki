@@ -1,4 +1,4 @@
-import { btoa, atob, trimBase64Padding } from 'react-native-quick-base64';
+import { btoa, atob, trimBase64Padding } from 'react-native-quick-base64'
 
 import AuthStore from './store'
 import { getAppLoginUrl, getCommunityJournalUrl } from '../urls'
@@ -35,6 +35,8 @@ export default class AuthService {
         message: 'Invalid username or password',
       }
     } else {
+      const body = await response.text()
+      console.error('Auth server error:', response.status, body, getAppLoginUrl())
       throw {
         code: 'AUTH_SERVER_ERROR',
         message: 'Unable to connect to authentication server',

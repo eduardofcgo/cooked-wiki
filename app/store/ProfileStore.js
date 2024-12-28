@@ -1,5 +1,20 @@
 import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 
+class ProfileData {
+  cookeds = observable.array()
+  isLoading = false
+  isLoadingNextPage = false
+  page = 1
+  hasMore = true
+
+  stats = undefined
+  isLoadingStats = false
+
+  constructor() {
+    makeAutoObservable(this)
+  }
+}
+
 export class ProfileStore {
   followingUsernames = observable.set()
   isLoadingFollowing = false
@@ -10,18 +25,10 @@ export class ProfileStore {
   communityFeedPage = 1
   hasMoreCommunityFeed = true
 
-  profileCookeds = observable.array()
-  isLoadingProfileCookeds = undefined
-  isLoadingProfileCookedNextPage = false
-  profileCookedsPage = 1
-  hasMoreProfileCookeds = true
-
-  profileStats = undefined
-  isLoadingProfileStats = false
+  profileDataMap = observable.map()
 
   constructor(apiClient) {
     this.apiClient = apiClient
-
     makeAutoObservable(this)
   }
 
@@ -56,7 +63,7 @@ export class ProfileStore {
     this.isLoadingCommunityFeed = true
 
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
-    
+
     runInAction(() => {
       this.communityFeed.replace(cookeds)
       this.isLoadingCommunityFeed = false
@@ -71,7 +78,7 @@ export class ProfileStore {
     this.isLoadingCommunityFeedNextPage = true
 
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: this.communityFeedPage + 1 } })
-    
+
     runInAction(() => {
       if (cookeds.length === 0) {
         this.hasMoreCommunityFeed = false
@@ -85,61 +92,116 @@ export class ProfileStore {
   }
 
   async loadProfileCooked(username) {
-    this.isLoadingProfileCookeds = true
+    if (this.profileDataMap.has(username)) return
+
+    const profileData = new ProfileData()
+    this.profileDataMap.set(username, profileData)
+
+    profileData.isLoading = true
 
     const cookeds = await this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } })
-    
+
     runInAction(() => {
-      this.profileCookeds.replace(cookeds)
-      this.isLoadingProfileCookeds = false
-      this.hasMoreProfileCookeds = cookeds.length > 0
-      this.profileCookedsPage = 1
+      profileData.cookeds.replace(cookeds)
+      profileData.isLoading = false
+      profileData.hasMore = cookeds.length > 0
+      profileData.page = 1
     })
   }
 
+  async reloadProfileCooked(username) {
+    this.profileDataMap.delete(username)
+    await Promise.all([this.loadProfileCooked(username), this.loadProfileStats(username)])
+  }
+
   async loadNextProfileCookedsPage(username) {
-    if (!this.hasMoreProfileCookeds || this.isLoadingProfileCookedsNextPage) return
+    const profileData = this.profileDataMap.get(username)
+    if (!profileData || !profileData.hasMore || profileData.isLoadingNextPage) return
 
-    this.isLoadingProfileCookedsNextPage = true
+    profileData.isLoadingNextPage = true
 
-    const cookeds = await this.apiClient.get(`/user/${username}/journal`, { params: { page: this.profileCookedsPage + 1 } })
-    
+    const cookeds = await this.apiClient.get(`/user/${username}/journal`, {
+      params: { page: profileData.page + 1 },
+    })
+
     runInAction(() => {
       if (cookeds.length === 0) {
-        this.hasMoreProfileCookeds = false
+        profileData.hasMore = false
       } else {
-        this.profileCookeds.push(...cookeds)
-        this.profileCookedsPage++
+        profileData.cookeds.push(...cookeds)
+        profileData.page++
       }
 
-      this.isLoadingProfileCookedsNextPage = false
+      profileData.isLoadingNextPage = false
     })
   }
 
   async loadProfileStats(username) {
-    this.isLoadingProfileStats = true
+    let profileData = this.profileDataMap.get(username)
+    if (!profileData) {
+      profileData = new ProfileData()
+      this.profileDataMap.set(username, profileData)
+    } else if (profileData.stats) {
+      return
+    }
+
+    profileData.isLoadingStats = true
 
     const stats = await this.apiClient.get(`/user/${username}/stats`)
-   
+
     runInAction(() => {
-      this.profileStats = stats
-      this.isLoadingProfileStats = false
+      profileData.stats = stats
+      profileData.isLoadingStats = false
     })
   }
 
-  updateCooked(cookedId, cooked) {
-    const cookedIndex = this.communityFeed.findIndex(cooked => cooked.id === cookedId)
-    if (cookedIndex !== -1) {
-      this.communityFeed[cookedIndex] = {
-        ...this.communityFeed[cookedIndex],
-        ...cooked
+  getProfileStats(username) {
+    return this.profileDataMap.get(username)?.stats
+  }
+
+  isLoadingProfileStats(username) {
+    return this.profileDataMap.get(username)?.isLoadingStats
+  }
+
+  async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
+    const newCooked = await this.apiClient.put(`/user/${username}/journal/${cookedId}`, {
+      data: {
+        notes: newNotes,
+        'cooked-photos-path': newCookedPhotosPath,
+      },
+    })
+
+    const profileData = this.profileDataMap.get(username)
+
+    if (profileData) {
+      const index = profileData.cookeds.findIndex(cooked => cooked.id === cookedId)
+      if (index !== -1) {
+        profileData.cookeds[index] = {
+          ...profileData.cookeds[index],
+          notes: newCooked.notes,
+          'cooked-photos-path': newCooked['cooked-photos-path'],
+        }
       }
     }
-
-    // TODO: Update cooked in the server
   }
 
   isFollowing(username) {
     return this.followingUsernames.has(username)
+  }
+
+  getProfileCookeds(username) {
+    return this.profileDataMap.get(username)?.cookeds
+  }
+
+  isLoadingProfileCookeds(username) {
+    return this.profileDataMap.get(username)?.isLoading
+  }
+
+  isLoadingProfileCookedsNextPage(username) {
+    return this.profileDataMap.get(username)?.isLoadingNextPage
+  }
+
+  hasMoreProfileCookeds(username) {
+    return this.profileDataMap.get(username)?.hasMore
   }
 }

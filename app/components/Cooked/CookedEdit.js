@@ -1,7 +1,7 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, useState } from 'react'
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native'
 
-import { getPhotoUrl } from '../../urls';
+import { getPhotoUrl } from '../../urls'
 
 import { theme } from '../../style/style'
 
@@ -13,72 +13,66 @@ const EditableImage = memo(({ path, index, onExclude }) => (
       source={{ uri: getPhotoUrl(path) }}
       style={[styles.mainImage, { width: 110, height: 110, borderRadius: theme.borderRadius.default }]}
     />
-    <SecondaryButton title="Exclude" onPress={() => onExclude(index)} style={styles.excludeButton} />
+    <SecondaryButton title='Exclude' onPress={() => onExclude(index)} style={styles.excludeButton} />
   </View>
-));
+))
 
 const AddImageButton = memo(({ onPress }) => (
-  <TouchableOpacity
-    style={[styles.addImageButton, { width: 110, height: 110 }]}
-    onPress={onPress}
-  >
+  <TouchableOpacity style={[styles.addImageButton, { width: 110, height: 110 }]} onPress={onPress}>
     <Text style={styles.addImageText}>📸 Add photo</Text>
   </TouchableOpacity>
-));
+))
 
-export default function CookedEdit({
-  post,
-  onSave,
-  onCancel
-}) {  
-  const handleExcludeImage = useCallback((index) => {
-    const updatedPhotos = post['cooked-photos-path'].filter((_, i) => i !== index);
-    onSave({ ...post, 'cooked-photos-path': updatedPhotos });
-  }, [post, onSave]);
+export default function CookedEdit({ post, onSave, onCancel }) {
+  const [notes, setNotes] = useState(post.notes)
+  const [photos, setPhotos] = useState(post['cooked-photos-path'])
 
-  const handleNotesChange = useCallback((text) => {
-    onSave({ ...post, notes: text });
-  }, [post, onSave]);
+  const handleSave = useCallback(() => {
+    onSave(post.id, notes, photos)
+  }, [post, notes, photos, onSave])
+
+  const handleExcludeImage = useCallback(
+    index => {
+      const updatedPhotos = photos.filter((_, i) => i !== index)
+      setPhotos(updatedPhotos)
+    },
+    [post]
+  )
+
+  const handleNotesChange = useCallback(
+    text => {
+      setNotes(text)
+    },
+    [post]
+  )
 
   const handleAddImage = useCallback(() => {
     // TODO: Implement image picker logic
-  }, []);
+  }, [])
 
   return (
     <View style={styles.modalContainer}>
-      <ScrollView
-        horizontal
-        style={styles.imageScrollView}
-        contentContainerStyle={styles.imageScrollEditContent}
-      >
-        {post['cooked-photos-path']?.map((path, index) => (
-          <EditableImage
-            key={index}
-            path={path}
-            index={index}
-            onExclude={handleExcludeImage}
-          />
+      <ScrollView horizontal style={styles.imageScrollView} contentContainerStyle={styles.imageScrollEditContent}>
+        {photos?.map((path, index) => (
+          <EditableImage key={index} path={path} index={index} onExclude={handleExcludeImage} />
         ))}
-        <View style={[styles.imageContainer, styles.imageContainerEditing]}>
-          <AddImageButton onPress={handleAddImage} />
-        </View>
+        {(!photos || photos?.length < 2) && (
+          <View style={[styles.imageContainer, styles.imageContainerEditing]}>
+            <AddImageButton onPress={handleAddImage} />
+          </View>
+        )}
       </ScrollView>
 
       <View style={[styles.editContainer, { height: 240 }]}>
-        <TextInput
-          multiline
-          value={post.notes}
-          onChangeText={handleNotesChange}
-          style={styles.editInput}
-        />
+        <TextInput multiline value={notes} onChangeText={handleNotesChange} style={styles.editInput} />
       </View>
 
       <View style={styles.actionsContainer}>
-        <PrimaryButton onPress={onSave} title="Save" />
-        <SecondaryButton onPress={onCancel} title="Cancel" />
+        <PrimaryButton onPress={handleSave} title='Save' />
+        <SecondaryButton onPress={onCancel} title='Cancel' />
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -173,4 +167,4 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 3,
   },
-});
+})

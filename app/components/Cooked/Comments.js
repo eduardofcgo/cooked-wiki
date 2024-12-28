@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
-import { theme } from '../../style/style';
+import React from 'react'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
+import { theme } from '../../style/style'
 
 const Comments = ({ comments, commentsToShow, onReply, onLikeComment, onLoadMore }) => {
   return (
@@ -15,9 +15,7 @@ const Comments = ({ comments, commentsToShow, onReply, onLikeComment, onLoadMore
           <View style={styles.commentContent}>
             <Text style={styles.commentAuthor}>{comment.authorName}</Text>
             <Text style={styles.commentText}>
-              {comment.replyTo && (
-                <Text style={styles.mentionText}>@{comment.replyTo} </Text>
-              )}
+              {comment.replyTo && <Text style={styles.mentionText}>@{comment.replyTo} </Text>}
               {comment.text}
             </Text>
             <View style={styles.commentActions}>
@@ -28,27 +26,23 @@ const Comments = ({ comments, commentsToShow, onReply, onLikeComment, onLoadMore
                 <FontAwesomeIcon
                   icon={comment.isLiked ? faHeartSolid : faHeartRegular}
                   size={14}
-                  color={!comment.isLiked ? theme.colors.primary : "#e86a92"}
+                  color={!comment.isLiked ? theme.colors.primary : '#e86a92'}
                 />
-                {comment.likes > 0 && (
-                  <Text style={styles.commentLikeCount}>{comment.likes}</Text>
-                )}
+                {comment.likes > 0 && <Text style={styles.commentLikeCount}>{comment.likes}</Text>}
               </TouchableOpacity>
             </View>
           </View>
         </View>
       ))}
-      
+
       {comments?.length > commentsToShow && (
         <TouchableOpacity onPress={onLoadMore} style={styles.loadMoreButton}>
-          <Text style={styles.loadMoreText}>
-            Load More
-          </Text>
+          <Text style={styles.loadMoreText}>Load More</Text>
         </TouchableOpacity>
       )}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   commentsSection: {
@@ -128,6 +122,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.default,
     fontSize: theme.fontSizes.small,
   },
-});
+})
 
-export default Comments; 
+export default Comments

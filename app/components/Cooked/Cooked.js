@@ -1,48 +1,49 @@
-import React, { useState, useRef, useCallback, memo } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { faComment } from '@fortawesome/free-regular-svg-icons';
-import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
-import Animated, { 
-  withSpring, 
-  withTiming, 
-  useAnimatedStyle, 
+import React, { useState, useRef, useCallback, memo } from 'react'
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faComment } from '@fortawesome/free-regular-svg-icons'
+import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { TapGestureHandler, State } from 'react-native-gesture-handler'
+import Animated, {
+  withSpring,
+  withTiming,
+  useAnimatedStyle,
   useSharedValue,
   useAnimatedScrollHandler,
   interpolate,
-  Extrapolate
-} from 'react-native-reanimated';
+  Extrapolate,
+} from 'react-native-reanimated'
+import { observer } from 'mobx-react-lite'
 
-import { getProfileImageUrl, getPhotoUrl, getThumbnailUrl } from '../../urls';
+import { getProfileImageUrl, getPhotoUrl, getThumbnailUrl } from '../../urls'
 
-import { theme } from '../../style/style';
-import { PrimaryButton, SecondaryButton } from '../Button';
-import Modal from '../Modal';
-import Comments from './Comments';
-import CommentModal from './CommentModal';
+import { theme } from '../../style/style'
+import { PrimaryButton, SecondaryButton } from '../Button'
+import Modal from '../Modal'
+import Comments from './Comments'
+import CommentModal from './CommentModal'
 
-import CookedEdit from './CookedEdit.js';
+import CookedEdit from './CookedEdit.js'
 
 const WeeksAgo = memo(({ weeks }) => {
-  if (weeks === 0) return <Text style={styles.weeksAgo}>This week</Text>;
-  if (weeks === 1) return <Text style={styles.weeksAgo}>Last week</Text>;
-  return <Text style={styles.weeksAgo}>{weeks} weeks ago</Text>;
-});
+  if (weeks === 0) return <Text style={styles.weeksAgo}>This week</Text>
+  if (weeks === 1) return <Text style={styles.weeksAgo}>Last week</Text>
+  return <Text style={styles.weeksAgo}>{weeks} weeks ago</Text>
+})
 
 const LikeButton = memo(({ isLiked, onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <FontAwesomeIcon
       icon={isLiked ? faHeartSolid : faHeartRegular}
       size={20}
-      color={!isLiked ? theme.colors.primary : "#e86a92"}
+      color={!isLiked ? theme.colors.primary : '#e86a92'}
     />
   </TouchableOpacity>
-));
+))
 
 const EditButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
@@ -51,72 +52,79 @@ const EditButton = memo(({ onPress }) => (
       <Text style={styles.editButton}>Edit</Text>
     </View>
   </TouchableOpacity>
-));
+))
 
 const AuthorSection = memo(({ username, onUserPress }) => (
   <TouchableOpacity onPress={onUserPress} style={{ flexDirection: 'row', alignItems: 'center' }}>
     <Image source={{ uri: getProfileImageUrl(username) }} style={styles.avatar} />
     <Text style={styles.cookedHeaderText}>{username}</Text>
   </TouchableOpacity>
-));
+))
 
 const ImageSection = memo(({ photos, onSingleTap, onDoubleTap, doubleTapRef, heartStyle }) => (
-  <ScrollView style={styles.imageScrollView} contentContainerStyle={styles.imageScrollViewContent}>
-    <TapGestureHandler
-      onHandlerStateChange={onSingleTap}
-      waitFor={doubleTapRef}>
-      <TapGestureHandler
-        ref={doubleTapRef}
-        onHandlerStateChange={onDoubleTap}
-        numberOfTaps={2}>
+  <View style={styles.imageScrollView} contentContainerStyle={styles.imageScrollViewContent}>
+    <TapGestureHandler onHandlerStateChange={onSingleTap} waitFor={doubleTapRef}>
+      <TapGestureHandler ref={doubleTapRef} onHandlerStateChange={onDoubleTap} numberOfTaps={2}>
         <View style={styles.imageContainerNormal}>
           {photos.map((photoPath, index) => (
             <Image
               key={index}
               source={{ uri: getPhotoUrl(photoPath) }}
               style={[styles.mainImage, { width: '100%', height: 300 }]}
+              loading='lazy'
+              fadeDuration={100}
             />
           ))}
           <Animated.View style={[styles.heartContainer, heartStyle]}>
-            <FontAwesomeIcon icon={faHeartSolid} size={80} color="#e86a92" />
+            <FontAwesomeIcon icon={faHeartSolid} size={80} color='#e86a92' />
           </Animated.View>
         </View>
       </TapGestureHandler>
     </TapGestureHandler>
-  </ScrollView>
-));
+  </View>
+))
 
-const CookedView = memo(({ post, hideAuthor, onEdit, onRecipePress, onUserPress, onLike }) => {
-  const heartScale = useSharedValue(0);
-  const heartOpacity = useSharedValue(0);
-  
-  const animatedHeartStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: heartScale.value }],
-    opacity: heartOpacity.value,
-  }), []);
+const CookedView = observer(({ post, hideAuthor, onEdit, onRecipePress, onUserPress, onLike }) => {
+  const heartScale = useSharedValue(0)
+  const heartOpacity = useSharedValue(0)
 
-  const doubleTapRef = useRef(null);
+  const animatedHeartStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ scale: heartScale.value }],
+      opacity: heartOpacity.value,
+    }),
+    []
+  )
 
-  const onSingleTap = useCallback(({ nativeEvent }) => {
-    if (nativeEvent.state === State.ACTIVE) {
-      onRecipePress();
-    }
-  }, [onRecipePress]);
+  const doubleTapRef = useRef(null)
 
-  const onDoubleTap = useCallback(({ nativeEvent }) => {
-    if (nativeEvent.state === State.ACTIVE && !post.isLiked) {
-      onLike();
-      heartScale.value = 0;
-      heartOpacity.value = 1;
-      heartScale.value = withSpring(1, { damping: 15 });
-      heartOpacity.value = withTiming(0, { duration: 1000 });
-    }
-  }, [post.isLiked, onLike, heartScale, heartOpacity]);
+  const onSingleTap = useCallback(
+    ({ nativeEvent }) => {
+      if (nativeEvent.state === State.ACTIVE) {
+        onRecipePress()
+      }
+    },
+    [onRecipePress]
+  )
+
+  const onDoubleTap = useCallback(
+    ({ nativeEvent }) => {
+      if (nativeEvent.state === State.ACTIVE && !post.isLiked) {
+        onLike()
+        heartScale.value = 0
+        heartOpacity.value = 1
+        heartScale.value = withSpring(1, { damping: 15 })
+        heartOpacity.value = withTiming(0, { duration: 1000 })
+      }
+    },
+    [post.isLiked, onLike, heartScale, heartOpacity]
+  )
 
   return (
     <View style={styles.container}>
-      <View style={styles.stickyHeader}>
-        <WeeksAgo weeks={post['weeks-ago']} />
+      <WeeksAgo weeks={post['weeks-ago']} />
+
+      <View style={styles.cookedCard}>
         <View style={styles.authorContainer}>
           {!hideAuthor && (
             <>
@@ -124,91 +132,74 @@ const CookedView = memo(({ post, hideAuthor, onEdit, onRecipePress, onUserPress,
               <Text style={styles.separator}>•</Text>
             </>
           )}
-          <TouchableOpacity
-            style={[
-              styles.recipeNameContainer,
-            ]} 
-            onPress={onRecipePress}
-          >
+          <TouchableOpacity style={[styles.recipeNameContainer]} onPress={onRecipePress}>
             <Text style={[styles.cookedHeaderText, styles.recipeNameText]} numberOfLines={2}>
               {post['recipe-title']}
             </Text>
             <FontAwesomeIcon icon={faChevronRight} size={14} color={theme.colors.primary} />
           </TouchableOpacity>
         </View>
-      </View>
 
-      <ScrollView 
-        style={styles.scrollContent}
-      >
-        {post['cooked-photos-path']?.length > 0 ? (
-          <ImageSection
-            photos={post['cooked-photos-path']}
-            onSingleTap={onSingleTap}
-            onDoubleTap={onDoubleTap}
-            doubleTapRef={doubleTapRef}
-            heartStyle={animatedHeartStyle}
-          />
-        ) : (
-          <View style={styles.compactViewContainer}>
-            {post['recipe-image-path'] && (
-              <Image
-                source={{ uri: getThumbnailUrl(post['recipe-image-path']) }}
-                style={styles.thumbnailImage}
-              />
-            )}
-            {post.notes?.length !== null && (
-              <View style={styles.compactDescription}>
-                <Text style={styles.description}>{post.notes}</Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {post['cooked-photos-path']?.length > 0 && post.notes?.length !== null && (
-          <View style={styles.viewContainer}>
-            <Text style={styles.description}>{post.notes}</Text>
-          </View>
-        )}
-
-        <View style={styles.actionsContainer}>
-          {true ? (
-            <EditButton onPress={onEdit} />
+        <View style={styles.scrollContent}>
+          {post['cooked-photos-path']?.length > 0 ? (
+            <ImageSection
+              photos={post['cooked-photos-path']}
+              onSingleTap={onSingleTap}
+              onDoubleTap={onDoubleTap}
+              doubleTapRef={doubleTapRef}
+              heartStyle={animatedHeartStyle}
+            />
           ) : (
-            <View />
+            <View style={styles.compactViewContainer}>
+              {post['recipe-image-path'] && (
+                <Image source={{ uri: getThumbnailUrl(post['recipe-image-path']) }} style={styles.thumbnailImage} />
+              )}
+              {post.notes?.length !== null && (
+                <View style={styles.compactDescription}>
+                  <Text style={styles.description}>{post.notes}</Text>
+                </View>
+              )}
+            </View>
           )}
-          <LikeButton isLiked={post.isLiked} onPress={onLike} />
+
+          {post['cooked-photos-path']?.length > 0 && post.notes?.length !== null && (
+            <View style={styles.viewContainer}>
+              <Text style={styles.description}>{post.notes}</Text>
+            </View>
+          )}
+
+          <View style={styles.actionsContainer}>
+            {true ? <EditButton onPress={onEdit} /> : <View />}
+            <LikeButton isLiked={post.isLiked} onPress={onLike} />
+          </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
-  );
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.post.id === nextProps.post.id &&
-    prevProps.post.isLiked === nextProps.post.isLiked &&
-    prevProps.post.notes === nextProps.post.notes &&
-    prevProps.hideAuthor === nextProps.hideAuthor &&
-    prevProps.post['cooked-photos-path']?.length === nextProps.post['cooked-photos-path']?.length
-  );
-});
+  )
+})
 
-const Cooked = memo(({ post, onRecipePress, onUserPress, hideAuthor }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedDescription, setEditedDescription] = useState(post.description);
-  const [images, setImages] = useState([post.image]);
+const Cooked = observer(({ post, onRecipePress, onUserPress, hideAuthor, onSave }) => {
+  const [isEditing, setIsEditing] = useState(false)
 
-  const handleSave = useCallback(() => {
-    setIsEditing(false);
-  }, []);
+  const handleSave = useCallback(
+    (id, notes, cookedPhotosPath) => {
+      setIsEditing(false)
+
+      if (onSave) {
+        onSave(id, notes, cookedPhotosPath)
+      }
+    },
+    [onSave]
+  )
 
   const handleCancel = useCallback(() => {
-    setIsEditing(false);
-    setEditedDescription(post.description);
-    setImages([post.image]);
-  }, [post.description, post.image]);
+    setIsEditing(false)
+  }, [])
 
-  const handleEdit = useCallback(() => setIsEditing(true), []);
-  const handleLike = useCallback(() => {/* Handle like */}, []);
+  const handleEdit = useCallback(() => setIsEditing(true), [])
+  const handleLike = useCallback(() => {
+    /* Handle like */
+  }, [])
 
   return (
     <>
@@ -220,37 +211,12 @@ const Cooked = memo(({ post, onRecipePress, onUserPress, hideAuthor }) => {
         onUserPress={onUserPress}
         onLike={handleLike}
       />
-      <Modal
-        visible={isEditing}
-        onClose={handleCancel}
-        title="Edit cook"
-      >
-        <CookedEdit
-          post={post}
-          images={images}
-          setImages={setImages}
-          editedDescription={editedDescription}
-          setEditedDescription={setEditedDescription}
-          onSave={handleSave}
-          onCancel={handleCancel}
-        />
+      <Modal visible={isEditing} onClose={handleCancel} title='Edit cook'>
+        <CookedEdit post={post} onSave={handleSave} onCancel={handleCancel} />
       </Modal>
-      
-      {/* <CommentModal
-        visible={isCommenting}
-        onClose={() => {
-          setIsCommenting(false);
-          setReplyingTo(null);
-        }}
-        onSubmit={handleAddComment}
-        replyTo={replyingTo}
-      /> */}
     </>
-  );
-}, (prevProps, nextProps) => {
-  return prevProps.post.id === nextProps.post.id && 
-         prevProps.hideAuthor === nextProps.hideAuthor;
-});
+  )
+})
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -267,27 +233,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.secondary,
   },
-  stickyHeader: {
-    backgroundColor: theme.colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.secondary,
-    zIndex: 1,
+  cookedCard: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    backgroundColor: theme.colors.white,
+    marginVertical: 16,
   },
   scrollContent: {
     flex: 1,
-  },
-  stickyActions: {
-    backgroundColor: theme.colors.secondary,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.secondary,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
   },
   authorContainer: {
     flexDirection: 'row',
@@ -295,7 +255,7 @@ const styles = StyleSheet.create({
     height: 55,
     paddingLeft: 15,
     paddingRight: 15,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.white,
   },
   avatar: {
     width: 35,
@@ -305,12 +265,12 @@ const styles = StyleSheet.create({
   },
   cookedHeaderText: {
     color: theme.colors.black,
-    fontSize: theme.fontSizes.default ,
+    fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.title,
   },
   editTitle: {
     color: theme.colors.softBlack,
-    fontSize: theme.fontSizes.default ,
+    fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.title,
   },
   mainImage: {
@@ -331,16 +291,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     backgroundColor: theme.colors.secondary,
-    borderTopWidth: 0,
-    borderTopColor: theme.colors.secondary,
-    shadowColor: theme.colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
   },
   editButton: {
     color: theme.colors.primary,
@@ -488,21 +438,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  floatingActions: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    backgroundColor: theme.colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.secondary,
-    pointerEvents: 'box-none',
-  },
   heartContainer: {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -40 }, { translateY: -40 }],
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -533,9 +474,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.small,
     color: theme.colors.softBlack,
     paddingHorizontal: 15,
-    paddingTop: 16,
-    paddingBottom: 4,
   },
-});
+})
 
-export default Cooked;
+export default Cooked

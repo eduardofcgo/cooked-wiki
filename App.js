@@ -29,7 +29,7 @@ import {
   AtkinsonHyperlegible_400Regular_Italic,
   AtkinsonHyperlegible_700Bold,
   AtkinsonHyperlegible_700Bold_Italic,
-} from '@expo-google-fonts/atkinson-hyperlegible';
+} from '@expo-google-fonts/atkinson-hyperlegible'
 import {
   EBGaramond_400Regular,
   EBGaramond_500Medium,
@@ -41,7 +41,7 @@ import {
   EBGaramond_600SemiBold_Italic,
   EBGaramond_700Bold_Italic,
   EBGaramond_800ExtraBold_Italic,
-} from '@expo-google-fonts/eb-garamond';
+} from '@expo-google-fonts/eb-garamond'
 
 import RootStore from './app/store/RootStore'
 import { ApiClient } from './app/api/client'

@@ -116,14 +116,15 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
   )
 }
 
-function Profile({ route, navigation, username, menu }) {
+const Profile = observer(({ route, navigation, username, menu }) => {
   return (
     <>
       <ProfileHeader username={username} navigation={navigation} menu={menu} />
-      <Tab.Navigator screenOptions={{
-        ...tabStyle,
-        lazy: true,
-      }}>
+      <Tab.Navigator
+        screenOptions={{
+          ...tabStyle,
+          lazy: true,
+        }}>
         <Tab.Screen
           name='Cooked'
           options={{
@@ -148,7 +149,7 @@ function Profile({ route, navigation, username, menu }) {
       </Tab.Navigator>
     </>
   )
-}
+})
 
 const FollowButton = observer(({ username }) => {
   const { profileStore } = useStore()
@@ -203,7 +204,7 @@ export function LoggedInProfile({ route, navigation }) {
   }
 
   return (
-    <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight }}>
+    <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight, paddingBottom: 40 }}>
       <Profile
         route={route}
         navigation={navigation}

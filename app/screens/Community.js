@@ -1,9 +1,15 @@
 import React, { useEffect, useCallback, useState, memo } from 'react'
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg'
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Linking, Platform, Modal, FlatList } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Reanimated, { SharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
+import Reanimated, {
+  SharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import * as Notifications from 'expo-notifications'
 import * as Contacts from 'expo-contacts'
@@ -17,21 +23,15 @@ import { requestPushNotificationsPermission } from '../notifications/push'
 import { theme } from '../style/style'
 import { Button, PrimaryButton } from '../components/Button'
 import Loading from '../components/Loading'
-import RefreshControl from '../components/RefreshControl';
+import RefreshControl from '../components/RefreshControl'
 import DrawnArrow from '../components/DrawnArrow'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 import Cooked from '../components/Cooked/Cooked'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
-  <View style={styles.feedItem}>
-    <Cooked 
-      post={post}
-      onUserPress={onUserPress}
-      onRecipePress={onRecipePress}
-    />
-  </View>
-));
+  <Cooked post={post} onUserPress={onUserPress} onRecipePress={onRecipePress} />
+))
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore } = useStore()
@@ -39,18 +39,20 @@ export default Community = observer(({ navigation, route }) => {
   const contactsPermissionStatus = userStore.contactsPermissionStatus
 
   const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
-  const { isLoadingFollowing, followingUsernames, 
-          communityFeed, isLoadingCommunityFeed, isLoadingCommunityFeedNextPage } = profileStore
+  const {
+    isLoadingFollowing,
+    followingUsernames,
+    communityFeed,
+    isLoadingCommunityFeed,
+    isLoadingCommunityFeedNextPage,
+  } = profileStore
 
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   useEffect(() => {
     ;(async () => {
       try {
-        await Promise.all([
-          profileStore.loadFollowing(),
-          profileStore.loadCommunityFeed()
-        ])
+        await Promise.all([profileStore.loadFollowing(), profileStore.loadCommunityFeed()])
       } catch (e) {
         console.error(e)
       }
@@ -102,35 +104,41 @@ export default Community = observer(({ navigation, route }) => {
     }
   }
 
-  const showNotificationsCard = notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && !hiddenNotificationsCard
+  const showNotificationsCard =
+    notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && !hiddenNotificationsCard
   const showFindFriendsCard = !hiddenFindFriendsCard
 
   const pulseAnim = useAnimatedStyle(() => {
     return {
       transform: [
-        { scale: withRepeat(
-          withSequence(
-            withTiming(1, { duration: 1000 }),
-            withTiming(1.05, { duration: 500 }),
-            withTiming(1, { duration: 1000 })
+        {
+          scale: withRepeat(
+            withSequence(
+              withTiming(1, { duration: 1000 }),
+              withTiming(1.05, { duration: 500 }),
+              withTiming(1, { duration: 1000 })
+            ),
+            -1
           ),
-          -1
-        ) },
-      ]
-    };
-  });
+        },
+      ],
+    }
+  })
 
   const onRefresh = useCallback(async () => {
     await profileStore.loadCommunityFeed()
   }, [])
 
-  const renderItem = useCallback(({ item: post }) => (
-    <CookedItem 
-      post={post}
-      onUserPress={() => navigation.navigate('PublicProfile', { username: post.username })}
-      onRecipePress={() => navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })}
-    />
-  ), [navigation]);
+  const renderItem = useCallback(
+    ({ item: post }) => (
+      <CookedItem
+        post={post}
+        onUserPress={() => navigation.navigate('PublicProfile', { username: post.username })}
+        onRecipePress={() => navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })}
+      />
+    ),
+    [navigation]
+  )
 
   const handleLoadMore = () => {
     if (!isLoadingCommunityFeedNextPage) {
@@ -151,125 +159,114 @@ export default Community = observer(({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      {showNotificationsCard || showFindFriendsCard && (
-        <View style={styles.cardsContainer}>
-          {showNotificationsCard && (
-            <View style={styles.swipeableContainer}>
-              <ReanimatedSwipeable
-                containerStyle={{ overflow: 'visible' }}
-                renderRightActions={() => (
-                  <TouchableOpacity
-                    style={styles.rightAction}
-                    onPress={() => {
-                      setIsModalVisible(true)
-                    }}>
-                    <Icon name="close" size={20} color={theme.colors.primary} />
-                  </TouchableOpacity>
-                )}>
-                <View style={styles.card}>
-                  <View style={styles.iconContainer}>
-                    <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
-                  </View>
-                  <View style={styles.contentContainer}>
-                    <View style={styles.textContainer}>
-                      <Text style={styles.description}>Get notified when your friends cook something new.</Text>
+      {showNotificationsCard ||
+        (showFindFriendsCard && (
+          <View style={styles.cardsContainer}>
+            {showNotificationsCard && (
+              <View style={styles.swipeableContainer}>
+                <ReanimatedSwipeable
+                  containerStyle={{ overflow: 'visible' }}
+                  renderRightActions={() => (
+                    <TouchableOpacity
+                      style={styles.rightAction}
+                      onPress={() => {
+                        setIsModalVisible(true)
+                      }}>
+                      <Icon name='close' size={20} color={theme.colors.primary} />
+                    </TouchableOpacity>
+                  )}>
+                  <View style={styles.card}>
+                    <View style={styles.iconContainer}>
+                      <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
                     </View>
-                    {notificationPermissionStatus === 'denied' ? (
-                      <Button onPress={openSettings} style={styles.cardButton} title='Settings' />
-                    ) : (
-                      <PrimaryButton onPress={handleEnableNotifications} style={styles.cardButton} title='Turn on' />
-                    )}
+                    <View style={styles.contentContainer}>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.description}>Get notified when your friends cook something new.</Text>
+                      </View>
+                      {notificationPermissionStatus === 'denied' ? (
+                        <Button onPress={openSettings} style={styles.cardButton} title='Settings' />
+                      ) : (
+                        <PrimaryButton onPress={handleEnableNotifications} style={styles.cardButton} title='Turn on' />
+                      )}
+                    </View>
                   </View>
-                </View>
-              </ReanimatedSwipeable>
-            </View>
-          )}
+                </ReanimatedSwipeable>
+              </View>
+            )}
 
-          {showFindFriendsCard && (
-            <View style={styles.swipeableContainer}>
-              <ReanimatedSwipeable
-                containerStyle={{ overflow: 'visible' }}
-                renderRightActions={() => (
-                  <TouchableOpacity
-                    style={styles.rightAction}
-                    onPress={() => {
-                      setIsModalVisible(true)
-                    }}>
-                    <Icon name="close" size={20} color={theme.colors.primary} />
-                  </TouchableOpacity>
-                )}>
-                <View style={styles.card}>
-                  <View style={styles.iconContainer}>
-                    <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
-                  </View>
-                  <View style={styles.contentContainer}>
-                    <View style={styles.textContainer}>
-                      <Text style={styles.description}>Connect with your friends to see what they're cooking.</Text>
+            {showFindFriendsCard && (
+              <View style={styles.swipeableContainer}>
+                <ReanimatedSwipeable
+                  containerStyle={{ overflow: 'visible' }}
+                  renderRightActions={() => (
+                    <TouchableOpacity
+                      style={styles.rightAction}
+                      onPress={() => {
+                        setIsModalVisible(true)
+                      }}>
+                      <Icon name='close' size={20} color={theme.colors.primary} />
+                    </TouchableOpacity>
+                  )}>
+                  <View style={styles.card}>
+                    <View style={styles.iconContainer}>
+                      <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
                     </View>
-                    <PrimaryButton onPress={handleAddFriends} style={styles.cardButton} title='Add friends' />
+                    <View style={styles.contentContainer}>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.description}>Connect with your friends to see what they're cooking.</Text>
+                      </View>
+                      <PrimaryButton onPress={handleAddFriends} style={styles.cardButton} title='Add friends' />
+                    </View>
                   </View>
-                </View>
-              </ReanimatedSwipeable>
-            </View>
-          )}
-        </View>
-      )}
+                </ReanimatedSwipeable>
+              </View>
+            )}
+          </View>
+        ))}
 
       {isLoadingFollowing || (isLoadingCommunityFeed && communityFeed.length === 0) ? (
         <View style={styles.emptyStateContainer}>
           <Loading />
         </View>
+      ) : followingUsernames.size === 0 ? (
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyStateText}>Not following anyone.</Text>
+          <Text style={styles.emptySearchText}>Follow your friends to see what they're cooking.</Text>
+        </View>
       ) : (
-        followingUsernames.size === 0 ? (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>Not following anyone.</Text>
-            <Text style={styles.emptySearchText}>Follow your friends to see what they're cooking.</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={communityFeed}
-            renderItem={renderItem}
-            keyExtractor={post => post.id}
-            contentContainerStyle={styles.feedContent}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={1} 
-            ListFooterComponent={ListFooter}
-            refreshControl={
-              <RefreshControl
-                refreshing={profileStore.isLoadingCommunityFeed}
-                onRefresh={onRefresh}
-              />
-            }
-          />
-        )
+        <FlatList
+          data={communityFeed}
+          renderItem={renderItem}
+          keyExtractor={post => post.id}
+          contentContainerStyle={styles.feedContent}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={1}
+          ListFooterComponent={ListFooter}
+          refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
+        />
       )}
 
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="fade">
+      <Modal visible={isModalVisible} transparent={true} animationType='fade'>
         <View style={styles.modalOverlay}>
           <Reanimated.View style={[pulseAnim]}>
             <View style={styles.clearCircle}>
-              <Icon name="account-multiple" size={20} color={theme.colors.softBlack} />
+              <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
             </View>
           </Reanimated.View>
-            
+
           <View style={[styles.arrowContainer]}>
             <DrawnArrow />
           </View>
-          
+
           <View style={styles.modalTouchable}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                You can always tap the icon at the top right corner to find friends.
-              </Text>
+              <Text style={styles.modalText}>You can always tap the icon at the top right corner to find friends.</Text>
               <View>
                 <Button
-                  title="Got it" 
+                  title='Got it'
                   onPress={() => {
                     userStore.hideFindFriendsCard()
-                    
+
                     setIsModalVisible(false)
                   }}
                 />
@@ -286,6 +283,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+    paddingBottom: 40,
   },
   cardsContainer: {
     gap: 16,
@@ -430,10 +428,6 @@ const styles = StyleSheet.create({
   },
   feedContent: {
     paddingBottom: 20,
-  },
-  feedItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.secondary,
   },
   footerLoader: {
     padding: 20,

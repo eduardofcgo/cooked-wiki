@@ -2,7 +2,6 @@ import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 
 import { getContactHashes } from '../contacts/contacts'
 
-
 export class UserStore {
   notificationToken = null
   notificationPermissionStatus = null

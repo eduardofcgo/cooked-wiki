@@ -167,11 +167,11 @@ function FindFriends({ navigation }) {
                 {loadingFriendsProfiles ? 'Loading...' : 'No friends found, try searching by username.'}
               </Text>
             )}
-          {loadingFriendsProfiles && (
-            <View style={{ marginTop: 16 }}>
-              <Loading />
-            </View>
-          )}
+            {loadingFriendsProfiles && (
+              <View style={{ marginTop: 16 }}>
+                <Loading />
+              </View>
+            )}
           </View>
         )
       ) : (

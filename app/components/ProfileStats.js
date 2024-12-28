@@ -11,8 +11,7 @@ import Loading from './Loading'
 
 import { theme } from '../style/style'
 
-
-const getTrophyColor = (cookedCount) => {
+const getTrophyColor = cookedCount => {
   if (cookedCount >= 100) return '#FDB931' // Warmer gold
   if (cookedCount >= 50) return '#C0C0C0' // Brighter silver
   if (cookedCount >= 5) return '#D08B48' // Richer bronze
@@ -21,17 +20,16 @@ const getTrophyColor = (cookedCount) => {
 
 function ProfileStats({ username }) {
   const { profileStore } = useStore()
-  const { profileStats, isLoadingProfileStats } = profileStore
+  const stats = profileStore.getProfileStats(username)
+  const isLoading = profileStore.isLoadingProfileStats(username)
 
-  const trophyColor = getTrophyColor(profileStats?.['cooked-count'] || 0)
+  const trophyColor = getTrophyColor(stats?.['cooked-count'] || 0)
 
   useEffect(() => {
-    (async () => {
-      await profileStore.loadProfileStats(username)
-    })()
+    profileStore.loadProfileStats(username)
   }, [])
 
-  if (isLoadingProfileStats || !profileStats) {
+  if (isLoading || !stats) {
     return <Loading />
   }
 
@@ -40,16 +38,16 @@ function ProfileStats({ username }) {
       <View style={styles.statItem}>
         <View style={styles.numberContainer}>
           <FontAwesomeIcon icon={faTrophy} size={16} color={trophyColor} />
-          <Text style={styles.number}>{profileStats['cooked-count']}</Text>
+          <Text style={styles.number}>{stats['cooked-count']}</Text>
         </View>
         <Text style={styles.label}>Cooked</Text>
       </View>
       <View style={styles.statItem}>
-        <Text style={styles.number}>{profileStats['followers-count']}</Text>
+        <Text style={styles.number}>{stats['followers-count']}</Text>
         <Text style={styles.label}>Followers</Text>
       </View>
       <View style={styles.statItem}>
-        <Text style={styles.number}>{profileStats['following-count']}</Text>
+        <Text style={styles.number}>{stats['following-count']}</Text>
         <Text style={styles.label}>Following</Text>
       </View>
     </View>

@@ -25,35 +25,31 @@ export default Settings = observer(({ navigation }) => {
   })
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        { 
-          text: "Logout", 
-          onPress: async () => {
-            setIsLoading(true)
-            try {
-              await logout()
-            } catch (error) {
-              setIsLoading(false)
-              console.error('Logout error:', error)
-              alert('Failed to logout. Please try again.')
-            }
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        onPress: async () => {
+          setIsLoading(true)
+          try {
+            await logout()
+          } catch (error) {
             setIsLoading(false)
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          },
-          style: "destructive"
-        }
-      ]
-    );
+            console.error('Logout error:', error)
+            alert('Failed to logout. Please try again.')
+          }
+          setIsLoading(false)
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          })
+        },
+        style: 'destructive',
+      },
+    ])
   }
 
   const handleNotificationToggle = async value => {
