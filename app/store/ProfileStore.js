@@ -27,6 +27,8 @@ export class ProfileStore {
 
   profileDataMap = observable.map()
 
+  cookedStats = observable.map()
+
   constructor(apiClient) {
     this.apiClient = apiClient
     makeAutoObservable(this)
@@ -109,8 +111,42 @@ export class ProfileStore {
     })
   }
 
+  async loadCookedStats(cookedId) {
+    const stats = await this.apiClient.get(`/journal/${cookedId}/stats`)
+    
+    runInAction(() => {
+      this.cookedStats.set(cookedId, stats)
+    })
+  }
+
+  async likeCooked(cookedId) {
+    console.log('likeCooked', cookedId)
+    await this.apiClient.post(`/journal/${cookedId}/stats/like`)
+    
+    runInAction(() => {
+      const stats = this.cookedStats.get(cookedId)
+      if (stats) {
+        stats.liked = true
+        stats['like-count']++
+      }
+    })
+  }
+
+  async unlikeCooked(cookedId) {
+    await this.apiClient.delete(`/journal/${cookedId}/stats/like`)
+    
+    runInAction(() => {
+      const stats = this.cookedStats.get(cookedId)
+      if (stats) {
+        stats.liked = false
+        stats['like-count']--
+      }
+    })
+  }
+
   async reloadProfileCooked(username) {
     this.profileDataMap.delete(username)
+    this.cookedStats.clear()
     await Promise.all([this.loadProfileCooked(username), this.loadProfileStats(username)])
   }
 

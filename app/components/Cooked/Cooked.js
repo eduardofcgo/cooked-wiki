@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, memo } from 'react'
+import React, { useState, useRef, useCallback, memo, useEffect } from 'react'
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
@@ -27,6 +27,8 @@ import Modal from '../Modal'
 import Comments from './Comments'
 import CommentModal from './CommentModal'
 
+import { useStore } from '../../context/store/StoreContext'
+
 import CookedEdit from './CookedEdit.js'
 
 const WeeksAgo = memo(({ weeks }) => {
@@ -35,8 +37,11 @@ const WeeksAgo = memo(({ weeks }) => {
   return <Text style={styles.weeksAgo}>{weeks} weeks ago</Text>
 })
 
-const LikeButton = memo(({ isLiked, onPress }) => (
-  <TouchableOpacity onPress={onPress}>
+const LikeButton = memo(({ isLiked, likeCount, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.likeContainer}>
+    {likeCount !== undefined && likeCount > 0 && (
+      <Text style={styles.likeCount}>{likeCount} likes</Text>
+    )}
     <FontAwesomeIcon
       icon={isLiked ? faHeartSolid : faHeartRegular}
       size={20}
@@ -84,7 +89,7 @@ const ImageSection = memo(({ photos, onSingleTap, onDoubleTap, doubleTapRef, hea
   </View>
 ))
 
-const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress, onUserPress, onLike }) => {
+const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress, onUserPress, onLike, stats }) => {
   const heartScale = useSharedValue(0)
   const heartOpacity = useSharedValue(0)
 
@@ -117,7 +122,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
         heartOpacity.value = withTiming(0, { duration: 1000 })
       }
     },
-    [post.isLiked, onLike, heartScale, heartOpacity]
+    [stats?.liked, onLike, heartScale, heartOpacity]
   )
 
   return (
@@ -170,7 +175,11 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
 
           <View style={styles.actionsContainer}>
             {canEdit ? <EditButton onPress={onEdit} /> : <View />}
-            <LikeButton isLiked={post.isLiked} onPress={onLike} />
+            <LikeButton 
+              isLiked={stats?.liked} 
+              likeCount={stats?.['like-count']}
+              onPress={onLike} 
+            />
           </View>
         </View>
       </View>
@@ -179,16 +188,28 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
 })
 
 const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {
+  const { profileStore } = useStore()
+  const cookedStats = profileStore.cookedStats.get(post.id)
+
   const [isEditing, setIsEditing] = useState(false)
+
+  useEffect(() => {
+    profileStore.loadCookedStats(post.id)
+  }, [post.id])
 
   const handleClose = useCallback(() => {
     setIsEditing(false)
   }, [])
 
   const handleEdit = useCallback(() => setIsEditing(true), [])
+  
   const handleLike = useCallback(() => {
-    /* Handle like */
-  }, [])
+    if (cookedStats?.liked) {
+      profileStore.unlikeCooked(post.id)
+    } else {
+      profileStore.likeCooked(post.id)
+    }
+  }, [post.id, cookedStats?.liked])
 
   return (
     <>
@@ -200,6 +221,7 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
         onRecipePress={onRecipePress}
         onUserPress={onUserPress}
         onLike={handleLike}
+        stats={cookedStats}
       />
       <Modal visible={isEditing} onClose={handleClose} title='Edit cook'>
         <CookedEdit post={post} close={handleClose} />
@@ -464,6 +486,16 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.small,
     color: theme.colors.softBlack,
     paddingHorizontal: 15,
+  },
+  likeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  likeCount: {
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
+    color: theme.colors.primary,
   },
 })
 
