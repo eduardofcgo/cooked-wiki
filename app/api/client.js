@@ -15,6 +15,7 @@ export class ApiClient {
   constructor(credentials) {
     this.client = axios.create({
       baseURL: API_BASE_URL,
+      timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -85,5 +86,9 @@ export class ApiClient {
 
   async delete(url, config = {}) {
     return this.client.delete(url, config)
+  }
+
+  async request(config) {
+    return this.client.request(config)
   }
 }

@@ -6317,6 +6317,11 @@ react-native-gesture-handler@^2.16.2:
     hoist-non-react-statics "^3.3.0"
     invariant "^2.2.4"
 
+react-native-image-picker@^7.2.3:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-7.2.3.tgz#9c402591462af256cdd9aed796c28083a48f90cd"
+  integrity sha512-zKIZUlQNU3EtqizsXSH92zPeve4vpUrsqHu2kkpCxWE9TZhJFZBb+irDsBOY8J21k0+Edgt06TMQGJ+iPUIXyA==
+
 react-native-pager-view@^6.5.1:
   version "6.6.1"
   resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-6.6.1.tgz#6b69c8801ddee8d122b121b6fb42e0a180c8ebb9"

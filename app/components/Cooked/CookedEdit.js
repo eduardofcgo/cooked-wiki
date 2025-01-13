@@ -1,12 +1,16 @@
 import React, { useCallback, memo, useState } from 'react'
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, StyleSheet, Alert } from 'react-native'
+import * as ImagePicker from 'expo-image-picker'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 
 import { useStore } from '../../context/store/StoreContext'
 import { getPhotoUrl } from '../../urls'
 
 import { theme } from '../../style/style'
 
-import { PrimaryButton, SecondaryButton } from '../Button'
+import Loading from '../Loading'
+import { PrimaryButton, SecondaryButton, Button } from '../Button'
 
 const EditableImage = memo(({ path, index, onExclude }) => (
   <View style={[styles.imageContainer, styles.imageContainerEditing]}>
@@ -18,9 +22,22 @@ const EditableImage = memo(({ path, index, onExclude }) => (
   </View>
 ))
 
-const AddImageButton = memo(({ onPress }) => (
-  <TouchableOpacity style={[styles.addImageButton, { width: 110, height: 110 }]} onPress={onPress}>
-    <Text style={styles.addImageText}>📸 Add photo</Text>
+const AddImageButton = memo(({ onPress, isUploading }) => (
+  <TouchableOpacity 
+    style={[styles.addImageButton, { width: 110, height: 110 }]} 
+    onPress={onPress}
+    disabled={isUploading}
+  >
+    <View style={styles.addImageContent}>
+      {isUploading ? (
+        <Loading />
+      ) : (
+        <>
+          <FontAwesomeIcon icon={faCamera} size={16} color={theme.colors.softBlack} />
+          <Text style={[styles.addImageText, { marginLeft: 5 }]}>Add photo</Text>
+        </>
+      )}
+    </View>
   </TouchableOpacity>
 ))
 
@@ -28,7 +45,8 @@ export default function CookedEdit({ post, close }) {
   const { profileStore } = useStore()
 
   const [notes, setNotes] = useState(post.notes)
-  const [photos, setPhotos] = useState(post['cooked-photos-path'])
+  const [photos, setPhotos] = useState(post['cooked-photos-path'] || [])
+  const [isUploading, setIsUploading] = useState(false)
 
   const handleSave = useCallback(() => {
     profileStore.updateProfileCooked(post.username, post.id, notes, photos)
@@ -50,9 +68,85 @@ export default function CookedEdit({ post, close }) {
     [post]
   )
 
-  const handleAddImage = useCallback(() => {
-    // TODO: Implement image picker logic
-  }, [])
+  const handleAddImage = useCallback(async () => {
+    // Show action sheet with options
+    const options = ['Take Photo', 'Choose from Gallery', 'Cancel']
+    Alert.alert(
+      'Add Photo',
+      'Choose an option',
+      [
+        {
+          text: options[0],
+          onPress: async () => {
+            // Request camera permissions
+            const { status } = await ImagePicker.requestCameraPermissionsAsync()
+            if (status !== 'granted') {
+              Alert.alert('Sorry, we need camera permissions to make this work!')
+              return
+            }
+
+              const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+              })
+              
+
+            if (!result.canceled) {
+              const file = {
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName,
+                type: result.assets[0].mimeType,
+              }   
+              setIsUploading(true)
+              const imagePath = await profileStore.uploadProfileCookedPhoto(post.id, file)
+              
+              setIsUploading(false)
+              setPhotos([...photos, imagePath])
+            }
+          },
+        },
+        {
+          text: options[1],
+          onPress: async () => {
+            // Request media library permissions
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+            if (status !== 'granted') {
+              Alert.alert('Sorry, we need gallery permissions to make this work!')
+              return
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.8,
+            })
+
+            if (!result.canceled) {
+              const file = {
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName,
+                type: result.assets[0].mimeType,
+              }   
+
+              setIsUploading(true)
+              const imagePath = await profileStore.uploadProfileCookedPhoto(post.id, file)
+              
+              setIsUploading(false)
+              setPhotos([...photos, imagePath])
+            }
+          },
+        },
+        {
+          text: options[2],
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    )
+  }, [photos])
 
   return (
     <View style={styles.modalContainer}>
@@ -62,7 +156,7 @@ export default function CookedEdit({ post, close }) {
         ))}
         {(!photos || photos?.length < 2) && (
           <View style={[styles.imageContainer, styles.imageContainerEditing]}>
-            <AddImageButton onPress={handleAddImage} />
+            <AddImageButton onPress={handleAddImage} isUploading={isUploading} />
           </View>
         )}
       </ScrollView>
@@ -133,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.default,
   },
   addImageText: {
-    color: theme.colors.primary,
+    color: theme.colors.softBlack,
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.default,
   },
@@ -170,5 +264,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
+  },
+  addImageContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

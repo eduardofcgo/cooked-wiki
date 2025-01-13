@@ -167,10 +167,17 @@ export class ProfileStore {
     const formData = new FormData()
     formData.append('cooked-photo', file)
 
-    const response = await this.apiClient.post(`/journal/${cookedId}/upload`, formData, {
+    const response = await this.apiClient.request({
+      url: `/journal/${cookedId}/upload`,
+      method: 'post',
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      transformRequest: (data, headers) => formData,
+      uploadProgress: (progressEvent) => {
+
+      },
+      data: formData,
     })
 
     return response['image-path']

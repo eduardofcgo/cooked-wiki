@@ -48,7 +48,7 @@ const LikeButton = memo(({ isLiked, onPress }) => (
 const EditButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <FontAwesomeIcon icon={faPencil} size={10} color={theme.colors.primary} style={{ marginRight: 5 }} />
+      <FontAwesomeIcon icon={faPencil} size={10} color={theme.colors.softBlack} style={{ marginRight: 5 }} />
       <Text style={styles.editButton}>Edit</Text>
     </View>
   </TouchableOpacity>
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
   },
   editButton: {
-    color: theme.colors.primary,
+    color: theme.colors.softBlack,
     fontFamily: theme.fonts.default,
     fontSize: theme.fontSizes.default,
   },
