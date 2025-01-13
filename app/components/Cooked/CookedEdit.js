@@ -1,6 +1,7 @@
 import React, { useCallback, memo, useState } from 'react'
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native'
 
+import { useStore } from '../../context/store/StoreContext'
 import { getPhotoUrl } from '../../urls'
 
 import { theme } from '../../style/style'
@@ -23,13 +24,16 @@ const AddImageButton = memo(({ onPress }) => (
   </TouchableOpacity>
 ))
 
-export default function CookedEdit({ post, onSave, onCancel }) {
+export default function CookedEdit({ post, close }) {
+  const { profileStore } = useStore()
+
   const [notes, setNotes] = useState(post.notes)
   const [photos, setPhotos] = useState(post['cooked-photos-path'])
 
   const handleSave = useCallback(() => {
-    onSave(post.id, notes, photos)
-  }, [post, notes, photos, onSave])
+    profileStore.updateProfileCooked(post.username, post.id, notes, photos)
+    close()
+  }, [post, notes, photos, close])
 
   const handleExcludeImage = useCallback(
     index => {
@@ -69,7 +73,7 @@ export default function CookedEdit({ post, onSave, onCancel }) {
 
       <View style={styles.actionsContainer}>
         <PrimaryButton onPress={handleSave} title='Save' />
-        <SecondaryButton onPress={onCancel} title='Cancel' />
+        <SecondaryButton onPress={close} title='Cancel' />
       </View>
     </View>
   )

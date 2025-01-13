@@ -163,12 +163,23 @@ export class ProfileStore {
     return this.profileDataMap.get(username)?.isLoadingStats
   }
 
-  async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
-    const newCooked = await this.apiClient.put(`/user/${username}/journal/${cookedId}`, {
-      data: {
-        notes: newNotes,
-        'cooked-photos-path': newCookedPhotosPath,
+  async uploadProfileCookedPhoto(cookedId, file) {
+    const formData = new FormData()
+    formData.append('cooked-photo', file)
+
+    const response = await this.apiClient.post(`/journal/${cookedId}/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
+    })
+
+    return response['image-path']
+  }
+
+  async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
+    const newCooked = await this.apiClient.post(`/journal/${cookedId}`, {
+      notes: newNotes,
+      ['image-paths']: newCookedPhotosPath,
     })
 
     const profileData = this.profileDataMap.get(username)
@@ -176,11 +187,13 @@ export class ProfileStore {
     if (profileData) {
       const index = profileData.cookeds.findIndex(cooked => cooked.id === cookedId)
       if (index !== -1) {
-        profileData.cookeds[index] = {
-          ...profileData.cookeds[index],
-          notes: newCooked.notes,
-          'cooked-photos-path': newCooked['cooked-photos-path'],
-        }
+        runInAction(() => {
+          profileData.cookeds[index] = {
+            ...profileData.cookeds[index],
+            notes: newCooked.notes,
+            ['cooked-photos-path']: newCooked['image-paths'],
+          }
+        })
       }
     }
   }

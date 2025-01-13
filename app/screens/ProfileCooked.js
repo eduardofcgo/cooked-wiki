@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect, useContext } from 'react'
 import { View, FlatList, StyleSheet, Text } from 'react-native'
 import { observer } from 'mobx-react-lite'
 
@@ -9,6 +9,7 @@ import RefreshControl from '../components/RefreshControl'
 import Cooked from '../components/Cooked/Cooked'
 import ProfileStats from '../components/ProfileStats'
 import { getSavedRecipeUrl } from '../urls'
+import { AuthContext } from '../context/auth'
 
 const ProfileCookedHeader = observer(({ username }) => {
   return (
@@ -21,6 +22,9 @@ const ProfileCookedHeader = observer(({ username }) => {
 })
 
 const ProfileCooked = observer(({ navigation, route, username }) => {
+  const { credentials } = useContext(AuthContext)
+  const loggedInUsername = credentials?.username
+  
   const { profileStore } = useStore()
   const profileCookeds = profileStore.getProfileCookeds(username)
   const isLoadingProfileCookeds = profileStore.isLoadingProfileCookeds(username)
@@ -35,18 +39,11 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     await profileStore.reloadProfileCooked(username)
   }, [])
 
-  const handleSave = useCallback(
-    (id, newNotes, newCookedPhotosPath) => {
-      profileStore.updateProfileCooked(username, id, newNotes, newCookedPhotosPath)
-    },
-    [username]
-  )
-
   const renderItem = ({ item: post }) => (
     <Cooked
       post={post}
+      canEdit={loggedInUsername === username}
       hideAuthor={true}
-      onSave={handleSave}
       onUserPress={() => {
         navigation.navigate('PublicProfile', { username: post.username })
       }}

@@ -41,7 +41,7 @@ function BottomTabs({ route }) {
         name='ShareCook'
         component={JustCooked}
         options={{
-          title: 'Share a Cook',
+          title: 'Record a Cook',
           headerShown: false,
           tabBarIcon: ({ focused }) => <TabIcon icon={faCamera} focused={focused} />,
           tabBarLabel: ({ focused }) => (
@@ -50,7 +50,7 @@ function BottomTabs({ route }) {
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
               }}>
-              Share a Cook
+              Record a Cook
             </Text>
           ),
         }}

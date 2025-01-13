@@ -84,7 +84,7 @@ const ImageSection = memo(({ photos, onSingleTap, onDoubleTap, doubleTapRef, hea
   </View>
 ))
 
-const CookedView = observer(({ post, hideAuthor, onEdit, onRecipePress, onUserPress, onLike }) => {
+const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress, onUserPress, onLike }) => {
   const heartScale = useSharedValue(0)
   const heartOpacity = useSharedValue(0)
 
@@ -154,7 +154,7 @@ const CookedView = observer(({ post, hideAuthor, onEdit, onRecipePress, onUserPr
               {post['recipe-image-path'] && (
                 <Image source={{ uri: getThumbnailUrl(post['recipe-image-path']) }} style={styles.thumbnailImage} />
               )}
-              {post.notes?.length !== null && (
+              {post.notes?.length > 0 && (
                 <View style={styles.compactDescription}>
                   <Text style={styles.description}>{post.notes}</Text>
                 </View>
@@ -162,14 +162,14 @@ const CookedView = observer(({ post, hideAuthor, onEdit, onRecipePress, onUserPr
             </View>
           )}
 
-          {post['cooked-photos-path']?.length > 0 && post.notes?.length !== null && (
+          {post['cooked-photos-path']?.length > 0 && post.notes?.length > 0 && (
             <View style={styles.viewContainer}>
               <Text style={styles.description}>{post.notes}</Text>
             </View>
           )}
 
           <View style={styles.actionsContainer}>
-            {true ? <EditButton onPress={onEdit} /> : <View />}
+            {canEdit ? <EditButton onPress={onEdit} /> : <View />}
             <LikeButton isLiked={post.isLiked} onPress={onLike} />
           </View>
         </View>
@@ -178,21 +178,10 @@ const CookedView = observer(({ post, hideAuthor, onEdit, onRecipePress, onUserPr
   )
 })
 
-const Cooked = observer(({ post, onRecipePress, onUserPress, hideAuthor, onSave }) => {
+const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {
   const [isEditing, setIsEditing] = useState(false)
 
-  const handleSave = useCallback(
-    (id, notes, cookedPhotosPath) => {
-      setIsEditing(false)
-
-      if (onSave) {
-        onSave(id, notes, cookedPhotosPath)
-      }
-    },
-    [onSave]
-  )
-
-  const handleCancel = useCallback(() => {
+  const handleClose = useCallback(() => {
     setIsEditing(false)
   }, [])
 
@@ -205,14 +194,15 @@ const Cooked = observer(({ post, onRecipePress, onUserPress, hideAuthor, onSave 
     <>
       <CookedView
         post={post}
+        canEdit={canEdit}
         hideAuthor={hideAuthor}
         onEdit={handleEdit}
         onRecipePress={onRecipePress}
         onUserPress={onUserPress}
         onLike={handleLike}
       />
-      <Modal visible={isEditing} onClose={handleCancel} title='Edit cook'>
-        <CookedEdit post={post} onSave={handleSave} onCancel={handleCancel} />
+      <Modal visible={isEditing} onClose={handleClose} title='Edit cook'>
+        <CookedEdit post={post} close={handleClose} />
       </Modal>
     </>
   )
