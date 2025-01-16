@@ -68,6 +68,7 @@ import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
+import RecipeSearch from './app/screens/RecipeSearch'
 
 const StackNavigator = createNativeStackNavigator()
 
@@ -165,7 +166,11 @@ function App() {
                         <StackNavigator.Screen
                           name='Extract'
                           component={Extract}
-                          options={{ title: 'New Recipe', ...screenStyle }}
+                          options={{
+                            title: 'New Recipe',
+                            ...screenStyle,
+                            animation: 'slide_from_bottom',
+                          }}
                         />
 
                         <StackNavigator.Screen
@@ -177,7 +182,12 @@ function App() {
                         <StackNavigator.Screen
                           name='Settings'
                           component={Settings}
-                          options={{ title: 'Settings', ...screenStyle }}
+                          options={{
+                            title: 'Settings',
+                            ...screenStyle,
+                            presentation: 'modal',
+                            animation: 'slide_from_bottom'
+                          }}
                         />
 
                         <StackNavigator.Screen
@@ -197,6 +207,7 @@ function App() {
                           component={Recipe}
                           options={({ navigation, route }) => ({
                             title: 'Recipe',
+                            animation: 'slide_from_right',
                             headerRight: () => (
                               <IconButton
                                 icon='send'
@@ -228,6 +239,17 @@ function App() {
                           options={{
                             title: 'Find friends',
                             headerBackTitle: 'Back',
+                            animation: 'slide_from_right',
+                          }}
+                        />
+
+                        <StackNavigator.Screen
+                          name="RecipeSearch"
+                          component={RecipeSearch}
+                          options={{
+                            title: 'Select recipe',
+                            presentation: 'modal',
+                            animation: 'slide_from_bottom',
                           }}
                         />
                       </>

@@ -2,9 +2,13 @@ import React from 'react'
 import { TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { theme } from '../style/style'
 
-export function PrimaryButton({ onPress, title, style }) {
+
+export function PrimaryButton({ onPress, title, style, icon }) {
   return (
-    <Button onPress={onPress} title={title} style={[styles.button, { backgroundColor: theme.colors.primary }, style]} />
+    <Button onPress={onPress} style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}>
+      {icon}
+      <Text style={[styles.buttonText, styles.primaryButtonText]}>{title}</Text>
+    </Button>
   )
 }
 
@@ -19,7 +23,7 @@ export function SecondaryButton({ onPress, title, style }) {
 export function Button({ onPress, title, style, children }) {
   return (
     <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-      {title ? <Text style={[styles.buttonText]}>{title}</Text> : children}
+      {children ? children : title ? <Text style={[styles.buttonText]}>{title}</Text> : null}
     </TouchableOpacity>
   )
 }
@@ -31,6 +35,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButton: {
     backgroundColor: theme.colors.secondary,
@@ -44,5 +51,12 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: theme.colors.softBlack,
+  },
+  primaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButtonText: {
   },
 })

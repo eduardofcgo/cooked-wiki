@@ -5,6 +5,7 @@ export const theme = {
     large: 25,
   },
   colors: {
+    disabledBackground: 'rgba(0,0,0,0.66)',
     primary: '#d97757',
     secondary: '#efede3',
     background: '#fafaf7',

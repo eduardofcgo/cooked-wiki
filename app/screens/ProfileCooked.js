@@ -16,7 +16,7 @@ const ProfileCookedHeader = observer(({ username }) => {
     <>
       <ProfileStats username={username} />
 
-      <Text style={styles.headerText}>Recently cooked</Text>
+      <Text style={styles.headerText}>Cooked journal</Text>
     </>
   )
 })
@@ -80,8 +80,19 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
 
   if (!profileCookeds || profileCookeds.length === 0) {
     return (
-      <View style={styles.emptyStateContainer}>
-        <Text style={styles.emptyStateText}>No cooked recipes yet.</Text>
+      <View style={styles.container}>
+        <FlatList
+          data={[]}
+          renderItem={null}
+          ListEmptyComponent={
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No cooked recipes yet.</Text>
+            </View>
+          }
+          refreshControl={
+            <RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />
+          }
+        />
       </View>
     )
   }
@@ -117,6 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 40,
   },
   emptyStateText: {
     fontFamily: theme.fonts.title,
