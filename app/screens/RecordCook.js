@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput, ScrollView, Animated, DeviceEventEmitter } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput, ScrollView, Animated, DeviceEventEmitter, StatusBar } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark'
 import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
@@ -16,22 +16,24 @@ import { useStore } from '../context/store/StoreContext'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import ModalCard from '../components/ModalCard'
 
-const StepIndicator = ({ number, text, isActive }) => (
+const StepIndicator = ({ number, text, isActive, isFilled }) => (
   <View style={styles.stepContainer}>
     <View style={[
       styles.stepNumber,
-      !isActive && styles.stepNumberInactive
+      !isActive && !isFilled && styles.stepNumberInactive,
+      isFilled && styles.stepNumberFilled
     ]}>
       <Text style={[
         styles.stepNumberText,
-        !isActive && styles.stepNumberTextInactive
+        !isActive && !isFilled && styles.stepNumberTextInactive,
+        isFilled && styles.stepNumberTextFilled
       ]}>{number}</Text>
     </View>
     <Text style={styles.stepText}>{text}</Text>
   </View>
 )
 
-const Step = ({ number, text, isActive, children }) => {
+const Step = ({ number, text, isActive, isFilled, children }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
   const slideAnim = useRef(new Animated.Value(50)).current // Start 50 units below
 
@@ -64,7 +66,7 @@ const Step = ({ number, text, isActive, children }) => {
         }
       ]}
     >
-      <StepIndicator number={number} text={text} isActive={isActive} />
+      <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />
       <View style={styles.stepContent}>
         {children}
       </View>
@@ -99,7 +101,7 @@ const SelectedRecipe = ({ recipe, onClear, onPress }) => (
           <MaterialCommunityIcons 
             name="chef-hat" 
             size={24} 
-            color={theme.colors.primary} 
+            color={theme.colors.softBlack} 
             style={{ marginRight: 12 }}
           />
           <View>
@@ -123,7 +125,7 @@ const SelectedRecipe = ({ recipe, onClear, onPress }) => (
     <MaterialCommunityIcons 
       name="pencil" 
       size={15} 
-      color={theme.colors.primary} 
+      color={theme.colors.softBlack} 
     />
   </TouchableOpacity>
 )
@@ -134,17 +136,26 @@ const NotesPreview = ({ notes, onPress }) => (
     onPress={onPress}
   >
     <View style={styles.selectedRecipeContent}>
-      <Text 
-        style={styles.selectedRecipeName} 
-        numberOfLines={2}
+      {notes?.trim().length > 0 ? (
+        <Text 
+          style={styles.selectedRecipeName} 
+          numberOfLines={2}
       >
-        {notes}
-      </Text>
+          {notes}
+        </Text>
+      ) : (
+        <Text 
+          style={[styles.selectedRecipeName, { color: theme.colors.softBlack, fontSize: theme.fontSizes.small }]} 
+          numberOfLines={2}
+        >
+          Empty notes
+        </Text>
+      )}
     </View>
     <MaterialCommunityIcons 
         name="pencil" 
         size={15} 
-        color={theme.colors.primary} 
+        color={theme.colors.softBlack} 
       />
   </TouchableOpacity>
 )
@@ -223,7 +234,7 @@ const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
       visible={visible}
       onClose={onClose}
       titleComponent={
-        <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
           <Animated.Text 
             style={{ 
               fontSize: 40,
@@ -365,7 +376,7 @@ export default function RecordCook({ navigation, route }) {
     }, [])
   )
 
-  const NotesModal = ({ visible, onClose, onSave, initialNotes }) => {
+  const NotesModal = ({ visible, onClose, onSave, initialNotes, recipe }) => {
     const [notes, setNotes] = useState(initialNotes || '')
 
     const inputRef = useRef(null);
@@ -375,23 +386,29 @@ export default function RecordCook({ navigation, route }) {
       onClose()
     }
 
-    const handleModalShow = () => {
-      // if (inputRef.current) {
-      //   inputRef.current.focus();
-      // }
-    };
+    const handleNotesClose = () => {
+      onClose(notes)
+    }
+
+    const placeholder = recipe === null ? `What did you cook and how did it turn out?` : `How did it turn out?`
 
     return (
       <ModalCard
         visible={visible}
         onClose={onClose}
-        title="Add notes"
-        onShow={handleModalShow}
+        titleComponent={
+          <View style={{ flex: 1, gap: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+            <Text style={styles.modalTitle}>Add notes</Text>
+            <Text style={{ fontFamily: theme.fonts.ui, fontSize: theme.fontSizes.small, color: theme.colors.softBlack, paddingTop: 9 }}>optional</Text>
+          </View>
+        }
       >
         <TextInput
           ref={inputRef}
+          cursorColor={theme.colors.primary}
           style={styles.notesInput}
           multiline
+          placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
           placeholder="What did you cook and how did it turn out?"
           value={notes}
           onChangeText={setNotes}
@@ -400,7 +417,7 @@ export default function RecordCook({ navigation, route }) {
         />
         <View style={styles.modalButtons}>
           <PrimaryButton title="Save" onPress={handleNotesSave} />
-          <SecondaryButton title="Cancel" onPress={onClose} style={styles.cancelButton} />
+          <SecondaryButton title="Cancel" onPress={handleNotesClose} style={styles.cancelButton} />
         </View>
       </ModalCard>
     )
@@ -409,6 +426,14 @@ export default function RecordCook({ navigation, route }) {
   const handleNotesSave = notes => {
     setNotes(notes)
     setIsConfirmationModalVisible(true)
+  }
+
+  const handleNotesClose = notes => {
+    if (notes?.trim().length === 0) {
+      setNotes(null)
+      setIsConfirmationModalVisible(true)
+    }
+    setIsNotesModalVisible(false)
   }
 
   return (
@@ -426,7 +451,7 @@ export default function RecordCook({ navigation, route }) {
             </Text>
           </View>
           
-          <Step number="1" text="Select a photo of your dish" isActive={true}>
+          <Step number="1" text="Select a photo of your dish" isActive={true} isFilled={stepTwoActive}>
             <View style={styles.photoSection}>
               {photos?.map((path, index) => (
                 <EditableImage key={index} path={path} index={index} onExclude={handleExcludeImage} />
@@ -444,7 +469,7 @@ export default function RecordCook({ navigation, route }) {
             </View>
           </Step>
 
-          <Step number="2" text="What did you make?" isActive={stepTwoActive}>
+          <Step number="2" text="What did you make?" isActive={stepTwoActive} isFilled={stepThreeActive}>
             <View style={styles.buttonContainer}>
               {selectedRecipe !== undefined ? (
                 <SelectedRecipe 
@@ -462,19 +487,14 @@ export default function RecordCook({ navigation, route }) {
                     styles.selectRecipeButton
                   ]}
                   disabled={!stepTwoActive}
-                  icon={<MaterialCommunityIcons 
-                    name="chef-hat" 
-                    size={16} 
-                    color={theme.colors.white} 
-                  />}
                 />
               )}
             </View>
           </Step>
 
-          <Step number="3" text="Add your notes" isActive={stepThreeActive}>
+          <Step number="3" text="Add your notes" isActive={stepThreeActive} isFilled={stepFourActive}>
             <View style={styles.buttonContainer}>
-              {notes ? (
+              {notes !== undefined ? (
                 <NotesPreview 
                   notes={notes} 
                   onPress={() => setIsNotesModalVisible(true)} 
@@ -500,19 +520,19 @@ export default function RecordCook({ navigation, route }) {
 
             <NotesModal
               visible={isNotesModalVisible}
-              onClose={() => setIsNotesModalVisible(false)}
+              onClose={handleNotesClose}
               onSave={handleNotesSave}
               initialNotes={notes}
+              recipe={selectedRecipe}
             />
           </Step>
 
-          <Step number="4" text="Add to journal!" isActive={stepFourActive}>
+          <Step number="4" text="Add to journal!" isActive={stepFourActive} isFilled={false}>
             <View style={styles.buttonContainer}>
               <PrimaryButton 
                 title="Add to journal" 
                 onPress={() => {
-                  // Show confirmation modal instead of direct console log
-                  //setIsConfirmationModalVisible(true)
+                  setIsConfirmationModalVisible(true)
                 }}
                 style={[
                   styles.shareButton,
@@ -548,7 +568,7 @@ export default function RecordCook({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -790,7 +810,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.secondary,
     padding: 12,
     borderRadius: theme.borderRadius.default,
     marginBottom: 24,
@@ -822,7 +842,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.small,
     color: theme.colors.softBlack,
-    opacity: 0.7,
   },
   confirmationText: {
     fontFamily: theme.fonts.ui,
@@ -846,7 +865,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.large,
     color: theme.colors.black,
     textAlign: 'center',
-    marginTop: 16,
+  },
+  stepNumberFilled: {
+    backgroundColor: theme.colors.softBlack,
+  },
+  stepNumberTextFilled: {
+    color: theme.colors.background,
   },
 })
 

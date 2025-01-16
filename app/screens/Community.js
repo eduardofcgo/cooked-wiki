@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState, memo } from 'react'
 import Svg, { Path } from 'react-native-svg'
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Linking, Platform, Modal, FlatList } from 'react-native'
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Linking, Platform, Modal, FlatList, StatusBar } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import Reanimated, {

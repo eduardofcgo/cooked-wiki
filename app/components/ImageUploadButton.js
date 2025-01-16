@@ -1,6 +1,5 @@
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
 import Loading from './Loading'
 
@@ -15,8 +14,8 @@ const ImageUploadButton = ({ onPress, isUploading }) => (
         <Loading />
       ) : (
         <>
-          <FontAwesomeIcon 
-            icon={faCamera} 
+          <MaterialCommunityIcons 
+            name="camera" 
             size={24} 
             color={theme.colors.softBlack} 
           />
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
   button: {
     width: 110,
     height: 110,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     justifyContent: 'center',
     alignItems: 'center',

@@ -18,8 +18,8 @@ export default function PhotoSelectionModal({ visible, onClose, onCameraPress, o
         >
           <MaterialCommunityIcons 
             name="camera" 
-            size={32} 
-            color={theme.colors.primary} 
+            size={24} 
+            color={theme.colors.softBlack} 
           />
           <Text style={styles.optionText}>Open Camera</Text>
         </TouchableOpacity>
@@ -30,8 +30,8 @@ export default function PhotoSelectionModal({ visible, onClose, onCameraPress, o
         >
           <MaterialCommunityIcons 
             name="image" 
-            size={32} 
-            color={theme.colors.primary} 
+            size={24} 
+            color={theme.colors.softBlack} 
           />
           <Text style={styles.optionText}>Open Gallery</Text>
         </TouchableOpacity>
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center',    
   },
   optionText: {
     fontFamily: theme.fonts.ui,

@@ -91,7 +91,7 @@ export default function RecipeSearch({ navigation }) {
               <MaterialCommunityIcons 
                 name="chef-hat" 
                 size={24} 
-                color={theme.colors.primary} 
+                color={theme.colors.softBlack} 
               />
               <View style={styles.freestyleTextContainer}>
                 <Text style={styles.freestyleTitle}>Cooked without a recipe</Text>
