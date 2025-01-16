@@ -55,7 +55,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionText: {
-    marginTop: 16,
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
     color: theme.colors.softBlack,

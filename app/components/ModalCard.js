@@ -7,7 +7,8 @@ import { theme } from '../style/style'
 export default function ModalCard({ 
   visible, 
   onClose, 
-  title, 
+  title,
+  titleComponent,
   onShow,
   children 
 }) {
@@ -22,15 +23,15 @@ export default function ModalCard({
       <TouchableOpacity 
         style={styles.modalContainer} 
         activeOpacity={1} 
-        onPress={onClose}
       >
         <TouchableOpacity 
           style={styles.modalContent} 
           activeOpacity={1} 
-          onPress={e => e.stopPropagation()}
         >
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{title}</Text>
+            {titleComponent || (
+              <Text style={styles.modalTitle}>{title}</Text>
+            )}
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <FontAwesomeIcon icon={faXmark} size={15} color={theme.colors.primary} />
             </TouchableOpacity>
@@ -50,7 +51,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: theme.colors.background,
-    padding: 16,
+    paddingBottom: 32,
+    paddingHorizontal: 16,
+    paddingTop: 16,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
   },
@@ -67,7 +70,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   closeButton: {
-    padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },

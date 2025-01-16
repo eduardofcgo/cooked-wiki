@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: theme.borderRadius.default,
     marginBottom: 10,
+    height: 70,
   },
   recipeItemContent: {
     flexDirection: 'row',
@@ -225,6 +226,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: theme.borderRadius.default,
     marginBottom: 16,
+    height: 70,
   },
   freestyleContent: {
     flexDirection: 'row',

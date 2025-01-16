@@ -88,15 +88,44 @@ const recentRecipes = [
   { id: '3', name: 'Beef Stir Fry', lastCooked: '2 weeks ago' },
 ]
 
-const SelectedRecipe = ({ recipe, onClear }) => (
-  <View style={styles.selectedRecipeContainer}>
+const SelectedRecipe = ({ recipe, onClear, onPress }) => (
+  <TouchableOpacity 
+    style={styles.selectedRecipeContainer}
+    onPress={onPress}
+  >
     <View style={styles.selectedRecipeContent}>
-      <Text style={styles.selectedRecipeName}>{recipe.name}</Text>
+      {recipe === null ? (
+        <>
+          <MaterialCommunityIcons 
+            name="chef-hat" 
+            size={24} 
+            color={theme.colors.primary} 
+            style={{ marginRight: 12 }}
+          />
+          <View>
+            <Text style={styles.selectedRecipeName}>Cooked without a recipe</Text>
+            <Text style={styles.selectedRecipeSubtitle}>Freestyle cooking</Text>
+          </View>
+        </>
+      ) : (
+        <>
+          <Image 
+            source={{ uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg' }}
+            style={styles.selectedRecipeImage}
+          />
+          <View style={styles.selectedRecipeInfo}>
+            <Text style={styles.selectedRecipeName}>{recipe.name}</Text>
+            <Text style={styles.selectedRecipeSubtitle}>Last cooked {recipe.lastCooked}</Text>
+          </View>
+        </>
+      )}
     </View>
-    <TouchableOpacity onPress={onClear}>
-      <FontAwesomeIcon icon={faXmark} size={15} color={theme.colors.primary} />
-    </TouchableOpacity>
-  </View>
+    <MaterialCommunityIcons 
+      name="pencil" 
+      size={15} 
+      color={theme.colors.primary} 
+    />
+  </TouchableOpacity>
 )
 
 const NotesPreview = ({ notes, onPress }) => (
@@ -120,6 +149,121 @@ const NotesPreview = ({ notes, onPress }) => (
   </TouchableOpacity>
 )
 
+const AnimatedPoint = ({ text, delay }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const slideAnim = useRef(new Animated.Value(20)).current
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        delay,
+        useNativeDriver: true,
+      })
+    ]).start()
+  }, [])
+
+  return (
+    <Animated.View
+      style={{
+        opacity: fadeAnim,
+        transform: [{ translateY: slideAnim }],
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+      }}
+    >
+      <MaterialCommunityIcons 
+        name="check-circle" 
+        size={20} 
+        color={theme.colors.primary} 
+        style={{ marginRight: 8 }}
+      />
+      <Text style={styles.confirmationPoint}>{text}</Text>
+    </Animated.View>
+  )
+}
+
+const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
+  const bounceAnim = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (visible) {
+      // Reset animation
+      bounceAnim.setValue(0)
+      
+      // Start animation sequence
+      Animated.sequence([
+        // Initial bounce
+        Animated.timing(bounceAnim, {
+          toValue: 1.3,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        // Settle back with spring
+        Animated.spring(bounceAnim, {
+          toValue: 1,
+          friction: 3,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]).start()
+    }
+  }, [visible])
+
+  return (
+    <ModalCard
+      visible={visible}
+      onClose={onClose}
+      titleComponent={
+        <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Animated.Text 
+            style={{ 
+              fontSize: 40,
+              transform: [
+                { scale: bounceAnim }
+              ]
+            }}
+          >
+            <MaterialCommunityIcons 
+              name="notebook" 
+              size={40} 
+              color={theme.colors.primary} 
+            />
+          </Animated.Text>
+          <Text style={styles.modalTitle}>Ready to add?</Text>
+        </View>
+      }
+    >
+      <View style={styles.confirmationPoints}>
+        <AnimatedPoint 
+          text="Will be saved on your Cooked.wiki journal." 
+          delay={500}
+        />
+        <AnimatedPoint 
+          text="Your followers will be notified." 
+          delay={1000}
+        />
+        <AnimatedPoint 
+          text="People cooking the same recipe will get inspiration from you." 
+          delay={1500}
+        />
+      </View>
+      <View style={styles.modalButtons}>
+        <PrimaryButton title="Add to journal" onPress={onConfirm} />
+        <SecondaryButton title="Not yet" onPress={onClose} style={styles.cancelButton} />
+      </View>
+    </ModalCard>
+  )
+}
+
 export default function RecordCook({ navigation, route }) {
   const { profileStore } = useStore()
 
@@ -129,6 +273,7 @@ export default function RecordCook({ navigation, route }) {
   const [notes, setNotes] = useState(undefined)
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
 
   const stepTwoActive = photos.length > 0
   const stepThreeActive = stepTwoActive && selectedRecipe !== undefined
@@ -221,40 +366,49 @@ export default function RecordCook({ navigation, route }) {
   )
 
   const NotesModal = ({ visible, onClose, onSave, initialNotes }) => {
+    const [notes, setNotes] = useState(initialNotes || '')
+
     const inputRef = useRef(null);
 
-    // const handleModalShow = () => {
-    //   const focusTimeout = setTimeout(() => {
-    //     inputRef.current?.focus();
-    //     inputRef.current?.setNativeProps({ selection: { start: 0, end: 0 } });
-    //   }, 300);
+    const handleNotesSave = () => {
+      onSave(notes)
+      onClose()
+    }
 
-    //   return () => clearTimeout(focusTimeout);
-    // };
+    const handleModalShow = () => {
+      // if (inputRef.current) {
+      //   inputRef.current.focus();
+      // }
+    };
 
     return (
       <ModalCard
         visible={visible}
         onClose={onClose}
-        // onShow={handleModalShow}
         title="Add notes"
+        onShow={handleModalShow}
       >
         <TextInput
           ref={inputRef}
           style={styles.notesInput}
           multiline
           placeholder="What did you cook and how did it turn out?"
-          value={initialNotes || ''}
+          value={notes}
           onChangeText={setNotes}
-          keyboardType="default"
           autoFocus={false}
+          keyboardType="default"
         />
         <View style={styles.modalButtons}>
-          <PrimaryButton title="Save" onPress={onSave} />
-          <SecondaryButton title="Cancel" onPress={onClose} />
+          <PrimaryButton title="Save" onPress={handleNotesSave} />
+          <SecondaryButton title="Cancel" onPress={onClose} style={styles.cancelButton} />
         </View>
       </ModalCard>
     )
+  }
+
+  const handleNotesSave = notes => {
+    setNotes(notes)
+    setIsConfirmationModalVisible(true)
   }
 
   return (
@@ -268,7 +422,7 @@ export default function RecordCook({ navigation, route }) {
               <Text style={styles.title}>ed something new?</Text>
             </View>
             <Text style={styles.description}>
-                If you are cooking without a recipe, you can still share your creation with friends.
+                If you are cooking without a recipe, you can still share your creation.
             </Text>
           </View>
           
@@ -292,10 +446,11 @@ export default function RecordCook({ navigation, route }) {
 
           <Step number="2" text="What did you make?" isActive={stepTwoActive}>
             <View style={styles.buttonContainer}>
-              {selectedRecipe ? (
+              {selectedRecipe !== undefined ? (
                 <SelectedRecipe 
                   recipe={selectedRecipe} 
                   onClear={() => setSelectedRecipe(undefined)}
+                  onPress={() => navigation.navigate('RecipeSearch')}
                 />
               ) : (
                 <PrimaryButton 
@@ -346,31 +501,24 @@ export default function RecordCook({ navigation, route }) {
             <NotesModal
               visible={isNotesModalVisible}
               onClose={() => setIsNotesModalVisible(false)}
-              onSave={() => {
-                setIsNotesModalVisible(false)
-              }}
+              onSave={handleNotesSave}
               initialNotes={notes}
             />
           </Step>
 
-          <Step number="4" text="Add to your journal" isActive={stepFourActive}>
+          <Step number="4" text="Add to journal!" isActive={stepFourActive}>
             <View style={styles.buttonContainer}>
               <PrimaryButton 
                 title="Add to journal" 
                 onPress={() => {
-                  // Handle adding to journal with notes
-                  console.log('Adding to journal with notes:', notes)
+                  // Show confirmation modal instead of direct console log
+                  //setIsConfirmationModalVisible(true)
                 }}
                 style={[
                   styles.shareButton,
                   !stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }
                 ]}
                 disabled={!stepFourActive}
-                icon={<MaterialCommunityIcons 
-                  name="notebook" 
-                  size={16} 
-                  color={theme.colors.white} 
-                />}
               />
             </View>
           </Step>
@@ -382,6 +530,16 @@ export default function RecordCook({ navigation, route }) {
         onClose={() => setIsPhotoModalVisible(false)}
         onCameraPress={handleCameraPress}
         onGalleryPress={handleGalleryPress}
+      />
+
+      <ConfirmationModal
+        visible={isConfirmationModalVisible}
+        onClose={() => setIsConfirmationModalVisible(false)}
+        onConfirm={() => {
+          setIsConfirmationModalVisible(false)
+          // Handle adding to journal with notes
+          console.log('Adding to journal with notes:', notes)
+        }}
       />
     </View>
   )
@@ -563,7 +721,6 @@ const styles = StyleSheet.create({
   },
   stepWrapper: {
     width: '100%',
-    marginBottom: 16,
   },
   stepContent: {
     width: '100%',
@@ -611,7 +768,9 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+  },
+  cancelButton: {
+    backgroundColor: theme.colors.background,
   },
   addNotesButton: {
     marginBottom: 10,
@@ -635,16 +794,60 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: theme.borderRadius.default,
     marginBottom: 24,
+    height: 70,
   },
   selectedRecipeContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    flex: 1,
+    height: 70,
+  },
+  selectedRecipeImage: {
+    width: 50,
+    height: 50,
+    borderRadius: theme.borderRadius.default,
+    marginRight: 12,
+  },
+  selectedRecipeInfo: {
+    flex: 1,
+    justifyContent: 'center',
   },
   selectedRecipeName: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
     color: theme.colors.black,
+    marginBottom: 4,
+  },
+  selectedRecipeSubtitle: {
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.small,
+    color: theme.colors.softBlack,
+    opacity: 0.7,
+  },
+  confirmationText: {
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
+    color: theme.colors.softBlack,
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  confirmationPoints: {
+    marginBottom: 16,
+    paddingTop: 16,
+  },
+  confirmationPoint: {
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
+    color: theme.colors.softBlack,
+    flex: 1,
+  },
+  modalTitle: {
+    fontFamily: theme.fonts.title,
+    fontSize: theme.fontSizes.large,
+    color: theme.colors.black,
+    textAlign: 'center',
+    marginTop: 16,
   },
 })
+
 
