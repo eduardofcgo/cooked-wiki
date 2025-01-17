@@ -15,23 +15,8 @@ import { getPhotoUrl } from '../urls'
 import { useStore } from '../context/store/StoreContext'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import ModalCard from '../components/ModalCard'
-
-const StepIndicator = ({ number, text, isActive, isFilled }) => (
-  <View style={styles.stepContainer}>
-    <View style={[
-      styles.stepNumber,
-      !isActive && !isFilled && styles.stepNumberInactive,
-      isFilled && styles.stepNumberFilled
-    ]}>
-      <Text style={[
-        styles.stepNumberText,
-        !isActive && !isFilled && styles.stepNumberTextInactive,
-        isFilled && styles.stepNumberTextFilled
-      ]}>{number}</Text>
-    </View>
-    <Text style={styles.stepText}>{text}</Text>
-  </View>
-)
+import ConfirmationModal from '../components/RecordCook/ConfirmationModal'
+import StepIndicator from '../components/StepIndicator'
 
 const Step = ({ number, text, isActive, isFilled, children }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -136,7 +121,7 @@ const NotesPreview = ({ notes, onPress }) => (
     onPress={onPress}
   >
     <View style={styles.selectedRecipeContent}>
-      {notes?.trim().length > 0 ? (
+      {notes && notes.length > 0 ? (
         <Text 
           style={styles.selectedRecipeName} 
           numberOfLines={2}
@@ -159,121 +144,6 @@ const NotesPreview = ({ notes, onPress }) => (
       />
   </TouchableOpacity>
 )
-
-const AnimatedPoint = ({ text, delay }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current
-  const slideAnim = useRef(new Animated.Value(20)).current
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      })
-    ]).start()
-  }, [])
-
-  return (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: slideAnim }],
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-      }}
-    >
-      <MaterialCommunityIcons 
-        name="check-circle" 
-        size={20} 
-        color={theme.colors.primary} 
-        style={{ marginRight: 8 }}
-      />
-      <Text style={styles.confirmationPoint}>{text}</Text>
-    </Animated.View>
-  )
-}
-
-const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
-  const bounceAnim = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (visible) {
-      // Reset animation
-      bounceAnim.setValue(0)
-      
-      // Start animation sequence
-      Animated.sequence([
-        // Initial bounce
-        Animated.timing(bounceAnim, {
-          toValue: 1.3,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        // Settle back with spring
-        Animated.spring(bounceAnim, {
-          toValue: 1,
-          friction: 3,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-      ]).start()
-    }
-  }, [visible])
-
-  return (
-    <ModalCard
-      visible={visible}
-      onClose={onClose}
-      titleComponent={
-        <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-          <Animated.Text 
-            style={{ 
-              fontSize: 40,
-              transform: [
-                { scale: bounceAnim }
-              ]
-            }}
-          >
-            <MaterialCommunityIcons 
-              name="notebook" 
-              size={40} 
-              color={theme.colors.primary} 
-            />
-          </Animated.Text>
-          <Text style={styles.modalTitle}>Ready to add?</Text>
-        </View>
-      }
-    >
-      <View style={styles.confirmationPoints}>
-        <AnimatedPoint 
-          text="Will be saved on your Cooked.wiki journal." 
-          delay={500}
-        />
-        <AnimatedPoint 
-          text="Your followers will be notified." 
-          delay={1000}
-        />
-        <AnimatedPoint 
-          text="People cooking the same recipe will get inspiration from you." 
-          delay={1500}
-        />
-      </View>
-      <View style={styles.modalButtons}>
-        <PrimaryButton title="Add to journal" onPress={onConfirm} />
-        <SecondaryButton title="Not yet" onPress={onClose} style={styles.cancelButton} />
-      </View>
-    </ModalCard>
-  )
-}
 
 export default function RecordCook({ navigation, route }) {
   const { profileStore } = useStore()
@@ -429,9 +299,9 @@ export default function RecordCook({ navigation, route }) {
   }
 
   const handleNotesClose = notes => {
-    if (notes?.trim().length === 0) {
+    if (!notes || notes.trim && notes.trim().length === 0) {
       setNotes(null)
-      setIsConfirmationModalVisible(true)
+      // setIsConfirmationModalVisible(true)
     }
     setIsNotesModalVisible(false)
   }
@@ -575,7 +445,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 60,
   },
   mainContent: {
     alignItems: 'center',
@@ -753,8 +623,8 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   headerContainer: {
-    marginTop: 40,
-    marginBottom: 40,
+    marginTop: 60,
+    marginBottom: 50,
   },
   titleContainer: {
     flexDirection: 'row',

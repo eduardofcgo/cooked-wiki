@@ -5,7 +5,7 @@ import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
-import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { TapGestureHandler, State } from 'react-native-gesture-handler'
 import Animated, {
@@ -18,6 +18,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated'
 import { observer } from 'mobx-react-lite'
+import { useNavigation } from '@react-navigation/native'
 
 import { getProfileImageUrl, getPhotoUrl, getThumbnailUrl } from '../../urls'
 
@@ -52,8 +53,12 @@ const LikeButton = memo(({ isLiked, likeCount, onPress }) => (
 
 const EditButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <FontAwesomeIcon icon={faPencil} size={10} color={theme.colors.softBlack} style={{ marginRight: 5 }} />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+      <MaterialCommunityIcons 
+        name="pencil" 
+        size={16} 
+        color={theme.colors.softBlack} 
+      />
       <Text style={styles.editButton}>Edit</Text>
     </View>
   </TouchableOpacity>
@@ -189,6 +194,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
 
 const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {
   const { profileStore } = useStore()
+  const navigation = useNavigation()
   const cookedStats = profileStore.cookedStats.get(post.id)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -201,7 +207,9 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
     setIsEditing(false)
   }, [])
 
-  const handleEdit = useCallback(() => setIsEditing(true), [])
+  const handleEdit = useCallback(() => {
+    navigation.push('RecordCookRecipe', { cookedId: post.id })
+  }, [navigation, post])
   
   const handleLike = useCallback(() => {
     if (cookedStats?.liked) {

@@ -69,6 +69,7 @@ import FindFriends from './app/screens/FindFriends'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
 import RecipeSearch from './app/screens/RecipeSearch'
+import RecordCookRecipe from './app/screens/RecordCook'
 
 const StackNavigator = createNativeStackNavigator()
 
@@ -168,6 +169,16 @@ function App() {
                           component={Extract}
                           options={{
                             title: 'New Recipe',
+                            ...screenStyle,
+                            animation: 'slide_from_bottom',
+                          }}
+                        />
+
+                        <StackNavigator.Screen
+                          name='RecordCookRecipe'
+                          component={RecordCookRecipe}
+                          options={{
+                            title: 'Add to journal',
                             ...screenStyle,
                             animation: 'slide_from_bottom',
                           }}
