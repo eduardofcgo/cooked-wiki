@@ -1,9 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput, ScrollView, Animated, DeviceEventEmitter, StatusBar } from 'react-native'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark'
-import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
-import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput, ScrollView, Animated, DeviceEventEmitter, StatusBar, Share } from 'react-native'
 import { theme } from '../style/style'
 import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
 import ImageUploadButton from '../components/ImageUploadButton'
@@ -17,47 +13,9 @@ import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import ModalCard from '../components/ModalCard'
 import ConfirmationModal from '../components/RecordCook/ConfirmationModal'
 import StepIndicator from '../components/StepIndicator'
-
-const Step = ({ number, text, isActive, isFilled, children }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current
-  const slideAnim = useRef(new Animated.Value(50)).current // Start 50 units below
-
-  useEffect(() => {
-    if (isActive) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        })
-      ]).start()
-    }
-  }, [isActive])
-
-  if (!isActive) return null;
-  
-  return (
-    <Animated.View 
-      style={[
-        styles.stepWrapper,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }]
-        }
-      ]}
-    >
-      <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />
-      <View style={styles.stepContent}>
-        {children}
-      </View>
-    </Animated.View>
-  )
-}
+import SuccessModal from '../components/RecordCook/SuccessModal'
+import RecordCookIntro from '../components/RecordCook/RecordCookIntro'
+import Step from '../components/RecordCook/Step'
 
 const EditableImage = ({ path, index, onExclude }) => (
   <View style={[styles.imageContainer, styles.imageContainerEditing]}>
@@ -155,6 +113,7 @@ export default function RecordCook({ navigation, route }) {
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false)
 
   const stepTwoActive = photos.length > 0
   const stepThreeActive = stepTwoActive && selectedRecipe !== undefined
@@ -311,15 +270,7 @@ export default function RecordCook({ navigation, route }) {
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.mainContent}>
           
-          <View style={styles.headerContainer}>
-            <View style={styles.titleContainer}>
-              <Text style={[styles.title, styles.titleHighlight]}>Cook</Text>
-              <Text style={styles.title}>ed something new?</Text>
-            </View>
-            <Text style={styles.description}>
-                If you are cooking without a recipe, you can still share your creation.
-            </Text>
-          </View>
+          <RecordCookIntro />
           
           <Step number="1" text="Select a photo of your dish" isActive={true} isFilled={stepTwoActive}>
             <View style={styles.photoSection}>
@@ -397,20 +348,22 @@ export default function RecordCook({ navigation, route }) {
             />
           </Step>
 
-          <Step number="4" text="Add to journal!" isActive={stepFourActive} isFilled={false}>
-            <View style={styles.buttonContainer}>
-              <PrimaryButton 
-                title="Add to journal" 
-                onPress={() => {
-                  setIsConfirmationModalVisible(true)
-                }}
-                style={[
-                  styles.shareButton,
-                  !stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }
-                ]}
-                disabled={!stepFourActive}
-              />
-            </View>
+          <Step 
+            number="4" 
+            text="All set!" 
+            isActive={stepFourActive} 
+            isFilled={false} 
+            style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }]}>
+            <PrimaryButton 
+              title="Add to journal" 
+              onPress={() => {
+                setIsConfirmationModalVisible(true)
+              }}
+              style={[
+                !stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }
+              ]}
+              disabled={!stepFourActive}
+            />
           </Step>
         </View>
       </ScrollView>
@@ -429,6 +382,29 @@ export default function RecordCook({ navigation, route }) {
           setIsConfirmationModalVisible(false)
           // Handle adding to journal with notes
           console.log('Adding to journal with notes:', notes)
+          // Show success modal
+          setIsSuccessModalVisible(true)
+        }}
+      />
+
+      <SuccessModal
+        visible={isSuccessModalVisible}
+        onClose={() => {
+          setIsSuccessModalVisible(false)
+          navigation.goBack()
+        }}
+        onView={() => {
+          setIsSuccessModalVisible(false)
+          // Navigate to the journal entry
+          navigation.navigate('Journal', { scrollToLatest: true })
+        }}
+        onShare={() => {
+          // Handle sharing the journal entry
+          // This could open the native share dialog
+          Share.share({
+            message: 'Check out what I just cooked on Cooked.wiki!',
+            url: 'https://cooked.wiki/journal/entry/123', // Replace with actual entry URL
+          })
         }}
       />
     </View>
@@ -449,6 +425,7 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     alignItems: 'center',
+    flex: 1,
   },
   title: {
     fontFamily: theme.fonts.title,
@@ -469,7 +446,6 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
   },
   photoButton: {
     width: 110,
@@ -564,7 +540,6 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
   },
   buttonContainer: {
-    width: '100%',
   },
   shareButton: {
     width: '100%',
@@ -583,7 +558,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 16,
   },
   stepNumber: {
     width: 24,
@@ -611,9 +585,16 @@ const styles = StyleSheet.create({
   },
   stepWrapper: {
     width: '100%',
+    flex: 1,
   },
   stepContent: {
-    width: '100%',
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  stepContentInner: {
+    padding: 16,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.default,
   },
   inactiveStep: {
     opacity: 0.5,
@@ -621,26 +602,6 @@ const styles = StyleSheet.create({
   recipeInputInactive: {
     shadowOpacity: 0,
     elevation: 0,
-  },
-  headerContainer: {
-    marginTop: 60,
-    marginBottom: 50,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: theme.fonts.title,
-    fontSize: theme.fontSizes.large,
-    color: theme.colors.black,
-  },
-  titleHighlight: {
-    color: theme.colors.primary,
-  },
-  stepNumberInactive: {
-    backgroundColor: theme.colors.softBlack,
-    opacity: 0.33,
   },
   selectRecipeButton: {
     marginBottom: 24,
@@ -683,7 +644,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     padding: 12,
     borderRadius: theme.borderRadius.default,
-    marginBottom: 24,
     height: 70,
   },
   selectedRecipeContent: {

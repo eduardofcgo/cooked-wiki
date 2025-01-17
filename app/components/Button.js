@@ -12,11 +12,18 @@ export function PrimaryButton({ onPress, title, style, icon }) {
   )
 }
 
-export function SecondaryButton({ onPress, title, style }) {
+export function SecondaryButton({ onPress, title, style, icon }) {
   return (
     <Button onPress={onPress} style={[styles.button, styles.secondaryButton, style]}>
+      {icon}
       <Text style={[styles.buttonText, styles.secondaryButtonText]}>{title}</Text>
     </Button>
+  )
+}
+
+export function TransparentButton({ onPress, title, style, children }) {
+  return (
+    <SecondaryButton onPress={onPress} title={title} style={[style, { backgroundColor: 'transparent' }]} children={children} />
   )
 }
 

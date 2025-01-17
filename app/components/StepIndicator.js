@@ -23,8 +23,6 @@ const styles = StyleSheet.create({
   stepContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    marginBottom: 16,
   },
   stepNumber: {
     width: 24,
