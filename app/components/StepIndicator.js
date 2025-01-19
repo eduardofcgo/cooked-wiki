@@ -4,16 +4,22 @@ import { theme } from '../style/style'
 
 export const StepIndicator = ({ number, text, isActive, isFilled }) => (
   <View style={styles.stepContainer}>
-    <View style={[
-      styles.stepNumber,
-      !isActive && !isFilled && styles.stepNumberInactive,
-      isFilled && styles.stepNumberFilled
-    ]}>
-      <Text style={[
-        styles.stepNumberText,
-        !isActive && !isFilled && styles.stepNumberTextInactive,
-        isFilled && styles.stepNumberTextFilled
-      ]}>{number}</Text>
+    <View
+      style={[
+        styles.stepNumber,
+        !isActive && !isFilled && styles.stepNumberInactive,
+        isFilled && styles.stepNumberFilled,
+      ]}
+    >
+      <Text
+        style={[
+          styles.stepNumberText,
+          !isActive && !isFilled && styles.stepNumberTextInactive,
+          isFilled && styles.stepNumberTextFilled,
+        ]}
+      >
+        {number}
+      </Text>
     </View>
     <Text style={styles.stepText}>{text}</Text>
   </View>
@@ -60,4 +66,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default StepIndicator 
+export default StepIndicator

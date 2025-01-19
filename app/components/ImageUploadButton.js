@@ -4,24 +4,14 @@ import { theme } from '../style/style'
 import Loading from './Loading'
 
 const ImageUploadButton = ({ onPress, isUploading }) => (
-  <TouchableOpacity 
-    style={styles.button} 
-    onPress={onPress}
-    disabled={isUploading}
-  >
+  <TouchableOpacity style={styles.button} onPress={onPress} disabled={isUploading}>
     <View style={[styles.content]}>
       {isUploading ? (
         <Loading />
       ) : (
         <>
-          <MaterialCommunityIcons 
-            name="camera" 
-            size={24} 
-            color={theme.colors.softBlack} 
-          />
-          <Text style={styles.text}>
-            Add photo
-          </Text>
+          <MaterialCommunityIcons name='camera' size={24} color={theme.colors.softBlack} />
+          <Text style={styles.text}>Add photo</Text>
         </>
       )}
     </View>
@@ -57,4 +47,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ImageUploadButton 
+export default ImageUploadButton

@@ -31,7 +31,8 @@ function BottomTabs({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Explore
             </Text>
           ),
@@ -50,7 +51,8 @@ function BottomTabs({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Add to journal
             </Text>
           ),
@@ -69,7 +71,8 @@ function BottomTabs({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Profile
             </Text>
           ),

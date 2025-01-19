@@ -29,7 +29,8 @@ const FollowButton = observer(({ username }) => {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-      }}>
+      }}
+    >
       {isFollowing ? (
         <SecondaryButton title='Following' onPress={() => profileStore.unfollow(username)} />
       ) : (

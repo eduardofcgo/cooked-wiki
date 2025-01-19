@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { Animated } from 'react-native'
 
-const Bounce = ({ 
-  children, 
-  trigger, 
-  delay = 1000, 
+const Bounce = ({
+  children,
+  trigger,
+  delay = 1000,
   initialScale = 1,
   bounceScale = 1.5,
   duration = 200,
@@ -16,7 +16,7 @@ const Bounce = ({
   useEffect(() => {
     if (trigger) {
       bounceAnim.setValue(initialScale)
-      
+
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(bounceAnim, {
@@ -38,7 +38,7 @@ const Bounce = ({
   return (
     <Animated.View
       style={{
-        transform: [{ scale: bounceAnim }]
+        transform: [{ scale: bounceAnim }],
       }}
     >
       {children}
@@ -46,4 +46,4 @@ const Bounce = ({
   )
 }
 
-export default Bounce 
+export default Bounce

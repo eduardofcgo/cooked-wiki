@@ -40,9 +40,7 @@ const WeeksAgo = memo(({ weeks }) => {
 
 const LikeButton = memo(({ isLiked, likeCount, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.likeContainer}>
-    {likeCount !== undefined && likeCount > 0 && (
-      <Text style={styles.likeCount}>{likeCount} likes</Text>
-    )}
+    {likeCount !== undefined && likeCount > 0 && <Text style={styles.likeCount}>{likeCount} likes</Text>}
     <FontAwesomeIcon
       icon={isLiked ? faHeartSolid : faHeartRegular}
       size={20}
@@ -54,11 +52,7 @@ const LikeButton = memo(({ isLiked, likeCount, onPress }) => (
 const EditButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <MaterialCommunityIcons 
-        name="pencil" 
-        size={16} 
-        color={theme.colors.softBlack} 
-      />
+      <MaterialCommunityIcons name='pencil' size={16} color={theme.colors.softBlack} />
       <Text style={styles.editButton}>Edit</Text>
     </View>
   </TouchableOpacity>
@@ -103,7 +97,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
       transform: [{ scale: heartScale.value }],
       opacity: heartOpacity.value,
     }),
-    []
+    [],
   )
 
   const doubleTapRef = useRef(null)
@@ -114,7 +108,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
         onRecipePress()
       }
     },
-    [onRecipePress]
+    [onRecipePress],
   )
 
   const onDoubleTap = useCallback(
@@ -127,7 +121,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
         heartOpacity.value = withTiming(0, { duration: 1000 })
       }
     },
-    [stats?.liked, onLike, heartScale, heartOpacity]
+    [stats?.liked, onLike, heartScale, heartOpacity],
   )
 
   return (
@@ -180,11 +174,7 @@ const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress,
 
           <View style={styles.actionsContainer}>
             {canEdit ? <EditButton onPress={onEdit} /> : <View />}
-            <LikeButton 
-              isLiked={stats?.liked} 
-              likeCount={stats?.['like-count']}
-              onPress={onLike} 
-            />
+            <LikeButton isLiked={stats?.liked} likeCount={stats?.['like-count']} onPress={onLike} />
           </View>
         </View>
       </View>
@@ -210,7 +200,7 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
   const handleEdit = useCallback(() => {
     navigation.push('RecordCookRecipe', { cookedId: post.id })
   }, [navigation, post])
-  
+
   const handleLike = useCallback(() => {
     if (cookedStats?.liked) {
       profileStore.unlikeCooked(post.id)

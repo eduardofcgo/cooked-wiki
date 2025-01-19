@@ -51,7 +51,7 @@ export default function FullScreenCamera({ isVisible, onClose, onCapture }) {
       width: cameraSize,
       height: cameraSize,
     }),
-    [cameraSize]
+    [cameraSize],
   )
 
   if (!device) return null

@@ -24,7 +24,7 @@ const AnimatedEmoji = ({ emoji, delay, style }) => {
         tension: 40,
         delay,
         useNativeDriver: true,
-      })
+      }),
     ]).start()
   }, [])
 
@@ -35,7 +35,7 @@ const AnimatedEmoji = ({ emoji, delay, style }) => {
         {
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }],
-        }
+        },
       ]}
     >
       {emoji}
@@ -64,25 +64,17 @@ const SuccessModal = ({ visible, onClose, onView, onShare }) => {
     >
       <View style={styles.content}>
         <Text style={styles.message}>
-            You can now share your cook with your friends that are not on Cooked.wiki yet.
+          You can now share your cook with your friends that are not on Cooked.wiki yet.
         </Text>
         <View style={styles.buttonGroup}>
-          <SecondaryButton 
-            title="Share" 
+          <SecondaryButton
+            title='Share'
             onPress={onShare}
             icon={
-              <MaterialCommunityIcons 
-                name="send" 
-                size={16} 
-                color={theme.colors.softBlack}
-                style={{ marginRight: 8 }}
-              />
+              <MaterialCommunityIcons name='send' size={16} color={theme.colors.softBlack} style={{ marginRight: 8 }} />
             }
           />
-          <TransparentButton 
-            title="Not now" 
-            onPress={onClose}
-          />
+          <TransparentButton title='Not now' onPress={onClose} />
         </View>
       </View>
     </ModalCard>

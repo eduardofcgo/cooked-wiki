@@ -5,4 +5,3 @@ Developing for Android
 Make sure Android SDK is installed.
 
 `yarn expo start`
-

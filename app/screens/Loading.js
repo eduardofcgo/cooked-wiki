@@ -13,7 +13,8 @@ export default function Loading({ style }) {
           width: '100%',
         },
         ...style,
-      }}>
+      }}
+    >
       <ActivityIndicator color='#d97757' size='large' />
     </View>
   )

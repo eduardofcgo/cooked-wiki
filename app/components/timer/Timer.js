@@ -86,7 +86,8 @@ export default function Timer({ totalSeconds }) {
         borderColor: '#d97757',
         borderWidth: 2,
         borderRadius: 5,
-      }}>
+      }}
+    >
       <Picker />
 
       <View
@@ -97,7 +98,8 @@ export default function Timer({ totalSeconds }) {
           justifyContent: 'space-between',
           alignItems: 'center',
           width: '100%',
-        }}>
+        }}
+      >
         <Text style={{ fontSize: 20 }}>⏲️</Text>
         <StopwatchTimer
           ref={stopwatchTimerRef}
@@ -119,7 +121,8 @@ export default function Timer({ totalSeconds }) {
             flexDirection: 'row',
             justifyContent: 'flex-end',
             alignItems: 'center',
-          }}>
+          }}
+        >
           {finished ? (
             <Icon.Button
               name='check'

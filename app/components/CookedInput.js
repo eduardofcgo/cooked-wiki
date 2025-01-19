@@ -70,7 +70,8 @@ const CookedInput = ({ imagePath, onUndo, route, navigation }) => {
         animationType='slide'
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View style={styles.modalView}>
           <Text>This is a modal!</Text>
           <CookedButton onPress={() => setModalVisible(false)}>Close Modal</CookedButton>

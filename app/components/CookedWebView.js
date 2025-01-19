@@ -244,7 +244,8 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
     <SafeAreaView
       style={{
         flex: 1,
-      }}>
+      }}
+    >
       {!credentials ? (
         <LoadingScreen backgroundColor={theme.colors.background} />
       ) : (

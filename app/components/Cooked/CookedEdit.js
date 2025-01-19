@@ -42,14 +42,14 @@ export default function CookedEdit({ post, close }) {
       const updatedPhotos = photos.filter((_, i) => i !== index)
       setPhotos(updatedPhotos)
     },
-    [post]
+    [post],
   )
 
   const handleNotesChange = useCallback(
     text => {
       setNotes(text)
     },
-    [post]
+    [post],
   )
 
   const handleAddImage = useCallback(() => {
@@ -120,11 +120,7 @@ export default function CookedEdit({ post, close }) {
         ))}
         {(!photos || photos?.length < 2) && (
           <View style={[styles.imageContainer, styles.imageContainerEditing]}>
-            <ImageUploadButton 
-              onPress={handleAddImage} 
-              isUploading={isUploading}
-              hasImage={false}
-            />
+            <ImageUploadButton onPress={handleAddImage} isUploading={isUploading} hasImage={false} />
           </View>
         )}
       </ScrollView>

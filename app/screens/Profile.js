@@ -35,7 +35,8 @@ const TabBarLabel = ({ icon, label, focused }) => (
       style={{
         ...tabLabelTextStyle,
         color: focused ? theme.colors.black : theme.colors.softBlack,
-      }}>
+      }}
+    >
       {label}
     </Text>
   </View>
@@ -56,7 +57,8 @@ const ProfileMenu = ({ navigation }) => {
           onPress={() => setMenuVisible(true)}
         />
       }
-      anchorPosition='bottom'>
+      anchorPosition='bottom'
+    >
       <Menu.Item
         onPress={() => {
           setMenuVisible(false)
@@ -124,26 +126,30 @@ const Profile = observer(({ route, navigation, username, menu }) => {
         screenOptions={{
           ...tabStyle,
           lazy: true,
-        }}>
+        }}
+      >
         <Tab.Screen
           name='Cooked'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
-          }}>
+          }}
+        >
           {() => <ProfileCooked username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Recipes'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBox} label='Recipes' focused={focused} />,
-          }}>
+          }}
+        >
           {() => <CookedWebView startUrl={getProfileUrl(username)} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Shopping'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faCartShopping} label='Shopping' focused={focused} />,
-          }}>
+          }}
+        >
           {() => <CookedWebView startUrl={getShoppingListUrl(username)} navigation={navigation} route={route} />}
         </Tab.Screen>
       </Tab.Navigator>
@@ -165,7 +171,8 @@ const FollowButton = observer(({ username }) => {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-      }}>
+      }}
+    >
       {isFollowing ? (
         <SecondaryButton title='Following' onPress={() => profileStore.unfollow(username)} />
       ) : (

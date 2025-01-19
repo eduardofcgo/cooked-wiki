@@ -9,7 +9,8 @@ export default function Loading() {
         justifyContent: 'flex-start',
         flexDirection: 'column',
         flex: 1,
-      }}>
+      }}
+    >
       <ActivityIndicator color='#d97757' size='large' />
     </View>
   )

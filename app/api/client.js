@@ -36,7 +36,7 @@ export class ApiClient {
       },
       error => {
         return Promise.reject(error)
-      }
+      },
     )
 
     this.client.interceptors.response.use(
@@ -48,14 +48,14 @@ export class ApiClient {
           throw new ApiError(
             error.response.data.message || 'An error occurred: ' + error.response.status,
             error.response.status,
-            error.response.data.code
+            error.response.data.code,
           )
         }
 
         console.error(error)
 
         throw new ApiError('Network error', 0, 'NETWORK_ERROR')
-      }
+      },
     )
   }
 
@@ -67,7 +67,7 @@ export class ApiClient {
           callback(error.response)
         }
         return Promise.reject(error)
-      }
+      },
     )
     return this
   }

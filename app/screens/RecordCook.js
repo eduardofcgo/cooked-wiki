@@ -8,11 +8,7 @@ export default function RecordCookScreen({ navigation, route }) {
   return (
     <>
       <FadeInStatusBar color={theme.colors.background} />
-      <RecordCook 
-        navigation={navigation}
-        route={route}
-        editMode={false}
-      />
+      <RecordCook navigation={navigation} route={route} editMode={false} />
     </>
   )
 }

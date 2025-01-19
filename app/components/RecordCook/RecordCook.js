@@ -1,5 +1,20 @@
 import React, { useState, useCallback, useEffect, useContext, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput, ScrollView, Animated, DeviceEventEmitter, StatusBar, Share } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Modal,
+  FlatList,
+  TextInput,
+  ScrollView,
+  Animated,
+  DeviceEventEmitter,
+  StatusBar,
+  Share,
+} from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, SecondaryButton, Button, TransparentButton } from '../Button'
 import ImageUploadButton from '../ImageUploadButton'
@@ -36,17 +51,14 @@ const recentRecipes = [
 ]
 
 const SelectedRecipe = ({ recipe, onClear, onPress }) => (
-  <TouchableOpacity 
-    style={styles.selectedRecipeContainer}
-    onPress={onPress}
-  >
+  <TouchableOpacity style={styles.selectedRecipeContainer} onPress={onPress}>
     <View style={styles.selectedRecipeContent}>
       {recipe === null ? (
         <>
-          <MaterialCommunityIcons 
-            name="chef-hat" 
-            size={24} 
-            color={theme.colors.softBlack} 
+          <MaterialCommunityIcons
+            name='chef-hat'
+            size={24}
+            color={theme.colors.softBlack}
             style={{ marginRight: 12 }}
           />
           <View>
@@ -56,8 +68,10 @@ const SelectedRecipe = ({ recipe, onClear, onPress }) => (
         </>
       ) : (
         <>
-          <Image 
-            source={{ uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg' }}
+          <Image
+            source={{
+              uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg',
+            }}
             style={styles.selectedRecipeImage}
           />
           <View style={styles.selectedRecipeInfo}>
@@ -67,47 +81,27 @@ const SelectedRecipe = ({ recipe, onClear, onPress }) => (
         </>
       )}
     </View>
-    <MaterialCommunityIcons 
-      name="pencil" 
-      size={15} 
-      color={theme.colors.softBlack} 
-    />
+    <MaterialCommunityIcons name='pencil' size={15} color={theme.colors.softBlack} />
   </TouchableOpacity>
 )
 
 const NotesPreview = ({ notes, onPress, editMode }) => (
-  <TouchableOpacity 
-    style={[
-      styles.selectedRecipeContainer,
-      editMode && { height: 110 }
-    ]} 
-    onPress={onPress}
-  >
-    <View style={[
-      styles.selectedRecipeContent,
-      editMode && { height: 110 }
-    ]}>
+  <TouchableOpacity style={[styles.selectedRecipeContainer, editMode && { height: 110 }]} onPress={onPress}>
+    <View style={[styles.selectedRecipeContent, editMode && { height: 110 }]}>
       {notes && notes.length > 0 ? (
-        <Text
-          style={styles.notesPreview} 
-          numberOfLines={editMode ? 4 : 2}
-        >
+        <Text style={styles.notesPreview} numberOfLines={editMode ? 4 : 2}>
           {notes}
         </Text>
       ) : (
-        <Text 
-          style={[styles.notesPreview, { color: theme.colors.softBlack, fontSize: theme.fontSizes.small }]} 
+        <Text
+          style={[styles.notesPreview, { color: theme.colors.softBlack, fontSize: theme.fontSizes.small }]}
           numberOfLines={editMode ? 4 : 2}
         >
           Empty notes
         </Text>
       )}
     </View>
-    <MaterialCommunityIcons 
-      name="pencil" 
-      size={15} 
-      color={theme.colors.softBlack} 
-    />
+    <MaterialCommunityIcons name='pencil' size={15} color={theme.colors.softBlack} />
   </TouchableOpacity>
 )
 
@@ -130,7 +124,7 @@ export default function RecordCook({ navigation, route, editMode }) {
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       if (editMode) {
         const cooked = await profileStore.getCooked(loggedInUsername, route.params.cookedId)
         setNotes(cooked.notes)
@@ -140,7 +134,7 @@ export default function RecordCook({ navigation, route, editMode }) {
   }, [editMode])
 
   useEffect(() => {
-    const onSelectedRecipe = DeviceEventEmitter.addListener("event.selectedRecipe", recipe => {
+    const onSelectedRecipe = DeviceEventEmitter.addListener('event.selectedRecipe', recipe => {
       setSelectedRecipe(recipe)
     })
 
@@ -152,10 +146,10 @@ export default function RecordCook({ navigation, route, editMode }) {
   useEffect(() => {
     if (editMode) {
       navigation.setOptions({
-        title: 'Tomato Pasta'
-      });
+        title: 'Tomato Pasta',
+      })
     }
-  }, [editMode, navigation]);
+  }, [editMode, navigation])
 
   const handleExcludeImage = index => {
     const updatedPhotos = photos.filter((_, i) => i !== index)
@@ -230,13 +224,13 @@ export default function RecordCook({ navigation, route, editMode }) {
       return () => {
         // Don't reset the state here
       }
-    }, [])
+    }, []),
   )
 
   const NotesModal = ({ visible, onClose, onSave, initialNotes, recipe }) => {
     const [notes, setNotes] = useState(initialNotes || '')
 
-    const inputRef = useRef(null);
+    const inputRef = useRef(null)
 
     const handleNotesSave = () => {
       onSave(notes)
@@ -257,7 +251,16 @@ export default function RecordCook({ navigation, route, editMode }) {
         titleComponent={
           <View style={{ flex: 1, gap: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
             <Text style={styles.modalTitle}>Add notes</Text>
-            <Text style={{ fontFamily: theme.fonts.ui, fontSize: theme.fontSizes.small, color: theme.colors.softBlack, paddingTop: 9 }}>optional</Text>
+            <Text
+              style={{
+                fontFamily: theme.fonts.ui,
+                fontSize: theme.fontSizes.small,
+                color: theme.colors.softBlack,
+                paddingTop: 9,
+              }}
+            >
+              optional
+            </Text>
           </View>
         }
       >
@@ -267,15 +270,15 @@ export default function RecordCook({ navigation, route, editMode }) {
           style={styles.notesInput}
           multiline
           placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
-          placeholder="What did you cook and how did it turn out?"
+          placeholder='What did you cook and how did it turn out?'
           value={notes}
           onChangeText={setNotes}
           autoFocus={false}
-          keyboardType="default"
+          keyboardType='default'
         />
         <View style={styles.modalButtons}>
-          <SecondaryButton title="Done" onPress={handleNotesSave} />
-          <TransparentButton title="Cancel" onPress={handleNotesClose} />
+          <SecondaryButton title='Done' onPress={handleNotesSave} />
+          <TransparentButton title='Cancel' onPress={handleNotesClose} />
         </View>
       </ModalCard>
     )
@@ -290,7 +293,7 @@ export default function RecordCook({ navigation, route, editMode }) {
   }
 
   const handleNotesClose = notes => {
-    if (!notes || notes.trim && notes.trim().length === 0) {
+    if (!notes || (notes.trim && notes.trim().length === 0)) {
       setNotes(null)
     }
     setIsNotesModalVisible(false)
@@ -300,46 +303,39 @@ export default function RecordCook({ navigation, route, editMode }) {
     <View style={styles.container}>
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.mainContent}>
-          
-          {!editMode && (
-            <RecordCookIntro />
-          )}
-          
-          <Step number="1" text="Select a photo" isActive={true} isFilled={stepTwoActive} editMode={editMode}>
+          {!editMode && <RecordCookIntro />}
+
+          <Step number='1' text='Select a photo' isActive={true} isFilled={stepTwoActive} editMode={editMode}>
             <View style={styles.photoSection}>
               {photos?.map((path, index) => (
                 <EditableImage key={index} path={path} index={index} onExclude={handleExcludeImage} />
               ))}
 
-              {(photos?.length < 2) && (
+              {photos?.length < 2 && (
                 <View style={[styles.imageContainer, styles.imageContainerEditing]}>
-                  <ImageUploadButton 
-                    onPress={handleAddImage} 
-                    isUploading={isUploading}
-                    hasImage={false}
-                  />
+                  <ImageUploadButton onPress={handleAddImage} isUploading={isUploading} hasImage={false} />
                 </View>
               )}
             </View>
           </Step>
 
           {!editMode && (
-            <Step number="2" text="What did you make?" isActive={stepTwoActive} isFilled={stepThreeActive}>
+            <Step number='2' text='What did you make?' isActive={stepTwoActive} isFilled={stepThreeActive}>
               <View style={styles.buttonContainer}>
                 {selectedRecipe !== undefined ? (
-                  <SelectedRecipe 
-                    recipe={selectedRecipe} 
+                  <SelectedRecipe
+                    recipe={selectedRecipe}
                     onClear={() => setSelectedRecipe(undefined)}
                     onPress={() => navigation.navigate('RecipeSearch')}
                   />
                 ) : (
-                  <PrimaryButton 
-                    title="Select recipe" 
+                  <PrimaryButton
+                    title='Select recipe'
                     onPress={() => navigation.navigate('RecipeSearch')}
                     style={[
                       styles.shareButton,
                       !stepTwoActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
-                      styles.selectRecipeButton
+                      styles.selectRecipeButton,
                     ]}
                     disabled={!stepTwoActive}
                   />
@@ -348,29 +344,27 @@ export default function RecordCook({ navigation, route, editMode }) {
             </Step>
           )}
 
-          <Step number="3" text="Add your notes" isActive={stepThreeActive} isFilled={stepFourActive} editMode={editMode}>
+          <Step
+            number='3'
+            text='Add your notes'
+            isActive={stepThreeActive}
+            isFilled={stepFourActive}
+            editMode={editMode}
+          >
             <View style={styles.buttonContainer}>
               {notes !== undefined ? (
-                <NotesPreview 
-                  notes={notes} 
-                  onPress={() => setIsNotesModalVisible(true)}
-                  editMode={editMode} 
-                />
+                <NotesPreview notes={notes} onPress={() => setIsNotesModalVisible(true)} editMode={editMode} />
               ) : (
-                <PrimaryButton 
-                  title="Add notes" 
+                <PrimaryButton
+                  title='Add notes'
                   onPress={() => setIsNotesModalVisible(true)}
                   style={[
                     styles.shareButton,
                     !stepThreeActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
-                    styles.addNotesButton
+                    styles.addNotesButton,
                   ]}
                   disabled={!stepThreeActive}
-                  icon={<MaterialCommunityIcons 
-                    name="pencil" 
-                    size={16} 
-                    color={theme.colors.white} 
-                  />}
+                  icon={<MaterialCommunityIcons name='pencil' size={16} color={theme.colors.white} />}
                 />
               )}
             </View>
@@ -385,59 +379,53 @@ export default function RecordCook({ navigation, route, editMode }) {
           </Step>
 
           {!editMode ? (
-            <Step 
-              number="4" 
-              text="All set!" 
-              isActive={stepFourActive} 
+            <Step
+              number='4'
+              text='All set!'
+              isActive={stepFourActive}
               isFilled={false}
-              style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }]}>
-              <PrimaryButton 
-                title="Add to journal" 
+              style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }]}
+            >
+              <PrimaryButton
+                title='Add to journal'
                 onPress={() => {
                   setIsConfirmationModalVisible(true)
                 }}
-                style={[
-                  !stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }
-                ]}
+                style={[!stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }]}
                 disabled={!stepFourActive}
-                />
-              </Step>
+              />
+            </Step>
           ) : (
             <View style={{ flex: 1, gap: 16, alignItems: 'center', width: '100%' }}>
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between', width: '100%' }}>
-                <PrimaryButton 
-                  title="Save changes" 
+                <PrimaryButton
+                  title='Save changes'
                   onPress={() => {
                     setIsConfirmationModalVisible(true)
                   }}
                 />
-                <TransparentButton 
-                  title="Remove" 
+                <TransparentButton
+                  title='Remove'
                   onPress={() => {
-                    Alert.alert(
-                      'Remove entry',
-                      'Are you sure you want to remove this entry from your journal?',
-                      [
-                        {
-                          text: 'Cancel',
-                          style: 'cancel',
+                    Alert.alert('Remove entry', 'Are you sure you want to remove this entry from your journal?', [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Remove',
+                        style: 'destructive',
+                        onPress: () => {
+                          // Handle removal logic here
+                          navigation.goBack()
                         },
-                        {
-                          text: 'Remove',
-                          style: 'destructive',
-                          onPress: () => {
-                            // Handle removal logic here
-                            navigation.goBack()
-                          },
-                        },
-                      ]
-                    )
+                      },
+                    ])
                   }}
                 />
               </View>
             </View>
           )}
-
         </View>
       </ScrollView>
 
@@ -612,8 +600,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.default,
     color: theme.colors.softBlack,
   },
-  buttonContainer: {
-  },
+  buttonContainer: {},
   shareButton: {
     width: '100%',
     height: 40,
@@ -783,5 +770,3 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
   },
 })
-
-

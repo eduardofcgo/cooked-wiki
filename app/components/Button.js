@@ -2,10 +2,12 @@ import React from 'react'
 import { TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { theme } from '../style/style'
 
-
 export function PrimaryButton({ onPress, title, style, icon }) {
   return (
-    <Button onPress={onPress} style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}>
+    <Button
+      onPress={onPress}
+      style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}
+    >
       {icon}
       <Text style={[styles.buttonText, styles.primaryButtonText]}>{title}</Text>
     </Button>
@@ -23,7 +25,12 @@ export function SecondaryButton({ onPress, title, style, icon }) {
 
 export function TransparentButton({ onPress, title, style, children }) {
   return (
-    <SecondaryButton onPress={onPress} title={title} style={[style, { backgroundColor: 'transparent' }]} children={children} />
+    <SecondaryButton
+      onPress={onPress}
+      title={title}
+      style={[style, { backgroundColor: 'transparent' }]}
+      children={children}
+    />
   )
 }
 
@@ -64,6 +71,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryButtonText: {
-  },
+  primaryButtonText: {},
 })

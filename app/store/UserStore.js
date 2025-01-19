@@ -30,7 +30,7 @@ export class UserStore {
 
           await this.apiClient.put('/tokens', { token: newToken })
         }
-      }
+      },
     )
 
     reaction(
@@ -42,7 +42,7 @@ export class UserStore {
       },
       {
         fireImmediately: true,
-      }
+      },
     )
   }
 

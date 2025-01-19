@@ -1,0 +1,40 @@
+# Build directories
+build/
+dist/
+coverage/
+
+# Mobile platform specific
+ios/
+android/
+.expo/
+*.ipa
+*.apk
+
+# Dependencies
+node_modules/
+.expo/
+web-build/
+vendor/
+
+# Generated files
+*.generated.*
+*.min.js
+*.bundle.js
+
+# Cache and logs
+.cache/
+.idea/
+*.log
+.DS_Store
+
+# Environment and config files
+.env*
+*.config.js
+metro.config.js
+
+# Assets
+assets/
+
+# Documentation
+*.md
+LICENSE 

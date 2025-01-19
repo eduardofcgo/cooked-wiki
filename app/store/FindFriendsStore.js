@@ -17,7 +17,7 @@ export class FindFriendsStore {
         for (const user of this.users) {
           user['is-following'] = followingUsernames.has(user.username)
         }
-      }
+      },
     )
 
     reaction(
@@ -27,7 +27,7 @@ export class FindFriendsStore {
           this.searchUsers(query)
         }
       },
-      { delay: 300 }
+      { delay: 300 },
     )
   }
 

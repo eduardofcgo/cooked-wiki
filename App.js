@@ -159,7 +159,8 @@ function App() {
                 <NavigationContainer linking={linking} theme={navigationTheme}>
                   <StackNavigator.Navigator
                     initialRouteName={authContext.loggedIn ? 'Main' : 'Onboarding'}
-                    screenOptions={defaultScreenOptions}>
+                    screenOptions={defaultScreenOptions}
+                  >
                     {authContext.loggedIn ? (
                       <>
                         <StackNavigator.Screen name='Main' options={{ headerShown: false }} component={Main} />
@@ -197,7 +198,7 @@ function App() {
                             title: 'Settings',
                             ...screenStyle,
                             presentation: 'modal',
-                            animation: 'slide_from_bottom'
+                            animation: 'slide_from_bottom',
                           }}
                         />
 
@@ -255,7 +256,7 @@ function App() {
                         />
 
                         <StackNavigator.Screen
-                          name="RecipeSearch"
+                          name='RecipeSearch'
                           component={RecipeSearch}
                           options={{
                             title: 'Select recipe',

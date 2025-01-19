@@ -23,7 +23,7 @@ const AnimatedPoint = ({ text, delay }) => {
         duration: 500,
         delay,
         useNativeDriver: true,
-      })
+      }),
     ]).start()
   }, [])
 
@@ -37,12 +37,7 @@ const AnimatedPoint = ({ text, delay }) => {
         marginBottom: 16,
       }}
     >
-      <MaterialCommunityIcons 
-        name="check-circle" 
-        size={20} 
-        color={theme.colors.primary} 
-        style={{ marginRight: 8 }}
-      />
+      <MaterialCommunityIcons name='check-circle' size={20} color={theme.colors.primary} style={{ marginRight: 8 }} />
       <Text style={styles.confirmationPoint}>{text}</Text>
     </Animated.View>
   )
@@ -56,33 +51,20 @@ const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
       titleComponent={
         <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
           <Bounce trigger={visible} delay={2500}>
-            <MaterialCommunityIcons 
-              name="notebook" 
-              size={40} 
-              color={theme.colors.primary} 
-            />
+            <MaterialCommunityIcons name='notebook' size={40} color={theme.colors.primary} />
           </Bounce>
           <Text style={styles.modalTitle}>Ready to add?</Text>
         </View>
       }
     >
       <View style={styles.confirmationPoints}>
-        <AnimatedPoint 
-          text="Will be saved on your Cooked.wiki journal." 
-          delay={500}
-        />
-        <AnimatedPoint 
-          text="Your followers will be notified." 
-          delay={1000}
-        />
-        <AnimatedPoint 
-          text="People cooking the same recipe will get inspiration from you." 
-          delay={1500}
-        />
+        <AnimatedPoint text='Will be saved on your Cooked.wiki journal.' delay={500} />
+        <AnimatedPoint text='Your followers will be notified.' delay={1000} />
+        <AnimatedPoint text='People cooking the same recipe will get inspiration from you.' delay={1500} />
       </View>
       <View style={styles.modalButtons}>
-        <PrimaryButton title="Add to journal" onPress={onConfirm} />
-        <SecondaryButton title="Not yet" onPress={onClose} style={styles.cancelButton} />
+        <PrimaryButton title='Add to journal' onPress={onConfirm} />
+        <SecondaryButton title='Not yet' onPress={onClose} style={styles.cancelButton} />
       </View>
     </ModalCard>
   )
@@ -114,4 +96,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ConfirmationModal 
+export default ConfirmationModal

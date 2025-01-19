@@ -116,13 +116,13 @@ export class ProfileStore {
     if (cooked) return cooked
 
     const fetchedCooked = await this.apiClient.get(`/journal/${cookedId}`)
-    
+
     return fetchedCooked
   }
 
   async loadCookedStats(cookedId) {
     const stats = await this.apiClient.get(`/journal/${cookedId}/stats`)
-    
+
     runInAction(() => {
       this.cookedStats.set(cookedId, stats)
     })
@@ -131,7 +131,7 @@ export class ProfileStore {
   async likeCooked(cookedId) {
     console.log('likeCooked', cookedId)
     await this.apiClient.post(`/journal/${cookedId}/stats/like`)
-    
+
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
       if (stats) {
@@ -143,7 +143,7 @@ export class ProfileStore {
 
   async unlikeCooked(cookedId) {
     await this.apiClient.delete(`/journal/${cookedId}/stats/like`)
-    
+
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
       if (stats) {
@@ -219,9 +219,7 @@ export class ProfileStore {
         'Content-Type': 'multipart/form-data',
       },
       transformRequest: (data, headers) => formData,
-      uploadProgress: (progressEvent) => {
-
-      },
+      uploadProgress: progressEvent => {},
       data: formData,
     })
 

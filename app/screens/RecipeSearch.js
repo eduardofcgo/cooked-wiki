@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
   TouchableOpacity,
   TextInput,
   Image,
   DeviceEventEmitter,
-  StatusBar
+  StatusBar,
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
@@ -28,8 +28,10 @@ const allRecipes = [
 const RecipeItem = ({ recipe, onSelect }) => (
   <TouchableOpacity style={styles.recipeItem} onPress={() => onSelect(recipe)}>
     <View style={styles.recipeItemContent}>
-      <Image 
-        source={{ uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg' }}
+      <Image
+        source={{
+          uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg',
+        }}
         style={styles.recipeImage}
       />
       <View style={styles.recipeInfo}>
@@ -44,38 +46,36 @@ export default function RecipeSearch({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleRecipeSelect = (recipe) => {
-    DeviceEventEmitter.emit("event.selectedRecipe", recipe);
+  const handleRecipeSelect = recipe => {
+    DeviceEventEmitter.emit('event.selectedRecipe', recipe)
     navigation.goBack()
   }
 
   const handleNoRecipeSelect = () => {
-    DeviceEventEmitter.emit("event.selectedRecipe", null);
+    DeviceEventEmitter.emit('event.selectedRecipe', null)
     navigation.goBack()
   }
 
   const filteredRecipes = searchQuery
-    ? allRecipes.filter(recipe => 
-        recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? allRecipes.filter(recipe => recipe.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : allRecipes
 
   return (
     <View style={styles.container}>
       <FadeInStatusBar />
       <View style={styles.searchContainer}>
-        <MaterialCommunityIcons name="magnify" size={20} color={theme.colors.softBlack} />
+        <MaterialCommunityIcons name='magnify' size={20} color={theme.colors.softBlack} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search recipes"
+          placeholder='Search recipes'
           value={searchQuery}
           onChangeText={setSearchQuery}
           selectionColor={theme.colors.primary}
-          autoCapitalize="none"
+          autoCapitalize='none'
         />
         {searchQuery ? (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <MaterialCommunityIcons name="close" size={20} color={theme.colors.softBlack} />
+            <MaterialCommunityIcons name='close' size={20} color={theme.colors.softBlack} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -86,16 +86,9 @@ export default function RecipeSearch({ navigation }) {
         </View>
       ) : (
         <View style={styles.resultsContainer}>
-          <TouchableOpacity 
-            style={styles.freestyleCard}
-            onPress={handleNoRecipeSelect}
-          >
+          <TouchableOpacity style={styles.freestyleCard} onPress={handleNoRecipeSelect}>
             <View style={styles.freestyleContent}>
-              <MaterialCommunityIcons 
-                name="chef-hat" 
-                size={24} 
-                color={theme.colors.softBlack} 
-              />
+              <MaterialCommunityIcons name='chef-hat' size={24} color={theme.colors.softBlack} />
               <View style={styles.freestyleTextContainer}>
                 <Text style={styles.freestyleTitle}>Cooked without a recipe</Text>
                 <Text style={styles.freestyleSubtitle}>Freestyle cooking</Text>
@@ -104,24 +97,20 @@ export default function RecipeSearch({ navigation }) {
           </TouchableOpacity>
 
           <Text style={styles.subtitle}>
-            {searchQuery ? 'Search Results' : (
+            {searchQuery ? (
+              'Search Results'
+            ) : (
               <View style={styles.subtitleContainer}>
-                <MaterialCommunityIcons 
-                  name="history" 
-                  size={16} 
-                  color={theme.colors.softBlack}
-                />
+                <MaterialCommunityIcons name='history' size={16} color={theme.colors.softBlack} />
                 <Text style={styles.subtitleText}>Recently opened</Text>
               </View>
             )}
           </Text>
-          
+
           {filteredRecipes.length > 0 ? (
             <FlatList
               data={filteredRecipes}
-              renderItem={({ item }) => (
-                <RecipeItem recipe={item} onSelect={handleRecipeSelect} />
-              )}
+              renderItem={({ item }) => <RecipeItem recipe={item} onSelect={handleRecipeSelect} />}
               keyExtractor={item => item.id}
               contentContainerStyle={styles.listContainer}
             />
@@ -250,4 +239,4 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     opacity: 0.7,
   },
-}) 
+})

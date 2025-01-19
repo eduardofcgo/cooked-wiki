@@ -19,30 +19,26 @@ export default function Step({ number, text, isActive, isFilled, children, style
           toValue: 0,
           duration: 500,
           useNativeDriver: true,
-        })
+        }),
       ]).start()
     }
   }, [isActive])
 
-  if (!isActive) return null;
-  
+  if (!isActive) return null
+
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.stepWrapper,
         style,
         {
           opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }]
-        }
+          transform: [{ translateY: slideAnim }],
+        },
       ]}
     >
-      {!editMode && (
-        <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />
-      )}
-      <View style={[styles.stepContent, contentStyle, editMode && { paddingTop: 0 }]}>
-        {children}
-      </View>
+      {!editMode && <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />}
+      <View style={[styles.stepContent, contentStyle, editMode && { paddingTop: 0 }]}>{children}</View>
     </Animated.View>
   )
 }
@@ -55,5 +51,5 @@ const styles = StyleSheet.create({
   stepContent: {
     paddingTop: 16,
     paddingBottom: 16,
-  }
-}) 
+  },
+})

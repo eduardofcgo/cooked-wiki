@@ -6,33 +6,15 @@ import ModalCard from './ModalCard'
 
 export default function PhotoSelectionModal({ visible, onClose, onCameraPress, onGalleryPress }) {
   return (
-    <ModalCard
-      visible={visible}
-      onClose={onClose}
-      title="Add photo"
-    >
+    <ModalCard visible={visible} onClose={onClose} title='Add photo'>
       <View style={styles.buttonGrid}>
-        <TouchableOpacity 
-          style={styles.optionButton} 
-          onPress={onCameraPress}
-        >
-          <MaterialCommunityIcons 
-            name="camera" 
-            size={24} 
-            color={theme.colors.softBlack} 
-          />
+        <TouchableOpacity style={styles.optionButton} onPress={onCameraPress}>
+          <MaterialCommunityIcons name='camera' size={24} color={theme.colors.softBlack} />
           <Text style={styles.optionText}>Open Camera</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.optionButton} 
-          onPress={onGalleryPress}
-        >
-          <MaterialCommunityIcons 
-            name="image" 
-            size={24} 
-            color={theme.colors.softBlack} 
-          />
+        <TouchableOpacity style={styles.optionButton} onPress={onGalleryPress}>
+          <MaterialCommunityIcons name='image' size={24} color={theme.colors.softBlack} />
           <Text style={styles.optionText}>Open Gallery</Text>
         </TouchableOpacity>
       </View>
@@ -52,7 +34,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     alignItems: 'center',
-    justifyContent: 'center',    
+    justifyContent: 'center',
   },
   optionText: {
     fontFamily: theme.fonts.ui,

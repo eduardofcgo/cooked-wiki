@@ -24,7 +24,7 @@ const ProfileCookedHeader = observer(({ username }) => {
 const ProfileCooked = observer(({ navigation, route, username }) => {
   const { credentials } = useContext(AuthContext)
   const loggedInUsername = credentials?.username
-  
+
   const { profileStore } = useStore()
   const profileCookeds = profileStore.getProfileCookeds(username)
   const isLoadingProfileCookeds = profileStore.isLoadingProfileCookeds(username)
@@ -89,9 +89,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
               <Text style={styles.emptyStateText}>No cooked recipes yet.</Text>
             </View>
           }
-          refreshControl={
-            <RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
         />
       </View>
     )
