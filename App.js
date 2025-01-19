@@ -69,7 +69,7 @@ import FindFriends from './app/screens/FindFriends'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
 import RecipeSearch from './app/screens/RecipeSearch'
-import RecordCookRecipe from './app/screens/RecordCook'
+import RecordCookRecipe from './app/screens/RecordCookRecipe'
 
 const StackNavigator = createNativeStackNavigator()
 
@@ -178,7 +178,7 @@ function App() {
                           name='RecordCookRecipe'
                           component={RecordCookRecipe}
                           options={{
-                            title: 'Add to journal',
+                            title: 'Cooked',
                             ...screenStyle,
                             animation: 'slide_from_bottom',
                           }}

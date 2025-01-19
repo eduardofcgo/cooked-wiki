@@ -3,7 +3,7 @@ import { View, Animated, StyleSheet } from 'react-native'
 import { theme } from '../../style/style'
 import StepIndicator from '../StepIndicator'
 
-export default function Step({ number, text, isActive, isFilled, children, style, contentStyle }) {
+export default function Step({ number, text, isActive, isFilled, children, style, contentStyle, editMode }) {
   const fadeAnim = useRef(new Animated.Value(0)).current
   const slideAnim = useRef(new Animated.Value(50)).current // Start 50 units below
 
@@ -37,8 +37,10 @@ export default function Step({ number, text, isActive, isFilled, children, style
         }
       ]}
     >
-      <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />
-      <View style={[styles.stepContent, contentStyle]}>
+      {!editMode && (
+        <StepIndicator number={number} text={text} isActive={isActive} isFilled={isFilled} />
+      )}
+      <View style={[styles.stepContent, contentStyle, editMode && { paddingTop: 0 }]}>
         {children}
       </View>
     </Animated.View>

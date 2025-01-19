@@ -1,5 +1,5 @@
-const BASE_URL = 'https://qa.cooked.wiki'
-// const BASE_URL = 'http://192.168.1.117:3000'
+// const BASE_URL = 'https://qa.cooked.wiki'
+const BASE_URL = 'http://192.168.1.117:3000'
 
 export const API_BASE_URL = `${BASE_URL}/api`
 

@@ -111,6 +111,15 @@ export class ProfileStore {
     })
   }
 
+  async getCooked(username, cookedId) {
+    const cooked = this.profileDataMap.get(username)?.cookeds.find(cooked => cooked.id === cookedId)
+    if (cooked) return cooked
+
+    const fetchedCooked = await this.apiClient.get(`/journal/${cookedId}`)
+    
+    return fetchedCooked
+  }
+
   async loadCookedStats(cookedId) {
     const stats = await this.apiClient.get(`/journal/${cookedId}/stats`)
     

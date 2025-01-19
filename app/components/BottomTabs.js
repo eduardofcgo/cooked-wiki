@@ -7,7 +7,7 @@ import { theme, screenStyle } from '../style/style'
 
 import Community from '../screens/Community'
 import JustCooked from '../screens/justcooked/JustCooked'
-import RecordCook from '../screens/RecordCook'
+import RecordCookScreen from '../screens/RecordCook'
 import { LoggedInProfile } from '../screens/Profile'
 
 const TabNavigator = createBottomTabNavigator()
@@ -40,7 +40,7 @@ function BottomTabs({ route }) {
 
       <TabNavigator.Screen
         name='RecordCook'
-        component={RecordCook}
+        component={RecordCookScreen}
         options={{
           title: 'Add to journal',
           headerShown: false,

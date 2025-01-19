@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Button, PrimaryButton, SecondaryButton, TransparentButton } from '../../components/Button'
 import ModalCard from '../../components/ModalCard'
 import { theme } from '../../style/style'
+import Bounce from '../Bounce'
 
 const AnimatedEmoji = ({ emoji, delay, style }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -43,28 +44,6 @@ const AnimatedEmoji = ({ emoji, delay, style }) => {
 }
 
 const SuccessModal = ({ visible, onClose, onView, onShare }) => {
-  const bounceAnim = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (visible) {
-      bounceAnim.setValue(0)
-      
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: 1.3,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(bounceAnim, {
-          toValue: 1,
-          friction: 3,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-      ]).start()
-    }
-  }, [visible])
-
   return (
     <ModalCard
       visible={visible}
@@ -72,9 +51,13 @@ const SuccessModal = ({ visible, onClose, onView, onShare }) => {
       titleComponent={
         <View style={{ flex: 1, alignItems: 'center' }}>
           <View style={styles.emojiContainer}>
-            <AnimatedEmoji emoji="🎉" delay={0} style={styles.emoji} />
+            <Bounce trigger={visible}>
+              <Text style={styles.emoji}>🎉</Text>
+            </Bounce>
             <Text style={styles.modalTitle}>All done!</Text>
-            <AnimatedEmoji emoji="🎊" delay={200} style={styles.emoji} />
+            <Bounce trigger={visible} delay={1500}>
+              <Text style={styles.emoji}>🎊</Text>
+            </Bounce>
           </View>
         </View>
       }
@@ -84,7 +67,7 @@ const SuccessModal = ({ visible, onClose, onView, onShare }) => {
             You can now share your cook with your friends that are not on Cooked.wiki yet.
         </Text>
         <View style={styles.buttonGroup}>
-        <SecondaryButton 
+          <SecondaryButton 
             title="Share" 
             onPress={onShare}
             icon={

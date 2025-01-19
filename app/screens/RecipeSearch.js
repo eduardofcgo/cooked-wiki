@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   View, 
   Text, 
@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  StatusBar
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
 import Loading from '../components/Loading'
 import { Button, SecondaryButton } from '../components/Button'
+import FadeInStatusBar from '../components/FadeInStatusBar'
 
 // Temporary mock data
 const allRecipes = [
@@ -60,6 +62,7 @@ export default function RecipeSearch({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <FadeInStatusBar />
       <View style={styles.searchContainer}>
         <MaterialCommunityIcons name="magnify" size={20} color={theme.colors.softBlack} />
         <TextInput

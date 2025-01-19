@@ -4,6 +4,9 @@ export const theme = {
     default: 15,
     large: 25,
   },
+  opacity: {
+    disabled: 0.33,
+  },
   colors: {
     disabledBackground: 'rgba(0,0,0,0.66)',
     primary: '#d97757',
