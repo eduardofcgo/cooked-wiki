@@ -31,7 +31,6 @@ export default function ModalCard({
 
   const handleClose = () => {
     setIsHiding(true)
-    // StatusBar.setBackgroundColor('transparent');
     Animated.parallel([
       Animated.spring(panY, {
         toValue: screenHeight,
@@ -76,7 +75,6 @@ export default function ModalCard({
 
   useEffect(() => {
     if (visible) {
-      // StatusBar.setBackgroundColor(theme.colors.primary);
       panY.setValue(screenHeight)
       backgroundOpacity.setValue(0)
       Animated.parallel([
@@ -120,12 +118,7 @@ export default function ModalCard({
         </TouchableOpacity>
         <Animated.View style={[styles.modalContent, { transform: [{ translateY }] }]} {...panResponder.panHandlers}>
           <View style={styles.dragIndicator} />
-          <View style={styles.modalHeader}>
-            {titleComponent || <Text style={styles.modalTitle}>{title}</Text>}
-            {/* <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <FontAwesomeIcon icon={faXmark} size={15} color={theme.colors.primary} />
-            </TouchableOpacity> */}
-          </View>
+          <View style={styles.modalHeader}>{titleComponent || <Text style={styles.modalTitle}>{title}</Text>}</View>
           {children}
         </Animated.View>
       </Animated.View>

@@ -26,6 +26,7 @@ import { getPhotoUrl } from '../../urls'
 import { useStore } from '../../context/store/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
 import ModalCard from '../ModalCard'
+import Loading from '../Loading'
 import ConfirmationModal from '../RecordCook/ConfirmationModal'
 import StepIndicator from '../StepIndicator'
 import SuccessModal from '../RecordCook/SuccessModal'
@@ -33,6 +34,7 @@ import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
 import FadeInStatusBar from '../FadeInStatusBar'
 import { AuthContext } from '../../context/auth'
+import NotesModal from './NotesModal'
 
 const EditableImage = ({ path, index, onExclude }) => (
   <View style={[styles.imageContainer, styles.imageContainerEditing]}>
@@ -110,6 +112,8 @@ export default function RecordCook({ navigation, route, editMode }) {
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
 
+  const [loadingCooked, setLoadingCooked] = useState(true)
+
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState([])
   const [selectedRecipe, setSelectedRecipe] = useState(undefined)
@@ -130,6 +134,8 @@ export default function RecordCook({ navigation, route, editMode }) {
         setNotes(cooked.notes)
         setPhotos(cooked['cooked-photos-path'] || [])
       }
+
+      setLoadingCooked(false)
     })()
   }, [editMode])
 
@@ -227,76 +233,24 @@ export default function RecordCook({ navigation, route, editMode }) {
     }, []),
   )
 
-  const NotesModal = ({ visible, onClose, onSave, initialNotes, recipe }) => {
-    const [notes, setNotes] = useState(initialNotes || '')
-
-    const inputRef = useRef(null)
-
-    const handleNotesSave = () => {
-      onSave(notes)
-      onClose()
-    }
-
-    const handleNotesClose = () => {
-      onClose(notes)
-    }
-
-    const placeholder = recipe === null ? `What did you cook and how did it turn out?` : `How did it turn out?`
-
-    return (
-      <ModalCard
-        closeOnOverlay={false}
-        visible={visible}
-        onClose={onClose}
-        titleComponent={
-          <View style={{ flex: 1, gap: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-            <Text style={styles.modalTitle}>Add notes</Text>
-            <Text
-              style={{
-                fontFamily: theme.fonts.ui,
-                fontSize: theme.fontSizes.small,
-                color: theme.colors.softBlack,
-                paddingTop: 9,
-              }}
-            >
-              optional
-            </Text>
-          </View>
-        }
-      >
-        <TextInput
-          ref={inputRef}
-          cursorColor={theme.colors.primary}
-          style={styles.notesInput}
-          multiline
-          placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
-          placeholder='What did you cook and how did it turn out?'
-          value={notes}
-          onChangeText={setNotes}
-          autoFocus={false}
-          keyboardType='default'
-        />
-        <View style={styles.modalButtons}>
-          <SecondaryButton title='Done' onPress={handleNotesSave} />
-          <TransparentButton title='Cancel' onPress={handleNotesClose} />
-        </View>
-      </ModalCard>
-    )
-  }
-
-  const handleNotesSave = notes => {
-    setNotes(notes)
+  const handleNotesSave = newNotes => {
+    setNotes(newNotes)
+    setIsNotesModalVisible(false)
 
     if (!editMode) {
       setIsConfirmationModalVisible(true)
     }
   }
 
-  const handleNotesClose = notes => {
-    if (!notes || (notes.trim && notes.trim().length === 0)) {
+  const handleNotesClose = newNotes => {
+    if (!newNotes || (newNotes.trim && newNotes.trim().length === 0)) {
       setNotes(null)
     }
     setIsNotesModalVisible(false)
+  }
+
+  if (loadingCooked) {
+    return <Loading />
   }
 
   return (
@@ -368,14 +322,6 @@ export default function RecordCook({ navigation, route, editMode }) {
                 />
               )}
             </View>
-
-            <NotesModal
-              visible={isNotesModalVisible}
-              onClose={handleNotesClose}
-              onSave={handleNotesSave}
-              initialNotes={notes}
-              recipe={selectedRecipe}
-            />
           </Step>
 
           {!editMode ? (
@@ -467,6 +413,14 @@ export default function RecordCook({ navigation, route, editMode }) {
             url: 'https://cooked.wiki/journal/entry/123', // Replace with actual entry URL
           })
         }}
+      />
+
+      <NotesModal
+        visible={isNotesModalVisible}
+        onClose={handleNotesClose}
+        onSave={handleNotesSave}
+        initialNotes={notes}
+        recipe={selectedRecipe}
       />
     </View>
   )
