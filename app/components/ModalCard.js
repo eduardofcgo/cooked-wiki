@@ -1,15 +1,15 @@
 import React, { useRef, useEffect, useState } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Animated,
-  PanResponder,
-  Dimensions,
-  StatusBar,
-} from 'react-native'
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Dimensions } from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+  useAnimatedGestureHandler,
+  interpolate,
+  runOnJS,
+} from 'react-native-reanimated'
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { theme } from '../style/style'
@@ -25,103 +25,118 @@ export default function ModalCard({
   children,
 }) {
   const screenHeight = Dimensions.get('screen').height
-  const panY = useRef(new Animated.Value(screenHeight)).current
+  const translateY = useSharedValue(screenHeight)
   const [isHiding, setIsHiding] = useState(false)
-  const backgroundOpacity = useRef(new Animated.Value(0)).current
+  const opacity = useSharedValue(0)
+
+  const [currentVisible, setCurrentVisible] = useState(visible)
 
   const handleClose = () => {
     setIsHiding(true)
-    Animated.parallel([
-      Animated.spring(panY, {
-        toValue: screenHeight,
-        useNativeDriver: true,
-        damping: 20,
-        mass: 0.8,
-        stiffness: 100,
-      }),
-      Animated.timing(backgroundOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setIsHiding(false)
-      onClose()
+    translateY.value = withSpring(screenHeight, {
+      damping: 15,
+      mass: 1.5,
+      stiffness: 60,
+    })
+    opacity.value = withTiming(0, { duration: 500 }, finished => {
+      if (finished) {
+        runOnJS(setIsHiding)(false)
+        runOnJS(setCurrentVisible)(false)
+        runOnJS(onClose)()
+      }
     })
   }
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        panY.setValue(gestureState.dy)
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 50) {
-          handleClose()
-        } else {
-          Animated.spring(panY, {
-            toValue: 0,
-            useNativeDriver: true,
-            damping: 20,
-            mass: 0.8,
-            stiffness: 100,
-          }).start()
-        }
-      },
-    }),
-  ).current
+  const handleOpen = () => {
+    translateY.value = screenHeight
+    opacity.value = 0
+    translateY.value = withSpring(0, {
+      damping: 20,
+      mass: 0.8,
+      stiffness: 100,
+    })
+    opacity.value = withTiming(1, { duration: 200 })
 
-  useEffect(() => {
-    if (visible) {
-      panY.setValue(screenHeight)
-      backgroundOpacity.setValue(0)
-      Animated.parallel([
-        Animated.spring(panY, {
-          toValue: 0,
-          useNativeDriver: true,
+    setCurrentVisible(true)
+  }
+
+  const gestureHandler = useAnimatedGestureHandler({
+    onStart: (_, context) => {
+      context.startY = translateY.value
+    },
+    onActive: (event, context) => {
+      translateY.value = context.startY + event.translationY
+    },
+    onEnd: event => {
+      if (event.translationY > 50) {
+        runOnJS(handleClose)()
+      } else {
+        translateY.value = withSpring(0, {
           damping: 20,
           mass: 0.8,
           stiffness: 100,
-        }),
-        Animated.timing(backgroundOpacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start()
+        })
+      }
+    },
+  })
+
+  useEffect(() => {
+    if (!visible && currentVisible) {
+      handleClose()
+    }
+
+    if (visible && !currentVisible) {
+      handleOpen()
     }
   }, [visible])
 
-  const translateY = panY.interpolate({
-    inputRange: [-screenHeight, 0, screenHeight],
-    outputRange: [-screenHeight / 4, 0, screenHeight],
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            translateY.value,
+            [-screenHeight, 0, screenHeight],
+            [-screenHeight / 4, 0, screenHeight],
+          ),
+        },
+      ],
+    }
+  })
+
+  const backgroundStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    }
   })
 
   return (
     <Modal
-      visible={visible || isHiding}
+      visible={currentVisible || isHiding}
       transparent={true}
       animationType='none'
       onShow={onShow}
       onRequestClose={handleClose}
     >
       <FadeInStatusBar />
-      <Animated.View style={[styles.modalContainer, { opacity: backgroundOpacity }]}>
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          activeOpacity={1}
-          onPress={closeOnOverlay ? handleClose : undefined}
-        >
-          <View style={styles.modalContainer} />
-        </TouchableOpacity>
-        <Animated.View style={[styles.modalContent, { transform: [{ translateY }] }]} {...panResponder.panHandlers}>
-          <View style={styles.dragIndicator} />
-          <View style={styles.modalHeader}>{titleComponent || <Text style={styles.modalTitle}>{title}</Text>}</View>
-          {children}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Animated.View style={[styles.modalContainer, backgroundStyle]}>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={closeOnOverlay ? handleClose : undefined}
+          >
+            <View style={styles.modalContainer} />
+          </TouchableOpacity>
+          <PanGestureHandler onGestureEvent={gestureHandler}>
+            <Animated.View style={[styles.modalContent, animatedStyle]}>
+              <View style={styles.dragIndicator} />
+              <View style={styles.modalHeader}>{titleComponent || <Text style={styles.modalTitle}>{title}</Text>}</View>
+              {children}
+            </Animated.View>
+          </PanGestureHandler>
         </Animated.View>
-      </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   )
 }

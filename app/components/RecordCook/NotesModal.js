@@ -15,18 +15,18 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
   }
 
   const handleClose = () => {
-    setNotes(initialNotes || '')
     onClose(notes)
+    setNotes(initialNotes || '')
   }
 
   return (
     <ModalCard
       closeOnOverlay={false}
       visible={visible}
-      onClose={onClose}
+      onClose={handleClose}
       titleComponent={
         <View style={{ flex: 1, gap: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-          <Text style={styles.modalTitle}>Add notes</Text>
+          <Text style={styles.modalTitle}>Edit notes</Text>
           <Text style={styles.optionalText}>optional</Text>
         </View>
       }

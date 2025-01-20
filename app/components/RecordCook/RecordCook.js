@@ -107,7 +107,7 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
   </TouchableOpacity>
 )
 
-export default function RecordCook({ navigation, route, editMode }) {
+export default function RecordCook({ navigation, route, editMode, setHasChanges }) {
   const { credentials } = useContext(AuthContext)
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
@@ -126,6 +126,12 @@ export default function RecordCook({ navigation, route, editMode }) {
   const stepTwoActive = editMode || photos.length > 0
   const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined)
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
+
+  const saveChanges = () => {
+    profileStore.updateProfileCooked(loggedInUsername, route.params.cookedId, notes, photos)
+    setHasChanges(false)
+    navigation.goBack()
+  }
 
   useEffect(() => {
     ;(async () => {
@@ -160,6 +166,10 @@ export default function RecordCook({ navigation, route, editMode }) {
   const handleExcludeImage = index => {
     const updatedPhotos = photos.filter((_, i) => i !== index)
     setPhotos(updatedPhotos)
+
+    if (setHasChanges) {
+      setHasChanges(true)
+    }
   }
 
   const handleAddImage = useCallback(() => {
@@ -221,21 +231,21 @@ export default function RecordCook({ navigation, route, editMode }) {
       const imagePath = await profileStore.uploadProfileCookedPhoto('freestyle-cook', file)
       setIsUploading(false)
       setPhotos(prevPhotos => [...prevPhotos, imagePath])
+
+      if (setHasChanges) {
+        setHasChanges(true)
+      }
     }
     setIsPhotoModalVisible(false)
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        // Don't reset the state here
-      }
-    }, []),
-  )
-
   const handleNotesSave = newNotes => {
     setNotes(newNotes)
     setIsNotesModalVisible(false)
+
+    if (setHasChanges) {
+      setHasChanges(true)
+    }
 
     if (!editMode) {
       setIsConfirmationModalVisible(true)
@@ -344,12 +354,7 @@ export default function RecordCook({ navigation, route, editMode }) {
           ) : (
             <View style={{ flex: 1, gap: 16, alignItems: 'center', width: '100%' }}>
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between', width: '100%' }}>
-                <PrimaryButton
-                  title='Save changes'
-                  onPress={() => {
-                    setIsConfirmationModalVisible(true)
-                  }}
-                />
+                <PrimaryButton title='Save changes' onPress={saveChanges} />
                 <TransparentButton
                   title='Remove'
                   onPress={() => {

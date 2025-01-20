@@ -12,25 +12,25 @@ import { theme } from '../style/style'
 export default function RecordCookRecipe({ route, navigation }) {
   const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
   const [pendingNavAction, setPendingNavAction] = useState(null)
+  const [hasChanges, setHasChanges] = useState(false)
 
-  const handleBackPress = () => {
-    setIsDiscardModalVisible(true)
-    return true
-  }
+  // useEffect(() => {
+  //   const beforeRemoveHandler = e => {
+  //     if (hasChanges === true) {
+  //       e.preventDefault()
+  //       setPendingNavAction(e.data.action)
+  //       setIsDiscardModalVisible(true)
+  //     }
+  //   }
 
-  useEffect(() => {
-    const beforeRemoveHandler = e => {
-      e.preventDefault()
-      setPendingNavAction(e.data.action)
-      setIsDiscardModalVisible(true)
-    }
+  //   navigation.addListener('beforeRemove', beforeRemoveHandler)
 
-    navigation.addListener('beforeRemove', beforeRemoveHandler)
-
-    return () => {
-      navigation.removeListener('beforeRemove', beforeRemoveHandler)
-    }
-  }, [navigation])
+  //   return () => {
+  //     setIsDiscardModalVisible(false)
+  //     setPendingNavAction(null)
+  //     navigation.removeListener('beforeRemove', beforeRemoveHandler)
+  //   }
+  // }, [navigation, hasChanges])
 
   const handleDiscard = () => {
     setIsDiscardModalVisible(false)
@@ -45,7 +45,7 @@ export default function RecordCookRecipe({ route, navigation }) {
   return (
     <>
       <FadeInStatusBar color={theme.colors.secondary} />
-      <RecordCook editMode={true} route={route} navigation={navigation} />
+      <RecordCook editMode={true} route={route} navigation={navigation} setHasChanges={setHasChanges} />
 
       <ModalCard
         visible={isDiscardModalVisible}

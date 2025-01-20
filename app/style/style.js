@@ -8,7 +8,7 @@ export const theme = {
     disabled: 0.33,
   },
   colors: {
-    disabledBackground: 'rgba(0,0,0,0.66)',
+    disabledBackground: 'rgba(0,0,0,0.5)',
     primary: '#d97757',
     secondary: '#efede3',
     background: '#fafaf7',

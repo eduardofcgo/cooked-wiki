@@ -221,9 +221,9 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
         onLike={handleLike}
         stats={cookedStats}
       />
-      <Modal visible={isEditing} onClose={handleClose} title='Edit cook'>
+      {/* <Modal visible={isEditing} onClose={handleClose} title='Edit cook'>
         <CookedEdit post={post} close={handleClose} />
-      </Modal>
+      </Modal> */}
     </>
   )
 })
