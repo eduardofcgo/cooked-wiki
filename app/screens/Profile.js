@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useEffect } from 'react'
-import { View, Text, Image, StyleSheet, StatusBar } from 'react-native'
+import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, Modal } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
@@ -8,6 +8,7 @@ import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { Menu, IconButton } from 'react-native-paper'
 import { observer } from 'mobx-react-lite'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -19,6 +20,8 @@ import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
 import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
+import EditBio from '../components/Profile/EditBio'
+import FullScreenImage from '../components/Profile/FullScreenImage'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -42,7 +45,7 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileMenu = ({ navigation }) => {
+const ProfileMenu = ({ navigation, onEditBio }) => {
   const [menuVisible, setMenuVisible] = React.useState(false)
 
   return (
@@ -76,9 +79,9 @@ const ProfileMenu = ({ navigation }) => {
       <Menu.Item
         onPress={() => {
           setMenuVisible(false)
-          navigation.navigate('Team')
+          onEditBio()
         }}
-        title='Patron'
+        title='Update bio'
       />
       <Menu.Item
         onPress={() => {
@@ -93,23 +96,34 @@ const ProfileMenu = ({ navigation }) => {
 
 const ProfileHeader = ({ username, bio, navigation, menu }) => {
   const showImage = true
+  const [isImageFullScreen, setIsImageFullScreen] = React.useState(false)
 
   return (
     <View style={styles.header}>
       <View style={styles.profileContainer}>
         {showImage ? (
-          <Image
-            source={{
-              uri: getProfileImageUrl(username),
-            }}
-            style={styles.profileImage}
-          />
+          <>
+            <TouchableOpacity onPress={() => setIsImageFullScreen(true)}>
+              <Image
+                source={{
+                  uri: getProfileImageUrl(username),
+                }}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
+            <FullScreenImage
+              visible={isImageFullScreen}
+              imageUrl={getProfileImageUrl(username)}
+              onClose={() => setIsImageFullScreen(false)}
+              bio={bio}
+            />
+          </>
         ) : (
           <Icon name='account' size={64} color={theme.colors.softBlack} style={styles.avatarPlaceholder} />
         )}
         <View style={styles.profileText}>
           <Text style={styles.username}>{username}</Text>
-          <Text style={styles.bio}>I love baking and other things. This is my bio.</Text>
+          <Text style={styles.bio}>{bio || 'No bio ye.'}</Text>
         </View>
       </View>
 
@@ -119,9 +133,29 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
 }
 
 const Profile = observer(({ route, navigation, username, menu }) => {
+  const [editBioVisible, setEditBioVisible] = React.useState(false)
+  const { profileStore } = useStore()
+  const bio = null
+
+  const handleSaveBio = async newBio => {
+    await profileStore.updateBio(newBio)
+    setEditBioVisible(false)
+  }
+
   return (
     <>
-      <ProfileHeader username={username} navigation={navigation} menu={menu} />
+      <ProfileHeader
+        username={username}
+        bio={bio}
+        navigation={navigation}
+        menu={<ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />}
+      />
+      <EditBio
+        visible={editBioVisible}
+        onClose={() => setEditBioVisible(false)}
+        onSave={handleSaveBio}
+        initialBio={bio}
+      />
       <Tab.Navigator
         screenOptions={{
           ...tabStyle,
@@ -262,6 +296,8 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
     overflow: 'hidden',
   },
   avatarPlaceholder: {

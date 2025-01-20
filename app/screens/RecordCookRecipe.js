@@ -10,49 +10,54 @@ import { PrimaryButton, SecondaryButton, TransparentButton } from '../components
 import { theme } from '../style/style'
 
 export default function RecordCookRecipe({ route, navigation }) {
-  const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
-  const [pendingNavAction, setPendingNavAction] = useState(null)
   const [hasChanges, setHasChanges] = useState(false)
-
-  // useEffect(() => {
-  //   const beforeRemoveHandler = e => {
-  //     if (hasChanges === true) {
-  //       e.preventDefault()
-  //       setPendingNavAction(e.data.action)
-  //       setIsDiscardModalVisible(true)
-  //     }
-  //   }
-
-  //   navigation.addListener('beforeRemove', beforeRemoveHandler)
-
-  //   return () => {
-  //     setIsDiscardModalVisible(false)
-  //     setPendingNavAction(null)
-  //     navigation.removeListener('beforeRemove', beforeRemoveHandler)
-  //   }
-  // }, [navigation, hasChanges])
+  const [showDiscardModal, setShowDiscardModal] = useState(false)
+  const [pendingNavigationEvent, setPendingNavigationEvent] = useState(null)
 
   const handleDiscard = () => {
-    setIsDiscardModalVisible(false)
-    if (pendingNavAction) {
-      navigation.dispatch(pendingNavAction)
-      setPendingNavAction(null)
-    } else {
-      navigation.goBack()
+    setShowDiscardModal(false)
+    if (pendingNavigationEvent) {
+      navigation.dispatch(pendingNavigationEvent.data.action)
     }
   }
+
+  const handleSaved = () => {
+    setShowDiscardModal(false)
+    setHasChanges(false)
+  }
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (!hasChanges) {
+        return
+      }
+
+      e.preventDefault()
+      setPendingNavigationEvent(e)
+      setShowDiscardModal(true)
+    })
+
+    return unsubscribe
+  }, [navigation, hasChanges])
 
   return (
     <>
       <FadeInStatusBar color={theme.colors.secondary} />
-      <RecordCook editMode={true} route={route} navigation={navigation} setHasChanges={setHasChanges} />
+      <RecordCook
+        editMode={true}
+        route={route}
+        navigation={navigation}
+        hasChanges={hasChanges}
+        setHasChanges={setHasChanges}
+        onSaved={handleSaved}
+      />
 
       <ModalCard
-        visible={isDiscardModalVisible}
-        onClose={() => setIsDiscardModalVisible(false)}
+        visible={showDiscardModal}
+        onClose={() => setShowDiscardModal(false)}
         titleComponent={
           <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-            <Bounce trigger={isDiscardModalVisible} delay={0}>
+            <Bounce delay={0}>
               <MaterialCommunityIcons name='alert-circle' size={40} color={theme.colors.primary} />
             </Bounce>
             <Text style={styles.modalTitle}>Discard changes?</Text>
@@ -62,7 +67,7 @@ export default function RecordCookRecipe({ route, navigation }) {
         <Text style={styles.modalText}>You have unsaved changes. Are you sure you want to go back?</Text>
         <View style={styles.modalButtons}>
           <SecondaryButton title='Discard' onPress={handleDiscard} />
-          <TransparentButton title='Cancel' onPress={() => setIsDiscardModalVisible(false)} />
+          <TransparentButton title='Cancel' onPress={() => setShowDiscardModal(false)} />
         </View>
       </ModalCard>
     </>

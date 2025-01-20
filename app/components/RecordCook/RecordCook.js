@@ -107,7 +107,7 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
   </TouchableOpacity>
 )
 
-export default function RecordCook({ navigation, route, editMode, setHasChanges }) {
+export default function RecordCook({ navigation, route, editMode, hasChanges, setHasChanges, onSaved }) {
   const { credentials } = useContext(AuthContext)
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
@@ -130,7 +130,7 @@ export default function RecordCook({ navigation, route, editMode, setHasChanges 
   const saveChanges = () => {
     profileStore.updateProfileCooked(loggedInUsername, route.params.cookedId, notes, photos)
     setHasChanges(false)
-    navigation.goBack()
+    onSaved()
   }
 
   useEffect(() => {
@@ -354,7 +354,8 @@ export default function RecordCook({ navigation, route, editMode, setHasChanges 
           ) : (
             <View style={{ flex: 1, gap: 16, alignItems: 'center', width: '100%' }}>
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between', width: '100%' }}>
-                <PrimaryButton title='Save changes' onPress={saveChanges} />
+                {hasChanges ? <PrimaryButton title='Save changes' onPress={saveChanges} /> : <View></View>}
+
                 <TransparentButton
                   title='Remove'
                   onPress={() => {

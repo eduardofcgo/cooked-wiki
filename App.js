@@ -181,7 +181,7 @@ function App() {
                           options={{
                             title: 'Cooked',
                             ...screenStyle,
-                            animation: 'slide_from_bottom',
+                            animation: 'slide_from_right',
                           }}
                         />
 
