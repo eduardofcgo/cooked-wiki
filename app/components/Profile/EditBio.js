@@ -31,7 +31,7 @@ export default function EditBio({ visible, onClose, onSave, initialBio }) {
         cursorColor={theme.colors.primary}
         style={styles.bioInput}
         multiline
-        placeholder='Tell us about yourself and what you love to cook?'
+        placeholder='Tell us about yourself and what you love to cook.'
         value={bio}
         onChangeText={setBio}
         autoFocus={false}

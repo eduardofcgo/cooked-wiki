@@ -107,7 +107,7 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
   </TouchableOpacity>
 )
 
-export default function RecordCook({ navigation, route, editMode, hasChanges, setHasChanges, onSaved }) {
+export default function RecordCook({ navigation, route, editMode, hasChanges, setHasChanges, onSaved, onDelete }) {
   const { credentials } = useContext(AuthContext)
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
@@ -356,25 +356,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between', width: '100%' }}>
                 {hasChanges ? <PrimaryButton title='Save changes' onPress={saveChanges} /> : <View></View>}
 
-                <TransparentButton
-                  title='Remove'
-                  onPress={() => {
-                    Alert.alert('Remove entry', 'Are you sure you want to remove this entry from your journal?', [
-                      {
-                        text: 'Cancel',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Remove',
-                        style: 'destructive',
-                        onPress: () => {
-                          // Handle removal logic here
-                          navigation.goBack()
-                        },
-                      },
-                    ])
-                  }}
-                />
+                <TransparentButton title='Delete' onPress={onDelete} />
               </View>
             </View>
           )}

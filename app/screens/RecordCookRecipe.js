@@ -12,6 +12,7 @@ import { theme } from '../style/style'
 export default function RecordCookRecipe({ route, navigation }) {
   const [hasChanges, setHasChanges] = useState(false)
   const [showDiscardModal, setShowDiscardModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(true)
   const [pendingNavigationEvent, setPendingNavigationEvent] = useState(null)
 
   const handleDiscard = () => {
@@ -42,7 +43,6 @@ export default function RecordCookRecipe({ route, navigation }) {
 
   return (
     <>
-      <FadeInStatusBar color={theme.colors.secondary} />
       <RecordCook
         editMode={true}
         route={route}
@@ -50,6 +50,7 @@ export default function RecordCookRecipe({ route, navigation }) {
         hasChanges={hasChanges}
         setHasChanges={setHasChanges}
         onSaved={handleSaved}
+        onDelete={() => setShowDeleteModal(true)}
       />
 
       <ModalCard
@@ -70,6 +71,31 @@ export default function RecordCookRecipe({ route, navigation }) {
           <TransparentButton title='Cancel' onPress={() => setShowDiscardModal(false)} />
         </View>
       </ModalCard>
+
+      <ModalCard
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        titleComponent={
+          <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+            <Bounce delay={0}>
+              <MaterialCommunityIcons name='trash-can' size={40} color={theme.colors.primary} />
+            </Bounce>
+            <Text style={styles.modalTitle}>Delete cook?</Text>
+          </View>
+        }
+      >
+        <Text style={styles.modalText}>This action cannot be undone. Are you sure you want to delete this cook?</Text>
+        <View style={styles.modalButtons}>
+          <SecondaryButton
+            title='Delete'
+            onPress={() => {
+              setShowDeleteModal(false)
+              navigation.goBack()
+            }}
+          />
+          <TransparentButton title='Cancel' onPress={() => setShowDeleteModal(false)} />
+        </View>
+      </ModalCard>
     </>
   )
 }
@@ -85,9 +111,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
-  },
-  discardButton: {
-    backgroundColor: theme.colors.error,
   },
   modalTitle: {
     fontFamily: theme.fonts.title,
