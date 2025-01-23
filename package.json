@@ -36,7 +36,7 @@
     "expo-font": "~12.0.9",
     "expo-haptics": "^13.0.1",
     "expo-image-picker": "~15.0.7",
-    "expo-linear-gradient": "^13.0.2",
+    "expo-keep-awake": "~13.0.2",
     "expo-localization": "~15.0.3",
     "expo-notifications": "~0.28.19",
     "expo-secure-store": "~13.0.2",

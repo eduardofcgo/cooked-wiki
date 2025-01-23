@@ -171,7 +171,7 @@ function App() {
                           name='Extract'
                           component={Extract}
                           options={{
-                            title: 'New Recipe',
+                            title: 'Recipe',
                             ...screenStyle,
                             animation: 'slide_from_bottom',
                           }}

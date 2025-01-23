@@ -6,7 +6,7 @@ export const API_BASE_URL = `${BASE_URL}/api`
 export const getAppLoginUrl = () => `${BASE_URL}/app/login`
 export const getContactUrl = () => `${BASE_URL}/contact`
 export const getTeamUrl = () => `${BASE_URL}/team`
-export const getExtractUrl = url => `${BASE_URL}/extract/${url}`
+export const getExtractUrl = url => `${BASE_URL}/new?url=${url}`
 export const getSavedRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}`
 export const getCookedUrl = cookId => `${BASE_URL}/cook/${cookId}`
 export const getCommunityJournalUrl = () => `${BASE_URL}/community/journal?following=true`

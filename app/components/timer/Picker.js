@@ -1,5 +1,5 @@
 import { TimerPickerModal } from 'react-native-timer-picker'
-import { LinearGradient } from 'expo-linear-gradient'
+// import { LinearGradient } from 'expo-linear-gradient'
 import { Audio } from 'expo-av'
 import * as Haptics from 'expo-haptics'
 import { View } from 'react-native'
@@ -17,7 +17,7 @@ export default function Picker({ initialValue, visible, setVisible, onConfirm, o
         onCancel={onCancel}
         closeOnOverlayPress
         Audio={Audio}
-        LinearGradient={LinearGradient}
+        // LinearGradient={LinearGradient}
         Haptics={Haptics}
         styles={{
           backgroundColor: '#efede3',

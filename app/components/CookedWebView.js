@@ -7,11 +7,10 @@ import { useEffect, useRef, useState, useContext } from 'react'
 import AuthStore from '../auth/store'
 import { theme } from '../style/style'
 import { defaultOnRequest } from '../navigation/webview'
-import Loading from './Loading'
 import LoadingScreen from '../screens/Loading'
 import { AuthContext } from '../context/auth'
 
-export default function CookedWebView({ startUrl, navigation, route, onRequest, disableRefresh, disableBottomMargin }) {
+export default function CookedWebView({ startUrl, navigation, route, onRequest, disableRefresh, disableBottomMargin, loadingComponent }) {
   const webViewRef = useRef()
 
   const auth = useContext(AuthContext)
@@ -240,6 +239,8 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
     console.log('onLoad', e.nativeEvent.url)
   }
 
+  // return loadingComponent
+
   return (
     <SafeAreaView
       style={{
@@ -247,22 +248,22 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
       }}
     >
       {!credentials ? (
-        <LoadingScreen backgroundColor={theme.colors.background} />
+        <LoadingScreen />
       ) : (
         <>
           <WebView
             source={{
               uri: currentURI,
             }}
-            onShouldStartLoadWithRequest={request => {
-              console.log('request', request.url)
+            // onShouldStartLoadWithRequest={request => {
+            //   console.log('request', request.url)
 
-              // If we're loading the current URI, allow it to load
-              if (request.url === currentURI) return true
-              // We're loading a new URL -- change state first
-              setURI(request.url)
-              return false
-            }}
+            //   // If we're loading the current URI, allow it to load
+            //   if (request.url === currentURI) return true
+            //   // We're loading a new URL -- change state first
+            //   setURI(request.url)
+            //   return false
+            // }}
             onShouldStartLoadWithRequest={onWebViewRequest}
             nativeConfig={{
               props: {
@@ -281,24 +282,27 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
             cacheEnabled={true}
             pullToRefreshEnabled={true}
             startInLoadingState={true}
-            renderLoading={Loading}
+            renderLoading={() => {
+              return loadingComponent || <LoadingScreen />
+            }}
             ref={webViewRef}
-            //The background color when loading
+
             style={{
               backgroundColor: theme.colors.background,
               justifyContent: 'flex-start',
               flexDirection: 'column',
-              flex: 1,
-              // Optional: add bottom margin if needed
               marginBottom: 0,
+              margin: 0,
+              padding: 0,
             }}
+            
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
             injectedJavaScript={injectedJavaScript}
             onMessage={handleMessage}
             javaScriptEnabled={true}
           />
-          {isRefreshing && (
+          {false && (
             <ActivityIndicator
               style={{
                 borderRadius: 50,
