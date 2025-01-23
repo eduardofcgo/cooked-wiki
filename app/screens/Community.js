@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, memo } from 'react'
+import React, { useEffect, useCallback, useState, memo, useRef } from 'react'
 import Svg, { Path } from 'react-native-svg'
 import {
   View,
@@ -11,6 +11,7 @@ import {
   Modal,
   FlatList,
   StatusBar,
+  Animated,
 } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
@@ -20,6 +21,8 @@ import Reanimated, {
   withRepeat,
   withSequence,
   withTiming,
+  withSpring,
+  useSharedValue,
 } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import * as Notifications from 'expo-notifications'
@@ -40,6 +43,7 @@ import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 import Cooked from '../components/Cooked/Cooked'
 import { InAppNotification, showFriendCookedNotification } from '../components/notification/InAppNotification'
+import { useInterval } from '../hooks/useInterval'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
   <Cooked post={post} onUserPress={onUserPress} onRecipePress={onRecipePress} />
@@ -57,10 +61,13 @@ export default Community = observer(({ navigation, route }) => {
     communityFeed,
     isLoadingCommunityFeed,
     isLoadingCommunityFeedNextPage,
+    needsRefreshCommunityFeed,
   } = profileStore
 
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [notification, setNotification] = useState(null)
+  const refreshPromptHeight = useSharedValue(0)
+  const listRef = useRef(null)
 
   useEffect(() => {
     ;(async () => {
@@ -187,8 +194,64 @@ export default Community = observer(({ navigation, route }) => {
     return null
   }
 
+  useInterval(() => {
+    profileStore.checkNeedsRefreshCommunityFeed()
+  }, 5000)
+
+  const refreshPromptStyle = useAnimatedStyle(() => {
+    return {
+      height: refreshPromptHeight.value,
+      backgroundColor: theme.colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    }
+  })
+
+  useEffect(() => {
+    if (profileStore.needsRefreshCommunityFeed) {
+      refreshPromptHeight.value = withSpring(40, {
+        damping: 15,
+        stiffness: 120,
+      })
+    } else {
+      refreshPromptHeight.value = withSpring(0, {
+        damping: 15,
+        stiffness: 120,
+      })
+    }
+  }, [profileStore.needsRefreshCommunityFeed])
+
+  const handleRefreshPromptPress = () => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true })
+  }
+
   return (
     <View style={styles.container}>
+      <Reanimated.View style={refreshPromptStyle}>
+        <TouchableOpacity 
+          onPress={handleRefreshPromptPress}
+          style={styles.refreshPromptTouchable}
+        >
+          <Icon 
+            name="arrow-up" 
+            size={20} 
+            color={theme.colors.white}
+            style={styles.refreshPromptIcon}
+          />
+          <Text style={styles.refreshPromptText}>New cooks! Pull to refresh.</Text>
+        </TouchableOpacity>
+      </Reanimated.View>
+
       {showNotificationsCard ||
         (showFindFriendsCard && (
           <View style={styles.cardsContainer}>
@@ -269,12 +332,14 @@ export default Community = observer(({ navigation, route }) => {
         </View>
       ) : (
         <FlatList
+          ref={listRef}
           data={communityFeed}
           renderItem={renderItem}
           keyExtractor={post => post.id}
           contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
+          ListHeaderComponent={<View style={{ height: 16 }} />}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
         />
@@ -473,6 +538,27 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
     alignItems: 'center',
+    justifyContent: 'center',    
+  },
+  refreshPromptText: {
+    color: theme.colors.white,
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
+    marginLeft: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: {width: 0, height: 1},
+    textShadowRadius: 2,
+  },
+  refreshPromptIcon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: {width: 0, height: 1},
+    textShadowRadius: 2,
+  },
+  refreshPromptTouchable: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
 })

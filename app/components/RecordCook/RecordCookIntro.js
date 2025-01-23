@@ -9,7 +9,7 @@ export default function Header() {
         <Text style={[styles.title, styles.titleHighlight]}>Cook</Text>
         <Text style={styles.title}>ed something new?</Text>
       </View>
-      <Text style={styles.description}>If you are cooking without a recipe, you can still share your creation.</Text>
+      <Text style={styles.description}>Cooking without a recipe? You can still add it to your journal.</Text>
     </View>
   )
 }

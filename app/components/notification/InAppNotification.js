@@ -138,7 +138,6 @@ export const InAppNotification = ({
       ]}
       {...panResponder.panHandlers}
     >
-      <FadeInStatusBar />
       <TouchableOpacity 
         style={styles.content} 
         onPress={onPress}

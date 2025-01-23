@@ -20,10 +20,13 @@ export class ProfileStore {
   isLoadingFollowing = false
 
   communityFeed = observable.array()
+
   isLoadingCommunityFeed = undefined
   isLoadingCommunityFeedNextPage = false
   communityFeedPage = 1
   hasMoreCommunityFeed = true
+
+  needsRefreshCommunityFeed = false
 
   profileDataMap = observable.map()
 
@@ -71,7 +74,17 @@ export class ProfileStore {
       this.isLoadingCommunityFeed = false
       this.hasMoreCommunityFeed = cookeds.length > 0
       this.communityFeedPage = 1
+      this.needsRefreshCommunityFeed = false
     })
+  }
+
+  async checkNeedsRefreshCommunityFeed() {
+    const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
+    if (cookeds[0].id !== this.communityFeed[0].id) {
+      runInAction(() => {
+        this.needsRefreshCommunityFeed = true
+      })
+    }
   }
 
   async loadNextCommunityFeedPage() {
