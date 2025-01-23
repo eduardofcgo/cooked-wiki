@@ -39,6 +39,7 @@ import DrawnArrow from '../components/DrawnArrow'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 import Cooked from '../components/Cooked/Cooked'
+import { InAppNotification, showFriendCookedNotification } from '../components/notification/InAppNotification'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
   <Cooked post={post} onUserPress={onUserPress} onRecipePress={onRecipePress} />
@@ -59,6 +60,7 @@ export default Community = observer(({ navigation, route }) => {
   } = profileStore
 
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     ;(async () => {
@@ -92,6 +94,22 @@ export default Community = observer(({ navigation, route }) => {
         </TouchableOpacity>
       ),
     })
+  }, [navigation])
+
+  useEffect(() => {
+    // Show a demo notification after 2 seconds
+    const timer = setTimeout(() => {
+      setNotification(
+        showFriendCookedNotification({
+          friendName: "Sarah",
+          recipeName: "Tomato Pasta",
+          friendAvatar: "https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg",
+          onPress: () => navigation.navigate('PublicProfile', { username: 'sarah' })
+        })
+      )
+    }, 2000)
+
+    return () => clearTimeout(timer)
   }, [navigation])
 
   const handleAddFriends = async () => {
@@ -291,6 +309,12 @@ export default Community = observer(({ navigation, route }) => {
           </View>
         </View>
       </Modal>
+
+      <InAppNotification
+        visible={!!notification}
+        onClose={() => setNotification(null)}
+        {...notification}
+      />
     </View>
   )
 })
