@@ -123,7 +123,7 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
         )}
         <View style={styles.profileText}>
           <Text style={styles.username}>{username}</Text>
-          <Text style={styles.bio}>{bio || 'No bio ye.'}</Text>
+          <Text style={styles.bio}>{bio || 'No bio yet.'}</Text>
         </View>
       </View>
 
@@ -296,8 +296,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
     overflow: 'hidden',
   },
   avatarPlaceholder: {

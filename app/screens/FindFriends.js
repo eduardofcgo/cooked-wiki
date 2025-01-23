@@ -185,7 +185,7 @@ function FindFriends({ navigation }) {
               contentContainerStyle={styles.listContainer}
             />
           ) : (
-            <Text style={styles.emptySearchText}>No users found</Text>
+            <Text style={styles.emptySearchText}>No users found.</Text>
           )}
         </View>
       )}

@@ -111,6 +111,20 @@ export class ProfileStore {
     })
   }
 
+  async getFollowingUsernames(username) {
+    // Since it's not edited by the logged in user, there is no need to react to changes.
+    // So for now let's not save this in the store, and request everytime it's needed.
+    const { users } = await this.apiClient.get(`/user/${username}/following`)
+    return users.map(user => user.username)
+  }
+
+  async getFollowersUsernames(username) {
+    // Since it's not edited by the logged in user, there is no need to react to changes.
+    // So for now let's not save this in the store, and request everytime it's needed.
+    const { users } = await this.apiClient.get(`/user/${username}/followers`)
+    return users.map(user => user.username)
+  }
+
   async getCooked(username, cookedId) {
     const cooked = this.profileDataMap.get(username)?.cookeds.find(cooked => cooked.id === cookedId)
     if (cooked) return cooked
@@ -129,7 +143,6 @@ export class ProfileStore {
   }
 
   async likeCooked(cookedId) {
-    console.log('likeCooked', cookedId)
     await this.apiClient.post(`/journal/${cookedId}/stats/like`)
 
     runInAction(() => {

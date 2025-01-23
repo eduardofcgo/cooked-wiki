@@ -17,7 +17,11 @@ import { faUtensils, faCarrot, faPepperHot, faLeaf, faEgg, faStar } from '@forta
 import FadeInStatusBar from '../FadeInStatusBar'
 
 // Create a forwarded ref version of FontAwesomeIcon
-const ForwardedFontAwesomeIcon = React.forwardRef((props, ref) => <FontAwesomeIcon {...props} ref={ref} />)
+const ForwardedFontAwesomeIcon = React.forwardRef((props, ref) => (
+  <View ref={ref} style={props.style}>
+    <FontAwesomeIcon {...props} />
+  </View>
+))
 
 // Create animated component from the forwarded ref version
 const AnimatedFontAwesomeIcon = Animated.createAnimatedComponent(ForwardedFontAwesomeIcon)
@@ -56,27 +60,37 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
       scale.value = withSpring(1)
 
       // Animate border width
-      borderWidth.value = withTiming(2, {
-        duration: 1000,
-        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      })
+      borderWidth.value = withSequence(
+        withTiming(2, {
+          duration: 1000,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        }),
+        // After icons float 3 times (6000ms) + small delay, animate border to 0
+        withDelay(
+          4500,
+          withTiming(0, {
+            duration: 800,
+            easing: Easing.bezier(0.4, 0, 1, 1),
+          }),
+        ),
+      )
 
       // Modified floating icons animation
       iconPositions.forEach((pos, index) => {
         const radius = 180
         const angle = (index * 2 * Math.PI) / 5
+        const centerOffset = 0 // Half of the icon size (24/2) to center the icons
 
         pos.x.value = withSequence(
           withRepeat(
             withSequence(
-              withTiming(radius * Math.cos(angle), { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.cos(angle), { duration: 1000 }),
+              withTiming(radius * Math.cos(angle) + centerOffset, { duration: 1000 }),
+              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 }),
             ),
-            3, // Run the floating animation three times
+            3,
             true,
           ),
-          // Then move icons off screen quickly
-          withTiming(radius * 3 * Math.cos(angle), {
+          withTiming(radius * 3 * Math.cos(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
           }),
@@ -85,14 +99,13 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
         pos.y.value = withSequence(
           withRepeat(
             withSequence(
-              withTiming(radius * Math.sin(angle), { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.sin(angle), { duration: 1000 }),
+              withTiming(radius * Math.sin(angle) + centerOffset, { duration: 1000 }),
+              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 }),
             ),
-            3, // Run the floating animation three times
+            3,
             true,
           ),
-          // Then move icons off screen quickly
-          withTiming(radius * 3 * Math.sin(angle), {
+          withTiming(radius * 3 * Math.sin(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
           }),
@@ -108,8 +121,17 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
         )
       })
     } else {
+      // Reset all animation values when modal closes
       scale.value = withTiming(0)
       borderWidth.value = withTiming(20)
+      plateRotation.value = 0
+
+      // Reset icon positions with centerOffset
+      iconPositions.forEach(pos => {
+        pos.x.value = -12 // centerOffset
+        pos.y.value = -12 // centerOffset
+        pos.rotation.value = 0
+      })
     }
   }, [visible])
 
@@ -234,6 +256,8 @@ const styles = StyleSheet.create({
   },
   floatingIcon: {
     position: 'absolute',
+    left: '50%',
+    top: '50%',
   },
   patronBadge: {
     flexDirection: 'row',

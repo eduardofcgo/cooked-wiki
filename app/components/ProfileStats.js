@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { observer } from 'mobx-react-lite'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
+import { useNavigation } from '@react-navigation/native'
 
 import { useStore } from '../context/store/StoreContext'
 
 import Loading from './Loading'
+import CookingAwards from './CookingAwards'
 
 import { theme } from '../style/style'
 
@@ -22,6 +24,8 @@ function ProfileStats({ username }) {
   const { profileStore } = useStore()
   const stats = profileStore.getProfileStats(username)
   const isLoading = profileStore.isLoadingProfileStats(username)
+  const navigation = useNavigation()
+  const [showAwards, setShowAwards] = useState(false)
 
   const trophyColor = getTrophyColor(stats?.['cooked-count'] || 0)
 
@@ -34,23 +38,27 @@ function ProfileStats({ username }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.statItem}>
-        <View style={styles.numberContainer}>
-          <FontAwesomeIcon icon={faTrophy} size={16} color={trophyColor} />
-          <Text style={styles.number}>{stats['cooked-count']}</Text>
-        </View>
-        <Text style={styles.label}>Cooked</Text>
+    <>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.statItem} onPress={() => setShowAwards(true)}>
+          <View style={styles.numberContainer}>
+            <FontAwesomeIcon icon={faTrophy} size={16} color={trophyColor} />
+            <Text style={styles.number}>{stats['cooked-count']}</Text>
+          </View>
+          <Text style={styles.label}>Cooked</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.statItem} onPress={() => navigation.navigate('Followers', { username })}>
+          <Text style={styles.number}>{stats['followers-count']}</Text>
+          <Text style={styles.label}>Followers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.statItem} onPress={() => navigation.navigate('Following', { username })}>
+          <Text style={styles.number}>{stats['following-count']}</Text>
+          <Text style={styles.label}>Following</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.statItem}>
-        <Text style={styles.number}>{stats['followers-count']}</Text>
-        <Text style={styles.label}>Followers</Text>
-      </View>
-      <View style={styles.statItem}>
-        <Text style={styles.number}>{stats['following-count']}</Text>
-        <Text style={styles.label}>Following</Text>
-      </View>
-    </View>
+
+      <CookingAwards visible={showAwards} onClose={() => setShowAwards(false)} cookedCount={stats['cooked-count']} />
+    </>
   )
 }
 

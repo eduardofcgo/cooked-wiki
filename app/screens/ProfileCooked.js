@@ -78,23 +78,6 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     )
   }
 
-  if (!profileCookeds || profileCookeds.length === 0) {
-    return (
-      <View style={styles.container}>
-        <FlatList
-          data={[]}
-          renderItem={null}
-          ListEmptyComponent={
-            <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>No cooked recipes yet.</Text>
-            </View>
-          }
-          refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
-        />
-      </View>
-    )
-  }
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -106,6 +89,11 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         onEndReachedThreshold={1}
         ListHeaderComponent={<ProfileCookedHeader username={username} />}
         ListFooterComponent={ListFooter}
+        ListEmptyComponent={
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
+          </View>
+        }
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
       />
     </View>
@@ -126,12 +114,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 40,
   },
   emptyStateText: {
-    fontFamily: theme.fonts.title,
-    fontSize: theme.fontSizes.large,
-    color: theme.colors.black,
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
+    color: theme.colors.softBlack,
     textAlign: 'center',
   },
   headerText: {

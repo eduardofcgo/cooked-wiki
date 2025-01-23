@@ -66,6 +66,8 @@ import linking from './app/navigation/linking'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
 import AuthService from './app/auth/service'
 import FindFriends from './app/screens/FindFriends'
+import Following from './app/screens/Following'
+import Followers from './app/screens/Followers'
 import { StoreContext } from './app/context/store/StoreContext'
 import OnboardingScreen from './app/screens/Onboarding'
 import RecipeSearch from './app/screens/RecipeSearch'
@@ -250,6 +252,26 @@ function App() {
                           component={FindFriends}
                           options={{
                             title: 'Find friends',
+                            headerBackTitle: 'Back',
+                            animation: 'slide_from_right',
+                          }}
+                        />
+
+                        <StackNavigator.Screen
+                          name='Following'
+                          component={Following}
+                          options={{
+                            title: 'Following',
+                            headerBackTitle: 'Back',
+                            animation: 'slide_from_right',
+                          }}
+                        />
+
+                        <StackNavigator.Screen
+                          name='Followers'
+                          component={Followers}
+                          options={{
+                            title: 'Followers',
                             headerBackTitle: 'Back',
                             animation: 'slide_from_right',
                           }}
