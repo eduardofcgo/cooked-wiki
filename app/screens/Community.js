@@ -106,14 +106,14 @@ export default Community = observer(({ navigation, route }) => {
   useEffect(() => {
     // Show a demo notification after 2 seconds
     const timer = setTimeout(() => {
-      setNotification(
-        showFriendCookedNotification({
-          friendName: "Sarah",
-          recipeName: "Tomato Pasta",
-          friendAvatar: "https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg",
-          onPress: () => navigation.navigate('PublicProfile', { username: 'sarah' })
-        })
-      )
+      // setNotification(
+      //   showFriendCookedNotification({
+      //     friendName: "Sarah",
+      //     recipeName: "Tomato Pasta",
+      //     friendAvatar: "https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg",
+      //     onPress: () => navigation.navigate('PublicProfile', { username: 'sarah' })
+      //   })
+      // )
     }, 2000)
 
     return () => clearTimeout(timer)
