@@ -283,6 +283,10 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
             </View>
           </Step>
 
+          {photos.length === 0 && (
+            <Text style={styles.description}>Cooking without a recipe? No problem, you can still add it to your journal.</Text>
+          )}
+
           {!editMode && (
             <Step number='2' text='What did you make?' isActive={stepTwoActive} isFilled={stepThreeActive}>
               <View style={styles.buttonContainer}>
@@ -441,6 +445,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.default,
     color: theme.colors.softBlack,
     textAlign: 'center',
+    marginTop: 32,
   },
   descriptionBelow: {
     paddingBottom: 100,

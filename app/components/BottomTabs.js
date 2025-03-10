@@ -2,6 +2,8 @@ import { Text } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faSearch, faBook, faCamera, faUser } from '@fortawesome/free-solid-svg-icons'
+import { TouchableOpacity } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 
 import { theme, screenStyle } from '../style/style'
 
@@ -17,6 +19,8 @@ const TabIcon = ({ icon, focused }) => (
 )
 
 function BottomTabs({ route }) {
+  const navigation = useNavigation()
+
   return (
     <TabNavigator.Navigator initialRouteName='Explore' screenOptions={tabScreenStyle}>
       <TabNavigator.Screen
@@ -41,20 +45,28 @@ function BottomTabs({ route }) {
 
       <TabNavigator.Screen
         name='RecordCook'
-        component={RecordCookScreen}
+        component={EmptyComponent}
         options={{
-          title: 'Add to journal',
-          headerShown: false,
-          tabBarIcon: ({ focused }) => <TabIcon icon={faCamera} focused={focused} />,
-          tabBarLabel: ({ focused }) => (
-            <Text
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={() => navigation.navigate('RecordCook')}
               style={{
-                ...tabScreenStyle.tabBarLabelStyle,
-                color: focused ? 'black' : theme.colors.softBlack,
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
-              Add to journal
-            </Text>
+              <TabIcon icon={faCamera} focused={false} />
+              <Text
+                style={{
+                  ...tabScreenStyle.tabBarLabelStyle,
+                  color: theme.colors.softBlack,
+                }}
+              >
+                Add to journal
+              </Text>
+            </TouchableOpacity>
           ),
         }}
       />
@@ -81,6 +93,9 @@ function BottomTabs({ route }) {
     </TabNavigator.Navigator>
   )
 }
+
+// Empty component for the RecordCook tab
+const EmptyComponent = () => null;
 
 const tabScreenStyle = {
   tabBarHideOnKeyboard: true,

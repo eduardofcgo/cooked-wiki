@@ -61,6 +61,7 @@ import Register from './app/screens/Register'
 import Extract from './app/screens/Extract'
 import Recipe from './app/screens/Recipe'
 import Cooked from './app/screens/Cooked'
+import RecordCook from './app/screens/RecordCook'
 import Timer from './app/components/timer/Timer'
 import linking from './app/navigation/linking'
 import FullScreenImage from './app/screens/justcooked/FullScreenImage'
@@ -214,6 +215,15 @@ function App() {
                           name='Cooked'
                           component={Cooked}
                           options={{ title: 'Cooked', ...screenStyle }}
+                        />
+                        
+                        <StackNavigator.Screen
+                          name='RecordCook'
+                          component={RecordCook}
+                          options={{
+                            title: 'Add to journal',
+                            animation: 'slide_from_bottom',
+                          }}
                         />
 
                         <StackNavigator.Screen

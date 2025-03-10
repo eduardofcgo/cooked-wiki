@@ -80,7 +80,7 @@ export class ProfileStore {
 
   async checkNeedsRefreshCommunityFeed() {
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
-    if (cookeds[0].id !== this.communityFeed[0].id) {
+    if (cookeds[0]?.id !== this.communityFeed[0]?.id) {
       runInAction(() => {
         this.needsRefreshCommunityFeed = true
       })
