@@ -17,7 +17,6 @@ class ProfileData {
 
 export class ProfileStore {
   followingUsernames = observable.set()
-  isLoadingFollowing = false
 
   communityFeed = observable.array()
 
@@ -34,6 +33,7 @@ export class ProfileStore {
 
   constructor(apiClient) {
     this.apiClient = apiClient
+
     makeAutoObservable(this)
   }
 
@@ -54,18 +54,18 @@ export class ProfileStore {
   }
 
   async loadFollowing() {
-    this.isLoadingFollowing = true
-
     const { users } = await this.apiClient.get('/following')
+
     runInAction(() => {
       const usernames = users.map(user => user.username)
       this.followingUsernames.replace(usernames)
-      this.isLoadingFollowing = false
     })
   }
 
   async loadCommunityFeed() {
-    this.isLoadingCommunityFeed = true
+    runInAction(() => {
+      this.isLoadingCommunityFeed = true
+    })
 
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
 

@@ -58,7 +58,6 @@ export default Community = observer(({ navigation, route }) => {
 
   const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
   const {
-    isLoadingFollowing,
     followingUsernames,
     communityFeed,
     isLoadingCommunityFeed,
@@ -74,7 +73,7 @@ export default Community = observer(({ navigation, route }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        await Promise.all([profileStore.loadFollowing(), profileStore.loadCommunityFeed()])
+        profileStore.loadCommunityFeed()
       } catch (e) {
         console.error(e)
       }
@@ -309,13 +308,13 @@ export default Community = observer(({ navigation, route }) => {
           </View>
         ))}
 
-      {isLoadingFollowing || (isLoadingCommunityFeed && communityFeed.length === 0) ? (
+      {isLoadingCommunityFeed ? (
         <View style={styles.emptyStateContainer}>
           <Loading />
         </View>
-      ) : followingUsernames.size === 0 ? (
+      ) : communityFeed.length === 0 ? (
         <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>Not following anyone.</Text>
+          <Text style={styles.emptyStateText}>No recent activity.</Text>
           <Text style={styles.emptySearchText}>Follow your friends to see what they're cooking.</Text>
         </View>
       ) : (

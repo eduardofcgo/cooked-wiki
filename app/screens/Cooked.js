@@ -17,10 +17,9 @@ const FollowButton = observer(({ username }) => {
   const { username: loggedInUsername } = credentials
 
   const { profileStore } = useStore()
-  const { isLoadingFollowing } = profileStore
   const isFollowing = profileStore.isFollowing(username)
 
-  if (isLoadingFollowing || loggedInUsername === username) {
+  if (loggedInUsername === username) {
     return null
   }
 

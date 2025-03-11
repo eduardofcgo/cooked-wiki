@@ -23,7 +23,7 @@ const ProfileCookedHeader = observer(({ username }) => {
 
 const ProfileCooked = observer(({ navigation, route, username }) => {
   const { credentials } = useContext(AuthContext)
-  const loggedInUsername = credentials?.username
+  const loggedInUsername = credentials.username
 
   const { profileStore } = useStore()
   const profileCookeds = profileStore.getProfileCookeds(username)
@@ -70,16 +70,23 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     return null
   }
 
-  if (isLoadingProfileCookeds && (!profileCookeds || profileCookeds.length === 0)) {
+  if (isLoadingProfileCookeds) {
     return (
-      <View style={styles.loadingContainer}>
-        <Loading />
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Loading />
+        </View>
       </View>
     )
   }
 
   return (
     <View style={styles.container}>
+      {/* {profileCookeds?.length === 0 ? (
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
+        </View>
+      ) : ( */}
       <FlatList
         data={profileCookeds}
         renderItem={renderItem}
@@ -89,13 +96,9 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         onEndReachedThreshold={1}
         ListHeaderComponent={<ProfileCookedHeader username={username} />}
         ListFooterComponent={ListFooter}
-        ListEmptyComponent={
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
-          </View>
-        }
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
       />
+      {/* )} */}
     </View>
   )
 })

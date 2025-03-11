@@ -200,7 +200,6 @@ const FollowButton = observer(({ username }) => {
   const { showNotification } = useNotification()
   const [isLoading, setIsLoading] = useState(false)
 
-  const { isLoadingFollowing } = profileStore
   const isFollowing = profileStore.isFollowing(username)
 
   const handleFollowPress = useCallback(async () => {
@@ -260,7 +259,9 @@ export const PublicProfile = observer(({ route, navigation }) => {
   const showingOwnProfileAsPublic = credentials.username === username
 
   useEffect(() => {
-    profileStore.loadFollowing()
+    ;(async () => {
+      await profileStore.loadFollowing()
+    })()
   }, [navigation])
 
   useLayoutEffect(() => {
