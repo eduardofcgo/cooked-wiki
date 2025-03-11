@@ -8,8 +8,6 @@ import { useNavigation } from '@react-navigation/native'
 import { theme, screenStyle } from '../style/style'
 
 import Community from '../screens/Community'
-import JustCooked from '../screens/justcooked/JustCooked'
-import RecordCookScreen from '../screens/RecordCook'
 import { LoggedInProfile } from '../screens/Profile'
 
 const TabNavigator = createBottomTabNavigator()
@@ -47,12 +45,24 @@ function BottomTabs({ route }) {
         name='RecordCook'
         component={EmptyComponent}
         options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon={faCamera} focused={focused} />,
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                ...tabScreenStyle.tabBarLabelStyle,
+                color: focused ? 'black' : theme.colors.softBlack,
+              }}
+            >
+              Add to journal
+            </Text>
+          ),
           tabBarButton: props => (
             <TouchableOpacity
               {...props}
               onPress={() => navigation.navigate('RecordCook')}
               style={{
                 flex: 1,
+                gap: 8,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -106,20 +116,18 @@ const tabScreenStyle = {
     fontFamily: theme.fonts.ui,
   },
   tabBarStyle: {
-    height: 60,
-    borderTopLeftRadius: theme.borderRadius.default,
-    borderTopRightRadius: theme.borderRadius.default,
+    height: 64,
+    borderRadius: theme.borderRadius.default,
     overflow: 'hidden',
     borderWidth: 0,
     borderTopWidth: 0,
     borderColor: theme.colors.primary,
-    borderBottomWidth: 3,
-    borderBottomColor: theme.colors.primary,
     backgroundColor: theme.colors.background,
     position: 'absolute',
+    marginHorizontal: 16,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: 16,
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },

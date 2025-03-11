@@ -55,7 +55,7 @@ export default observer(({ navigation, route }) => {
   }, [navigation])
 
   const onRecipePress = () => {
-    navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post.recipeId) })
+    navigation.navigate('Recipe', { recipeId: post.recipeId })
   }
 
   const onUserPress = () => {

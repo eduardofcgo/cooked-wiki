@@ -4,9 +4,7 @@ import { BackHandler, Platform, ScrollView, Dimensions, RefreshControl } from 'r
 import { HeaderBackButton } from '@react-navigation/elements'
 
 import { useEffect, useRef, useState, useContext } from 'react'
-import AuthStore from '../auth/store'
 import { theme } from '../style/style'
-import { defaultOnRequest } from '../navigation/webview'
 import LoadingScreen from '../screens/Loading'
 import { AuthContext } from '../context/auth'
 
@@ -15,6 +13,7 @@ export default function CookedWebView({
   navigation,
   route,
   onRequest,
+  onRequestPath,
   disableRefresh,
   disableBottomMargin,
   loadingComponent,
@@ -31,10 +30,6 @@ export default function CookedWebView({
   const [isRefreshing, setRefreshing] = useState(false)
 
   const [canGoBack, setCanGoBack] = useState(false)
-
-  // const onMessage = payload => {
-  //   //console.log(payload)
-  // }
 
   const scrollToTop = () => {
     // webViewRef.current.injectJavaScript(`
@@ -106,14 +101,21 @@ export default function CookedWebView({
   }, [route.params])
 
   const onWebViewRequest = request => {
+    const { url } = request
+
     // Always load normally the WebView at the beggining,
     // only further requests will be checked - when the user navigates
-    if (request.url === startUrl) return true
+    if (url === startUrl) return true
 
-    // Default navigation
-    const shouldHandleRequestDefault = defaultOnRequest(navigation, request)
+    if (onRequestPath) {
+      const pathname = new URL(url).pathname
+      matchedRequest = onRequestPath(pathname)
 
-    return shouldHandleRequestDefault
+      return false
+    }
+
+    // only proceed to load the next page if the request was not matched
+    return true
   }
 
   const handleMessage = event => {
@@ -244,10 +246,8 @@ export default function CookedWebView({
     });`
 
   const onLoad = e => {
-    console.log('onLoad', e.nativeEvent.url)
+    // console.log('onLoad', e.nativeEvent.url)
   }
-
-  // return loadingComponent
 
   return (
     <SafeAreaView
@@ -263,15 +263,6 @@ export default function CookedWebView({
             source={{
               uri: currentURI,
             }}
-            // onShouldStartLoadWithRequest={request => {
-            //   console.log('request', request.url)
-
-            //   // If we're loading the current URI, allow it to load
-            //   if (request.url === currentURI) return true
-            //   // We're loading a new URL -- change state first
-            //   setURI(request.url)
-            //   return false
-            // }}
             onShouldStartLoadWithRequest={onWebViewRequest}
             nativeConfig={{
               props: {

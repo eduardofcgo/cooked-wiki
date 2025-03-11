@@ -48,7 +48,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         navigation.navigate('PublicProfile', { username: post.username })
       }}
       onRecipePress={() => {
-        navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })
+        navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
       }}
     />
   )

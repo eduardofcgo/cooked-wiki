@@ -169,7 +169,7 @@ export default Community = observer(({ navigation, route }) => {
       <CookedItem
         post={post}
         onUserPress={() => navigation.navigate('PublicProfile', { username: post.username })}
-        onRecipePress={() => navigation.navigate('Recipe', { recipeUrl: getSavedRecipeUrl(post['recipe-id']) })}
+        onRecipePress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
       />
     ),
     [navigation],
@@ -377,7 +377,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    paddingBottom: 40,
   },
   cardsContainer: {
     gap: 16,

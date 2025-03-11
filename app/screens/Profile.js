@@ -16,7 +16,10 @@ import { useStore } from '../context/store/StoreContext'
 import { useNotification } from '../context/NotificationContext'
 import { theme, titleStyle } from '../style/style'
 
+import { useAuth } from '../context/auth'
 import ProfileCooked from './ProfileCooked'
+import Recipes from './WebViews/Recipes'
+import Shopping from './WebViews/Shopping'
 import CookedWebView from '../components/CookedWebView'
 import { AuthContext } from '../context/auth'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
@@ -177,7 +180,7 @@ const Profile = observer(({ route, navigation, username, menu }) => {
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBox} label='Recipes' focused={focused} />,
           }}
         >
-          {() => <CookedWebView startUrl={getProfileUrl(username)} navigation={navigation} route={route} />}
+          {() => <Recipes username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Shopping'
@@ -185,7 +188,7 @@ const Profile = observer(({ route, navigation, username, menu }) => {
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faCartShopping} label='Shopping' focused={focused} />,
           }}
         >
-          {() => <CookedWebView startUrl={getShoppingListUrl(username)} navigation={navigation} route={route} />}
+          {() => <Shopping username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
       </Tab.Navigator>
     </>
@@ -249,17 +252,24 @@ const FollowButton = observer(({ username }) => {
 
 export const PublicProfile = observer(({ route, navigation }) => {
   const { profileStore } = useStore()
+  const { credentials } = useAuth()
+
   const username = route.params.username
+
+  // User can navigate to his own profile from other screens
+  const showingOwnProfileAsPublic = credentials.username === username
 
   useEffect(() => {
     profileStore.loadFollowing()
   }, [navigation])
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => <FollowButton username={username} />,
-    })
-  }, [navigation])
+    if (!showingOwnProfileAsPublic) {
+      navigation.setOptions({
+        headerRight: () => <FollowButton username={username} />,
+      })
+    }
+  }, [navigation, showingOwnProfileAsPublic])
 
   return (
     <View style={{ ...styles.container, paddingTop: 0 }}>
@@ -276,7 +286,7 @@ export function LoggedInProfile({ route, navigation }) {
   }
 
   return (
-    <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight, paddingBottom: 40 }}>
+    <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight }}>
       <Profile
         route={route}
         navigation={navigation}

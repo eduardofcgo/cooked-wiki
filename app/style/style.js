@@ -39,4 +39,8 @@ export const screenStyle = {
   headerStyle: {
     backgroundColor: theme.colors.secondary,
   },
+  contentStyle: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
 }
