@@ -133,7 +133,7 @@ export default function CookedWebView({
         refreshWebView()
       }
     } catch (error) {
-      console.error('Error parsing message:', error)
+      console.warn('Error parsing message:', error)
     }
   }
 

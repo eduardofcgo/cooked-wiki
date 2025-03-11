@@ -77,7 +77,7 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
               useNativeDriver: true,
             }),
           ]).start(() => {
-            setVisibleState(false)
+            setIsVisible(false)
             // Reset opacity for next appearance
             opacity.setValue(0)
             if (onClose) onClose()
