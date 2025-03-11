@@ -63,9 +63,7 @@ const SuccessModal = ({ visible, onClose, onView, onShare }) => {
       }
     >
       <View style={styles.content}>
-        <Text style={styles.message}>
-          You can share your cook with your friends that are not on Cooked.wiki yet.
-        </Text>
+        <Text style={styles.message}>You can share your cook with your friends that are not on Cooked.wiki yet.</Text>
         <View style={styles.buttonGroup}>
           <SecondaryButton
             title='Share'

@@ -10,7 +10,15 @@ import { defaultOnRequest } from '../navigation/webview'
 import LoadingScreen from '../screens/Loading'
 import { AuthContext } from '../context/auth'
 
-export default function CookedWebView({ startUrl, navigation, route, onRequest, disableRefresh, disableBottomMargin, loadingComponent }) {
+export default function CookedWebView({
+  startUrl,
+  navigation,
+  route,
+  onRequest,
+  disableRefresh,
+  disableBottomMargin,
+  loadingComponent,
+}) {
   const webViewRef = useRef()
 
   const auth = useContext(AuthContext)
@@ -286,7 +294,6 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
               return loadingComponent || <LoadingScreen />
             }}
             ref={webViewRef}
-
             style={{
               backgroundColor: theme.colors.background,
               justifyContent: 'flex-start',
@@ -295,7 +302,6 @@ export default function CookedWebView({ startUrl, navigation, route, onRequest, 
               margin: 0,
               padding: 0,
             }}
-            
             onLoad={onLoad}
             // onLoadEnd={onLoadEnd}
             injectedJavaScript={injectedJavaScript}

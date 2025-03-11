@@ -1,112 +1,109 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
-import CookedWebView from '../components/CookedWebView';
-import { IconButton, shadow } from 'react-native-paper';
-import { theme } from '../style/style';
-import Share from 'react-native/Libraries/Share/Share';
-import Animated, { 
-  useAnimatedStyle, 
-  withTiming,
-  useSharedValue,
-  interpolate
-} from 'react-native-reanimated';
-import { useKeepAwake } from 'expo-keep-awake';
+import React, { useState, useRef, useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native'
+import CookedWebView from '../components/CookedWebView'
+import { IconButton, shadow } from 'react-native-paper'
+import { theme } from '../style/style'
+import Share from 'react-native/Libraries/Share/Share'
+import Animated, { useAnimatedStyle, withTiming, useSharedValue, interpolate } from 'react-native-reanimated'
+import { useKeepAwake } from 'expo-keep-awake'
 
 const RECENT_RECIPES = [
   {
     id: 1,
     title: 'Spaghetti Carbonara',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/carbonara'
+    url: 'https://example.com/carbonara',
   },
   {
     id: 2,
     title: 'Chicken Tikka Masala',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/tikka'
+    url: 'https://example.com/tikka',
   },
   {
     id: 3,
     title: 'Classic Burger',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/burger'
+    url: 'https://example.com/burger',
   },
   {
     id: 4,
     title: 'Caesar Salad',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/caesar'
+    url: 'https://example.com/caesar',
   },
   {
     id: 5,
     title: 'Greek Salad',
-    thumbnail: 'https://picsum.photos/200/200', 
-    url: 'https://example.com/greek'
+    thumbnail: 'https://picsum.photos/200/200',
+    url: 'https://example.com/greek',
   },
   {
     id: 6,
     title: 'Pad Thai',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/padthai'
+    url: 'https://example.com/padthai',
   },
   {
     id: 7,
     title: 'Fish Tacos',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/fishtacos'
+    url: 'https://example.com/fishtacos',
   },
   {
     id: 8,
     title: 'Mushroom Risotto',
     thumbnail: 'https://picsum.photos/200/200',
-    url: 'https://example.com/risotto'
-  }
-];
+    url: 'https://example.com/risotto',
+  },
+]
 
 export default function Recipe({ startUrl, loadingComponent, navigation, route }) {
-  const recipeUrl = route.params?.recipeUrl || startUrl;
-  
-  const [isExpanded, setIsExpanded] = useState(false);
-  const scrollViewRef = useRef(null);
-  const headerHeight = useSharedValue(0);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  
-  useKeepAwake();
+  const recipeUrl = route.params?.recipeUrl || startUrl
+
+  const [isExpanded, setIsExpanded] = useState(false)
+  const scrollViewRef = useRef(null)
+  const headerHeight = useSharedValue(0)
+  const [scrollPosition, setScrollPosition] = useState(0)
+
+  useKeepAwake()
 
   const toggleHeader = () => {
-    setIsExpanded(!isExpanded);
+    setIsExpanded(!isExpanded)
     headerHeight.value = withTiming(isExpanded ? 0 : 170, {
-      duration: 300
-    });
-  };
+      duration: 300,
+    })
+  }
 
-  const openRecipe = (url) => {
-    navigation.setParams({ recipeUrl: url });
-    setIsExpanded(false);
+  const openRecipe = url => {
+    navigation.setParams({ recipeUrl: url })
+    setIsExpanded(false)
     headerHeight.value = withTiming(0, {
-      duration: 250
-    });
-  };
+      duration: 250,
+    })
+  }
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
       height: headerHeight.value,
-    };
-  });
+    }
+  })
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ 
-            fontSize: theme.fontSizes.large, 
-            fontFamily: theme.fonts.title,
-            color: theme.colors.black,
-          }}>
+          <Text
+            style={{
+              fontSize: theme.fontSizes.large,
+              fontFamily: theme.fonts.title,
+              color: theme.colors.black,
+            }}
+          >
             Recipe
           </Text>
           <IconButton
-            icon="history"
+            icon='history'
             size={20}
             onPress={toggleHeader}
             color={theme.colors.softBlack}
@@ -117,7 +114,7 @@ export default function Recipe({ startUrl, loadingComponent, navigation, route }
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <IconButton
-            icon="share"
+            icon='share'
             size={20}
             color={theme.colors.softBlack}
             style={{ marginRight: -8 }}
@@ -125,31 +122,23 @@ export default function Recipe({ startUrl, loadingComponent, navigation, route }
               Share.share({
                 message: recipeUrl,
                 url: recipeUrl,
-              });
+              })
             }}
           />
         </View>
       ),
-    });
-  }, [navigation, toggleHeader, isExpanded]);
+    })
+  }, [navigation, toggleHeader, isExpanded])
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.recentContainer, animatedStyles]}>
         <View style={styles.scrollContainer}>
-          <ScrollView
-            ref={scrollViewRef}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-          >
+          <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} scrollEventThrottle={16}>
             {RECENT_RECIPES.map((recipe, index) => (
               <TouchableOpacity
                 key={recipe.id}
-                style={[
-                  styles.recipeCard,
-                  index === 0 && { marginLeft: 16 }
-                ]}
+                style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
                 onPress={() => openRecipe(recipe.url)}
               >
                 <Image source={{ uri: recipe.thumbnail }} style={styles.thumbnail} />
@@ -161,16 +150,16 @@ export default function Recipe({ startUrl, loadingComponent, navigation, route }
           </ScrollView>
         </View>
       </Animated.View>
-      
-      <CookedWebView 
-        startUrl={recipeUrl} 
-        navigation={navigation} 
-        route={route} 
-        disableRefresh={true} 
+
+      <CookedWebView
+        startUrl={recipeUrl}
+        navigation={navigation}
+        route={route}
+        disableRefresh={true}
         loadingComponent={loadingComponent}
       />
     </View>
-  );
+  )
 }
 const styles = StyleSheet.create({
   container: {
@@ -209,5 +198,4 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.title,
     color: theme.colors.black,
   },
-});
-
+})

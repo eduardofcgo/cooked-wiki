@@ -6,9 +6,11 @@ import ModalCard from '../ModalCard'
 
 export default function EditBio({ visible, onClose, onSave, initialBio, initialSocials }) {
   const [bio, setBio] = useState(initialBio || '')
-  const [socials, setSocials] = useState(initialSocials || {
-    instagram: ''
-  })
+  const [socials, setSocials] = useState(
+    initialSocials || {
+      instagram: '',
+    },
+  )
 
   const handleSave = () => {
     onSave(bio, socials)
@@ -42,17 +44,17 @@ export default function EditBio({ visible, onClose, onSave, initialBio, initialS
         keyboardType='default'
         maxLength={150}
       />
-      
+
       <View style={styles.socialsContainer}>
         <Text style={styles.socialsTitle}>Your socials</Text>
-        
+
         <View style={styles.socialInputContainer}>
           <TextInput
             cursorColor={theme.colors.primary}
             style={styles.socialInput}
             placeholder='@instagram_handle'
             value={socials.instagram}
-            onChangeText={(text) => setSocials(prev => ({ ...prev, instagram: text }))}
+            onChangeText={text => setSocials(prev => ({ ...prev, instagram: text }))}
             autoCapitalize='none'
           />
         </View>

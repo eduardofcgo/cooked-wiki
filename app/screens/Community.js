@@ -33,6 +33,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { getSavedRecipeUrl } from '../urls'
 
 import { useStore } from '../context/store/StoreContext'
+import { useNotification } from '../context/NotificationContext'
 import { requestPushNotificationsPermission } from '../notifications/push'
 import { theme } from '../style/style'
 import { Button, PrimaryButton } from '../components/Button'
@@ -42,7 +43,6 @@ import DrawnArrow from '../components/DrawnArrow'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
 import Cooked from '../components/Cooked/Cooked'
-import { InAppNotification, showFriendCookedNotification } from '../components/notification/InAppNotification'
 import { useInterval } from '../hooks/useInterval'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
@@ -53,6 +53,8 @@ export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore } = useStore()
   const notificationPermissionStatus = userStore.notificationPermissionStatus
   const contactsPermissionStatus = userStore.contactsPermissionStatus
+
+  const { showNotification } = useNotification()
 
   const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
   const {
@@ -103,24 +105,20 @@ export default Community = observer(({ navigation, route }) => {
     })
   }, [navigation])
 
-  useEffect(() => {
-    // Show a demo notification after 2 seconds
-    const timer = setTimeout(() => {
-      // setNotification(
-      //   showFriendCookedNotification({
-      //     friendName: "Sarah",
-      //     recipeName: "Tomato Pasta",
-      //     friendAvatar: "https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg",
-      //     onPress: () => navigation.navigate('PublicProfile', { username: 'sarah' })
-      //   })
-      // )
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [navigation])
-
   const handleAddFriends = async () => {
     navigation.navigate('FindFriends')
+    // showNotification(
+    //   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    //     <Icon name="account-search" size={18} color={theme.colors.primary} style={{ marginRight: 8 }} />
+    //     <Text style={{
+    //       fontFamily: theme.fonts.medium,
+    //       fontSize: theme.fontSizes.default,
+    //       color: theme.colors.black
+    //     }}>
+    //       Find friends
+    //     </Text>
+    //   </View>
+    // )
   }
 
   const handleEnableNotifications = async () => {
@@ -229,21 +227,15 @@ export default Community = observer(({ navigation, route }) => {
 
   const handleRefreshPromptPress = () => {
     listRef.current?.scrollToOffset({ offset: 0, animated: true })
+
+    profileStore.loadCommunityFeed()
   }
 
   return (
     <View style={styles.container}>
       <Reanimated.View style={refreshPromptStyle}>
-        <TouchableOpacity 
-          onPress={handleRefreshPromptPress}
-          style={styles.refreshPromptTouchable}
-        >
-          <Icon 
-            name="arrow-up" 
-            size={20} 
-            color={theme.colors.white}
-            style={styles.refreshPromptIcon}
-          />
+        <TouchableOpacity onPress={handleRefreshPromptPress} style={styles.refreshPromptTouchable}>
+          <Icon name='arrow-up' size={20} color={theme.colors.white} style={styles.refreshPromptIcon} />
           <Text style={styles.refreshPromptText}>New cooks! Pull to refresh.</Text>
         </TouchableOpacity>
       </Reanimated.View>
@@ -371,11 +363,12 @@ export default Community = observer(({ navigation, route }) => {
         </View>
       </Modal>
 
-      <InAppNotification
-        visible={!!notification}
-        onClose={() => setNotification(null)}
-        {...notification}
-      />
+      {/* <InAppNotification 
+        duration={1000}
+        onPress={() => {
+          navigation.navigate('PublicProfile', { username: 'eduardo' })
+        }}
+      /> */}
     </View>
   )
 })
@@ -534,7 +527,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
     alignItems: 'center',
-    justifyContent: 'center',    
+    justifyContent: 'center',
   },
   refreshPromptText: {
     color: theme.colors.white,
@@ -542,12 +535,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.default,
     marginLeft: 8,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: {width: 0, height: 1},
+    textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   refreshPromptIcon: {
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: {width: 0, height: 1},
+    textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   refreshPromptTouchable: {

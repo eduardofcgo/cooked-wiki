@@ -22,7 +22,10 @@ const UserItem = observer(({ username, isOwnProfile, navigation }) => {
         </View>
       </View>
 
-      {isOwnProfile ? (
+      {/* For now lets do not allow to unfollow from the following screen */}
+      <View></View>
+
+      {/* {isOwnProfile ? (
         <SecondaryButton
           title='Following'
           style={styles.toggleFollowButton}
@@ -30,7 +33,7 @@ const UserItem = observer(({ username, isOwnProfile, navigation }) => {
         />
       ) : (
         <View></View>
-      )}
+      )} */}
     </TouchableOpacity>
   )
 })

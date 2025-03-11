@@ -284,7 +284,9 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
           </Step>
 
           {photos.length === 0 && (
-            <Text style={styles.description}>Cooking without a recipe? No problem, you can still add it to your journal.</Text>
+            <Text style={styles.description}>
+              Cooking without a recipe? No problem, you can still add it to your journal.
+            </Text>
           )}
 
           {!editMode && (

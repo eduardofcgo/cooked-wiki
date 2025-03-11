@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, memo, useEffect } from 'react'
+import React, { useState, useRef, useCallback, memo, useEffect, useMemo } from 'react'
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
@@ -88,99 +88,107 @@ const ImageSection = memo(({ photos, onSingleTap, onDoubleTap, doubleTapRef, hea
   </View>
 ))
 
-const CookedView = observer(({ post, canEdit, hideAuthor, onEdit, onRecipePress, onUserPress, onLike, stats }) => {
-  const heartScale = useSharedValue(0)
-  const heartOpacity = useSharedValue(0)
+const CookedView = observer(
+  ({ post, canEdit, hideAuthor, hasRecipe, onEdit, onRecipePress, onUserPress, onLike, stats }) => {
+    const heartScale = useSharedValue(0)
+    const heartOpacity = useSharedValue(0)
 
-  const animatedHeartStyle = useAnimatedStyle(
-    () => ({
-      transform: [{ scale: heartScale.value }],
-      opacity: heartOpacity.value,
-    }),
-    [],
-  )
+    const animatedHeartStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ scale: heartScale.value }],
+        opacity: heartOpacity.value,
+      }),
+      [],
+    )
 
-  const doubleTapRef = useRef(null)
+    const doubleTapRef = useRef(null)
 
-  const onSingleTap = useCallback(
-    ({ nativeEvent }) => {
-      if (nativeEvent.state === State.ACTIVE) {
-        onRecipePress()
+    const onSingleTap = useCallback(
+      ({ nativeEvent }) => {
+        if (nativeEvent.state === State.ACTIVE) {
+          onRecipePress()
+        }
+      },
+      [onRecipePress],
+    )
+
+    const onDoubleTap = useCallback(
+      ({ nativeEvent }) => {
+        if (nativeEvent.state === State.ACTIVE && !post.isLiked) {
+          onLike()
+          heartScale.value = 0
+          heartOpacity.value = 1
+          heartScale.value = withSpring(1, { damping: 15 })
+          heartOpacity.value = withTiming(0, { duration: 1000 })
+        }
+      },
+      [stats?.liked, onLike, heartScale, heartOpacity],
+    )
+
+    const handleUserPress = useCallback(() => {
+      if (hasRecipe) {
+        onUserPress()
       }
-    },
-    [onRecipePress],
-  )
+    }, [hasRecipe, onUserPress])
 
-  const onDoubleTap = useCallback(
-    ({ nativeEvent }) => {
-      if (nativeEvent.state === State.ACTIVE && !post.isLiked) {
-        onLike()
-        heartScale.value = 0
-        heartOpacity.value = 1
-        heartScale.value = withSpring(1, { damping: 15 })
-        heartOpacity.value = withTiming(0, { duration: 1000 })
-      }
-    },
-    [stats?.liked, onLike, heartScale, heartOpacity],
-  )
+    return (
+      <View style={styles.container}>
+        <WeeksAgo weeks={post['weeks-ago']} />
 
-  return (
-    <View style={styles.container}>
-      <WeeksAgo weeks={post['weeks-ago']} />
+        <View style={styles.cookedCard}>
+          <View style={styles.authorContainer}>
+            {(!hideAuthor || !hasRecipe) && (
+              <>
+                <AuthorSection username={post.username} onUserPress={handleUserPress} />
+                {hasRecipe && <Text style={styles.separator}>•</Text>}
+              </>
+            )}
+            <TouchableOpacity style={[styles.recipeNameContainer]} onPress={onRecipePress}>
+              <Text style={[styles.cookedHeaderText, styles.recipeNameText]} numberOfLines={2}>
+                {post['recipe-title']}
+              </Text>
+              {hasRecipe && <FontAwesomeIcon icon={faChevronRight} size={14} color={theme.colors.primary} />}
+            </TouchableOpacity>
+          </View>
 
-      <View style={styles.cookedCard}>
-        <View style={styles.authorContainer}>
-          {!hideAuthor && (
-            <>
-              <AuthorSection username={post.username} onUserPress={onUserPress} />
-              <Text style={styles.separator}>•</Text>
-            </>
-          )}
-          <TouchableOpacity style={[styles.recipeNameContainer]} onPress={onRecipePress}>
-            <Text style={[styles.cookedHeaderText, styles.recipeNameText]} numberOfLines={2}>
-              {post['recipe-title']}
-            </Text>
-            <FontAwesomeIcon icon={faChevronRight} size={14} color={theme.colors.primary} />
-          </TouchableOpacity>
-        </View>
+          <View style={styles.scrollContent}>
+            {post['cooked-photos-path']?.length > 0 ? (
+              <ImageSection
+                photos={post['cooked-photos-path']}
+                onSingleTap={onSingleTap}
+                onDoubleTap={onDoubleTap}
+                doubleTapRef={doubleTapRef}
+                heartStyle={animatedHeartStyle}
+              />
+            ) : (
+              <View style={styles.compactViewContainer}>
+                {post['recipe-image-path'] && (
+                  <Image source={{ uri: getThumbnailUrl(post['recipe-image-path']) }} style={styles.thumbnailImage} />
+                )}
+                {post.notes?.length > 0 && (
+                  <View style={styles.compactDescription}>
+                    <Text style={styles.description}>{post.notes}</Text>
+                  </View>
+                )}
+              </View>
+            )}
 
-        <View style={styles.scrollContent}>
-          {post['cooked-photos-path']?.length > 0 ? (
-            <ImageSection
-              photos={post['cooked-photos-path']}
-              onSingleTap={onSingleTap}
-              onDoubleTap={onDoubleTap}
-              doubleTapRef={doubleTapRef}
-              heartStyle={animatedHeartStyle}
-            />
-          ) : (
-            <View style={styles.compactViewContainer}>
-              {post['recipe-image-path'] && (
-                <Image source={{ uri: getThumbnailUrl(post['recipe-image-path']) }} style={styles.thumbnailImage} />
-              )}
-              {post.notes?.length > 0 && (
-                <View style={styles.compactDescription}>
-                  <Text style={styles.description}>{post.notes}</Text>
-                </View>
-              )}
+            {post['cooked-photos-path']?.length > 0 && post.notes?.length > 0 && (
+              <View style={styles.viewContainer}>
+                <Text style={styles.description}>{post.notes}</Text>
+              </View>
+            )}
+
+            <View style={styles.actionsContainer}>
+              {canEdit ? <EditButton onPress={onEdit} /> : <View />}
+              <LikeButton isLiked={stats?.liked} likeCount={stats?.['like-count']} onPress={onLike} />
             </View>
-          )}
-
-          {post['cooked-photos-path']?.length > 0 && post.notes?.length > 0 && (
-            <View style={styles.viewContainer}>
-              <Text style={styles.description}>{post.notes}</Text>
-            </View>
-          )}
-
-          <View style={styles.actionsContainer}>
-            {canEdit ? <EditButton onPress={onEdit} /> : <View />}
-            <LikeButton isLiked={stats?.liked} likeCount={stats?.['like-count']} onPress={onLike} />
           </View>
         </View>
       </View>
-    </View>
-  )
-})
+    )
+  },
+)
 
 const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {
   const { profileStore } = useStore()
@@ -209,14 +217,23 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
     }
   }, [post.id, cookedStats?.liked])
 
+  const hasRecipe = useMemo(() => post['extract-id'] || post['recipe-id'], [post['extract-id'], post['recipe-id']])
+
+  const handleRecipePress = useCallback(() => {
+    if (hasRecipe) {
+      onRecipePress()
+    }
+  }, [hasRecipe, onRecipePress])
+
   return (
     <>
       <CookedView
         post={post}
         canEdit={canEdit}
         hideAuthor={hideAuthor}
+        hasRecipe={hasRecipe}
         onEdit={handleEdit}
-        onRecipePress={onRecipePress}
+        onRecipePress={handleRecipePress}
         onUserPress={onUserPress}
         onLike={handleLike}
         stats={cookedStats}

@@ -1,5 +1,5 @@
-import React, { useContext, useLayoutEffect, useEffect } from 'react'
-import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, Modal } from 'react-native'
+import React, { useContext, useLayoutEffect, useEffect, useCallback, useState } from 'react'
+import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { useStore } from '../context/store/StoreContext'
+import { useNotification } from '../context/NotificationContext'
 import { theme, titleStyle } from '../style/style'
 
 import ProfileCooked from './ProfileCooked'
@@ -22,7 +23,7 @@ import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } 
 import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
 import EditBio from '../components/Profile/EditBio'
 import FullScreenImage from '../components/Profile/FullScreenImage'
-
+import ActionToast from '../components/notification/ActionToast'
 const Tab = createMaterialTopTabNavigator()
 
 const tabLabelTextStyle = {
@@ -193,12 +194,41 @@ const Profile = observer(({ route, navigation, username, menu }) => {
 
 const FollowButton = observer(({ username }) => {
   const { profileStore } = useStore()
+  const { showNotification } = useNotification()
+  const [isLoading, setIsLoading] = useState(false)
+
   const { isLoadingFollowing } = profileStore
   const isFollowing = profileStore.isFollowing(username)
 
-  if (isLoadingFollowing) {
-    return undefined
-  }
+  const handleFollowPress = useCallback(async () => {
+    if (isLoading) return
+
+    setIsLoading(true)
+    try {
+      await profileStore.follow(username)
+      showNotification(ActionToast, {
+        props: { message: 'Followed this user' },
+        resetQueue: true,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [username, isLoading])
+
+  const handleUnfollowPress = useCallback(async () => {
+    if (isLoading) return
+
+    setIsLoading(true)
+    try {
+      await profileStore.unfollow(username)
+      showNotification(ActionToast, {
+        props: { message: 'Unfollowed this user' },
+        resetQueue: true,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [username, isLoading])
 
   return (
     <View
@@ -207,10 +237,11 @@ const FollowButton = observer(({ username }) => {
         alignItems: 'center',
       }}
     >
+      {isLoading && <ActivityIndicator size='small' color={theme.colors.primary} style={{ marginRight: 5 }} />}
       {isFollowing ? (
-        <SecondaryButton title='Following' onPress={() => profileStore.unfollow(username)} />
+        <SecondaryButton title='Following' onPress={handleUnfollowPress} loading={isLoading} style={{ width: 100 }} />
       ) : (
-        <Button title='Follow' onPress={() => profileStore.follow(username)} />
+        <Button title='Follow' onPress={handleFollowPress} loading={isLoading} style={{ width: 100 }} />
       )}
     </View>
   )

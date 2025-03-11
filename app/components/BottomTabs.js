@@ -47,7 +47,7 @@ function BottomTabs({ route }) {
         name='RecordCook'
         component={EmptyComponent}
         options={{
-          tabBarButton: (props) => (
+          tabBarButton: props => (
             <TouchableOpacity
               {...props}
               onPress={() => navigation.navigate('RecordCook')}
@@ -95,7 +95,7 @@ function BottomTabs({ route }) {
 }
 
 // Empty component for the RecordCook tab
-const EmptyComponent = () => null;
+const EmptyComponent = () => null
 
 const tabScreenStyle = {
   tabBarHideOnKeyboard: true,

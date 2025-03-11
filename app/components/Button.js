@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity, Text, StyleSheet } from 'react-native'
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { theme } from '../style/style'
 
 export function PrimaryButton({ onPress, title, style, icon }) {
@@ -14,9 +14,9 @@ export function PrimaryButton({ onPress, title, style, icon }) {
   )
 }
 
-export function SecondaryButton({ onPress, title, style, icon }) {
+export function SecondaryButton({ onPress, title, style, icon, ...props }) {
   return (
-    <Button onPress={onPress} style={[styles.button, styles.secondaryButton, style]}>
+    <Button onPress={onPress} style={[styles.button, styles.secondaryButton, style]} {...props}>
       {icon}
       <Text style={[styles.buttonText, styles.secondaryButtonText]}>{title}</Text>
     </Button>
@@ -34,9 +34,13 @@ export function TransparentButton({ onPress, title, style, children }) {
   )
 }
 
-export function Button({ onPress, title, style, children }) {
+export function Button({ onPress, title, style, loading, children }) {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.button, style, loading && styles.loadingButton]}
+      onPress={onPress}
+      disabled={loading}
+    >
       {children ? children : title ? <Text style={[styles.buttonText]}>{title}</Text> : null}
     </TouchableOpacity>
   )
@@ -72,4 +76,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryButtonText: {},
+  loadingIndicator: {
+    marginRight: 8,
+  },
+  loadingButton: {
+    opacity: 0.7,
+  },
 })
