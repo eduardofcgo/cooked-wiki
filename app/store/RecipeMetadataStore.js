@@ -34,7 +34,6 @@ export class RecipeMetadataStore {
     })
 
     try {
-      console.log('getting metadata', `/recipe/${id}/metadata`)
       const data = await this.apiClient.get(`/recipe/${id}/metadata`)
 
       runInAction(() => {
