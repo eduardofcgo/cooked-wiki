@@ -106,15 +106,13 @@ export default function CookedWebView({
     if (url === startUrl) return true
 
     if (onRequestPath) {
-      const pathname = new URL(url).pathname
-      matchedRequest = onRequestPath(pathname)
-
-      // If matched a route, igore the request on the webview
-      return !matchedRequest
+      setTimeout(() => {
+        const pathname = new URL(url).pathname
+        onRequestPath(pathname)
+      }, 1)
     }
 
-    // only proceed to load the next page if the request was not matched
-    return true
+    return false
   }
 
   const handleMessage = event => {
@@ -124,7 +122,7 @@ export default function CookedWebView({
       const message = JSON.parse(data)
       if (message.type === 'logged-user') {
         if (message.username === undefined) {
-          console.log('Logged user is undefined, this should not happen')
+          console.warn('Logged user is undefined, this should not happen')
         } else if (message.username === null) {
           console.log('Logged user is null, logging out', currentURI)
 
@@ -134,7 +132,7 @@ export default function CookedWebView({
         refreshWebView()
       }
     } catch (error) {
-      console.warn('Error parsing message:', error)
+      // console.warn('Error parsing message:', error)
     }
   }
 
@@ -252,7 +250,8 @@ export default function CookedWebView({
     <SafeAreaView
       style={{
         flex: 1,
-      }}>
+      }}
+    >
       {!credentials ? (
         <LoadingScreen />
       ) : (
@@ -262,16 +261,14 @@ export default function CookedWebView({
               uri: currentURI,
             }}
             onShouldStartLoadWithRequest={onWebViewRequest}
+            setSupportMultipleWindows={false}
             nativeConfig={{
               props: {
                 webContentsDebuggingEnabled: true,
               },
             }}
             userAgent={'app'}
-            // only for iOS
-            allowsBackForwardNavigationGestures={true}
-            // onNavigationStateChange={handleNavigationStateChange}
-
+            allowsBackForwardNavigationGestures={false}
             domStorageEnabled={true}
             sharedCookiesEnabled={true}
             thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android

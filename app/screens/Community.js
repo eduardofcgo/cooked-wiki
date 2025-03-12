@@ -75,7 +75,8 @@ export default Community = observer(({ navigation, route }) => {
         <TouchableOpacity
           style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
-          onPress={handleAddFriends}>
+          onPress={handleAddFriends}
+        >
           <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),
@@ -128,9 +129,9 @@ export default Community = observer(({ navigation, route }) => {
             withSequence(
               withTiming(1, { duration: 1000 }),
               withTiming(1.05, { duration: 500 }),
-              withTiming(1, { duration: 1000 })
+              withTiming(1, { duration: 1000 }),
             ),
-            -1
+            -1,
           ),
         },
       ],
@@ -149,7 +150,7 @@ export default Community = observer(({ navigation, route }) => {
         onRecipePress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
       />
     ),
-    [navigation]
+    [navigation],
   )
 
   const handleLoadMore = () => {
@@ -229,10 +230,12 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setIsModalVisible(true)
-                      }}>
+                      }}
+                    >
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}>
+                  )}
+                >
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
@@ -261,10 +264,12 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setIsModalVisible(true)
-                      }}>
+                      }}
+                    >
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}>
+                  )}
+                >
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />

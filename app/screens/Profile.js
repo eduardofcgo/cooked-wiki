@@ -193,7 +193,7 @@ const Profile = observer(({ route, navigation, username, menu }) => {
 
 const FollowButton = observer(({ username }) => {
   const { profileStore } = useStore()
-  const { showNotification } = useInAppNotification()
+  const { showInAppNotification } = useInAppNotification()
   const [isLoading, setIsLoading] = useState(false)
 
   const isFollowing = profileStore.isFollowing(username)
@@ -204,7 +204,7 @@ const FollowButton = observer(({ username }) => {
     setIsLoading(true)
     try {
       await profileStore.follow(username)
-      showNotification(ActionToast, {
+      showInAppNotification(ActionToast, {
         props: { message: 'Followed this user' },
         resetQueue: true,
       })
@@ -219,7 +219,7 @@ const FollowButton = observer(({ username }) => {
     setIsLoading(true)
     try {
       await profileStore.unfollow(username)
-      showNotification(ActionToast, {
+      showInAppNotification(ActionToast, {
         props: { message: 'Unfollowed this user' },
         resetQueue: true,
       })

@@ -25,7 +25,7 @@ export class UserStore {
     reaction(
       () => this.notificationToken,
       async (newToken, previousToken) => {
-        if (newToken) {
+        if (newToken && newToken != previousToken) {
           console.log('Sending new token to server', newToken)
 
           await this.apiClient.put('/tokens', { token: newToken })
