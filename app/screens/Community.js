@@ -1,49 +1,30 @@
-import React, { useEffect, useCallback, useState, memo, useRef } from 'react'
-import Svg, { Path } from 'react-native-svg'
-import {
-  View,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Linking,
-  Platform,
-  Modal,
-  FlatList,
-  StatusBar,
-  Animated,
-} from 'react-native'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { useFocusEffect } from '@react-navigation/native'
+import * as Contacts from 'expo-contacts'
+import * as Notifications from 'expo-notifications'
+import { observer } from 'mobx-react-lite'
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { FlatList, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import Reanimated, {
-  SharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
-  withTiming,
   withSpring,
-  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import * as Notifications from 'expo-notifications'
-import * as Contacts from 'expo-contacts'
-import { observer } from 'mobx-react-lite'
-import { useFocusEffect } from '@react-navigation/native'
 
-import { getSavedRecipeUrl } from '../urls'
-
-import { useStore } from '../context/StoreContext'
-import { useNotification } from '../context/NotificationContext'
-import { requestPushNotificationsPermission } from '../notifications/push'
-import { theme } from '../style/style'
+import Cooked from '../components/cooked/Cooked'
 import { Button, PrimaryButton } from '../components/core/Button'
+import DrawnArrow from '../components/core/DrawnArrow'
 import Loading from '../components/core/Loading'
 import RefreshControl from '../components/core/RefreshControl'
-import DrawnArrow from '../components/core/DrawnArrow'
-import CookedWebView from '../components/CookedWebView'
-import { getCommunityJournalUrl } from '../urls'
-import Cooked from '../components/cooked/Cooked'
+import { useStore } from '../context/StoreContext'
 import { useInterval } from '../hooks/useInterval'
+import { requestPushNotificationsPermission } from '../notifications/push'
+import LoadingScreen from '../screens/Loading'
+import { theme } from '../style/style'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
   <Cooked post={post} onUserPress={onUserPress} onRecipePress={onRecipePress} />
@@ -53,8 +34,6 @@ export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore } = useStore()
   const notificationPermissionStatus = userStore.notificationPermissionStatus
   const contactsPermissionStatus = userStore.contactsPermissionStatus
-
-  const { showNotification } = useNotification()
 
   const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
   const {
@@ -310,7 +289,7 @@ export default Community = observer(({ navigation, route }) => {
 
       {isLoadingCommunityFeed ? (
         <View style={styles.emptyStateContainer}>
-          <Loading />
+          <LoadingScreen />
         </View>
       ) : communityFeed.length === 0 ? (
         <View style={styles.emptyStateContainer}>

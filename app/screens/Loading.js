@@ -1,10 +1,10 @@
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, SafeAreaView } from 'react-native'
 import { theme } from '../style/style'
 
 export default function Loading({ style }) {
   return (
-    <View
+    <SafeAreaView
       style={{
         ...{
           backgroundColor: theme.colors.background,
@@ -17,6 +17,6 @@ export default function Loading({ style }) {
       }}
     >
       <ActivityIndicator color={theme.colors.primary} size='large' />
-    </View>
+    </SafeAreaView>
   )
 }

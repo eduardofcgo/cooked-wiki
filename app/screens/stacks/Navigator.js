@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
+import { useAuth } from '../../context/AuthContext'
 import LoggedInStack from './LoggedInStack'
 import OnboardingStack from './OnboardingStack'
-import { useAuth } from '../../context/AuthContext'
 
-import { theme, screenStyle } from '../../style/style'
 import { IconButton } from 'react-native-paper'
+import { screenStyle, theme } from '../../style/style'
 
 const StackNavigator = createNativeStackNavigator()
 

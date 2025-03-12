@@ -1,11 +1,10 @@
-import { Text } from 'react-native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { faCamera, faSearch, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faSearch, faBook, faCamera, faUser } from '@fortawesome/free-solid-svg-icons'
-import { TouchableOpacity } from 'react-native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
+import { Text, TouchableOpacity } from 'react-native'
 
-import { theme, screenStyle } from '../../style/style'
+import { screenStyle, theme } from '../../style/style'
 
 import Community from '../../screens/Community'
 import { LoggedInProfile } from '../../screens/Profile'
@@ -16,7 +15,7 @@ const TabIcon = ({ icon, focused }) => (
   <FontAwesomeIcon icon={icon} color={focused ? theme.colors.primary : theme.colors.softBlack} />
 )
 
-function BottomMenu({ route }) {
+function MainMenu({ route }) {
   const navigation = useNavigation()
 
   return (
@@ -136,4 +135,4 @@ const tabScreenStyle = {
   },
 }
 
-export default BottomMenu
+export default MainMenu

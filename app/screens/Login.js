@@ -1,16 +1,15 @@
-import React, { useState, useContext } from 'react'
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import React, { useState } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { IconButton } from 'react-native-paper'
 
-import { theme } from '../style/style'
-import { AuthContext } from '../context/AuthContext'
-import Logo from '../components/core/Logo'
+import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
+import { theme } from '../style/style'
 
 export default function Login({ navigation, route }) {
-  const authContext = useContext(AuthContext)
+  const auth = useAuth()
 
-  const [username, setUsername] = useState(authContext?.credentials?.username || '')
+  const [username, setUsername] = useState(auth?.credentials?.username || '')
   const [password, setPassword] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
@@ -19,7 +18,7 @@ export default function Login({ navigation, route }) {
     setIsLoading(true)
 
     try {
-      await authContext.login(username, password)
+      await auth.login(username, password)
     } catch (error) {
       setIsLoading(false)
 

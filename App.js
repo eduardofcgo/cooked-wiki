@@ -67,7 +67,6 @@ function App() {
         <AuthProvider onLoadedCredentials={onLoadedCredentials}>
           <ShareIntentProvider>
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
-
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NavigationContainer linking={linking} theme={navigationTheme}>
                 <NotificationProvider>

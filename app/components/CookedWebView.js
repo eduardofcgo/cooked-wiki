@@ -1,12 +1,10 @@
-import { ActivityIndicator, Button, SafeAreaView, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Platform, SafeAreaView } from 'react-native'
 import { WebView } from 'react-native-webview'
-import { BackHandler, Platform, ScrollView, Dimensions, RefreshControl } from 'react-native'
-import { HeaderBackButton } from '@react-navigation/elements'
 
-import { useEffect, useRef, useState, useContext } from 'react'
-import { theme } from '../style/style'
-import LoadingScreen from '../screens/Loading'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import LoadingScreen from '../screens/Loading'
+import { theme } from '../style/style'
 
 export default function CookedWebView({
   startUrl,
@@ -111,7 +109,8 @@ export default function CookedWebView({
       const pathname = new URL(url).pathname
       matchedRequest = onRequestPath(pathname)
 
-      return false
+      // If matched a route, igore the request on the webview
+      return !matchedRequest
     }
 
     // only proceed to load the next page if the request was not matched

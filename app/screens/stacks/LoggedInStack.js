@@ -13,7 +13,9 @@ import Settings from '../../screens/Settings'
 import Team from '../../screens/Team'
 import Recipe from '../../screens/WebViews/Recipe'
 
-import { screenStyle } from '../../style/style'
+import { IconButton } from 'react-native-paper'
+
+import { screenStyle, theme } from '../../style/style'
 
 export default function LoggedInStack({ StackNavigator }) {
   return (

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 const NotificationContext = createContext()
 
-export const useNotification = () => {
+export const useInAppNotification = () => {
   const context = useContext(NotificationContext)
   if (!context) {
     throw new Error('useNotification must be used within a NotificationProvider')
@@ -11,15 +11,17 @@ export const useNotification = () => {
   return context
 }
 
+const MAX_NOTIFICATIONS_QUEUE = 5
+
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([])
   const notification = notifications[0]
 
   const dropExcessNotifications = useCallback(queue => {
-    return queue.length > 5 ? queue.slice(-5) : queue
+    return queue.length > MAX_NOTIFICATIONS_QUEUE ? queue.slice(-MAX_NOTIFICATIONS_QUEUE) : queue
   }, [])
 
-  const showNotification = useCallback(
+  const showInAppNotification = useCallback(
     (component, { props, resetQueue = false } = {}) => {
       const newNotification = {
         id: Date.now().toString(),
@@ -77,7 +79,7 @@ export const NotificationProvider = ({ children }) => {
   const { component, props, visible } = notification || {}
 
   return (
-    <NotificationContext.Provider value={{ showNotification }}>
+    <NotificationContext.Provider value={{ showInAppNotification }}>
       {children}
 
       {component &&

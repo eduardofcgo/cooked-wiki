@@ -53,7 +53,7 @@ export const AuthProvider = ({ children, onLoadedCredentials }) => {
     restoreCredentials()
   }, [])
 
-  const loadedCredentials = Boolean(authContext.credentials)
+  const loadedCredentials = authContext.credentials !== undefined
   const apiClient = loadedCredentials ? new ApiClient(authContext.credentials) : null
 
   useEffect(() => {

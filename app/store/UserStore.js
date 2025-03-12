@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
+import { makeAutoObservable, observable, reaction, runInAction } from 'mobx'
 
 import { getContactHashes } from '../contacts/contacts'
 

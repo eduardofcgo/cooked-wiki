@@ -1,31 +1,28 @@
-import React, { useContext, useLayoutEffect, useEffect, useCallback, useState } from 'react'
-import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
-import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import { Menu, IconButton } from 'react-native-paper'
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { observer } from 'mobx-react-lite'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { IconButton, Menu } from 'react-native-paper'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
+import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
-import { useNotification } from '../context/NotificationContext'
 import { theme, titleStyle } from '../style/style'
 
-import { useAuth } from '../context/AuthContext'
+import { Button, SecondaryButton } from '../components/core/Button'
+import ActionToast from '../components/notification/ActionToast'
 import CookedFeed from '../components/profile/CookedFeed'
-import Recipes from './WebViews/Recipes'
-import Shopping from './WebViews/Shopping'
-import CookedWebView from '../components/CookedWebView'
-import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
-import { PrimaryButton, SecondaryButton, Button } from '../components/core/Button'
 import EditBio from '../components/profile/EditBio'
 import FullScreenImage from '../components/profile/FullScreenImage'
-import ActionToast from '../components/notification/ActionToast'
+import { useAuth } from '../context/AuthContext'
+import { getProfileImageUrl } from '../urls'
+import Recipes from './WebViews/Recipes'
+import Shopping from './WebViews/Shopping'
 const Tab = createMaterialTopTabNavigator()
 
 const tabLabelTextStyle = {
@@ -196,7 +193,7 @@ const Profile = observer(({ route, navigation, username, menu }) => {
 
 const FollowButton = observer(({ username }) => {
   const { profileStore } = useStore()
-  const { showNotification } = useNotification()
+  const { showNotification } = useInAppNotification()
   const [isLoading, setIsLoading] = useState(false)
 
   const isFollowing = profileStore.isFollowing(username)
