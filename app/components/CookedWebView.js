@@ -252,8 +252,7 @@ export default function CookedWebView({
     <SafeAreaView
       style={{
         flex: 1,
-      }}
-    >
+      }}>
       {!credentials ? (
         <LoadingScreen />
       ) : (

@@ -1,14 +1,15 @@
-import React, { useCallback, useState, useEffect, useContext } from 'react'
-import { View, FlatList, StyleSheet, Text } from 'react-native'
 import { observer } from 'mobx-react-lite'
+import React, { useCallback, useEffect } from 'react'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 
+import { useAuth } from '../../context/AuthContext'
 import { useStore } from '../../context/StoreContext'
+import LoadingScreen from '../../screens/Loading'
 import { theme } from '../../style/style'
+import Cooked from '../cooked/Cooked'
 import Loading from '../core/Loading'
 import RefreshControl from '../core/RefreshControl'
-import Cooked from '../cooked/Cooked'
 import ProfileStats from './ProfileStats'
-import { useAuth } from '../../context/AuthContext'
 
 const FeedHeader = observer(({ username }) => {
   return (
@@ -70,13 +71,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
   }
 
   if (isLoadingProfileCookeds) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Loading />
-        </View>
-      </View>
-    )
+    return <LoadingScreen />
   }
 
   return (
