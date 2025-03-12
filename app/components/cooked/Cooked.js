@@ -23,14 +23,7 @@ import { useNavigation } from '@react-navigation/native'
 import { getProfileImageUrl, getPhotoUrl, getThumbnailUrl } from '../../urls'
 
 import { theme } from '../../style/style'
-import { PrimaryButton, SecondaryButton } from '../Button'
-import Modal from '../Modal'
-import Comments from './Comments'
-import CommentModal from './CommentModal'
-
-import { useStore } from '../../context/store/StoreContext'
-
-import CookedEdit from './CookedEdit.js'
+import { useStore } from '../../context/StoreContext'
 
 const WeeksAgo = memo(({ weeks }) => {
   if (weeks === 0) return <Text style={styles.weeksAgo}>This week</Text>
@@ -238,9 +231,6 @@ const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor
         onLike={handleLike}
         stats={cookedStats}
       />
-      {/* <Modal visible={isEditing} onClose={handleClose} title='Edit cook'>
-        <CookedEdit post={post} close={handleClose} />
-      </Modal> */}
     </>
   )
 })

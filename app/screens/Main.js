@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../context/store/StoreContext'
-import BottomTabs from '../components/BottomTabs'
+import { useStore } from '../context/StoreContext'
+import BottomMenu from '../components/navigation/BottomMenu'
 import { registerPushNotificationToken } from '../notifications/push'
 
 Notifications.setNotificationHandler({
@@ -59,7 +59,7 @@ function Main() {
     }
   }, [notificationPermissionStatus])
 
-  return <BottomTabs />
+  return <BottomMenu />
 }
 
 export default observer(Main)

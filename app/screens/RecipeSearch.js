@@ -12,8 +12,8 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
-import Loading from '../components/Loading'
-import { Button, SecondaryButton } from '../components/Button'
+import Loading from '../components/core/Loading'
+import { Button, SecondaryButton } from '../components/core/Button'
 import FadeInStatusBar from '../components/FadeInStatusBar'
 
 // Temporary mock data

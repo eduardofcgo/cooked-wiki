@@ -32,17 +32,17 @@ import { useFocusEffect } from '@react-navigation/native'
 
 import { getSavedRecipeUrl } from '../urls'
 
-import { useStore } from '../context/store/StoreContext'
+import { useStore } from '../context/StoreContext'
 import { useNotification } from '../context/NotificationContext'
 import { requestPushNotificationsPermission } from '../notifications/push'
 import { theme } from '../style/style'
-import { Button, PrimaryButton } from '../components/Button'
-import Loading from '../components/Loading'
-import RefreshControl from '../components/RefreshControl'
-import DrawnArrow from '../components/DrawnArrow'
+import { Button, PrimaryButton } from '../components/core/Button'
+import Loading from '../components/core/Loading'
+import RefreshControl from '../components/core/RefreshControl'
+import DrawnArrow from '../components/core/DrawnArrow'
 import CookedWebView from '../components/CookedWebView'
 import { getCommunityJournalUrl } from '../urls'
-import Cooked from '../components/Cooked/Cooked'
+import Cooked from '../components/cooked/Cooked'
 import { useInterval } from '../hooks/useInterval'
 
 const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
@@ -361,13 +361,6 @@ export default Community = observer(({ navigation, route }) => {
           </View>
         </View>
       </Modal>
-
-      {/* <InAppNotification 
-        duration={1000}
-        onPress={() => {
-          navigation.navigate('PublicProfile', { username: 'eduardo' })
-        }}
-      /> */}
     </View>
   )
 })

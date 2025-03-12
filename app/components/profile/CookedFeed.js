@@ -2,16 +2,15 @@ import React, { useCallback, useState, useEffect, useContext } from 'react'
 import { View, FlatList, StyleSheet, Text } from 'react-native'
 import { observer } from 'mobx-react-lite'
 
-import { useStore } from '../context/store/StoreContext'
-import { theme } from '../style/style'
-import Loading from '../components/Loading'
-import RefreshControl from '../components/RefreshControl'
-import Cooked from '../components/Cooked/Cooked'
-import ProfileStats from '../components/ProfileStats'
-import { getSavedRecipeUrl } from '../urls'
-import { AuthContext } from '../context/auth'
+import { useStore } from '../../context/StoreContext'
+import { theme } from '../../style/style'
+import Loading from '../core/Loading'
+import RefreshControl from '../core/RefreshControl'
+import Cooked from '../cooked/Cooked'
+import ProfileStats from './ProfileStats'
+import { useAuth } from '../../context/AuthContext'
 
-const ProfileCookedHeader = observer(({ username }) => {
+const FeedHeader = observer(({ username }) => {
   return (
     <>
       <ProfileStats username={username} />
@@ -22,7 +21,7 @@ const ProfileCookedHeader = observer(({ username }) => {
 })
 
 const ProfileCooked = observer(({ navigation, route, username }) => {
-  const { credentials } = useContext(AuthContext)
+  const { credentials } = useAuth()
   const loggedInUsername = credentials.username
 
   const { profileStore } = useStore()
@@ -33,11 +32,11 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
 
   useEffect(() => {
     profileStore.loadProfileCooked(username)
-  }, [])
+  }, [username])
 
   const onRefresh = useCallback(async () => {
     await profileStore.reloadProfileCooked(username)
-  }, [])
+  }, [username])
 
   const renderItem = ({ item: post }) => (
     <Cooked
@@ -83,10 +82,10 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
   return (
     <View style={styles.container}>
       {/* {profileCookeds?.length === 0 ? (
-        <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
-        </View>
-      ) : ( */}
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
+          </View>
+        ) : ( */}
       <FlatList
         data={profileCookeds}
         renderItem={renderItem}
@@ -94,7 +93,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         contentContainerStyle={styles.feedContent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={1}
-        ListHeaderComponent={<ProfileCookedHeader username={username} />}
+        ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
       />

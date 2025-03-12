@@ -6,12 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { useNavigation } from '@react-navigation/native'
 
-import { useStore } from '../context/store/StoreContext'
+import { useStore } from '../../context/StoreContext'
 
-import Loading from './Loading'
+import Loading from '../core/Loading'
 import CookingAwards from './CookingAwards'
 
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 const getTrophyColor = cookedCount => {
   if (cookedCount >= 100) return '#FDB931' // Warmer gold

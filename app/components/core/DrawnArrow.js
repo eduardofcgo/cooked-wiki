@@ -1,6 +1,6 @@
 import { Svg, Path } from 'react-native-svg'
 
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 export default function HandDrawnArrow() {
   return (

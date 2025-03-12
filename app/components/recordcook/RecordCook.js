@@ -16,24 +16,20 @@ import {
   Share,
 } from 'react-native'
 import { theme } from '../../style/style'
-import { PrimaryButton, SecondaryButton, Button, TransparentButton } from '../Button'
+import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
 import ImageUploadButton from '../ImageUploadButton'
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useFocusEffect } from '@react-navigation/native'
 
 import { getPhotoUrl } from '../../urls'
-import { useStore } from '../../context/store/StoreContext'
+import { useStore } from '../../context/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
-import ModalCard from '../ModalCard'
-import Loading from '../Loading'
-import ConfirmationModal from '../RecordCook/ConfirmationModal'
-import StepIndicator from '../StepIndicator'
-import SuccessModal from '../RecordCook/SuccessModal'
+import Loading from '../core/Loading'
+import ConfirmationModal from './ConfirmationModal'
+import SuccessModal from './SuccessModal'
 import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
-import FadeInStatusBar from '../FadeInStatusBar'
-import { AuthContext } from '../../context/auth'
+import { useAuth } from '../../context/AuthContext'
 import NotesModal from './NotesModal'
 
 const EditableImage = ({ path, index, onExclude }) => (
@@ -108,7 +104,7 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
 )
 
 export default function RecordCook({ navigation, route, editMode, hasChanges, setHasChanges, onSaved, onDelete }) {
-  const { credentials } = useContext(AuthContext)
+  const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
 

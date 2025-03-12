@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { theme } from '../../style/style'
-import { SecondaryButton, TransparentButton } from '../Button'
-import ModalCard from '../ModalCard'
+import { SecondaryButton, TransparentButton } from '../core/Button'
+import ModalCard from '../core/ModalCard'
 
 export default function EditBio({ visible, onClose, onSave, initialBio, initialSocials }) {
   const [bio, setBio] = useState(initialBio || '')

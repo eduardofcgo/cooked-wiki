@@ -6,7 +6,7 @@ import { HeaderBackButton } from '@react-navigation/elements'
 import { useEffect, useRef, useState, useContext } from 'react'
 import { theme } from '../style/style'
 import LoadingScreen from '../screens/Loading'
-import { AuthContext } from '../context/auth'
+import { useAuth } from '../context/AuthContext'
 
 export default function CookedWebView({
   startUrl,
@@ -20,7 +20,7 @@ export default function CookedWebView({
 }) {
   const webViewRef = useRef()
 
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
   const { credentials } = auth
   const { token } = credentials
 

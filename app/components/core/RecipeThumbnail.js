@@ -1,43 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../context/store/StoreContext'
-import { theme } from '../style/style'
-import { absoluteUrl } from '../urls'
+import { useStore } from '../../context/StoreContext'
+import { theme } from '../../style/style'
+import { absoluteUrl } from '../../urls'
+
+const NoImagePlaceholder = () => (
+  <View style={[styles.thumbnail, styles.placeholderContainer]}>
+    <Text style={styles.placeholderText}>No Image</Text>
+  </View>
+)
 
 const RecipeThumbnail = observer(({ recipeId, extractId }) => {
   const { recipeMetadataStore } = useStore()
-  const [isLoading, setIsLoading] = useState(true)
 
   const id = recipeId || extractId
   const metadata = recipeMetadataStore.getMetadata(id)
 
   useEffect(() => {
     if (!recipeId && !extractId) return
-
-    const loadMetadata = async () => {
-      setIsLoading(true)
+    ;(async () => {
       await recipeMetadataStore.ensureLoadedMetadata(id)
-      setIsLoading(false)
-    }
-
-    loadMetadata()
+    })()
   }, [recipeMetadataStore, id])
 
   if (!metadata || metadata.isLoading) return null
 
   return (
     <View style={[styles.container]}>
-      {isLoading ? (
-        <View style={[styles.thumbnail, styles.loadingContainer]}>
-          <ActivityIndicator color={theme.colors.primary} />
-        </View>
-      ) : metadata.thumbnail ? (
+      {metadata.thumbnail ? (
         <Image source={{ uri: absoluteUrl(metadata.thumbnail) }} style={[styles.thumbnail]} resizeMode='cover' />
       ) : (
-        <View style={[styles.thumbnail, styles.placeholderContainer]}>
-          <Text style={styles.placeholderText}>No Image</Text>
-        </View>
+        <NoImagePlaceholder />
       )}
       <Text style={[styles.title]} numberOfLines={2}>
         {metadata.title}
@@ -53,6 +47,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 110,
     height: 110,
+    backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     marginBottom: 4,
   },
@@ -63,7 +58,7 @@ const styles = StyleSheet.create({
     color: theme.colors.black,
   },
   loadingContainer: {
-    backgroundColor: theme.colors.lightGrey,
+    backgroundColor: theme.colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },

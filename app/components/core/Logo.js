@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 const Logo = () => {
   return (

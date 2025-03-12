@@ -4,16 +4,16 @@ import { observer } from 'mobx-react-lite'
 
 import { getSavedRecipeUrl } from '../urls'
 
-import { AuthContext } from '../context/auth'
+import { useAuth } from '../context/AuthContext'
 
 import CookedWebView from '../components/CookedWebView'
-import { useStore } from '../context/store/StoreContext'
-import { Button, SecondaryButton } from '../components/Button'
-import Cooked from '../components/Cooked/Cooked'
+import { useStore } from '../context/StoreContext'
+import { Button, SecondaryButton } from '../components/core/Button'
+import Cooked from '../components/cooked/Cooked'
 import { theme } from '../style/style'
 
 const FollowButton = observer(({ username }) => {
-  const { credentials } = useContext(AuthContext)
+  const { credentials } = useAuth()
   const { username: loggedInUsername } = credentials
 
   const { profileStore } = useStore()

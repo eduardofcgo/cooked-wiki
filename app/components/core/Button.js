@@ -1,6 +1,6 @@
 import React from 'react'
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native'
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 export function PrimaryButton({ onPress, title, style, icon }) {
   return (

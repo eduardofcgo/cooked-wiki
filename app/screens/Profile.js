@@ -12,20 +12,19 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-import { useStore } from '../context/store/StoreContext'
+import { useStore } from '../context/StoreContext'
 import { useNotification } from '../context/NotificationContext'
 import { theme, titleStyle } from '../style/style'
 
-import { useAuth } from '../context/auth'
-import ProfileCooked from './ProfileCooked'
+import { useAuth } from '../context/AuthContext'
+import CookedFeed from '../components/profile/CookedFeed'
 import Recipes from './WebViews/Recipes'
 import Shopping from './WebViews/Shopping'
 import CookedWebView from '../components/CookedWebView'
-import { AuthContext } from '../context/auth'
 import { getProfileImageUrl, getJournalUrl, getProfileUrl, getShoppingListUrl } from '../urls'
-import { PrimaryButton, SecondaryButton, Button } from '../components/Button'
-import EditBio from '../components/Profile/EditBio'
-import FullScreenImage from '../components/Profile/FullScreenImage'
+import { PrimaryButton, SecondaryButton, Button } from '../components/core/Button'
+import EditBio from '../components/profile/EditBio'
+import FullScreenImage from '../components/profile/FullScreenImage'
 import ActionToast from '../components/notification/ActionToast'
 const Tab = createMaterialTopTabNavigator()
 
@@ -172,7 +171,7 @@ const Profile = observer(({ route, navigation, username, menu }) => {
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
           }}
         >
-          {() => <ProfileCooked username={username} navigation={navigation} route={route} />}
+          {() => <CookedFeed username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Recipes'
@@ -280,7 +279,7 @@ export const PublicProfile = observer(({ route, navigation }) => {
 })
 
 export function LoggedInProfile({ route, navigation }) {
-  const { credentials } = useContext(AuthContext)
+  const { credentials } = useAuth()
 
   if (!credentials) {
     return null

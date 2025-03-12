@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react'
 import { View, Text, Animated, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { PrimaryButton, SecondaryButton } from '../../components/Button'
-import ModalCard from '../../components/ModalCard'
+import { PrimaryButton, SecondaryButton } from '../core/Button'
+import ModalCard from '../core/ModalCard'
 import { theme } from '../../style/style'
-import Bounce from '../Bounce'
+import Bounce from '../core/Bounce'
 
 const AnimatedPoint = ({ text, delay }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current

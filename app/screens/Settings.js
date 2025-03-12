@@ -1,17 +1,17 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Linking, Platform, Alert } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { List, Button, Switch } from 'react-native-paper'
 import { theme } from '../style/style'
-import { AuthContext } from '../context/auth'
+import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../context/store/StoreContext'
+import { useStore } from '../context/StoreContext'
 import * as Notifications from 'expo-notifications'
 
 export default Settings = observer(({ navigation }) => {
   const { userStore } = useStore()
-  const { logout } = useContext(AuthContext)
+  const { logout } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const enabledNotifications = userStore.enabledNotifications

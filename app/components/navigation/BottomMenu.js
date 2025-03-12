@@ -5,10 +5,10 @@ import { faSearch, faBook, faCamera, faUser } from '@fortawesome/free-solid-svg-
 import { TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
-import { theme, screenStyle } from '../style/style'
+import { theme, screenStyle } from '../../style/style'
 
-import Community from '../screens/Community'
-import { LoggedInProfile } from '../screens/Profile'
+import Community from '../../screens/Community'
+import { LoggedInProfile } from '../../screens/Profile'
 
 const TabNavigator = createBottomTabNavigator()
 
@@ -16,7 +16,7 @@ const TabIcon = ({ icon, focused }) => (
   <FontAwesomeIcon icon={icon} color={focused ? theme.colors.primary : theme.colors.softBlack} />
 )
 
-function BottomTabs({ route }) {
+function BottomMenu({ route }) {
   const navigation = useNavigation()
 
   return (
@@ -136,4 +136,4 @@ const tabScreenStyle = {
   },
 }
 
-export default BottomTabs
+export default BottomMenu

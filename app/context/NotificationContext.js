@@ -7,6 +7,7 @@ export const useNotification = () => {
   if (!context) {
     throw new Error('useNotification must be used within a NotificationProvider')
   }
+
   return context
 }
 
@@ -73,14 +74,10 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [notification?.id])
 
-  const value = {
-    showNotification,
-  }
-
   const { component, props, visible } = notification || {}
 
   return (
-    <NotificationContext.Provider value={value}>
+    <NotificationContext.Provider value={{ showNotification }}>
       {children}
 
       {component &&

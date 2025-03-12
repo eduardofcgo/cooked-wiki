@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
-import ModalCard from './ModalCard'
+import ModalCard from './core/ModalCard'
 
 export default function PhotoSelectionModal({ visible, onClose, onCameraPress, onGalleryPress }) {
   return (

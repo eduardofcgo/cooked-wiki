@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import Logo from '../components/Logo'
+import Logo from '../components/core/Logo'
 
 export default function Start({ navigation, route }) {
   const handleLogin = () => {

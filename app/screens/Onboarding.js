@@ -4,10 +4,10 @@ import * as Notifications from 'expo-notifications'
 import * as Contacts from 'expo-contacts'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-import { useStore } from '../context/store/StoreContext'
+import { useStore } from '../context/StoreContext'
 import { requestPushNotificationsPermission } from '../notifications/push'
 
-import { PrimaryButton, SecondaryButton } from '../components/Button'
+import { PrimaryButton, SecondaryButton } from '../components/core/Button'
 import { theme } from '../style/style'
 
 const notificationScreen = {

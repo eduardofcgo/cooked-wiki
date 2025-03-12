@@ -1,7 +1,7 @@
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
-import Loading from './Loading'
+import Loading from './core/Loading'
 
 const ImageUploadButton = ({ onPress, isUploading }) => (
   <TouchableOpacity style={styles.button} onPress={onPress} disabled={isUploading}>

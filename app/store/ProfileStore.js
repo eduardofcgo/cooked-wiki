@@ -107,16 +107,19 @@ export class ProfileStore {
   }
 
   async loadProfileCooked(username) {
-    if (this.profileDataMap.has(username)) return
+    runInAction(() => {
+      this.profileDataMap.delete(username)
 
-    const profileData = new ProfileData()
-    this.profileDataMap.set(username, profileData)
-
-    profileData.isLoading = true
+      const profileData = new ProfileData()
+      this.profileDataMap.set(username, profileData)
+      profileData.isLoading = true
+    })
 
     const cookeds = await this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } })
 
     runInAction(() => {
+      const profileData = this.profileDataMap.get(username)
+
       profileData.cookeds.replace(cookeds)
       profileData.isLoading = false
       profileData.hasMore = cookeds.length > 0

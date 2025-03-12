@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, StyleSheet, View, Text, Animated } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import Bounce from '../components/Bounce'
+import Bounce from '../components/core/Bounce'
 
-import RecordCook from '../components/RecordCook/RecordCook'
-import FadeInStatusBar from '../components/FadeInStatusBar'
-import ModalCard from '../components/ModalCard'
-import { PrimaryButton, SecondaryButton, TransparentButton } from '../components/Button'
+import RecordCook from '../components/recordcook/RecordCook'
+import ModalCard from '../components/core/ModalCard'
+import { PrimaryButton, SecondaryButton, TransparentButton } from '../components/core/Button'
 import { theme } from '../style/style'
 
 export default function RecordCookRecipe({ route, navigation }) {

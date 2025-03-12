@@ -2,8 +2,8 @@ import React from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faTrophy, faMedal, faStar, faAward, faCrown, faFire, faLock } from '@fortawesome/free-solid-svg-icons'
-import ModalCard from './ModalCard'
-import { theme } from '../style/style'
+import ModalCard from '../core/ModalCard'
+import { theme } from '../../style/style'
 
 const awards = [
   {

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { View, Animated, StyleSheet } from 'react-native'
-import { theme } from '../../style/style'
-import StepIndicator from '../StepIndicator'
+
+import StepIndicator from '../core/StepIndicator'
 
 export default function Step({ number, text, isActive, isFilled, children, style, contentStyle, editMode }) {
   const fadeAnim = useRef(new Animated.Value(0)).current

@@ -3,8 +3,8 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 import { IconButton } from 'react-native-paper'
 
 import { theme } from '../style/style'
-import { AuthContext } from '../context/auth'
-import Logo from '../components/Logo'
+import { AuthContext } from '../context/AuthContext'
+import Logo from '../components/core/Logo'
 import LoadingScreen from '../screens/Loading'
 
 export default function Login({ navigation, route }) {

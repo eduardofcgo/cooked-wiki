@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Modal as RNModal, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 const Modal = ({ visible, onClose, title, children, animationType = 'slide' }) => {
   return (

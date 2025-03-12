@@ -24,8 +24,8 @@ export class RecentlyOpenedStore {
     this.loadFromLocalStorage()
   }
 
-  saveToLocalStorage(recipes) {
-    AsyncStorage.setItem('recentRecipes', JSON.stringify(recipes))
+  async saveToLocalStorage(recipes) {
+    await AsyncStorage.setItem('recentRecipes', JSON.stringify(recipes))
   }
 
   async loadFromLocalStorage() {

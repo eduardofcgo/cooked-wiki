@@ -10,10 +10,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { theme } from '../style/style'
-import FadeInStatusBar from './FadeInStatusBar'
+import { theme } from '../../style/style'
+// import FadeInStatusBar from './FadeInStatusBar'
 
 export default function ModalCard({
   visible,
@@ -118,7 +116,7 @@ export default function ModalCard({
       onShow={onShow}
       onRequestClose={handleClose}
     >
-      <FadeInStatusBar />
+      {/* <FadeInStatusBar /> */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.modalContainer, backgroundStyle]}>
           <TouchableOpacity

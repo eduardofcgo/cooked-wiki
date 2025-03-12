@@ -1,6 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
-import RecordCook from '../components/RecordCook/RecordCook'
+import RecordCook from '../components/recordcook/RecordCook'
 import FadeInStatusBar from '../components/FadeInStatusBar'
 import { theme } from '../style/style'
 

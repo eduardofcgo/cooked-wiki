@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../context/store/StoreContext'
-import { useAuth } from '../context/auth'
+import { useStore } from '../context/StoreContext'
+import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
-import { PrimaryButton } from '../components/Button'
+import { PrimaryButton } from '../components/core/Button'
 import { theme } from '../style/style'
 
 const UserItem = observer(({ username, navigation }) => {

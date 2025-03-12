@@ -8,8 +8,8 @@ import Animated, { useAnimatedStyle, withTiming, useSharedValue, interpolate } f
 import { useKeepAwake } from 'expo-keep-awake'
 import { getSavedRecipeUrl, getExtractUrl } from '../../urls'
 import handler from './router/handler'
-import { useStore } from '../../context/store/StoreContext'
-import RecipeThumbnail from '../../components/RecipeThumbnail'
+import { useStore } from '../../context/StoreContext'
+import RecipeThumbnail from '../../components/core/RecipeThumbnail'
 
 export default function Recipe({ loadingComponent, navigation, route }) {
   const recipeId = route.params?.recipeId
@@ -40,7 +40,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
     })
   }
 
-  const handlePress = () => {
+  const handlePressOrDoublepress = () => {
     const currentTime = new Date().getTime()
     const delta = currentTime - lastPress.current
 
@@ -53,8 +53,6 @@ export default function Recipe({ loadingComponent, navigation, route }) {
   }
 
   const openMostRecentRecipe = () => {
-    console.log('openMostRecentRecipe', nextMostRecentRecipe)
-
     if (nextMostRecentRecipe) {
       openRecipe(nextMostRecentRecipe)
     }
@@ -95,7 +93,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
             <IconButton
               icon='history'
               size={20}
-              onPress={handlePress}
+              onPress={handlePressOrDoublepress}
               color={theme.colors.softBlack}
               style={{ marginRight: -8, marginTop: 10 }}
             />
