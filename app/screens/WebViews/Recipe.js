@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native'
-import CookedWebView from '../../components/CookedWebView'
-import { IconButton, shadow } from 'react-native-paper'
-import { theme } from '../../style/style'
-import Share from 'react-native/Libraries/Share/Share'
-import Animated, { useAnimatedStyle, withTiming, useSharedValue, interpolate } from 'react-native-reanimated'
 import { useKeepAwake } from 'expo-keep-awake'
-import { getSavedRecipeUrl, getExtractUrl } from '../../urls'
-import handler from './router/handler'
-import { useStore } from '../../context/StoreContext'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { IconButton } from 'react-native-paper'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Share from 'react-native/Libraries/Share/Share'
+import CookedWebView from '../../components/CookedWebView'
 import RecipeThumbnail from '../../components/core/RecipeThumbnail'
+import { useStore } from '../../context/StoreContext'
+import { theme } from '../../style/style'
+import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
+import handler from './router/handler'
 
 export default function Recipe({ loadingComponent, navigation, route }) {
   const recipeId = route.params?.recipeId
@@ -17,7 +17,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
 
   const { recentlyOpenedStore } = useStore()
   const nextMostRecentRecipe = recentlyOpenedStore.recipes.find(
-    recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId,
+    recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId
   )
   const hasRecentlyOpennedRecipes = Boolean(nextMostRecentRecipe)
 
@@ -85,8 +85,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
               fontSize: theme.fontSizes.large,
               fontFamily: theme.fonts.title,
               color: theme.colors.black,
-            }}
-          >
+            }}>
             Recipe
           </Text>
           {hasRecentlyOpennedRecipes && (
@@ -123,7 +122,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
     pathname => {
       return handler(pathname, { navigation })
     },
-    [navigation],
+    [navigation]
   )
 
   return (
@@ -137,8 +136,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
                 <TouchableOpacity
                   key={index}
                   style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
-                  onPress={() => openRecipe(recipe)}
-                >
+                  onPress={() => openRecipe(recipe)}>
                   <RecipeThumbnail recipeId={recipe.recipeId} extractId={recipe.extractId} />
                 </TouchableOpacity>
               ))}

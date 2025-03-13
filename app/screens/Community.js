@@ -31,11 +31,12 @@ const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
 ))
 
 export default Community = observer(({ navigation, route }) => {
-  const { userStore, profileStore } = useStore()
+  const { userStore, profileStore, onboardingStore } = useStore()
   const notificationPermissionStatus = userStore.notificationPermissionStatus
   const contactsPermissionStatus = userStore.contactsPermissionStatus
 
-  const { hiddenNotificationsCard, hiddenFindFriendsCard } = userStore
+  const { hiddenNotificationsCard } = userStore
+
   const {
     followingUsernames,
     communityFeed,
@@ -44,8 +45,9 @@ export default Community = observer(({ navigation, route }) => {
     needsRefreshCommunityFeed,
   } = profileStore
 
+  const [clickedAddFriendsCard, setClickedAddFriendsCard] = useState(false)
+
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [notification, setNotification] = useState(null)
   const refreshPromptHeight = useSharedValue(0)
   const listRef = useRef(null)
 
@@ -67,6 +69,11 @@ export default Community = observer(({ navigation, route }) => {
       const contactsPermission = await Contacts.getPermissionsAsync()
       userStore.setContactsPermissionStatus(contactsPermission.status)
     })()
+
+    if (clickedAddFriendsCard) {
+      setClickedAddFriendsCard(false)
+      setIsModalVisible(true)
+    }
   })
 
   useEffect(() => {
@@ -75,29 +82,21 @@ export default Community = observer(({ navigation, route }) => {
         <TouchableOpacity
           style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
-          onPress={handleAddFriends}
-        >
+          onPress={handleAddFriends}>
           <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),
     })
   }, [navigation])
 
-  const handleAddFriends = async () => {
+  const handleAddFriendsCard = useCallback(() => {
     navigation.navigate('FindFriends')
-    // showNotification(
-    //   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    //     <Icon name="account-search" size={18} color={theme.colors.primary} style={{ marginRight: 8 }} />
-    //     <Text style={{
-    //       fontFamily: theme.fonts.medium,
-    //       fontSize: theme.fontSizes.default,
-    //       color: theme.colors.black
-    //     }}>
-    //       Find friends
-    //     </Text>
-    //   </View>
-    // )
-  }
+    setClickedAddFriendsCard(true)
+  }, [navigation])
+
+  const handleAddFriends = useCallback(() => {
+    navigation.navigate('FindFriends')
+  }, [navigation])
 
   const handleEnableNotifications = async () => {
     const permission = await requestPushNotificationsPermission()
@@ -119,7 +118,7 @@ export default Community = observer(({ navigation, route }) => {
 
   const showNotificationsCard =
     notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && !hiddenNotificationsCard
-  const showFindFriendsCard = !hiddenFindFriendsCard
+  const showFindFriendsCard = onboardingStore.showFindFriendsHint()
 
   const pulseAnim = useAnimatedStyle(() => {
     return {
@@ -129,9 +128,9 @@ export default Community = observer(({ navigation, route }) => {
             withSequence(
               withTiming(1, { duration: 1000 }),
               withTiming(1.05, { duration: 500 }),
-              withTiming(1, { duration: 1000 }),
+              withTiming(1, { duration: 1000 })
             ),
-            -1,
+            -1
           ),
         },
       ],
@@ -150,7 +149,7 @@ export default Community = observer(({ navigation, route }) => {
         onRecipePress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
       />
     ),
-    [navigation],
+    [navigation]
   )
 
   const handleLoadMore = () => {
@@ -230,12 +229,10 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setIsModalVisible(true)
-                      }}
-                    >
+                      }}>
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}
-                >
+                  )}>
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
@@ -264,12 +261,10 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setIsModalVisible(true)
-                      }}
-                    >
+                      }}>
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}
-                >
+                  )}>
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
@@ -278,7 +273,7 @@ export default Community = observer(({ navigation, route }) => {
                       <View style={styles.textContainer}>
                         <Text style={styles.description}>Connect with your friends to see what they're cooking.</Text>
                       </View>
-                      <PrimaryButton onPress={handleAddFriends} style={styles.cardButton} title='Add friends' />
+                      <PrimaryButton onPress={handleAddFriendsCard} style={styles.cardButton} title='Add friends' />
                     </View>
                   </View>
                 </ReanimatedSwipeable>
@@ -330,7 +325,7 @@ export default Community = observer(({ navigation, route }) => {
                 <Button
                   title='Got it'
                   onPress={() => {
-                    userStore.hideFindFriendsCard()
+                    onboardingStore.markFindFriendsHintAsShown()
 
                     setIsModalVisible(false)
                   }}

@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
+import { makeAutoObservable, observable, runInAction } from 'mobx'
 
 class ProfileData {
   cookeds = observable.array()
@@ -41,7 +41,14 @@ export class ProfileStore {
     await this.apiClient.put('/following', { username })
 
     runInAction(() => {
-      this.followingUsernames.add(username)
+      // Not the best, but this way we ensure that the followed username
+      // is added at the beginning of the set.
+      this.followingUsernames.replace(new Set([username, ...this.followingUsernames]))
+
+      const followProfileData = this.profileDataMap.get(username)
+      if (followProfileData) {
+        followProfileData.stats['followers-count']++
+      }
     })
   }
 
@@ -50,6 +57,11 @@ export class ProfileStore {
 
     runInAction(() => {
       this.followingUsernames.delete(username)
+
+      const followProfileData = this.profileDataMap.get(username)
+      if (followProfileData) {
+        followProfileData.stats['followers-count']--
+      }
     })
   }
 
@@ -80,6 +92,7 @@ export class ProfileStore {
 
   async checkNeedsRefreshCommunityFeed() {
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
+
     if (cookeds[0]?.id !== this.communityFeed[0]?.id) {
       runInAction(() => {
         this.needsRefreshCommunityFeed = true

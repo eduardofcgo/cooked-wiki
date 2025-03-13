@@ -7,9 +7,6 @@ export class UserStore {
   notificationPermissionStatus = null
   enabledNotifications = true
 
-  hiddenNotificationsCard = false
-  hiddenFindFriendsCard = false
-
   contactsPermissionStatus = null
 
   contactHashes = null
@@ -30,7 +27,7 @@ export class UserStore {
 
           await this.apiClient.put('/tokens', { token: newToken })
         }
-      },
+      }
     )
 
     reaction(
@@ -42,7 +39,7 @@ export class UserStore {
       },
       {
         fireImmediately: true,
-      },
+      }
     )
   }
 
@@ -110,13 +107,5 @@ export class UserStore {
 
   setLoadingFriendsProfiles() {
     this.loadingFriendsProfiles = true
-  }
-
-  hideNotificationsCard() {
-    this.hiddenNotificationsCard = true
-  }
-
-  hideFindFriendsCard() {
-    this.hiddenFindFriendsCard = true
   }
 }

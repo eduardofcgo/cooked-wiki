@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native'
 import { observer } from 'mobx-react-lite'
+import React, { useEffect } from 'react'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { absoluteUrl } from '../../urls'
 
-const NoImagePlaceholder = () => (
-  <View style={[styles.thumbnail, styles.placeholderContainer]}>
-    <Text style={styles.placeholderText}>No Image</Text>
-  </View>
-)
+const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 
 const RecipeThumbnail = observer(({ recipeId, extractId }) => {
   const { recipeMetadataStore } = useStore()
@@ -47,7 +43,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 110,
     height: 110,
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.background,
     borderRadius: theme.borderRadius.default,
     marginBottom: 4,
   },

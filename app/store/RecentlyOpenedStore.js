@@ -1,5 +1,5 @@
-import { makeAutoObservable, runInAction, reaction, observable } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mobx'
 import { equals } from 'ramda'
 
 export class RecentlyOpenedStore {
@@ -13,12 +13,12 @@ export class RecentlyOpenedStore {
     makeAutoObservable(this)
 
     reaction(
-      () => this.recipes,
+      () => toJS(this.recipes),
       recipes => {
         if (this.loaded) {
           this.saveToLocalStorage(recipes)
         }
-      },
+      }
     )
 
     this.loadFromLocalStorage()

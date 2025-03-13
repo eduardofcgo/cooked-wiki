@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext'
 import { getProfileImageUrl } from '../urls'
 import Recipes from './WebViews/Recipes'
 import Shopping from './WebViews/Shopping'
+
 const Tab = createMaterialTopTabNavigator()
 
 const tabLabelTextStyle = {
@@ -38,8 +39,7 @@ const TabBarLabel = ({ icon, label, focused }) => (
       style={{
         ...tabLabelTextStyle,
         color: focused ? theme.colors.black : theme.colors.softBlack,
-      }}
-    >
+      }}>
       {label}
     </Text>
   </View>
@@ -60,8 +60,7 @@ const ProfileMenu = ({ navigation, onEditBio }) => {
           onPress={() => setMenuVisible(true)}
         />
       }
-      anchorPosition='bottom'
-    >
+      anchorPosition='bottom'>
       <Menu.Item
         onPress={() => {
           setMenuVisible(false)
@@ -160,30 +159,26 @@ const Profile = observer(({ route, navigation, username, menu }) => {
         screenOptions={{
           ...tabStyle,
           lazy: true,
-        }}
-      >
+        }}>
         <Tab.Screen
           name='Cooked'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
-          }}
-        >
+          }}>
           {() => <CookedFeed username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Recipes'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faBox} label='Recipes' focused={focused} />,
-          }}
-        >
+          }}>
           {() => <Recipes username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
         <Tab.Screen
           name='Shopping'
           options={{
             tabBarLabel: ({ focused }) => <TabBarLabel icon={faCartShopping} label='Shopping' focused={focused} />,
-          }}
-        >
+          }}>
           {() => <Shopping username={username} navigation={navigation} route={route} />}
         </Tab.Screen>
       </Tab.Navigator>
@@ -233,8 +228,7 @@ const FollowButton = observer(({ username }) => {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-      }}
-    >
+      }}>
       {isLoading && <ActivityIndicator size='small' color={theme.colors.primary} style={{ marginRight: 5 }} />}
       {isFollowing ? (
         <SecondaryButton title='Following' onPress={handleUnfollowPress} loading={isLoading} style={{ width: 100 }} />

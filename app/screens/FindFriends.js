@@ -1,27 +1,16 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Platform,
-  Linking,
-  Alert,
-} from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { observer } from 'mobx-react-lite'
+import React, { useCallback, useEffect } from 'react'
+import { FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
 
-import RefreshControl from '../components/core/RefreshControl'
-import Loading from '../components/core/Loading'
-import { Button, PrimaryButton, SecondaryButton } from '../components/core/Button'
-import { theme } from '../style/style'
-import { normalizeEmail, normalizePhoneNumber, normalizePhoneNumberNaive } from '../contacts/normalize'
 import * as Contacts from 'expo-contacts'
+import { Button, PrimaryButton, SecondaryButton } from '../components/core/Button'
+import Loading from '../components/core/Loading'
+import ActionToast from '../components/notification/ActionToast'
+import { theme } from '../style/style'
 
 function openSettings() {
   if (Platform.OS === 'ios') {
@@ -33,12 +22,30 @@ function openSettings() {
 
 const UserItem = observer(({ user, navigation }) => {
   const { findFriendsStore } = useStore()
+  const { showInAppNotification } = useInAppNotification()
+
+  const handleFollow = useCallback(() => {
+    findFriendsStore.follow(user.username)
+
+    showInAppNotification(ActionToast, {
+      props: { message: 'Followed ' + user.username },
+      resetQueue: true,
+    })
+  }, [findFriendsStore, user.username])
+
+  const handleUnfollow = useCallback(() => {
+    findFriendsStore.unfollow(user.username)
+
+    showInAppNotification(ActionToast, {
+      props: { message: 'Unfollowed ' + user.username },
+      resetQueue: true,
+    })
+  }, [findFriendsStore, user.username])
 
   return (
     <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
-    >
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}>
       <View style={styles.userInfo}>
         <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />
@@ -51,17 +58,9 @@ const UserItem = observer(({ user, navigation }) => {
       </View>
 
       {user['is-following'] ? (
-        <SecondaryButton
-          title='Following'
-          style={styles.toggleFollowButton}
-          onPress={() => findFriendsStore.unfollow(user.username)}
-        />
+        <SecondaryButton title='Following' style={styles.toggleFollowButton} onPress={handleUnfollow} />
       ) : (
-        <Button
-          title='Follow'
-          style={styles.toggleFollowButton}
-          onPress={() => findFriendsStore.follow(user.username)}
-        />
+        <Button title='Follow' style={styles.toggleFollowButton} onPress={handleFollow} />
       )}
     </TouchableOpacity>
   )
