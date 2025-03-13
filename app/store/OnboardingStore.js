@@ -18,11 +18,11 @@ export class OnboardingStore {
     reaction(
       () => toJS(this.onboardingState),
       () => {
-        // AsyncStorage.setItem('onboardingState', JSON.stringify(this.onboardingState))
+        AsyncStorage.setItem('onboardingState', JSON.stringify(this.onboardingState))
       }
     )
 
-    // this.loadFromLocalStorage()
+    this.loadFromLocalStorage()
   }
 
   async saveToLocalStorage() {}

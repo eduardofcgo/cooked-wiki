@@ -1,54 +1,20 @@
-import React, { useRef, useEffect } from 'react'
-import { Animated, Easing, Text, View, StyleSheet } from 'react-native'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 
-import FadeInStatusBar from '../FadeInStatusBar'
 import { theme } from '../../style/style'
+import AnimatedBell from './AnimatedBell'
 import { Toast } from './Toast'
 
 const DURATION = 5000
 
 export default InAppNotification = ({ onPress, onClose, children }) => {
-  const bellRotation = useRef(new Animated.Value(0)).current
-
-  const rotateInterpolation = bellRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-15deg', '15deg'],
-  })
-
-  useEffect(() => {
-    const bellAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(bellRotation, {
-          toValue: 1,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(bellRotation, {
-          toValue: 0,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]),
-    )
-    bellAnimation.start()
-
-    return () => {
-      bellAnimation.stop()
-    }
-  })
-
   return (
     <>
       <Toast onPress={onPress} onClose={onClose} duration={DURATION}>
         <View style={styles.iconContainer}>
-          <Animated.View style={{ transform: [{ rotate: rotateInterpolation }] }}>
-            <MaterialCommunityIcons name='bell' size={24} color={theme.colors.primary} />
-          </Animated.View>
+          <AnimatedBell />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.title} numberOfLines={1}>

@@ -19,13 +19,13 @@ function MainMenu({ route }) {
   const navigation = useNavigation()
 
   return (
-    <TabNavigator.Navigator initialRouteName='Explore' screenOptions={tabScreenStyle}>
+    <TabNavigator.Navigator initialRouteName='Community' screenOptions={tabScreenStyle}>
       <TabNavigator.Screen
-        name='Explore'
+        name='Community'
         component={Community}
         options={({ route }) => ({
           ...screenStyle,
-          title: 'Explore',
+          title: 'Community',
           tabBarIcon: ({ focused }) => <TabIcon icon={faSearch} focused={focused} />,
           tabBarLabel: ({ focused }) => (
             <Text
@@ -33,7 +33,7 @@ function MainMenu({ route }) {
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
               }}>
-              Explore
+              Community
             </Text>
           ),
         })}

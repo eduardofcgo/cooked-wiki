@@ -21,8 +21,8 @@ import EditBio from '../components/profile/EditBio'
 import FullScreenImage from '../components/profile/FullScreenImage'
 import { useAuth } from '../context/AuthContext'
 import { getProfileImageUrl } from '../urls'
-import Recipes from './WebViews/Recipes'
-import Shopping from './WebViews/Shopping'
+import Recipes from './webviews/Recipes'
+import Shopping from './webviews/Shopping'
 
 const Tab = createMaterialTopTabNavigator()
 

@@ -3,7 +3,7 @@ import * as Contacts from 'expo-contacts'
 import * as Notifications from 'expo-notifications'
 import { observer } from 'mobx-react-lite'
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { FlatList, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import Reanimated, {
   useAnimatedStyle,
@@ -15,11 +15,13 @@ import Reanimated, {
 } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
+import { FindFriendsOnboardingModal } from '../components/community/FindFriendsOnboardingModal'
 import Cooked from '../components/cooked/Cooked'
 import { Button, PrimaryButton } from '../components/core/Button'
-import DrawnArrow from '../components/core/DrawnArrow'
+import HeaderTitleMenu from '../components/core/HeaderTitleMenu'
 import Loading from '../components/core/Loading'
 import RefreshControl from '../components/core/RefreshControl'
+import AnimatedBell from '../components/notification/AnimatedBell'
 import { useStore } from '../context/StoreContext'
 import { useInterval } from '../hooks/useInterval'
 import { requestPushNotificationsPermission } from '../notifications/push'
@@ -47,7 +49,7 @@ export default Community = observer(({ navigation, route }) => {
 
   const [clickedAddFriendsCard, setClickedAddFriendsCard] = useState(false)
 
-  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [findFriendsOnboardingModalVisible, setFindFriendsOnboardingModalVisible] = useState(false)
   const refreshPromptHeight = useSharedValue(0)
   const listRef = useRef(null)
 
@@ -72,12 +74,17 @@ export default Community = observer(({ navigation, route }) => {
 
     if (clickedAddFriendsCard) {
       setClickedAddFriendsCard(false)
-      setIsModalVisible(true)
+      setFindFriendsOnboardingModalVisible(true)
     }
   })
 
   useEffect(() => {
     navigation.setOptions({
+      headerTitle: () => (
+        <HeaderTitleMenu title='Community'>
+          <AnimatedBell />
+        </HeaderTitleMenu>
+      ),
       headerRight: () => (
         <TouchableOpacity
           style={{ marginRight: 16 }}
@@ -228,7 +235,7 @@ export default Community = observer(({ navigation, route }) => {
                     <TouchableOpacity
                       style={styles.rightAction}
                       onPress={() => {
-                        setIsModalVisible(true)
+                        setFindFriendsOnboardingModalVisible(true)
                       }}>
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
@@ -260,7 +267,7 @@ export default Community = observer(({ navigation, route }) => {
                     <TouchableOpacity
                       style={styles.rightAction}
                       onPress={() => {
-                        setIsModalVisible(true)
+                        setFindFriendsOnboardingModalVisible(true)
                       }}>
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
@@ -306,35 +313,13 @@ export default Community = observer(({ navigation, route }) => {
         />
       )}
 
-      <Modal visible={isModalVisible} transparent={true} animationType='fade'>
-        <View style={styles.modalOverlay}>
-          <Reanimated.View style={[pulseAnim]}>
-            <View style={styles.clearCircle}>
-              <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
-            </View>
-          </Reanimated.View>
-
-          <View style={[styles.arrowContainer]}>
-            <DrawnArrow />
-          </View>
-
-          <View style={styles.modalTouchable}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>You can always tap the icon at the top right corner to find friends.</Text>
-              <View>
-                <Button
-                  title='Got it'
-                  onPress={() => {
-                    onboardingStore.markFindFriendsHintAsShown()
-
-                    setIsModalVisible(false)
-                  }}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <FindFriendsOnboardingModal
+        visible={findFriendsOnboardingModalVisible}
+        onClose={() => {
+          onboardingStore.markFindFriendsHintAsShown()
+          setFindFriendsOnboardingModalVisible(false)
+        }}
+      />
     </View>
   )
 })
@@ -422,58 +407,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingHorizontal: 16,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalTouchable: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  clearCircle: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginTop: 5,
-    marginRight: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    backgroundColor: theme.colors.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowContainer: {
-    position: 'absolute',
-    top: 20,
-    right: 40,
-    transform: [{ rotate: '30deg' }],
-  },
-  modalContent: {
-    backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.default,
-    padding: 20,
-    width: '90%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalText: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.black,
-    textAlign: 'center',
-    marginBottom: 20,
   },
   emptySearchText: {
     fontSize: theme.fontSizes.default,

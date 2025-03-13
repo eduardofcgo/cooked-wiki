@@ -1,13 +1,12 @@
 import React from 'react'
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { theme } from '../../style/style'
 
 export function PrimaryButton({ onPress, title, style, icon }) {
   return (
     <Button
       onPress={onPress}
-      style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}
-    >
+      style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}>
       {icon}
       <Text style={[styles.buttonText, styles.primaryButtonText]}>{title}</Text>
     </Button>
@@ -39,8 +38,7 @@ export function Button({ onPress, title, style, loading, children }) {
     <TouchableOpacity
       style={[styles.button, style, loading && styles.loadingButton]}
       onPress={onPress}
-      disabled={loading}
-    >
+      disabled={loading}>
       {children ? children : title ? <Text style={[styles.buttonText]}>{title}</Text> : null}
     </TouchableOpacity>
   )
@@ -49,9 +47,10 @@ export function Button({ onPress, title, style, loading, children }) {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: theme.colors.softBlack,
-    borderRadius: 5,
+    borderRadius: theme.borderRadius.small,
     paddingVertical: 8,
     paddingHorizontal: 16,
+    minWidth: 64,
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',

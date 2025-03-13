@@ -11,7 +11,7 @@ import RecordCook from '../../screens/RecordCook'
 import RecordCookRecipe from '../../screens/RecordCookRecipe'
 import Settings from '../../screens/Settings'
 import Team from '../../screens/Team'
-import Recipe from '../../screens/WebViews/Recipe'
+import Recipe from '../webviews/Recipe'
 
 import { IconButton } from 'react-native-paper'
 

@@ -1,8 +1,8 @@
 import { useShareIntentContext } from 'expo-share-intent'
 import { getExtractUrl } from '../urls'
 
-import Recipe from './WebViews/Recipe'
 import LoadingRecipe from './LoadingRecipe'
+import Recipe from './webviews/Recipe'
 
 export default function Extract({ navigation, route }) {
   const { hasShareIntent, shareIntent } = useShareIntentContext()
