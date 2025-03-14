@@ -132,7 +132,7 @@ export default function CookedWebView({
         refreshWebView()
       }
     } catch (error) {
-      // console.warn('Error parsing message:', error)
+      console.log('Error parsing message:', error)
     }
   }
 
@@ -242,16 +242,11 @@ export default function CookedWebView({
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
     });`
 
-  const onLoad = e => {
-    // console.log('onLoad', e.nativeEvent.url)
-  }
-
   return (
     <SafeAreaView
       style={{
         flex: 1,
-      }}
-    >
+      }}>
       {!credentials ? (
         <LoadingScreen />
       ) : (
@@ -288,8 +283,6 @@ export default function CookedWebView({
               margin: 0,
               padding: 0,
             }}
-            onLoad={onLoad}
-            // onLoadEnd={onLoadEnd}
             injectedJavaScript={injectedJavaScript}
             onMessage={handleMessage}
             javaScriptEnabled={true}

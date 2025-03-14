@@ -81,8 +81,10 @@ export default Community = observer(({ navigation, route }) => {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <HeaderTitleMenu title='Community'>
-          <AnimatedBell />
+        <HeaderTitleMenu title='Community' reverse={true}>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+            <AnimatedBell />
+          </TouchableOpacity>
         </HeaderTitleMenu>
       ),
       headerRight: () => (

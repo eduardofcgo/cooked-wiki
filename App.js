@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
-import { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import {
   AtkinsonHyperlegible_400Regular,
@@ -39,7 +39,7 @@ import { theme } from './app/style/style'
 SplashScreen.preventAutoHideAsync()
 
 function App() {
-  useFonts({
+  const [loadedFonts] = useFonts({
     AtkinsonHyperlegible_400Regular,
     AtkinsonHyperlegible_400Regular_Italic,
     AtkinsonHyperlegible_700Bold,
@@ -57,9 +57,17 @@ function App() {
     EBGaramond_800ExtraBold_Italic,
   })
 
+  const [loadedCredentials, setLoadedCredentials] = useState(false)
+
   const onLoadedCredentials = useCallback(() => {
-    SplashScreen.hideAsync()
+    setLoadedCredentials(true)
   }, [])
+
+  useEffect(() => {
+    if (loadedCredentials && loadedFonts) {
+      SplashScreen.hideAsync()
+    }
+  }, [loadedCredentials, loadedFonts])
 
   return (
     <SafeAreaProvider>

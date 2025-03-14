@@ -5,6 +5,7 @@ import FindFriends from '../../screens/FindFriends'
 import Followers from '../../screens/Followers'
 import Following from '../../screens/Following'
 import Main from '../../screens/Main'
+import Notifications from '../../screens/Notifications'
 import { PublicProfile } from '../../screens/Profile'
 import RecipeSearch from '../../screens/RecipeSearch'
 import RecordCook from '../../screens/RecordCook'
@@ -21,6 +22,17 @@ export default function LoggedInStack({ StackNavigator }) {
   return (
     <>
       <StackNavigator.Screen name='Main' options={{ headerShown: false }} component={Main} />
+
+      <StackNavigator.Screen
+        name='Notifications'
+        component={Notifications}
+        options={{
+          title: 'Notifications',
+          ...screenStyle,
+          presentation: 'modal',
+          animation: 'slide_from_left',
+        }}
+      />
 
       <StackNavigator.Screen
         name='Extract'

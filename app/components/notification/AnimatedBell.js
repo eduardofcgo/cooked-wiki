@@ -3,7 +3,7 @@ import { Animated, Easing } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { theme } from '../../style/style'
 
-const AnimatedBell = ({ size = 20, color = theme.colors.primary }) => {
+const AnimatedBell = props => {
   const bellRotation = useRef(new Animated.Value(0)).current
 
   const rotateInterpolation = bellRotation.interpolate({
@@ -37,7 +37,7 @@ const AnimatedBell = ({ size = 20, color = theme.colors.primary }) => {
 
   return (
     <Animated.View style={{ transform: [{ rotate: rotateInterpolation }] }}>
-      <Icon name='bell' size={size} color={color} />
+      <Icon name='bell' size={20} color={theme.colors.primary} {...props} />
     </Animated.View>
   )
 }
