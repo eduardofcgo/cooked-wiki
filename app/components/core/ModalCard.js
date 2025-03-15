@@ -1,15 +1,15 @@
-import React, { useRef, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import Animated, {
+  interpolate,
+  runOnJS,
+  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-  useAnimatedGestureHandler,
-  interpolate,
-  runOnJS,
 } from 'react-native-reanimated'
-import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import { theme } from '../../style/style'
 // import FadeInStatusBar from './FadeInStatusBar'
 
@@ -95,7 +95,7 @@ export default function ModalCard({
           translateY: interpolate(
             translateY.value,
             [-screenHeight, 0, screenHeight],
-            [-screenHeight / 4, 0, screenHeight],
+            [-screenHeight / 4, 0, screenHeight]
           ),
         },
       ],
@@ -114,16 +114,14 @@ export default function ModalCard({
       transparent={true}
       animationType='none'
       onShow={onShow}
-      onRequestClose={handleClose}
-    >
+      onRequestClose={handleClose}>
       {/* <FadeInStatusBar /> */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.modalContainer, backgroundStyle]}>
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}
-            onPress={closeOnOverlay ? handleClose : undefined}
-          >
+            onPress={closeOnOverlay ? handleClose : undefined}>
             <View style={styles.modalContainer} />
           </TouchableOpacity>
           <PanGestureHandler onGestureEvent={gestureHandler}>

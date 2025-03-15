@@ -11,7 +11,7 @@ import { theme } from '../../style/style'
 import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
 import handler from './router/handler'
 
-export default function Recipe({ loadingComponent, navigation, route }) {
+export default function Recipe({ loadingComponent, navigation, route, children }) {
   const recipeId = route.params?.recipeId
   const extractId = route.params?.extractId
 
@@ -144,6 +144,8 @@ export default function Recipe({ loadingComponent, navigation, route }) {
         </View>
       </Animated.View>
 
+      {children}
+
       <CookedWebView
         key={recipeId + extractId}
         startUrl={extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)}
@@ -156,6 +158,7 @@ export default function Recipe({ loadingComponent, navigation, route }) {
     </View>
   )
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

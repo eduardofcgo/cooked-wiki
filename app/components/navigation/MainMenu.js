@@ -56,7 +56,7 @@ function MainMenu({ route }) {
           tabBarButton: props => (
             <TouchableOpacity
               {...props}
-              onPress={() => navigation.navigate('RecordCook')}
+              onPress={() => navigation.navigate('Cooked', { recipeId: '806716fa-8a45-4c6b-96e5-51bbdcf16716' })}
               style={{
                 flex: 1,
                 gap: 8,

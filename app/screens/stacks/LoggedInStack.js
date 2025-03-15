@@ -69,7 +69,7 @@ export default function LoggedInStack({ StackNavigator }) {
 
       <StackNavigator.Screen name='Team' component={Team} options={{ title: 'Patron', ...screenStyle }} />
 
-      <StackNavigator.Screen name='Cooked' component={Cooked} options={{ title: 'Cooked', ...screenStyle }} />
+      {/* <StackNavigator.Screen name='Cooked' component={Cooked} options={{ title: 'Cooked', ...screenStyle }} /> */}
 
       <StackNavigator.Screen
         name='RecordCook'
@@ -103,6 +103,16 @@ export default function LoggedInStack({ StackNavigator }) {
             />
           ),
         })}
+      />
+
+      <StackNavigator.Screen
+        name='Cooked'
+        component={Cooked}
+        options={{
+          title: 'Cooked',
+          ...screenStyle,
+          animation: 'slide_from_bottom',
+        }}
       />
 
       <StackNavigator.Screen
