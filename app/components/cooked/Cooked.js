@@ -1,29 +1,18 @@
-import React, { useState, useRef, useCallback, memo, useEffect, useMemo } from 'react'
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { faComment } from '@fortawesome/free-regular-svg-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
-import { TapGestureHandler, State } from 'react-native-gesture-handler'
-import Animated, {
-  withSpring,
-  withTiming,
-  useAnimatedStyle,
-  useSharedValue,
-  useAnimatedScrollHandler,
-  interpolate,
-  Extrapolate,
-} from 'react-native-reanimated'
-import { observer } from 'mobx-react-lite'
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
+import { faChevronRight, faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation } from '@react-navigation/native'
+import { observer } from 'mobx-react-lite'
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { State, TapGestureHandler } from 'react-native-gesture-handler'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 
-import { getProfileImageUrl, getPhotoUrl, getThumbnailUrl } from '../../urls'
+import { getPhotoUrl, getProfileImageUrl, getThumbnailUrl } from '../../urls'
 
-import { theme } from '../../style/style'
 import { useStore } from '../../context/StoreContext'
+import { theme } from '../../style/style'
 
 const WeeksAgo = memo(({ weeks }) => {
   if (weeks === 0) return <Text style={styles.weeksAgo}>This week</Text>
@@ -91,7 +80,7 @@ const CookedView = observer(
         transform: [{ scale: heartScale.value }],
         opacity: heartOpacity.value,
       }),
-      [],
+      []
     )
 
     const doubleTapRef = useRef(null)
@@ -102,7 +91,7 @@ const CookedView = observer(
           onRecipePress()
         }
       },
-      [onRecipePress],
+      [onRecipePress]
     )
 
     const onDoubleTap = useCallback(
@@ -115,7 +104,7 @@ const CookedView = observer(
           heartOpacity.value = withTiming(0, { duration: 1000 })
         }
       },
-      [stats?.liked, onLike, heartScale, heartOpacity],
+      [stats?.liked, onLike, heartScale, heartOpacity]
     )
 
     const handleUserPress = useCallback(() => {
@@ -180,7 +169,7 @@ const CookedView = observer(
         </View>
       </View>
     )
-  },
+  }
 )
 
 const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {
@@ -260,7 +249,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.secondary,
     marginVertical: 16,
   },
   scrollContent: {

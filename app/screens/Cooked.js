@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { observer } from 'mobx-react-lite'
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
@@ -17,7 +17,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + 50
 const SNAP_POINTS = {
-  COLLAPSED: -80,
+  COLLAPSED: -85,
   MID: -SCREEN_HEIGHT * 0.7,
   EXPANDED: -SCREEN_HEIGHT + 50,
 }
@@ -28,12 +28,12 @@ const Cooked = ({ navigation, route }) => {
   const context = useSharedValue({ y: 0 })
   const scrollEnabled = useSharedValue(false)
 
-  // Generate animation styles
+  // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
     }
-  })
+  }, []) // Add dependency array to prevent unnecessary recalculations
 
   const notesContainerAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
@@ -47,7 +47,7 @@ const Cooked = ({ navigation, route }) => {
       height,
       overflow: 'hidden',
     }
-  })
+  }, [])
 
   const photoContainerAnimatedStyle = useAnimatedStyle(() => {
     // Adjust the height of the photo container based on the card position
@@ -61,7 +61,7 @@ const Cooked = ({ navigation, route }) => {
     return {
       height,
     }
-  })
+  }, [])
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
     let borderRadius
@@ -77,7 +77,7 @@ const Cooked = ({ navigation, route }) => {
       borderTopLeftRadius: borderRadius,
       borderTopRightRadius: borderRadius,
     }
-  })
+  }, [])
 
   const dragIndicatorAnimatedStyle = useAnimatedStyle(() => {
     // Transform the drag indicator into a border when collapsed
@@ -101,7 +101,7 @@ const Cooked = ({ navigation, route }) => {
       backgroundColor: theme.colors.primary,
       opacity,
     }
-  })
+  }, [])
 
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     let opacity
@@ -116,20 +116,7 @@ const Cooked = ({ navigation, route }) => {
     return {
       backgroundColor: `rgba(0, 0, 0, ${opacity})`,
     }
-  })
-
-  const expandButtonAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      translateY.value,
-      [SNAP_POINTS.MID - 10, SNAP_POINTS.MID + 10],
-      [0, 1],
-      Extrapolate.CLAMP
-    )
-
-    return {
-      opacity: translateY.value <= SNAP_POINTS.MID ? 1 - opacity : opacity,
-    }
-  })
+  }, [])
 
   const expandButtonIconAnimatedStyle = useAnimatedStyle(() => {
     let rotation
@@ -155,22 +142,28 @@ const Cooked = ({ navigation, route }) => {
     return {
       transform: [{ rotate: `${rotation}deg` }],
     }
-  })
+  }, [])
 
-  const expandButtonTextAnimatedStyle = useAnimatedStyle(() => {
+  const expandIconAnimatedStyle = useAnimatedStyle(() => {
+    // Show expand icon when collapsed or moving toward collapsed state
+    const opacity = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, 1], Extrapolate.CLAMP)
+
     return {
-      opacity: translateY.value <= SNAP_POINTS.MID ? 1 : 0,
+      opacity,
+      display: opacity > 0 ? 'flex' : 'none',
+    }
+  }, [])
+
+  const shareIconAnimatedStyle = useAnimatedStyle(() => {
+    // Show share icon when expanded or at mid position
+    const opacity = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 1], Extrapolate.CLAMP)
+
+    return {
+      opacity,
+      display: opacity > 0 ? 'flex' : 'none',
       position: 'absolute',
-      left: 0,
-      right: 0,
     }
-  })
-
-  const collapseButtonTextAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: translateY.value <= SNAP_POINTS.MID ? 0 : 1,
-    }
-  })
+  }, [])
 
   // Function to snap to a specific position
   const snapTo = point => {
@@ -270,9 +263,20 @@ const Cooked = ({ navigation, route }) => {
     snapTo(SNAP_POINTS.COLLAPSED)
   }
 
-  // Initialize sheet position
-  useEffect(() => {
-    translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
+  // Add this function to handle sharing
+  const handleShare = () => {
+    // Implement sharing functionality here
+    console.log('Share recipe')
+  }
+
+  // Initialize sheet position - move this to a useLayoutEffect to run before render
+  useLayoutEffect(() => {
+    // Use a small delay to ensure the component is fully mounted
+    const timer = setTimeout(() => {
+      translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
+    }, 100)
+
+    return () => clearTimeout(timer)
   }, [])
 
   return (
@@ -309,16 +313,15 @@ const Cooked = ({ navigation, route }) => {
               <Text style={styles.username}>chefmaria</Text>
               <Text style={styles.name}>01/01/2025</Text>
             </View>
-            <TouchableOpacity style={styles.expandButtonContainer} onPress={toggleExpansion}>
+            <TouchableOpacity
+              style={styles.expandButtonContainer}
+              onPress={translateY.value >= SNAP_POINTS.MID ? toggleExpansion : handleShare}>
               <View style={styles.expandButtonWrapper}>
-                <View style={[styles.buttonTextContainer]}>
-                  <Animated.Text style={[styles.expandButtonText, collapseButtonTextAnimatedStyle]}>
-                    Notes
-                  </Animated.Text>
-                  <Animated.Text style={[styles.expandButtonText, expandButtonTextAnimatedStyle]}>Recipe</Animated.Text>
-                </View>
-                <Animated.View style={expandButtonIconAnimatedStyle}>
-                  <MaterialIcons name='keyboard-arrow-up' size={16} color='white' />
+                <Animated.View style={expandIconAnimatedStyle}>
+                  <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
+                </Animated.View>
+                <Animated.View style={shareIconAnimatedStyle}>
+                  <MaterialIcons name='send' size={20} color={theme.colors.primary} />
                 </Animated.View>
               </View>
             </TouchableOpacity>
@@ -406,8 +409,6 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 23,
     marginRight: 12,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
   },
   profileInfo: {
     flex: 1,
@@ -452,23 +453,11 @@ const styles = StyleSheet.create({
   expandButtonWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.softBlack,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  expandButtonText: {
-    fontSize: 13,
-    color: 'white',
-    fontWeight: '600',
-    marginRight: 4,
-  },
-  buttonTextContainer: {
-    width: 45,
-    alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    height: 20,
+    padding: 8,
+    borderRadius: 20,
+    width: 36,
+    height: 36,
   },
 })
 
