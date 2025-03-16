@@ -95,7 +95,7 @@ export default function ModalCard({
           translateY: interpolate(
             translateY.value,
             [-screenHeight, 0, screenHeight],
-            [-screenHeight / 4, 0, screenHeight]
+            [-screenHeight / 4, 0, screenHeight],
           ),
         },
       ],
@@ -114,14 +114,16 @@ export default function ModalCard({
       transparent={true}
       animationType='none'
       onShow={onShow}
-      onRequestClose={handleClose}>
+      onRequestClose={handleClose}
+    >
       {/* <FadeInStatusBar /> */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.modalContainer, backgroundStyle]}>
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}
-            onPress={closeOnOverlay ? handleClose : undefined}>
+            onPress={closeOnOverlay ? handleClose : undefined}
+          >
             <View style={styles.modalContainer} />
           </TouchableOpacity>
           <PanGestureHandler onGestureEvent={gestureHandler}>

@@ -82,9 +82,9 @@ export class ProfileStore {
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
 
     runInAction(() => {
-      this.communityFeed.replace([cookeds[0]]) // temporary
+      this.communityFeed.replace(cookeds)
       this.isLoadingCommunityFeed = false
-      this.hasMoreCommunityFeed = false //cookeds.length > 0
+      this.hasMoreCommunityFeed = cookeds.length > 0
       this.communityFeedPage = 1
       this.needsRefreshCommunityFeed = false
     })

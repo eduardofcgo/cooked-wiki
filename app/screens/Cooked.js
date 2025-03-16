@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
@@ -10,6 +10,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 import Card from '../components/cooked/Card'
+import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 
@@ -30,8 +31,27 @@ const SNAP_POINTS = {
 const Recipe = React.lazy(() => import('../screens/webviews/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
-  // Get the startPosition from route params
+  const { preloadedCooked, cookedId } = route.params
   const startPosition = route.params?.startPosition?.y || SCREEN_HEIGHT - 55
+
+  const { profileStore } = useStore()
+
+  const [loadingCooked, setLoadingCooked] = useState(Boolean(preloadedCooked))
+  const [cooked, setCooked] = useState(preloadedCooked)
+
+  const recipeId = cooked['recipe-id']
+  const extractId = cooked['extract-id']
+
+  useEffect(() => {
+    ;(async () => {
+      // if (!preloadedCooked) {
+      //   setLoadingCooked(true)
+      //   const cooked = await profileStore.getCooked(loggedInUsername, cookedId)
+      //   setCooked(cooked)
+      //   setLoadingCooked(false)
+      // }
+    })()
+  }, [cookedId])
 
   // Add state to control when to load the Recipe component
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
@@ -63,7 +83,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -77,7 +97,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -106,7 +126,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
       [0, 400],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -120,7 +140,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
       [SCREEN_WIDTH, 40],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     const top = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 10], Extrapolate.CLAMP)
@@ -285,10 +305,12 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}>
+        onTouchStart={handleRecipeInteraction}
+      >
         {shouldLoadRecipe ? (
           <Recipe
-            recipeId={'3d88ee27-a214-403e-95d8-5aae6f468e35'}
+            recipeId={recipeId}
+            extractId={extractId}
             route={route}
             navigation={navigation}
             onScroll={handleRecipeInteraction}
@@ -301,12 +323,7 @@ const Cooked = ({ navigation, route }) => {
 
       <GestureDetector gesture={panGesture}>
         <Card
-          photoUri={
-            'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:1080/height:1080/quality:75/NDE3MTZhNTMtMDY2ZS00MzcwLWIyZmQtOWI1MTg1ZDFhYzZkLzg2MmI2NzIxLWE3Y2QtNDAyZS1hYjQ2LTk1M2NjN2I5OTdiZg.jpg'
-          }
-          profileImage={'https://randomuser.me/api/portraits/women/43.jpg'}
-          username={'chefmaria'}
-          date={'01/01/2025'}
+          cooked={cooked}
           showShareIcon={true}
           containerStyle={cardAnimatedStyle}
           photoStyle={imageAnimatedStyle}

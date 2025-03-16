@@ -26,7 +26,7 @@ const AnimatedBell = props => {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     )
     bellAnimation.start()
 

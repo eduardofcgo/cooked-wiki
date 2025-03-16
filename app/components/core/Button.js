@@ -6,7 +6,8 @@ export function PrimaryButton({ onPress, title, style, icon }) {
   return (
     <Button
       onPress={onPress}
-      style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}>
+      style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}
+    >
       {icon}
       <Text style={[styles.buttonText, styles.primaryButtonText]}>{title}</Text>
     </Button>
@@ -38,7 +39,8 @@ export function Button({ onPress, title, style, loading, children }) {
     <TouchableOpacity
       style={[styles.button, style, loading && styles.loadingButton]}
       onPress={onPress}
-      disabled={loading}>
+      disabled={loading}
+    >
       {children ? children : title ? <Text style={[styles.buttonText]}>{title}</Text> : null}
     </TouchableOpacity>
   )

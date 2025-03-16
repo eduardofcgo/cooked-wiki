@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
+import { toJS } from 'mobx'
 import React, { useRef } from 'react'
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Animated from 'react-native-reanimated'
@@ -8,10 +9,7 @@ import SocialMenu from './SocialMenu'
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const Card = ({
-  photoUri,
-  profileImage,
-  username,
-  date,
+  cooked,
   showExpandIcon,
   showShareIcon,
   onActionPress,
@@ -26,30 +24,40 @@ const Card = ({
   const navigation = useNavigation()
   const cardRef = useRef(null)
 
-  //   const notes =
-  //     'I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned out amazing! Next time I might try adding some red pepper flakes for a bit of heat.'
-  const notes = 'amazing'
+  const cookedId = cooked['id']
+  const cookedPhotoPath = cooked['cooked-photos-path']
+    ? 'https://cooked.wiki/image/photo/' + cooked['cooked-photos-path'][0]
+    : null
+  const profilePhoto = 'https://cooked.wiki/user/' + cooked['username'] + '/profile/image'
 
   const handlePress = () => {
     if (cardRef.current) {
-      cardRef.current.measure((x, y, width, height, pageX, pageY) => {
+      cardRef.current.measure((width, height, pageX, pageY) => {
+        // For smooth transition, the next screen will know the current position of the card
         const startPosition = { x: pageX, y: pageY, width, height }
-        navigation.navigate('Cooked', { startPosition })
+
+        // Also for smoothness, we pass the previously loaded cooked to the Cooked screen.
+        // If the cooked screen does not receive this, the standard animation will be used.
+        navigation.navigate('Cooked', { startPosition, preloadedCooked: toJS(cooked), cookedId })
       })
     } else {
-      navigation.navigate('Cooked')
+      navigation.navigate('Cooked', { cookedId })
     }
   }
 
   return (
-    <Animated.View ref={cardRef} style={[styles.container, containerStyle]} sharedTransitionTag='card'>
+    <Animated.View
+      ref={cardRef}
+      style={[styles.container, containerStyle]}
+      sharedTransitionTag={'cooked-card-' + cookedId}
+    >
       <TouchableOpacity activeOpacity={0.9} onPress={handlePress}>
         <Animated.View style={photoContainerStyle}>
           <Animated.Image
-            source={{ uri: photoUri }}
+            source={{ uri: cookedPhotoPath }}
             style={[styles.photo, photoStyle]}
             resizeMode='cover'
-            sharedTransitionTag='tag'
+            sharedTransitionTag={'cooked-card-photo-' + cookedId}
           />
         </Animated.View>
 
@@ -58,17 +66,19 @@ const Card = ({
 
       <SocialMenu
         onActionPress={onActionPress}
-        profileImage={profileImage}
-        username={username}
-        date={date}
+        profileImage={profilePhoto}
+        username={cooked['username']}
+        date={cooked['date']}
         showExpandIcon={showExpandIcon}
         showShareIcon={showShareIcon}
       />
 
       <Animated.View style={[styles.body, bodyStyle]}>
-        <View style={styles.notes}>
-          <Text style={styles.notesText}>{notes}</Text>
-        </View>
+        {cooked['notes'] && (
+          <View style={styles.notes}>
+            <Text style={styles.notesText}>{cooked['notes']}</Text>
+          </View>
+        )}
       </Animated.View>
     </Animated.View>
   )
@@ -96,8 +106,9 @@ const styles = StyleSheet.create({
     minHeight: 0,
   },
   notesText: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.default,
     lineHeight: 22,
+    fontFamily: theme.fonts.ui,
     color: theme.colors.black,
   },
 })

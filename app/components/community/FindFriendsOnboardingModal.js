@@ -16,9 +16,9 @@ export const FindFriendsOnboardingModal = ({ visible, onClose }) => {
             withSequence(
               withTiming(1, { duration: 1000 }),
               withTiming(1.05, { duration: 500 }),
-              withTiming(1, { duration: 1000 })
+              withTiming(1, { duration: 1000 }),
             ),
-            -1
+            -1,
           ),
         },
       ],

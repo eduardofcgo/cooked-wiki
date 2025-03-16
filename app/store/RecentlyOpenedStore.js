@@ -18,7 +18,7 @@ export class RecentlyOpenedStore {
         if (this.loaded) {
           this.saveToLocalStorage(recipes)
         }
-      }
+      },
     )
 
     this.loadFromLocalStorage()

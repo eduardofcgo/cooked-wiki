@@ -87,7 +87,8 @@ export default Community = observer(({ navigation, route }) => {
         <TouchableOpacity
           style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
-          onPress={handleAddFriends}>
+          onPress={handleAddFriends}
+        >
           <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
         </TouchableOpacity>
       ),
@@ -133,9 +134,9 @@ export default Community = observer(({ navigation, route }) => {
             withSequence(
               withTiming(1, { duration: 1000 }),
               withTiming(1.05, { duration: 500 }),
-              withTiming(1, { duration: 1000 })
+              withTiming(1, { duration: 1000 }),
             ),
-            -1
+            -1,
           ),
         },
       ],
@@ -147,23 +148,15 @@ export default Community = observer(({ navigation, route }) => {
   }, [])
 
   const renderItem = useCallback(
-    ({ item: post }) => (
+    ({ item: cooked }) => (
       <FeedItem
-        recipe={{
-          name: post.recipeName,
-          imageUrl: post.imageUrl,
-          notesPreview: post.notes,
-        }}
-        profileImage={post.profileImage}
-        username={post.username}
-        date={post.timestamp}
-        notes={post.notes}
+        cooked={cooked}
         // Why is it breaking the login system?
         // onPress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
         onSharePress={() => {}}
       />
     ),
-    [navigation]
+    [navigation],
   )
 
   const handleLoadMore = () => {
@@ -243,10 +236,12 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setFindFriendsOnboardingModalVisible(true)
-                      }}>
+                      }}
+                    >
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}>
+                  )}
+                >
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='bell-outline' size={20} color={theme.colors.softBlack} />
@@ -275,10 +270,12 @@ export default Community = observer(({ navigation, route }) => {
                       style={styles.rightAction}
                       onPress={() => {
                         setFindFriendsOnboardingModalVisible(true)
-                      }}>
+                      }}
+                    >
                       <Icon name='close' size={20} color={theme.colors.primary} />
                     </TouchableOpacity>
-                  )}>
+                  )}
+                >
                   <View style={styles.card}>
                     <View style={styles.iconContainer}>
                       <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
@@ -310,7 +307,7 @@ export default Community = observer(({ navigation, route }) => {
           ref={listRef}
           data={communityFeed}
           renderItem={renderItem}
-          keyExtractor={post => post.id}
+          keyExtractor={cooked => cooked.id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}

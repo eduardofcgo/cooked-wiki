@@ -15,7 +15,7 @@ const Recipes = observer(({ navigation, route, username }) => {
     pathname => {
       return handler(pathname, { navigation, loggedInUsername })
     },
-    [navigation, loggedInUsername]
+    [navigation, loggedInUsername],
   )
 
   return (

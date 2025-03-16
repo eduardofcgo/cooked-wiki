@@ -6,13 +6,10 @@ import { theme } from '../../style/style'
 const SocialMenu = ({ onActionPress, profileImage, username, date, showExpandIcon, showShareIcon }) => {
   return (
     <View style={styles.profileHeader}>
-      <Image
-        source={{ uri: profileImage || 'https://randomuser.me/api/portraits/women/43.jpg' }}
-        style={styles.profilePicture}
-      />
+      <Image source={{ uri: profileImage }} style={styles.profilePicture} />
       <View style={styles.profileInfo}>
-        <Text style={styles.username}>{username || 'chefmaria'}</Text>
-        <Text style={styles.name}>{date || '01/01/2025'}</Text>
+        <Text style={styles.username}>{username}</Text>
+        <Text style={styles.date}>{date}</Text>
       </View>
       <TouchableOpacity style={styles.expandButtonContainer} onPress={onActionPress}>
         <View style={styles.expandButtonWrapper}>
@@ -52,14 +49,14 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 16,
-    fontWeight: '600',
-    fontFamily: theme.fonts.title,
-    color: theme.colors.black,
+    fontWeight: 'bold',
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.primary,
     marginBottom: 2,
   },
-  name: {
-    fontSize: 11,
-    color: '#666',
+  date: {
+    fontSize: theme.fontSizes.small,
+    color: theme.colors.softBlack,
   },
   expandButtonContainer: {
     padding: 8,

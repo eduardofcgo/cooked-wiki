@@ -15,7 +15,7 @@ export class NotificationsStore {
       () => this.hasNewNotifications,
       () => {
         AsyncStorage.setItem('hasNewNotifications', JSON.stringify(this.hasNewNotifications))
-      }
+      },
     )
 
     this.loadHasNewNotificationsFromLocalStorage()

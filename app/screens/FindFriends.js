@@ -45,7 +45,8 @@ const UserItem = observer(({ user, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}>
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
+    >
       <View style={styles.userInfo}>
         <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />

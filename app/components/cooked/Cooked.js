@@ -80,7 +80,7 @@ const CookedView = observer(
         transform: [{ scale: heartScale.value }],
         opacity: heartOpacity.value,
       }),
-      []
+      [],
     )
 
     const doubleTapRef = useRef(null)
@@ -91,7 +91,7 @@ const CookedView = observer(
           onRecipePress()
         }
       },
-      [onRecipePress]
+      [onRecipePress],
     )
 
     const onDoubleTap = useCallback(
@@ -104,7 +104,7 @@ const CookedView = observer(
           heartOpacity.value = withTiming(0, { duration: 1000 })
         }
       },
-      [stats?.liked, onLike, heartScale, heartOpacity]
+      [stats?.liked, onLike, heartScale, heartOpacity],
     )
 
     const handleUserPress = useCallback(() => {
@@ -169,7 +169,7 @@ const CookedView = observer(
         </View>
       </View>
     )
-  }
+  },
 )
 
 const Cooked = observer(({ post, canEdit, onRecipePress, onUserPress, hideAuthor }) => {

@@ -13,13 +13,13 @@ import handler from './router/handler'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-export default function Recipe({ loadingComponent, navigation, route, children }) {
-  const recipeId = route.params?.recipeId
-  const extractId = route.params?.extractId
+export default function Recipe({ loadingComponent, navigation, route, ...props }) {
+  const recipeId = props.recipeId || route.params?.recipeId
+  const extractId = props.extractId || route.params?.extractId
 
   const { recentlyOpenedStore } = useStore()
   const nextMostRecentRecipe = recentlyOpenedStore.recipes.find(
-    recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId
+    recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId,
   )
   const hasRecentlyOpennedRecipes = Boolean(nextMostRecentRecipe)
 
@@ -107,7 +107,8 @@ export default function Recipe({ loadingComponent, navigation, route, children }
               fontSize: theme.fontSizes.large,
               fontFamily: theme.fonts.title,
               color: theme.colors.black,
-            }}>
+            }}
+          >
             Recipe
           </Text>
           {hasRecentlyOpennedRecipes && (
@@ -151,7 +152,7 @@ export default function Recipe({ loadingComponent, navigation, route, children }
     pathname => {
       return handler(pathname, { navigation })
     },
-    [navigation]
+    [navigation],
   )
 
   return (
@@ -165,15 +166,14 @@ export default function Recipe({ loadingComponent, navigation, route, children }
                 <TouchableOpacity
                   key={index}
                   style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
-                  onPress={() => openRecipe(recipe)}>
+                  onPress={() => openRecipe(recipe)}
+                >
                   <RecipeThumbnail recipeId={recipe.recipeId} extractId={recipe.extractId} />
                 </TouchableOpacity>
               ))}
           </ScrollView>
         </View>
       </Animated.View>
-
-      {children}
 
       <Animated.View style={[styles.webViewContainer, animatedContentStyle]}>
         <CookedWebView

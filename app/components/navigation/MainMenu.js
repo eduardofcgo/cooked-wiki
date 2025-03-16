@@ -32,7 +32,8 @@ function MainMenu({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Community
             </Text>
           ),
@@ -49,7 +50,8 @@ function MainMenu({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Add to journal
             </Text>
           ),
@@ -62,13 +64,15 @@ function MainMenu({ route }) {
                 gap: 8,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}>
+              }}
+            >
               <TabIcon icon={faCamera} focused={false} />
               <Text
                 style={{
                   ...tabScreenStyle.tabBarLabelStyle,
                   color: theme.colors.softBlack,
-                }}>
+                }}
+              >
                 Add to journal
               </Text>
             </TouchableOpacity>
@@ -88,7 +92,8 @@ function MainMenu({ route }) {
               style={{
                 ...tabScreenStyle.tabBarLabelStyle,
                 color: focused ? 'black' : theme.colors.softBlack,
-              }}>
+              }}
+            >
               Profile
             </Text>
           ),
