@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { useLayoutEffect, useState } from 'react'
-import { Dimensions, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
   Extrapolate,
@@ -9,37 +9,59 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated'
-import SocialMenu from '../components/cooked/SocialMenu'
+import Card from '../components/cooked/Card'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + 50
+
+// Square
+const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
+
 const SNAP_POINTS = {
-  COLLAPSED: -85,
-  MID: -SCREEN_HEIGHT * 0.7,
-  EXPANDED: -SCREEN_HEIGHT + 50,
+  COLLAPSED: PHOTO_HEIGHT - 125,
+  MID: PHOTO_HEIGHT - 125 - 110,
+  EXPANDED: 0, // At the top
 }
 
 // Replace the direct import with lazy loading
 const Recipe = React.lazy(() => import('../screens/webviews/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
+  // Get the startPosition from route params
+  const startPosition = route.params?.startPosition?.y || SCREEN_HEIGHT - 55
+
   // Add state to control when to load the Recipe component
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
 
   // Animation values
-  const translateY = useSharedValue(SNAP_POINTS.COLLAPSED)
+  const translateY = useSharedValue(startPosition || SNAP_POINTS.COLLAPSED)
   const context = useSharedValue({ y: 0 })
   const scrollEnabled = useSharedValue(false)
+
+  // Instead of accessing translateY.value directly in any JS function,
+  // let's create a regular state variable to track the current position
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  // Use useAnimatedReaction to update the state variable
+  // useAnimatedReaction(
+  //   () => translateY.value,
+  //   currentValue => {
+  //     const shouldBeExpanded = currentValue <= SNAP_POINTS.MID
+  //     if (shouldBeExpanded !== isExpanded) {
+  //       runOnJS(setIsExpanded)(shouldBeExpanded)
+  //     }
+  //   }
+  // )
 
   // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
     }
-  }, []) // Add dependency array to prevent unnecessary recalculations
+  }, [])
 
   const notesContainerAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
@@ -56,16 +78,15 @@ const Cooked = ({ navigation, route }) => {
   }, [])
 
   const photoContainerAnimatedStyle = useAnimatedStyle(() => {
-    // Adjust the height of the photo container based on the card position
     const height = interpolate(
       translateY.value,
-      [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
-      [2, SCREEN_WIDTH * 0.8], // Smaller height when collapsed
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
+      [2, SCREEN_WIDTH],
       Extrapolate.CLAMP
     )
 
     return {
-      height,
+      transform: [{ translateY: height }],
     }
   }, [])
 
@@ -124,20 +145,9 @@ const Cooked = ({ navigation, route }) => {
     }
   }, [])
 
-  // Calculate if we should show expand or share icon based on translateY position
-  const shouldShowExpandIcon = () => {
-    'worklet'
-    return translateY.value >= SNAP_POINTS.MID
-  }
-
-  const shouldShowShareIcon = () => {
-    'worklet'
-    return translateY.value <= SNAP_POINTS.MID
-  }
-
-  // Determine which action to perform when the button is pressed
+  // Now use the state variable instead of accessing translateY.value directly
   const handleSocialMenuAction = () => {
-    if (translateY.value >= SNAP_POINTS.MID) {
+    if (!isExpanded) {
       toggleExpansion()
     } else {
       handleShare()
@@ -248,84 +258,55 @@ const Cooked = ({ navigation, route }) => {
       }
     })
 
-  // Initialize sheet position and delay loading the Recipe
   useLayoutEffect(() => {
-    // Use a small delay to ensure the component is fully mounted
-    const timer = setTimeout(() => {
-      translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
+    translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
 
-      // Delay loading the Recipe component until after the card animation
-      setTimeout(() => {
-        setShouldLoadRecipe(true)
-      }, 300)
+    const timer = setTimeout(() => {
+      setShouldLoadRecipe(true)
     }, 100)
 
     return () => clearTimeout(timer)
   }, [])
 
+  // Function to render the animated drag indicator
+  const renderDragIndicator = () => {
+    return <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.recipeContainer} onTouchStart={handleRecipeInteraction}>
+      <View
+        style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        onTouchStart={handleRecipeInteraction}>
         {shouldLoadRecipe ? (
-          <React.Suspense fallback={<LoadingScreen />}>
-            <Recipe
-              recipeId={route.params?.recipeId}
-              route={route}
-              navigation={navigation}
-              onScroll={handleRecipeInteraction}
-            />
-          </React.Suspense>
+          <Recipe
+            recipeId={'3d88ee27-a214-403e-95d8-5aae6f468e35'}
+            route={route}
+            navigation={navigation}
+            onScroll={handleRecipeInteraction}
+          />
         ) : (
-          <View style={styles.recipePlaceholder} />
+          <LoadingScreen />
         )}
         <Animated.View style={[styles.recipeOverlay, overlayAnimatedStyle]} />
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
-          {/* Full-width photo square with drag indicator positioned on top */}
-          <Animated.View style={[styles.photoContainer, photoContainerAnimatedStyle]}>
-            <Animated.Image
-              source={{
-                uri: 'https://cooked.wiki/image/photo/41716a53-066e-4370-b2fd-9b5185d1ac6d/862b6721-a7cd-402e-ab46-953cc7b997bf',
-              }}
-              style={[styles.fullWidthPhoto, imageAnimatedStyle]}
-              resizeMode='cover'
-            />
-            {/* Card header with animated drag indicator positioned absolutely */}
-            <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
-          </Animated.View>
-
-          {/* Profile header */}
-          <SocialMenu
-            onActionPress={handleSocialMenuAction}
-            profileImage='https://randomuser.me/api/portraits/women/43.jpg'
-            username='chefmaria'
-            date='01/01/2025'
-            showExpandIcon={shouldShowExpandIcon()}
-            showShareIcon={shouldShowShareIcon()}
-          />
-
-          {/* Notes section */}
-          <Animated.View style={[styles.notesContainer, notesContainerAnimatedStyle]}>
-            <Text style={styles.notesText}>
-              I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned
-              out amazing! Next time I might try adding some red pepper flakes for a bit of heat.
-            </Text>
-
-            <Text style={styles.notesTitle}>Modifications:</Text>
-            <Text style={styles.notesText}>
-              • Substituted chicken broth with vegetable broth to make it vegetarian-friendly • Added 1/4 cup of white
-              wine for extra flavor • Used smoked paprika instead of regular for a deeper flavor profile
-            </Text>
-
-            <Text style={styles.notesTitle}>Tips:</Text>
-            <Text style={styles.notesText}>
-              Make sure to let the dish rest for at least 10 minutes before serving - it really helps the flavors meld
-              together. This recipe also freezes well for meal prep!
-            </Text>
-          </Animated.View>
-        </Animated.View>
+        <Card
+          photoUri={
+            'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:1080/height:1080/quality:75/NDE3MTZhNTMtMDY2ZS00MzcwLWIyZmQtOWI1MTg1ZDFhYzZkLzg2MmI2NzIxLWE3Y2QtNDAyZS1hYjQ2LTk1M2NjN2I5OTdiZg.jpg'
+          }
+          profileImage={'https://randomuser.me/api/portraits/women/43.jpg'}
+          username={'chefmaria'}
+          date={'01/01/2025'}
+          showShareIcon={true}
+          notes={
+            'I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned out amazing! Next time I might try adding some red pepper flakes for a bit of heat.'
+          }
+          containerStyle={cardAnimatedStyle}
+          photoStyle={imageAnimatedStyle}
+          photoContainerStyle={photoContainerAnimatedStyle}
+        />
       </GestureDetector>
     </GestureHandlerRootView>
   )
@@ -363,34 +344,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     zIndex: 10,
   },
-  photoContainer: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH * 0.8,
-    padding: 0,
-    position: 'relative',
-  },
-  fullWidthPhoto: {
-    width: '100%',
-    height: '100%',
-  },
-  notesContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: theme.colors.secondary,
-    height: 'auto',
-  },
-  notesTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 16,
-    color: '#333',
-  },
-  notesText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: theme.colors.black,
-  },
   recipeOverlay: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 2,
@@ -399,7 +352,16 @@ const styles = StyleSheet.create({
   },
   recipePlaceholder: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
+  },
+  cardContentContainer: {
+    borderRadius: 0,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+    marginBottom: 0,
   },
 })
 

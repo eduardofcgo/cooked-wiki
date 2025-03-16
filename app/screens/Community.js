@@ -311,11 +311,11 @@ export default Community = observer(({ navigation, route }) => {
           data={communityFeed}
           renderItem={renderItem}
           keyExtractor={post => post.id}
-          contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
+          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         />
       )}
 
