@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Platform, SafeAreaView } from 'react-native'
+import { Dimensions, Platform, SafeAreaView } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import { useEffect, useRef, useState } from 'react'
@@ -17,6 +17,7 @@ export default function CookedWebView({
   loadingComponent,
 }) {
   const webViewRef = useRef()
+  const [isWebViewReady, setIsWebViewReady] = useState(false)
 
   const auth = useAuth()
   const { credentials } = auth
@@ -242,6 +243,14 @@ export default function CookedWebView({
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
     });`
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWebViewReady(true)
+    }, 250)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <SafeAreaView
       style={{
@@ -251,64 +260,45 @@ export default function CookedWebView({
         <LoadingScreen />
       ) : (
         <>
-          <WebView
-            source={{
-              uri: currentURI,
-            }}
-            onShouldStartLoadWithRequest={onWebViewRequest}
-            setSupportMultipleWindows={false}
-            nativeConfig={{
-              props: {
-                webContentsDebuggingEnabled: true,
-              },
-            }}
-            userAgent={'app'}
-            allowsBackForwardNavigationGestures={false}
-            domStorageEnabled={true}
-            sharedCookiesEnabled={true}
-            thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
-            incognito={false}
-            cacheEnabled={true}
-            pullToRefreshEnabled={true}
-            startInLoadingState={true}
-            renderLoading={() => {
-              return loadingComponent || <LoadingScreen />
-            }}
-            ref={webViewRef}
-            style={{
-              backgroundColor: theme.colors.background,
-              justifyContent: 'flex-start',
-              flexDirection: 'column',
-              marginBottom: 0,
-              margin: 0,
-              padding: 0,
-            }}
-            injectedJavaScript={injectedJavaScript}
-            onMessage={handleMessage}
-            javaScriptEnabled={true}
-          />
-          {false && (
-            <ActivityIndicator
-              style={{
-                borderRadius: 50,
-                backgroundColor: theme.colors.background,
-                position: 'absolute',
-                top: 20,
-                alignSelf: 'center',
-                zIndex: 1000,
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
-                padding: 5,
+          {isWebViewReady ? (
+            <WebView
+              source={{
+                uri: currentURI,
               }}
-              size='small'
-              color={theme.colors.primary}
+              onShouldStartLoadWithRequest={onWebViewRequest}
+              setSupportMultipleWindows={false}
+              nativeConfig={{
+                props: {
+                  webContentsDebuggingEnabled: true,
+                },
+              }}
+              userAgent={'app'}
+              allowsBackForwardNavigationGestures={false}
+              domStorageEnabled={true}
+              sharedCookiesEnabled={true}
+              thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
+              incognito={false}
+              cacheEnabled={true}
+              pullToRefreshEnabled={true}
+              startInLoadingState={true}
+              renderLoading={() => {
+                return loadingComponent || <LoadingScreen />
+              }}
+              ref={webViewRef}
+              style={{
+                backgroundColor: theme.colors.background,
+                justifyContent: 'flex-start',
+                flexDirection: 'column',
+                marginBottom: 0,
+                margin: 0,
+                padding: 0,
+              }}
+              injectedJavaScript={injectedJavaScript}
+              onMessage={handleMessage}
+              javaScriptEnabled={true}
             />
+          ) : (
+            loadingComponent || <LoadingScreen />
           )}
         </>
       )}
