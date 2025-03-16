@@ -22,9 +22,6 @@ const FeedItem = ({ recipe, profileImage, username, date, notes, onPress, onShar
         username={'chefmaria'}
         date={'01/01/2025'}
         showShareIcon={true}
-        notes={
-          'I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned out amazing! Next time I might try adding some red pepper flakes for a bit of heat.'
-        }
       />
     </View>
   )

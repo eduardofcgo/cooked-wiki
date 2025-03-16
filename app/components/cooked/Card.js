@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import React, { useRef } from 'react'
-import { Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
 import SocialMenu from './SocialMenu'
@@ -15,16 +15,20 @@ const Card = ({
   showExpandIcon,
   showShareIcon,
   onActionPress,
-  notes,
   renderDragIndicator,
   photoStyle,
   notesStyle,
   onPressPhoto,
   containerStyle,
   photoContainerStyle,
+  bodyStyle,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
+
+  //   const notes =
+  //     'I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned out amazing! Next time I might try adding some red pepper flakes for a bit of heat.'
+  const notes = 'amazing'
 
   const handlePress = () => {
     if (cardRef.current) {
@@ -48,6 +52,7 @@ const Card = ({
             sharedTransitionTag='tag'
           />
         </Animated.View>
+
         {renderDragIndicator && renderDragIndicator()}
       </TouchableOpacity>
 
@@ -60,8 +65,10 @@ const Card = ({
         showShareIcon={showShareIcon}
       />
 
-      <Animated.View style={[styles.notes, notesStyle]}>
-        <Text style={styles.notesText}>{notes}</Text>
+      <Animated.View style={[styles.body, bodyStyle]}>
+        <View style={styles.notes}>
+          <Text style={styles.notesText}>{notes}</Text>
+        </View>
       </Animated.View>
     </Animated.View>
   )
@@ -82,10 +89,11 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH,
   },
-  notes: {
+  body: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     backgroundColor: theme.colors.secondary,
+    minHeight: 0,
   },
   notesText: {
     fontSize: 15,

@@ -58,22 +58,17 @@ const Cooked = ({ navigation, route }) => {
 
   // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    }
-  }, [])
-
-  const notesContainerAnimatedStyle = useAnimatedStyle(() => {
+    // Calculate dynamic height based on position
     const height = interpolate(
       translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-      ['auto', 0],
+      [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
+      [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
       Extrapolate.CLAMP
     )
 
     return {
+      transform: [{ translateY: translateY.value }],
       height,
-      overflow: 'hidden',
     }
   }, [])
 
@@ -103,6 +98,19 @@ const Cooked = ({ navigation, route }) => {
     return {
       borderTopLeftRadius: borderRadius,
       borderTopRightRadius: borderRadius,
+    }
+  }, [])
+
+  const cardBodyAnimatedStyle = useAnimatedStyle(() => {
+    const height = interpolate(
+      translateY.value,
+      [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
+      [0, 400],
+      Extrapolate.CLAMP
+    )
+
+    return {
+      minHeight: height,
     }
   }, [])
 
@@ -300,12 +308,10 @@ const Cooked = ({ navigation, route }) => {
           username={'chefmaria'}
           date={'01/01/2025'}
           showShareIcon={true}
-          notes={
-            'I added a bit more garlic than the recipe called for and used fresh herbs from my garden. The dish turned out amazing! Next time I might try adding some red pepper flakes for a bit of heat.'
-          }
           containerStyle={cardAnimatedStyle}
           photoStyle={imageAnimatedStyle}
           photoContainerStyle={photoContainerAnimatedStyle}
+          bodyStyle={cardBodyAnimatedStyle}
         />
       </GestureDetector>
     </GestureHandlerRootView>
