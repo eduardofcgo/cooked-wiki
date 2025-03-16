@@ -1,7 +1,6 @@
-import { MaterialIcons } from '@expo/vector-icons'
 import { observer } from 'mobx-react-lite'
-import React, { useLayoutEffect } from 'react'
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useLayoutEffect, useState } from 'react'
+import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
   Extrapolate,
@@ -10,8 +9,9 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated'
-import Recipe from '../screens/webviews/Recipe'
+import SocialMenu from '../components/cooked/SocialMenu'
 import { theme } from '../style/style'
+import LoadingScreen from './Loading'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -22,7 +22,13 @@ const SNAP_POINTS = {
   EXPANDED: -SCREEN_HEIGHT + 50,
 }
 
+// Replace the direct import with lazy loading
+const Recipe = React.lazy(() => import('../screens/webviews/Recipe'))
+
 const Cooked = ({ navigation, route }) => {
+  // Add state to control when to load the Recipe component
+  const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
+
   // Animation values
   const translateY = useSharedValue(SNAP_POINTS.COLLAPSED)
   const context = useSharedValue({ y: 0 })
@@ -118,52 +124,25 @@ const Cooked = ({ navigation, route }) => {
     }
   }, [])
 
-  const expandButtonIconAnimatedStyle = useAnimatedStyle(() => {
-    let rotation
+  // Calculate if we should show expand or share icon based on translateY position
+  const shouldShowExpandIcon = () => {
+    'worklet'
+    return translateY.value >= SNAP_POINTS.MID
+  }
 
-    if (translateY.value <= SNAP_POINTS.MID) {
-      // When between expanded and mid-point
-      rotation = interpolate(
-        translateY.value,
-        [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
-        [180, 180], // Always pointing down
-        Extrapolate.CLAMP
-      )
+  const shouldShowShareIcon = () => {
+    'worklet'
+    return translateY.value <= SNAP_POINTS.MID
+  }
+
+  // Determine which action to perform when the button is pressed
+  const handleSocialMenuAction = () => {
+    if (translateY.value >= SNAP_POINTS.MID) {
+      toggleExpansion()
     } else {
-      // When between mid-point and collapsed
-      rotation = interpolate(
-        translateY.value,
-        [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-        [180, 0], // Transition from down to up
-        Extrapolate.CLAMP
-      )
+      handleShare()
     }
-
-    return {
-      transform: [{ rotate: `${rotation}deg` }],
-    }
-  }, [])
-
-  const expandIconAnimatedStyle = useAnimatedStyle(() => {
-    // Show expand icon when collapsed or moving toward collapsed state
-    const opacity = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, 1], Extrapolate.CLAMP)
-
-    return {
-      opacity,
-      display: opacity > 0 ? 'flex' : 'none',
-    }
-  }, [])
-
-  const shareIconAnimatedStyle = useAnimatedStyle(() => {
-    // Show share icon when expanded or at mid position
-    const opacity = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 1], Extrapolate.CLAMP)
-
-    return {
-      opacity,
-      display: opacity > 0 ? 'flex' : 'none',
-      position: 'absolute',
-    }
-  }, [])
+  }
 
   // Function to snap to a specific position
   const snapTo = point => {
@@ -202,6 +181,17 @@ const Cooked = ({ navigation, route }) => {
         snapTo(SNAP_POINTS.EXPANDED)
       }
     }
+  }
+
+  // Add touch handler for recipe container
+  const handleRecipeInteraction = () => {
+    snapTo(SNAP_POINTS.COLLAPSED)
+  }
+
+  // Add this function to handle sharing
+  const handleShare = () => {
+    // Implement sharing functionality here
+    console.log('Share recipe')
   }
 
   // Setup pan gesture
@@ -258,22 +248,16 @@ const Cooked = ({ navigation, route }) => {
       }
     })
 
-  // Add touch handler for recipe container
-  const handleRecipeInteraction = () => {
-    snapTo(SNAP_POINTS.COLLAPSED)
-  }
-
-  // Add this function to handle sharing
-  const handleShare = () => {
-    // Implement sharing functionality here
-    console.log('Share recipe')
-  }
-
-  // Initialize sheet position - move this to a useLayoutEffect to run before render
+  // Initialize sheet position and delay loading the Recipe
   useLayoutEffect(() => {
     // Use a small delay to ensure the component is fully mounted
     const timer = setTimeout(() => {
       translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
+
+      // Delay loading the Recipe component until after the card animation
+      setTimeout(() => {
+        setShouldLoadRecipe(true)
+      }, 300)
     }, 100)
 
     return () => clearTimeout(timer)
@@ -282,12 +266,18 @@ const Cooked = ({ navigation, route }) => {
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.recipeContainer} onTouchStart={handleRecipeInteraction}>
-        <Recipe
-          recipeId={route.params?.recipeId}
-          route={route}
-          navigation={navigation}
-          onScroll={handleRecipeInteraction}
-        />
+        {shouldLoadRecipe ? (
+          <React.Suspense fallback={<LoadingScreen />}>
+            <Recipe
+              recipeId={route.params?.recipeId}
+              route={route}
+              navigation={navigation}
+              onScroll={handleRecipeInteraction}
+            />
+          </React.Suspense>
+        ) : (
+          <View style={styles.recipePlaceholder} />
+        )}
         <Animated.View style={[styles.recipeOverlay, overlayAnimatedStyle]} />
       </View>
 
@@ -307,25 +297,14 @@ const Cooked = ({ navigation, route }) => {
           </Animated.View>
 
           {/* Profile header */}
-          <View style={styles.profileHeader}>
-            <Image source={{ uri: 'https://randomuser.me/api/portraits/women/43.jpg' }} style={styles.profilePicture} />
-            <View style={styles.profileInfo}>
-              <Text style={styles.username}>chefmaria</Text>
-              <Text style={styles.name}>01/01/2025</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.expandButtonContainer}
-              onPress={translateY.value >= SNAP_POINTS.MID ? toggleExpansion : handleShare}>
-              <View style={styles.expandButtonWrapper}>
-                <Animated.View style={expandIconAnimatedStyle}>
-                  <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
-                </Animated.View>
-                <Animated.View style={shareIconAnimatedStyle}>
-                  <MaterialIcons name='send' size={20} color={theme.colors.primary} />
-                </Animated.View>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <SocialMenu
+            onActionPress={handleSocialMenuAction}
+            profileImage='https://randomuser.me/api/portraits/women/43.jpg'
+            username='chefmaria'
+            date='01/01/2025'
+            showExpandIcon={shouldShowExpandIcon()}
+            showShareIcon={shouldShowShareIcon()}
+          />
 
           {/* Notes section */}
           <Animated.View style={[styles.notesContainer, notesContainerAnimatedStyle]}>
@@ -394,35 +373,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-    backgroundColor: theme.colors.secondary,
-  },
-  profilePicture: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    marginRight: 12,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.primary,
-    marginBottom: 2,
-  },
-  name: {
-    fontSize: 14,
-    color: '#666',
-  },
   notesContainer: {
     paddingHorizontal: 20,
     paddingVertical: 16,
@@ -447,17 +397,9 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
     backgroundColor: 'rgba(0, 0, 0, 0)',
   },
-  expandButtonContainer: {
-    padding: 8,
-  },
-  expandButtonWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-    borderRadius: 20,
-    width: 36,
-    height: 36,
+  recipePlaceholder: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
 })
 

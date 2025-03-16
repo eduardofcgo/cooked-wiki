@@ -1,6 +1,6 @@
 import { useKeepAwake } from 'expo-keep-awake'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { IconButton } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import Share from 'react-native/Libraries/Share/Share'
@@ -10,6 +10,8 @@ import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
 import handler from './router/handler'
+
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 export default function Recipe({ loadingComponent, navigation, route, children }) {
   const recipeId = route.params?.recipeId
@@ -30,6 +32,8 @@ export default function Recipe({ loadingComponent, navigation, route, children }
   const headerHeight = useSharedValue(0)
   const [scrollPosition, setScrollPosition] = useState(0)
   const lastPress = useRef(0)
+  const [orientation, setOrientation] = useState(0) // 0, 90, 180, 270 degrees
+  const rotationValue = useSharedValue(0)
 
   useKeepAwake()
 
@@ -76,6 +80,24 @@ export default function Recipe({ loadingComponent, navigation, route, children }
     }
   })
 
+  const rotateScreen = () => {
+    const newOrientation = orientation === 0 ? 90 : 0
+    setOrientation(newOrientation)
+    rotationValue.value = withTiming(newOrientation, { duration: 500 })
+  }
+
+  const animatedContentStyle = useAnimatedStyle(() => {
+    const isPortrait = orientation % 180 === 0
+
+    return {
+      transform: [{ rotate: `${rotationValue.value}deg` }],
+      width: isPortrait ? '100%' : SCREEN_HEIGHT,
+      height: isPortrait ? '100%' : SCREEN_HEIGHT,
+      right: isPortrait ? 0 : 370,
+      top: isPortrait ? 0 : 30,
+    }
+  })
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -102,6 +124,13 @@ export default function Recipe({ loadingComponent, navigation, route, children }
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <IconButton
+            icon='rotate-right'
+            size={24}
+            color={theme.colors.softBlack}
+            style={{ marginRight: -8 }}
+            onPress={rotateScreen}
+          />
+          <IconButton
             icon='share'
             size={20}
             color={theme.colors.softBlack}
@@ -116,7 +145,7 @@ export default function Recipe({ loadingComponent, navigation, route, children }
         </View>
       ),
     })
-  }, [navigation, toggleHeader, isExpanded])
+  }, [navigation, toggleHeader, isExpanded, orientation])
 
   const routeHandler = useCallback(
     pathname => {
@@ -146,15 +175,16 @@ export default function Recipe({ loadingComponent, navigation, route, children }
 
       {children}
 
-      <CookedWebView
-        key={recipeId + extractId}
-        startUrl={extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)}
-        navigation={navigation}
-        onRequestPath={routeHandler}
-        route={route}
-        disableRefresh={true}
-        loadingComponent={loadingComponent}
-      />
+      <Animated.View style={[styles.webViewContainer, animatedContentStyle]}>
+        <CookedWebView
+          startUrl={extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)}
+          navigation={navigation}
+          onRequestPath={routeHandler}
+          route={route}
+          disableRefresh={true}
+          loadingComponent={loadingComponent}
+        />
+      </Animated.View>
     </View>
   )
 }
@@ -195,5 +225,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: theme.fonts.title,
     color: theme.colors.black,
+  },
+  webViewContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    // width: '100%',
+    height: '200px',
+    position: 'relative',
   },
 })

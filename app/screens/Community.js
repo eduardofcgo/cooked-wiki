@@ -2,7 +2,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as Contacts from 'expo-contacts'
 import * as Notifications from 'expo-notifications'
 import { observer } from 'mobx-react-lite'
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FlatList, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import Reanimated, {
@@ -16,7 +16,7 @@ import Reanimated, {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { FindFriendsOnboardingModal } from '../components/community/FindFriendsOnboardingModal'
-import Cooked from '../components/cooked/Cooked'
+import FeedItem from '../components/cooked/FeedItem'
 import { Button, PrimaryButton } from '../components/core/Button'
 import HeaderTitleMenu from '../components/core/HeaderTitleMenu'
 import Loading from '../components/core/Loading'
@@ -27,10 +27,6 @@ import { useInterval } from '../hooks/useInterval'
 import { requestPushNotificationsPermission } from '../notifications/push'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-
-const CookedItem = memo(({ post, onUserPress, onRecipePress }) => (
-  <Cooked post={post} onUserPress={onUserPress} onRecipePress={onRecipePress} />
-))
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore, onboardingStore } = useStore()
@@ -152,10 +148,19 @@ export default Community = observer(({ navigation, route }) => {
 
   const renderItem = useCallback(
     ({ item: post }) => (
-      <CookedItem
-        post={post}
-        onUserPress={() => navigation.navigate('PublicProfile', { username: post.username })}
-        onRecipePress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
+      <FeedItem
+        recipe={{
+          name: post.recipeName,
+          imageUrl: post.imageUrl,
+          notesPreview: post.notes,
+        }}
+        profileImage={post.profileImage}
+        username={post.username}
+        date={post.timestamp}
+        notes={post.notes}
+        // Why is it breaking the login system?
+        // onPress={() => navigation.navigate('Recipe', { recipeId: post['recipe-id'] })}
+        onSharePress={() => {}}
       />
     ),
     [navigation]
@@ -309,7 +314,6 @@ export default Community = observer(({ navigation, route }) => {
           contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
-          ListHeaderComponent={<View style={{ height: 16 }} />}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
         />
