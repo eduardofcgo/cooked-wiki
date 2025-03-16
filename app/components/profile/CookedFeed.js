@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
 import { theme } from '../../style/style'
-import Cooked from '../cooked/Cooked'
+import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
 import RefreshControl from '../core/RefreshControl'
 import ProfileStats from './ProfileStats'
@@ -39,17 +39,17 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     await profileStore.reloadProfileCooked(username)
   }, [username])
 
-  const renderItem = ({ item: post }) => (
-    <Cooked
-      post={post}
-      canEdit={loggedInUsername === username}
-      hideAuthor={true}
-      onUserPress={() => {
-        navigation.navigate('PublicProfile', { username: post.username })
-      }}
-      onRecipePress={() => {
-        navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
-      }}
+  const renderItem = ({ item: cooked }) => (
+    <FeedItem
+      cooked={cooked}
+      // canEdit={loggedInUsername === username}
+      // hideAuthor={true}
+      // onUserPress={() => {
+      // navigation.navigate('PublicProfile', { username: post.username })
+      // }}
+      // onRecipePress={() => {
+      // navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
+      // }}
     />
   )
 
@@ -90,6 +90,7 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         onEndReachedThreshold={1}
         ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
+        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
       />
       {/* )} */}

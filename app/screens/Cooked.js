@@ -36,7 +36,7 @@ const Cooked = ({ navigation, route }) => {
 
   const { profileStore } = useStore()
 
-  const [loadingCooked, setLoadingCooked] = useState(Boolean(preloadedCooked))
+  const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
   const [cooked, setCooked] = useState(preloadedCooked)
 
   const recipeId = cooked['recipe-id']
@@ -44,12 +44,12 @@ const Cooked = ({ navigation, route }) => {
 
   useEffect(() => {
     ;(async () => {
-      // if (!preloadedCooked) {
-      //   setLoadingCooked(true)
-      //   const cooked = await profileStore.getCooked(loggedInUsername, cookedId)
-      //   setCooked(cooked)
-      //   setLoadingCooked(false)
-      // }
+      if (!preloadedCooked) {
+        setLoadingCooked(true)
+        const cooked = await profileStore.getCooked(loggedInUsername, cookedId)
+        setCooked(cooked)
+        setLoadingCooked(false)
+      }
     })()
   }, [cookedId])
 
@@ -83,7 +83,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -97,7 +97,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -126,7 +126,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
       [0, 400],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -140,7 +140,21 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
       [SCREEN_WIDTH, 40],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
+    )
+
+    const y = interpolate(
+      translateY.value,
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
+      [2, SCREEN_WIDTH],
+      Extrapolate.CLAMP
+    )
+
+    const shadowOpacity = interpolate(
+      translateY.value,
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
+      [0.2, 0],
+      Extrapolate.CLAMP
     )
 
     const top = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 10], Extrapolate.CLAMP)
@@ -153,8 +167,9 @@ const Cooked = ({ navigation, route }) => {
       top,
       width,
       height,
-      backgroundColor: theme.colors.primary,
       opacity,
+      transform: [{ translateY: y - 2 }],
+      shadowOpacity,
     }
   }, [])
 
@@ -291,7 +306,7 @@ const Cooked = ({ navigation, route }) => {
 
     const timer = setTimeout(() => {
       setShouldLoadRecipe(true)
-    }, 100)
+    }, 250)
 
     return () => clearTimeout(timer)
   }, [])
@@ -305,8 +320,7 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}
-      >
+        onTouchStart={handleRecipeInteraction}>
         {shouldLoadRecipe ? (
           <Recipe
             recipeId={recipeId}
@@ -324,11 +338,13 @@ const Cooked = ({ navigation, route }) => {
       <GestureDetector gesture={panGesture}>
         <Card
           cooked={cooked}
+          relativeDate={false}
           showShareIcon={true}
           containerStyle={cardAnimatedStyle}
           photoStyle={imageAnimatedStyle}
           photoContainerStyle={photoContainerAnimatedStyle}
           bodyStyle={cardBodyAnimatedStyle}
+          renderDragIndicator={renderDragIndicator}
         />
       </GestureDetector>
     </GestureHandlerRootView>
@@ -365,7 +381,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 5,
     alignSelf: 'center',
-    zIndex: 10,
+    zIndex: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 3,
   },
   recipeOverlay: {
     ...StyleSheet.absoluteFillObject,

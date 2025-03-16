@@ -1,27 +1,62 @@
-import { MaterialIcons } from '@expo/vector-icons'
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
+import { observer } from 'mobx-react'
+import moment from 'moment'
 import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../../style/style'
 
-const SocialMenu = ({ onActionPress, profileImage, username, date, showExpandIcon, showShareIcon }) => {
+const formatDate = dateString => {
+  if (!dateString) return ''
+  return moment(dateString).format('Do MMM YYYY')
+}
+
+const formatWeeksAgo = dateString => {
+  if (!dateString) return ''
+  return moment(dateString).fromNow()
+}
+
+const SocialMenuIcons = ({ onHeartPress, onSharePress, likeCount = 0 }) => {
+  return (
+    <View style={styles.iconWrapper}>
+      <View style={styles.heartContainer}>
+        {likeCount > 0 && <Text style={styles.likeCounter}>{likeCount}</Text>}
+        <TouchableOpacity onPress={onHeartPress} style={styles.iconContainer}>
+          <FontAwesome name='heart' size={18} color={`${theme.colors.primary}80`} />
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={onSharePress} style={styles.iconContainer}>
+        <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+const SocialMenu = ({
+  onActionPress,
+  profileImage,
+  username,
+  date,
+  showExpandIcon,
+  onHeartPress,
+  relativeDate = false,
+  likeCount = 0,
+}) => {
   return (
     <View style={styles.profileHeader}>
       <Image source={{ uri: profileImage }} style={styles.profilePicture} />
       <View style={styles.profileInfo}>
         <Text style={styles.username}>{username}</Text>
-        <Text style={styles.date}>{date}</Text>
+        <Text style={styles.date}>{relativeDate ? formatWeeksAgo(date) : formatDate(date)}</Text>
       </View>
       <TouchableOpacity style={styles.expandButtonContainer} onPress={onActionPress}>
         <View style={styles.expandButtonWrapper}>
-          {showExpandIcon && (
+          {showExpandIcon ? (
             <View style={styles.iconContainer}>
               <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
             </View>
-          )}
-          {showShareIcon && (
-            <View style={styles.iconContainer}>
-              <MaterialIcons name='send' size={20} color={theme.colors.primary} />
-            </View>
+          ) : (
+            <SocialMenuIcons onHeartPress={onHeartPress} likeCount={12} />
           )}
         </View>
       </TouchableOpacity>
@@ -58,24 +93,29 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.small,
     color: theme.colors.softBlack,
   },
+  iconWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 16,
+  },
   expandButtonContainer: {
     padding: 8,
   },
-  expandButtonWrapper: {
+  expandButtonWrapper: {},
+  iconContainer: {
+    alignItems: 'center',
+  },
+  heartContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-    borderRadius: 20,
-    width: 36,
-    height: 36,
-    position: 'relative',
+    gap: 8,
   },
-  iconContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
+  likeCounter: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.primary,
+    marginLeft: 4,
   },
 })
 
-export default SocialMenu
+export default observer(SocialMenu)

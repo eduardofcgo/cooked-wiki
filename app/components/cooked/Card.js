@@ -16,10 +16,10 @@ const Card = ({
   renderDragIndicator,
   photoStyle,
   notesStyle,
-  onPressPhoto,
   containerStyle,
   photoContainerStyle,
   bodyStyle,
+  relativeDate,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
@@ -32,7 +32,7 @@ const Card = ({
 
   const handlePress = () => {
     if (cardRef.current) {
-      cardRef.current.measure((width, height, pageX, pageY) => {
+      cardRef.current.measure((x, y, width, height, pageX, pageY) => {
         // For smooth transition, the next screen will know the current position of the card
         const startPosition = { x: pageX, y: pageY, width, height }
 
@@ -49,9 +49,8 @@ const Card = ({
     <Animated.View
       ref={cardRef}
       style={[styles.container, containerStyle]}
-      sharedTransitionTag={'cooked-card-' + cookedId}
-    >
-      <TouchableOpacity activeOpacity={0.9} onPress={handlePress}>
+      sharedTransitionTag={'cooked-card-' + cookedId}>
+      <TouchableOpacity activeOpacity={0.7} onPress={handlePress} style={[styles.touchableContainer]}>
         <Animated.View style={photoContainerStyle}>
           <Animated.Image
             source={{ uri: cookedPhotoPath }}
@@ -68,12 +67,13 @@ const Card = ({
         onActionPress={onActionPress}
         profileImage={profilePhoto}
         username={cooked['username']}
-        date={cooked['date']}
+        date={cooked['cooked-date']}
         showExpandIcon={showExpandIcon}
         showShareIcon={showShareIcon}
+        relativeDate={relativeDate}
       />
 
-      <Animated.View style={[styles.body, bodyStyle]}>
+      <Animated.View style={[styles.body, !cooked['notes'] && { paddingBottom: 0 }, bodyStyle]}>
         {cooked['notes'] && (
           <View style={styles.notes}>
             <Text style={styles.notesText}>{cooked['notes']}</Text>
@@ -88,20 +88,18 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     borderRadius: 0,
-    // overflow: 'hidden',
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // elevation: 3,
+  },
+  touchableContainer: {
+    width: '100%',
+    flexDirection: 'column',
   },
   photo: {
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH,
   },
   body: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     backgroundColor: theme.colors.secondary,
     minHeight: 0,
   },
@@ -110,6 +108,11 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontFamily: theme.fonts.ui,
     color: theme.colors.black,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: theme.colors.softBlack,
+    opacity: theme.opacity.disabled,
   },
 })
 
