@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react'
-import { View, StyleSheet } from 'react-native'
 import { observer } from 'mobx-react-lite'
+import React, { useCallback } from 'react'
+import { StyleSheet, View } from 'react-native'
 
 import CookedWebView from '../../components/CookedWebView'
+import { theme } from '../../style/style'
 import { getShoppingListUrl } from '../../urls'
 import handler from './router/handler'
-import { theme } from '../../style/style'
 
 const Shopping = observer(({ navigation, route, username }) => {
   const routeHandler = useCallback(

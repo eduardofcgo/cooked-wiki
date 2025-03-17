@@ -49,14 +49,15 @@ const Card = ({
     <Animated.View
       ref={cardRef}
       style={[styles.container, containerStyle]}
-      sharedTransitionTag={'cooked-card-' + cookedId}>
+      //   sharedTransitionTag={'cooked-card-' + cookedId}
+    >
       <TouchableOpacity activeOpacity={0.7} onPress={handlePress} style={[styles.touchableContainer]}>
         <Animated.View style={photoContainerStyle}>
           <Animated.Image
             source={{ uri: cookedPhotoPath }}
             style={[styles.photo, photoStyle]}
             resizeMode='cover'
-            sharedTransitionTag={'cooked-card-photo-' + cookedId}
+            // sharedTransitionTag={'cooked-card-photo-' + cookedId}
           />
         </Animated.View>
 

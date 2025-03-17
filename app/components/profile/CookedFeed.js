@@ -21,7 +21,8 @@ const FeedHeader = observer(({ username }) => {
   )
 })
 
-const ProfileCooked = observer(({ navigation, route, username }) => {
+// Using memo to prevent unnecessary re-renders
+const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
 
@@ -39,27 +40,30 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
     await profileStore.reloadProfileCooked(username)
   }, [username])
 
-  const renderItem = ({ item: cooked }) => (
-    <FeedItem
-      cooked={cooked}
-      // canEdit={loggedInUsername === username}
-      // hideAuthor={true}
-      // onUserPress={() => {
-      // navigation.navigate('PublicProfile', { username: post.username })
-      // }}
-      // onRecipePress={() => {
-      // navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
-      // }}
-    />
+  const renderItem = useCallback(
+    ({ item: cooked }) => (
+      <FeedItem
+        cooked={cooked}
+        // canEdit={loggedInUsername === username}
+        // hideAuthor={true}
+        // onUserPress={() => {
+        // navigation.navigate('PublicProfile', { username: post.username })
+        // }}
+        // onRecipePress={() => {
+        // navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
+        // }}
+      />
+    ),
+    [],
   )
 
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     if (!isLoadingProfileCookedsNextPage && hasMore) {
       profileStore.loadNextProfileCookedsPage(username)
     }
-  }
+  }, [isLoadingProfileCookedsNextPage, hasMore, username, profileStore])
 
-  const ListFooter = () => {
+  const ListFooter = useCallback(() => {
     if (isLoadingProfileCookedsNextPage) {
       return (
         <View style={styles.footerLoader}>
@@ -68,7 +72,9 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
       )
     }
     return null
-  }
+  }, [isLoadingProfileCookedsNextPage])
+
+  const ItemSeparatorComponent = useCallback(() => <View style={{ height: 16 }} />, [])
 
   if (isLoadingProfileCookeds) {
     return <LoadingScreen />
@@ -90,8 +96,11 @@ const ProfileCooked = observer(({ navigation, route, username }) => {
         onEndReachedThreshold={1}
         ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
-        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        ItemSeparatorComponent={ItemSeparatorComponent}
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={true}
       />
       {/* )} */}
     </View>
@@ -126,9 +135,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: 20,
   },
-  feedContent: {
-    paddingBottom: 20,
-  },
+  feedContent: {},
   footerLoader: {
     padding: 20,
     paddingBottom: 100,
