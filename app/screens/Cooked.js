@@ -20,7 +20,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
-  COLLAPSED: PHOTO_HEIGHT - 110,
+  COLLAPSED: SCREEN_HEIGHT - 120, //PHOTO_HEIGHT - 110,
   MID: PHOTO_HEIGHT - 125 - 110,
   EXPANDED: 0, // At the top
 }
@@ -59,21 +59,6 @@ const Cooked = ({ navigation, route }) => {
   const context = useSharedValue({ y: 0 })
   const scrollEnabled = useSharedValue(false)
 
-  // Instead of accessing translateY.value directly in any JS function,
-  // let's create a regular state variable to track the current position
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  // Use useAnimatedReaction to update the state variable
-  // useAnimatedReaction(
-  //   () => translateY.value,
-  //   currentValue => {
-  //     const shouldBeExpanded = currentValue <= SNAP_POINTS.MID
-  //     if (shouldBeExpanded !== isExpanded) {
-  //       runOnJS(setIsExpanded)(shouldBeExpanded)
-  //     }
-  //   }
-  // )
-
   // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
     // Calculate dynamic height based on position
@@ -81,7 +66,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -95,11 +80,11 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
-      transform: [{ translateY: height }],
+      // transform: [{ translateY: height }],
     }
   }, [])
 
@@ -119,12 +104,20 @@ const Cooked = ({ navigation, route }) => {
     }
   }, [])
 
+  const contentsAnimatedStyle = useAnimatedStyle(() => {
+    const height = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, 400], Extrapolate.CLAMP)
+
+    return {
+      transform: [{ translateY: -height }],
+    }
+  }, [])
+
   const cardBodyAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
-      [0, 400],
-      Extrapolate.CLAMP
+      [50, 500],
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -138,21 +131,21 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
       [SCREEN_WIDTH, 40],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     const y = interpolate(
       translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-      [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP
+      [SNAP_POINTS.COLLAPSED - 50, SNAP_POINTS.COLLAPSED],
+      [0, -42],
+      Extrapolate.CLAMP,
     )
 
     const shadowOpacity = interpolate(
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [0.2, 0],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     const top = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 10], Extrapolate.CLAMP)
@@ -166,7 +159,7 @@ const Cooked = ({ navigation, route }) => {
       width,
       height,
       opacity,
-      transform: [{ translateY: y - 2 }],
+      transform: [{ translateY: y }],
       shadowOpacity,
     }
   }, [])
@@ -174,7 +167,6 @@ const Cooked = ({ navigation, route }) => {
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     let opacity
 
-    // Use conditional branches like the border radius implementation
     if (translateY.value >= SNAP_POINTS.MID) {
       opacity = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 0.75], Extrapolate.CLAMP)
     } else {
@@ -183,17 +175,9 @@ const Cooked = ({ navigation, route }) => {
 
     return {
       backgroundColor: `rgba(0, 0, 0, ${opacity})`,
+      pointerEvents: opacity > 0.6 ? 'auto' : 'none',
     }
   }, [])
-
-  // Now use the state variable instead of accessing translateY.value directly
-  const handleSocialMenuAction = () => {
-    if (!isExpanded) {
-      toggleExpansion()
-    } else {
-      handleShare()
-    }
-  }
 
   // Function to snap to a specific position
   const snapTo = point => {
@@ -202,47 +186,9 @@ const Cooked = ({ navigation, route }) => {
     scrollEnabled.value = point === SNAP_POINTS.EXPANDED
   }
 
-  // Toggle between expanded and collapsed states
-  const toggleExpansion = () => {
-    // Get the current position
-    const currentPosition = translateY.value
-
-    if (currentPosition <= SNAP_POINTS.MID) {
-      // If expanded or at mid-point, first go to MID then to COLLAPSED
-      if (currentPosition !== SNAP_POINTS.MID) {
-        snapTo(SNAP_POINTS.MID)
-        // After a short delay, move to COLLAPSED
-        setTimeout(() => {
-          snapTo(SNAP_POINTS.COLLAPSED)
-        }, 100)
-      } else {
-        // Already at MID, just go to COLLAPSED
-        snapTo(SNAP_POINTS.COLLAPSED)
-      }
-    } else {
-      // If collapsed, first go to MID then to EXPANDED
-      if (currentPosition !== SNAP_POINTS.MID) {
-        snapTo(SNAP_POINTS.MID)
-        // After a short delay, move to EXPANDED
-        setTimeout(() => {
-          snapTo(SNAP_POINTS.EXPANDED)
-        }, 100)
-      } else {
-        // Already at MID, just go to EXPANDED
-        snapTo(SNAP_POINTS.EXPANDED)
-      }
-    }
-  }
-
   // Add touch handler for recipe container
   const handleRecipeInteraction = () => {
     snapTo(SNAP_POINTS.COLLAPSED)
-  }
-
-  // Add this function to handle sharing
-  const handleShare = () => {
-    // Implement sharing functionality here
-    console.log('Share recipe')
   }
 
   // Setup pan gesture
@@ -251,50 +197,51 @@ const Cooked = ({ navigation, route }) => {
       context.value = { y: translateY.value }
     })
     .onUpdate(event => {
-      // Limit drag to prevent going further than max positions
-      let newY = event.translationY + context.value.y
-      // if (newY > 0) {
-      //   newY = 0
-      // }
-      // else if (newY < MAX_TRANSLATE_Y) {
-      //   newY = MAX_TRANSLATE_Y
-      // }
+      // Update position based on gesture, ensuring it doesn't go beyond limits
+      const newY = Math.max(SNAP_POINTS.EXPANDED, Math.min(SNAP_POINTS.COLLAPSED, context.value.y + event.translationY))
       translateY.value = newY
     })
     .onEnd(event => {
-      // Determine current position (which snap point we're closest to)
-      const currentPosition = translateY.value
+      // Determine which snap point we were closest to at the START of the gesture
+      let startingSnapPoint
+      const startPosition = context.value.y
 
-      // Handle snapping based on current position and velocity direction
-      if (currentPosition > SNAP_POINTS.MID + 50) {
-        // We're closer to COLLAPSED
-        if (event.velocityY < -20) {
-          // Dragging up from near collapsed - go to MID
+      if (startPosition <= SNAP_POINTS.EXPANDED + 20) {
+        startingSnapPoint = SNAP_POINTS.EXPANDED
+      } else if (startPosition <= SNAP_POINTS.MID + 20) {
+        startingSnapPoint = SNAP_POINTS.MID
+      } else {
+        startingSnapPoint = SNAP_POINTS.COLLAPSED
+      }
+
+      // Always move exactly one step in the direction of the swipe
+      if (event.velocityY > 300) {
+        // Downward swipe with significant velocity
+        if (startingSnapPoint === SNAP_POINTS.EXPANDED) {
           snapTo(SNAP_POINTS.MID)
-        } else {
-          // Dragging down or neutral - stay COLLAPSED
+        } else if (startingSnapPoint === SNAP_POINTS.MID) {
           snapTo(SNAP_POINTS.COLLAPSED)
-        }
-      } else if (currentPosition < SNAP_POINTS.MID - 50) {
-        // We're closer to EXPANDED
-        if (event.velocityY > 20) {
-          // Dragging down from near expanded - go to MID
-          snapTo(SNAP_POINTS.MID)
         } else {
-          // Dragging up or neutral - stay EXPANDED
+          snapTo(SNAP_POINTS.COLLAPSED) // Already at bottom, stay there
+        }
+      } else if (event.velocityY < -300) {
+        // Upward swipe with significant velocity
+        if (startingSnapPoint === SNAP_POINTS.COLLAPSED) {
+          snapTo(SNAP_POINTS.MID)
+        } else if (startingSnapPoint === SNAP_POINTS.MID) {
           snapTo(SNAP_POINTS.EXPANDED)
+        } else {
+          snapTo(SNAP_POINTS.EXPANDED) // Already at top, stay there
         }
       } else {
-        // We're around MID position
-        if (event.velocityY < -20) {
-          // Dragging up from mid - go to EXPANDED
+        // For gentle swipes or no clear direction, snap to the closest point
+        const currentPosition = translateY.value
+        if (currentPosition < SNAP_POINTS.MID - (SNAP_POINTS.MID - SNAP_POINTS.EXPANDED) / 2) {
           snapTo(SNAP_POINTS.EXPANDED)
-        } else if (event.velocityY > 20) {
-          // Dragging down from mid - go to COLLAPSED
-          snapTo(SNAP_POINTS.COLLAPSED)
-        } else {
-          // Neutral velocity - stay at MID
+        } else if (currentPosition < SNAP_POINTS.COLLAPSED - (SNAP_POINTS.COLLAPSED - SNAP_POINTS.MID) / 2) {
           snapTo(SNAP_POINTS.MID)
+        } else {
+          snapTo(SNAP_POINTS.COLLAPSED)
         }
       }
     })
@@ -318,15 +265,10 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}>
+        onTouchStart={handleRecipeInteraction}
+      >
         {shouldLoadRecipe ? (
-          <Recipe
-            recipeId={recipeId}
-            extractId={extractId}
-            route={route}
-            navigation={navigation}
-            onScroll={handleRecipeInteraction}
-          />
+          <Recipe recipeId={recipeId} extractId={extractId} route={route} navigation={navigation} />
         ) : (
           <LoadingScreen />
         )}
@@ -341,6 +283,7 @@ const Cooked = ({ navigation, route }) => {
           containerStyle={cardAnimatedStyle}
           photoStyle={imageAnimatedStyle}
           photoContainerStyle={photoContainerAnimatedStyle}
+          contentsStyle={contentsAnimatedStyle}
           bodyStyle={cardBodyAnimatedStyle}
           renderDragIndicator={renderDragIndicator}
         />

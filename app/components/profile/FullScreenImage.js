@@ -54,7 +54,7 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           stiffness: 35,
           mass: 1,
           velocity: 1,
-        })
+        }),
       )
 
       // Scale in animation
@@ -72,8 +72,8 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withTiming(0, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          })
-        )
+          }),
+        ),
       )
 
       // Modified floating icons animation
@@ -86,30 +86,30 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withRepeat(
             withSequence(
               withTiming(radius * Math.cos(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 })
+              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 }),
             ),
             3,
-            true
+            true,
           ),
           withTiming(radius * 3 * Math.cos(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          })
+          }),
         )
 
         pos.y.value = withSequence(
           withRepeat(
             withSequence(
               withTiming(radius * Math.sin(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 })
+              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 }),
             ),
             3,
-            true
+            true,
           ),
           withTiming(radius * 3 * Math.sin(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          })
+          }),
         )
 
         // Extended rotation animation
@@ -117,8 +117,8 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withRepeat(
             withTiming(360, { duration: 2000 }),
             3, // Three rotations to match the floating duration
-            false
-          )
+            false,
+          ),
         )
       })
     } else {
@@ -187,7 +187,8 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
                   opacity: scale.value,
                   transform: [{ scale: scale.value }],
                 })),
-              ]}>
+              ]}
+            >
               {bio || 'No bio yet.'}
             </Animated.Text>
 

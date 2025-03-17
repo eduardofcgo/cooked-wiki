@@ -18,6 +18,7 @@ const Card = ({
   notesStyle,
   containerStyle,
   photoContainerStyle,
+  contentsStyle,
   bodyStyle,
   relativeDate,
 }) => {
@@ -64,22 +65,24 @@ const Card = ({
         {renderDragIndicator && renderDragIndicator()}
       </TouchableOpacity>
 
-      <SocialMenu
-        onActionPress={onActionPress}
-        profileImage={profilePhoto}
-        username={cooked['username']}
-        date={cooked['cooked-date']}
-        showExpandIcon={showExpandIcon}
-        showShareIcon={showShareIcon}
-        relativeDate={relativeDate}
-      />
+      <Animated.View style={[styles.contents, contentsStyle]}>
+        <SocialMenu
+          onActionPress={onActionPress}
+          profileImage={profilePhoto}
+          username={cooked['username']}
+          date={cooked['cooked-date']}
+          showExpandIcon={showExpandIcon}
+          showShareIcon={showShareIcon}
+          relativeDate={relativeDate}
+        />
 
-      <Animated.View style={[styles.body, !cooked['notes'] && { paddingBottom: 0 }, bodyStyle]}>
-        {cooked['notes'] && (
-          <View style={styles.notes}>
-            <Text style={styles.notesText}>{cooked['notes']}</Text>
-          </View>
-        )}
+        <Animated.View style={[styles.body, !cooked['notes'] && { paddingBottom: 0 }, bodyStyle]}>
+          {cooked['notes'] && (
+            <View style={styles.notes}>
+              <Text style={styles.notesText}>{cooked['notes']}</Text>
+            </View>
+          )}
+        </Animated.View>
       </Animated.View>
     </Animated.View>
   )
@@ -97,6 +100,11 @@ const styles = StyleSheet.create({
   photo: {
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH,
+    zIndex: 1,
+  },
+  contents: {
+    transform: [{ translateY: 0 }],
+    zIndex: 2,
   },
   body: {
     paddingHorizontal: 16,

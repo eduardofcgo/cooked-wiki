@@ -104,7 +104,8 @@ function MainMenu({ route }) {
                 style={{
                   ...tabScreenStyle.tabBarLabelStyle,
                   color: focused ? 'black' : theme.colors.softBlack,
-                }}>
+                }}
+              >
                 Community
               </Text>
             ),
@@ -123,7 +124,8 @@ function MainMenu({ route }) {
                 style={{
                   ...tabScreenStyle.tabBarLabelStyle,
                   color: focused ? 'black' : theme.colors.softBlack,
-                }}>
+                }}
+              >
                 Profile
               </Text>
             ),
@@ -157,7 +159,8 @@ function MainMenu({ route }) {
           alignSelf: 'center',
           alignItems: 'center',
           zIndex: 1000,
-        }}>
+        }}
+      >
         {/* First Floating Button */}
         <Animated.View
           style={[
@@ -171,7 +174,8 @@ function MainMenu({ route }) {
               elevation: 5,
             },
             firstButtonStyle,
-          ]}>
+          ]}
+        >
           <View
             style={{
               width: 56,
@@ -181,7 +185,8 @@ function MainMenu({ route }) {
               justifyContent: 'center',
               alignItems: 'center',
               position: 'relative',
-            }}>
+            }}
+          >
             <MaterialCommunityIcons name='camera' color={theme.colors.white} size={20} />
 
             {/* Label positioned absolutely */}
@@ -190,14 +195,16 @@ function MainMenu({ route }) {
                 position: 'absolute',
                 left: 72,
                 width: 100,
-              }}>
+              }}
+            >
               <Text
                 style={{
                   color: theme.colors.white,
                   fontFamily: theme.fonts.ui,
                   fontSize: theme.fontSizes.default,
                   flexShrink: 0,
-                }}>
+                }}
+              >
                 Record cook
               </Text>
             </View>
@@ -217,7 +224,8 @@ function MainMenu({ route }) {
               elevation: 5,
             },
             secondButtonStyle,
-          ]}>
+          ]}
+        >
           <View
             style={{
               width: 56,
@@ -227,7 +235,8 @@ function MainMenu({ route }) {
               justifyContent: 'center',
               alignItems: 'center',
               position: 'relative',
-            }}>
+            }}
+          >
             <MaterialCommunityIcons name='book' color={theme.colors.white} size={20} />
 
             {/* Label positioned absolutely */}
@@ -236,14 +245,16 @@ function MainMenu({ route }) {
                 position: 'absolute',
                 left: 72,
                 width: 100,
-              }}>
+              }}
+            >
               <Text
                 style={{
                   color: theme.colors.white,
                   fontFamily: theme.fonts.ui,
                   fontSize: theme.fontSizes.default,
                   flexShrink: 0,
-                }}>
+                }}
+              >
                 Create recipe
               </Text>
             </View>
@@ -265,7 +276,8 @@ function MainMenu({ route }) {
                 alignItems: 'center',
               },
               plusButtonStyle,
-            ]}>
+            ]}
+          >
             <MaterialCommunityIcons
               name='plus'
               color={isMenuOpen ? theme.colors.softBlack : theme.colors.white}
