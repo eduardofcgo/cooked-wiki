@@ -16,13 +16,11 @@ import LoadingScreen from './Loading'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + 50
-
 // Square
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
-  COLLAPSED: PHOTO_HEIGHT - 125,
+  COLLAPSED: PHOTO_HEIGHT - 110,
   MID: PHOTO_HEIGHT - 125 - 110,
   EXPANDED: 0, // At the top
 }
@@ -83,7 +81,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -97,7 +95,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -126,7 +124,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
       [0, 400],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
@@ -140,21 +138,21 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
       [SCREEN_WIDTH, 40],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     const y = interpolate(
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     const shadowOpacity = interpolate(
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [0.2, 0],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     const top = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 10], Extrapolate.CLAMP)
@@ -320,8 +318,7 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}
-      >
+        onTouchStart={handleRecipeInteraction}>
         {shouldLoadRecipe ? (
           <Recipe
             recipeId={recipeId}

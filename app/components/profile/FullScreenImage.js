@@ -1,18 +1,19 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { faCarrot, faEgg, faLeaf, faPepperHot, faUtensils } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import React from 'react'
-import { Modal, TouchableOpacity, View, Text, StyleSheet, Dimensions } from 'react-native'
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Animated, {
-  useAnimatedStyle,
-  withSpring,
-  withRepeat,
-  withTiming,
-  withSequence,
   Easing,
+  useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated'
 import { theme } from '../../style/style'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faUtensils, faCarrot, faPepperHot, faLeaf, faEgg, faStar } from '@fortawesome/free-solid-svg-icons'
 
 import FadeInStatusBar from '../FadeInStatusBar'
 
@@ -53,7 +54,7 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           stiffness: 35,
           mass: 1,
           velocity: 1,
-        }),
+        })
       )
 
       // Scale in animation
@@ -71,8 +72,8 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withTiming(0, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          }),
-        ),
+          })
+        )
       )
 
       // Modified floating icons animation
@@ -85,30 +86,30 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withRepeat(
             withSequence(
               withTiming(radius * Math.cos(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 }),
+              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 })
             ),
             3,
-            true,
+            true
           ),
           withTiming(radius * 3 * Math.cos(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          }),
+          })
         )
 
         pos.y.value = withSequence(
           withRepeat(
             withSequence(
               withTiming(radius * Math.sin(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 }),
+              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 })
             ),
             3,
-            true,
+            true
           ),
           withTiming(radius * 3 * Math.sin(angle) + centerOffset, {
             duration: 800,
             easing: Easing.bezier(0.4, 0, 1, 1),
-          }),
+          })
         )
 
         // Extended rotation animation
@@ -116,8 +117,8 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
           withRepeat(
             withTiming(360, { duration: 2000 }),
             3, // Three rotations to match the floating duration
-            false,
-          ),
+            false
+          )
         )
       })
     } else {
@@ -174,7 +175,7 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
 
               {/* Patron badge */}
               <View style={styles.patronBadge}>
-                <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={25} />
+                <MaterialCommunityIcons name='crown' color={theme.colors.primary} size={25} />
                 <Text style={styles.patronText}>Patron</Text>
               </View>
             </Animated.View>
@@ -186,8 +187,7 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
                   opacity: scale.value,
                   transform: [{ scale: scale.value }],
                 })),
-              ]}
-            >
+              ]}>
               {bio || 'No bio yet.'}
             </Animated.Text>
 
