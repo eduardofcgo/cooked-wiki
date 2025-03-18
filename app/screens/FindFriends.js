@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
@@ -11,6 +11,7 @@ import { Button, PrimaryButton, SecondaryButton } from '../components/core/Butto
 import Loading from '../components/core/Loading'
 import ActionToast from '../components/notification/ActionToast'
 import { theme } from '../style/style'
+import { getProfileImageUrl } from '../urls'
 
 function openSettings() {
   if (Platform.OS === 'ios') {
@@ -45,12 +46,12 @@ const UserItem = observer(({ user, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
-    >
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}>
       <View style={styles.userInfo}>
-        <View style={styles.avatarPlaceholder}>
+        <Image source={{ uri: getProfileImageUrl(user.username) }} style={styles.avatarPlaceholder} />
+        {/* <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />
-        </View>
+        </View> */}
         <View>
           <Text style={styles.userName} color={theme.colors.black}>
             {user.username}

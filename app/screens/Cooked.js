@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDecay,
   withSpring,
 } from 'react-native-reanimated'
 import Card from '../components/cooked/Card'
@@ -37,6 +38,8 @@ const Cooked = ({ navigation, route }) => {
   const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
   const [cooked, setCooked] = useState(preloadedCooked)
 
+  const photoCount = cooked['cooked-photos-path']?.length || 0
+
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
 
@@ -66,25 +69,12 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP,
+      Extrapolate.CLAMP
     )
 
     return {
       transform: [{ translateY: translateY.value }],
-      height,
-    }
-  }, [])
-
-  const photoContainerAnimatedStyle = useAnimatedStyle(() => {
-    const height = interpolate(
-      translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-      [2, SCREEN_WIDTH],
-      Extrapolate.CLAMP,
-    )
-
-    return {
-      // transform: [{ translateY: height }],
+      // height,
     }
   }, [])
 
@@ -98,69 +88,56 @@ const Cooked = ({ navigation, route }) => {
       borderRadius = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.EXPANDED], [20, 0], Extrapolate.CLAMP)
     }
 
+    // Add image height animation when card is collapsed
+    const imageHeight = interpolate(
+      translateY.value,
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
+      [PHOTO_HEIGHT, 0],
+      Extrapolate.CLAMP
+    )
+
     return {
       borderTopLeftRadius: borderRadius,
       borderTopRightRadius: borderRadius,
+      height: imageHeight,
+      overflow: 'hidden',
     }
   }, [])
 
-  const contentsAnimatedStyle = useAnimatedStyle(() => {
-    const height = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, 400], Extrapolate.CLAMP)
+  const cardContentsAnimatedStyle = useAnimatedStyle(() => {
+    const height = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, -55], Extrapolate.CLAMP)
+
+    const borderWidth = interpolate(
+      translateY.value,
+      [SNAP_POINTS.MID, SNAP_POINTS.MID + 20], // Animate over 20 units after MID point
+      [0, 2],
+      Extrapolate.CLAMP
+    )
 
     return {
-      transform: [{ translateY: -height }],
+      transform: [{ translateY: height }],
+      borderTopWidth: borderWidth,
+      borderTopColor: theme.colors.primary,
     }
   }, [])
-
   const cardBodyAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
-      [50, 500],
-      Extrapolate.CLAMP,
+      [0, 500],
+      Extrapolate.CLAMP
     )
 
     return {
-      minHeight: height,
+      // minHeight: height,
     }
   }, [])
 
   const dragIndicatorAnimatedStyle = useAnimatedStyle(() => {
-    // Transform the drag indicator into a border when collapsed
-    const width = interpolate(
-      translateY.value,
-      [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
-      [SCREEN_WIDTH, 40],
-      Extrapolate.CLAMP,
-    )
-
-    const y = interpolate(
-      translateY.value,
-      [SNAP_POINTS.COLLAPSED - 50, SNAP_POINTS.COLLAPSED],
-      [0, -42],
-      Extrapolate.CLAMP,
-    )
-
-    const shadowOpacity = interpolate(
-      translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-      [0.2, 0],
-      Extrapolate.CLAMP,
-    )
-
-    const top = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 10], Extrapolate.CLAMP)
-
-    const height = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [2, 5], Extrapolate.CLAMP)
-
-    const opacity = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.EXPANDED], [1, 0], Extrapolate.CLAMP)
+    const opacity = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [1, 0], Extrapolate.CLAMP)
 
     return {
-      top,
-      width,
-      height,
       opacity,
-      transform: [{ translateY: y }],
-      shadowOpacity,
     }
   }, [])
 
@@ -175,7 +152,6 @@ const Cooked = ({ navigation, route }) => {
 
     return {
       backgroundColor: `rgba(0, 0, 0, ${opacity})`,
-      pointerEvents: opacity > 0.6 ? 'auto' : 'none',
     }
   }, [])
 
@@ -197,11 +173,39 @@ const Cooked = ({ navigation, route }) => {
       context.value = { y: translateY.value }
     })
     .onUpdate(event => {
-      // Update position based on gesture, ensuring it doesn't go beyond limits
-      const newY = Math.max(SNAP_POINTS.EXPANDED, Math.min(SNAP_POINTS.COLLAPSED, context.value.y + event.translationY))
+      // Allow scrolling beyond EXPANDED with no restrictions on minimum value
+      // Only apply max limit to COLLAPSED (bottom position)
+      const newY = Math.min(SNAP_POINTS.COLLAPSED, context.value.y + event.translationY)
       translateY.value = newY
+
+      // Enable scrolling when beyond expanded position
+      if (newY <= SNAP_POINTS.EXPANDED) {
+        scrollEnabled.value = true
+      }
     })
     .onEnd(event => {
+      const currentPosition = translateY.value
+
+      // If we're beyond EXPANDED (negative values), apply scroll physics
+      if (currentPosition < SNAP_POINTS.EXPANDED) {
+        // Apply momentum-based scrolling
+        const velocity = event.velocityY
+        const projection = currentPosition + velocity * 0.2 // Projection based on velocity
+
+        // Limit how far we can scroll with momentum (optional - adjust or remove as needed)
+        const minPosition = -500 // How far up the card can go with momentum
+        const limitedProjection = Math.max(minPosition, projection)
+
+        // Apply physics-based animation with proper deceleration
+        translateY.value = withDecay({
+          velocity: velocity,
+          clamp: [minPosition, SNAP_POINTS.EXPANDED], // Optional: limit scrolling range
+          deceleration: 0.995, // Adjust for faster/slower deceleration (0.998 = slower, 0.99 = faster)
+        })
+
+        return
+      }
+
       // Determine which snap point we were closest to at the START of the gesture
       let startingSnapPoint
       const startPosition = context.value.y
@@ -214,7 +218,7 @@ const Cooked = ({ navigation, route }) => {
         startingSnapPoint = SNAP_POINTS.COLLAPSED
       }
 
-      // Always move exactly one step in the direction of the swipe
+      // Regular snapping logic for positions between EXPANDED and COLLAPSED
       if (event.velocityY > 300) {
         // Downward swipe with significant velocity
         if (startingSnapPoint === SNAP_POINTS.EXPANDED) {
@@ -235,7 +239,6 @@ const Cooked = ({ navigation, route }) => {
         }
       } else {
         // For gentle swipes or no clear direction, snap to the closest point
-        const currentPosition = translateY.value
         if (currentPosition < SNAP_POINTS.MID - (SNAP_POINTS.MID - SNAP_POINTS.EXPANDED) / 2) {
           snapTo(SNAP_POINTS.EXPANDED)
         } else if (currentPosition < SNAP_POINTS.COLLAPSED - (SNAP_POINTS.COLLAPSED - SNAP_POINTS.MID) / 2) {
@@ -265,8 +268,7 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}
-      >
+        onTouchStart={handleRecipeInteraction}>
         {shouldLoadRecipe ? (
           <Recipe recipeId={recipeId} extractId={extractId} route={route} navigation={navigation} />
         ) : (
@@ -282,9 +284,8 @@ const Cooked = ({ navigation, route }) => {
           showShareIcon={true}
           containerStyle={cardAnimatedStyle}
           photoStyle={imageAnimatedStyle}
-          photoContainerStyle={photoContainerAnimatedStyle}
-          contentsStyle={contentsAnimatedStyle}
-          bodyStyle={cardBodyAnimatedStyle}
+          bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
+          contentsStyle={cardContentsAnimatedStyle}
           renderDragIndicator={renderDragIndicator}
         />
       </GestureDetector>
@@ -314,6 +315,9 @@ const styles = StyleSheet.create({
     elevation: 10,
     zIndex: 10,
   },
+  cardBodyStyle: {
+    minHeight: SCREEN_HEIGHT / 2,
+  },
   dragIndicator: {
     backgroundColor: theme.colors.primary,
     borderRadius: 2.5,
@@ -334,6 +338,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     pointerEvents: 'none',
     backgroundColor: 'rgba(0, 0, 0, 0)',
+    userSelect: 'none',
   },
   recipePlaceholder: {
     flex: 1,

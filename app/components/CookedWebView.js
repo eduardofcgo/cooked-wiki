@@ -255,8 +255,7 @@ export default function CookedWebView({
     <SafeAreaView
       style={{
         flex: 1,
-      }}
-    >
+      }}>
       {!credentials ? (
         <LoadingScreen />
       ) : (
@@ -293,6 +292,7 @@ export default function CookedWebView({
                 marginBottom: 0,
                 margin: 0,
                 padding: 0,
+                userSelect: 'none',
               }}
               injectedJavaScript={injectedJavaScript}
               onMessage={handleMessage}

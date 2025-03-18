@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     marginRight: 8,
+    backgroundColor: theme.colors.background,
   },
   profileInfo: {
     flex: 1,

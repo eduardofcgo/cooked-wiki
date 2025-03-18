@@ -95,7 +95,7 @@ export default function ModalCard({
           translateY: interpolate(
             translateY.value,
             [-screenHeight, 0, screenHeight],
-            [-screenHeight / 4, 0, screenHeight],
+            [-screenHeight / 4, 0, screenHeight]
           ),
         },
       ],
@@ -114,16 +114,14 @@ export default function ModalCard({
       transparent={true}
       animationType='none'
       onShow={onShow}
-      onRequestClose={handleClose}
-    >
+      onRequestClose={handleClose}>
       {/* <FadeInStatusBar /> */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.modalContainer, backgroundStyle]}>
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}
-            onPress={closeOnOverlay ? handleClose : undefined}
-          >
+            onPress={closeOnOverlay ? handleClose : undefined}>
             <View style={styles.modalContainer} />
           </TouchableOpacity>
           <PanGestureHandler onGestureEvent={gestureHandler}>
@@ -146,6 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.disabledBackground,
   },
   modalContent: {
+    borderRadius: theme.borderRadius.default,
     backgroundColor: theme.colors.background,
     paddingBottom: 32,
     paddingHorizontal: 16,
@@ -168,11 +167,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dragIndicator: {
-    width: '200%',
-    height: 2,
+    width: 40,
+    height: 5,
+    marginTop: 10,
+    marginBottom: 10,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.default,
     alignSelf: 'center',
-    marginBottom: 16,
+    zIndex: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 3,
   },
 })

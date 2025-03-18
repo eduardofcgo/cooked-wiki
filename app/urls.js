@@ -12,7 +12,7 @@ export const getSavedRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}`
 export const getCookedUrl = cookId => `${BASE_URL}/cook/${cookId}`
 export const getCommunityJournalUrl = () => `${BASE_URL}/community/journal?following=true`
 export const getProfileImageUrl = username => `${BASE_URL}/user/${username}/profile/image`
-export const getPhotoUrl = imagePath => `${BASE_URL}/image/photo/${imagePath}`
+export const getCookedPhotoUrl = imagePath => `${BASE_URL}/image/photo/${imagePath}`
 export const getThumbnailUrl = imagePath => `${BASE_URL}/image/thumbnail/${imagePath}`
 export const getJournalUrl = username => `${BASE_URL}/user/${username}/journal`
 export const getProfileUrl = username => `${BASE_URL}/user/${username}`

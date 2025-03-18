@@ -1,9 +1,9 @@
-import React from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
+import { faAward, faCrown, faLock, faMedal, faStar, faTrophy } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faTrophy, faMedal, faStar, faAward, faCrown, faFire, faLock } from '@fortawesome/free-solid-svg-icons'
-import ModalCard from '../core/ModalCard'
+import React from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { theme } from '../../style/style'
+import ModalCard from '../core/ModalCard'
 
 const awards = [
   {
@@ -68,8 +68,7 @@ const CookingAwards = ({ visible, onClose, cookedCount }) => {
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Cooking awards</Text>
         </View>
-      }
-    >
+      }>
       <ScrollView style={styles.scrollView}>
         <View style={styles.awardsContainer}>
           {awards.map(award => (

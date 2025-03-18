@@ -27,7 +27,7 @@ const FeedItem = ({ cooked, onPress, onSharePress }) => {
     <View style={styles.container}>
       <RecipeHeader cooked={cooked} onPress={onPress} />
 
-      <Card cooked={cooked} showShareIcon={true} relativeDate={true} />
+      <Card cooked={cooked} showShareIcon={true} relativeDate={true} photoSlider={true} />
     </View>
   )
 }

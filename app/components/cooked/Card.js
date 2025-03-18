@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native'
-import { toJS } from 'mobx'
-import React, { useRef } from 'react'
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useRef, useState } from 'react'
+import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
+import { getCookedPhotoUrl, getProfileImageUrl } from '../../urls'
+import PhotoSlider from './PhotoSlider'
 import SocialMenu from './SocialMenu'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 const Card = ({
   cooked,
@@ -21,30 +22,48 @@ const Card = ({
   contentsStyle,
   bodyStyle,
   relativeDate,
+  photoSlider,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
 
   const cookedId = cooked['id']
-  const cookedPhotoPath = cooked['cooked-photos-path']
-    ? 'https://cooked.wiki/image/photo/' + cooked['cooked-photos-path'][0]
-    : null
-  const profilePhoto = 'https://cooked.wiki/user/' + cooked['username'] + '/profile/image'
+  const cookedPhotoPaths = cooked['cooked-photos-path']
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const handlePress = () => {
     if (cardRef.current) {
       cardRef.current.measure((x, y, width, height, pageX, pageY) => {
-        // For smooth transition, the next screen will know the current position of the card
+        // For smooth screen transition, we pass the previously loaded cooked to the Cooked screen.
+        // If the cooked screen does not receive this, the standard animation will be used.
+
+        // The next screen will know the current position of the card
         const startPosition = { x: pageX, y: pageY, width, height }
 
-        // Also for smoothness, we pass the previously loaded cooked to the Cooked screen.
-        // If the cooked screen does not receive this, the standard animation will be used.
-        navigation.navigate('Cooked', { startPosition, preloadedCooked: toJS(cooked), cookedId })
+        // Make sure that when the user navigates to the Cooked screen,
+        // the photo that is currently in view is the first photo showing.
+        const inViewPhotoPath = cookedPhotoPaths?.[currentImageIndex]
+        const photoPathsWithInViewFirst = [
+          inViewPhotoPath,
+          ...cookedPhotoPaths.filter(path => path !== inViewPhotoPath),
+        ]
+
+        const preloadedCooked = { ...cooked, 'cooked-photos-path': photoPathsWithInViewFirst }
+
+        navigation.navigate('Cooked', { startPosition, preloadedCooked, cookedId })
       })
     } else {
       navigation.navigate('Cooked', { cookedId })
     }
   }
+
+  const handleImageSlide = useCallback(imageSlideIndex => {
+    setCurrentImageIndex(imageSlideIndex)
+  }, [])
+
+  // Process photo paths
+  const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
 
   return (
     <Animated.View
@@ -52,23 +71,37 @@ const Card = ({
       style={[styles.container, containerStyle]}
       //   sharedTransitionTag={'cooked-card-' + cookedId}
     >
-      <TouchableOpacity activeOpacity={0.7} onPress={handlePress} style={[styles.touchableContainer]}>
-        <Animated.View style={photoContainerStyle}>
-          <Animated.Image
-            source={{ uri: cookedPhotoPath }}
-            style={[styles.photo, photoStyle]}
-            resizeMode='cover'
-            // sharedTransitionTag={'cooked-card-photo-' + cookedId}
-          />
-        </Animated.View>
+      {/* <TouchableOpacity activeOpacity={0.7} onPress={handlePress} style={[styles.touchableContainer]}> */}
 
-        {renderDragIndicator && renderDragIndicator()}
-      </TouchableOpacity>
+      {photoUrls && (
+        <Animated.View style={photoContainerStyle}>
+          {photoSlider ? (
+            <PhotoSlider
+              images={photoUrls}
+              photoStyle={photoStyle}
+              onImagePress={handlePress}
+              onImageSlide={handleImageSlide}
+            />
+          ) : (
+            photoUrls.map((photoUrl, index) => (
+              <Animated.Image
+                key={index}
+                source={{ uri: photoUrl }}
+                style={[styles.photo, photoStyle]}
+                resizeMode='cover'
+              />
+            ))
+          )}
+        </Animated.View>
+      )}
+
+      {renderDragIndicator && renderDragIndicator()}
+      {/* </TouchableOpacity> */}
 
       <Animated.View style={[styles.contents, contentsStyle]}>
         <SocialMenu
           onActionPress={onActionPress}
-          profileImage={profilePhoto}
+          profileImage={getProfileImageUrl(cooked['username'])}
           username={cooked['username']}
           date={cooked['cooked-date']}
           showExpandIcon={showExpandIcon}
@@ -97,14 +130,10 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
   },
-  photo: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH,
-    zIndex: 1,
-  },
   contents: {
     transform: [{ translateY: 0 }],
-    zIndex: 2,
+    userSelect: 'none',
+    zIndex: 1,
   },
   body: {
     paddingHorizontal: 16,
@@ -122,6 +151,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: theme.colors.softBlack,
     opacity: theme.opacity.disabled,
+  },
+  photo: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH,
+    zIndex: 10,
   },
 })
 

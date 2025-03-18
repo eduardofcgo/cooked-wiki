@@ -1,22 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../context/StoreContext'
+import React, { useEffect, useMemo, useState } from 'react'
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { PrimaryButton } from '../components/core/Button'
 import { useAuth } from '../context/AuthContext'
+import { useStore } from '../context/StoreContext'
 import LoadingScreen from '../screens/Loading'
-import { Button, SecondaryButton, PrimaryButton } from '../components/core/Button'
 import { theme } from '../style/style'
-
+import { getProfileImageUrl } from '../urls'
 const UserItem = observer(({ username, isOwnProfile, navigation }) => {
   const { findFriendsStore } = useStore()
 
   return (
     <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('PublicProfile', { username })}>
       <View style={styles.userInfo}>
-        <View style={styles.avatarPlaceholder}>
+        <Image source={{ uri: getProfileImageUrl(username) }} style={styles.avatarPlaceholder} />
+        {/* <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />
-        </View>
+        </View> */}
         <View>
           <Text style={styles.userName}>{username}</Text>
         </View>

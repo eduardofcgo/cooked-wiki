@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { View, TextInput, Image, TouchableOpacity, Text, StyleSheet, Dimensions, Modal } from 'react-native'
 import { ArrowLeft as ArrowLeftIcon } from 'lucide-react-native'
+import React, { useState } from 'react'
+import { Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import CookedButton from './CookedButton'
 import CookedButtonSecondary from './CookedButtonSecondary'
 
@@ -70,8 +70,7 @@ const CookedInput = ({ imagePath, onUndo, route, navigation }) => {
         animationType='slide'
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+        onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalView}>
           <Text>This is a modal!</Text>
           <CookedButton onPress={() => setModalVisible(false)}>Close Modal</CookedButton>
