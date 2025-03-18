@@ -1,7 +1,8 @@
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
 import { observer } from 'mobx-react'
 import moment from 'moment'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../../style/style'
 
@@ -42,13 +43,22 @@ const SocialMenu = ({
   relativeDate = false,
   likeCount = 0,
 }) => {
+  const navigation = useNavigation()
+
+  const onUserPress = useCallback(() => {
+    navigation.navigate('PublicProfile', { username })
+  }, [navigation, username])
+
   return (
     <View style={styles.profileHeader}>
-      <Image source={{ uri: profileImage }} style={styles.profilePicture} />
-      <View style={styles.profileInfo}>
-        <Text style={styles.username}>{username}</Text>
-        <Text style={styles.date}>{relativeDate ? formatWeeksAgo(date) : formatDate(date)}</Text>
-      </View>
+      <TouchableOpacity style={styles.profile} onPress={onUserPress} activeOpacity={0.7}>
+        <Image source={{ uri: profileImage }} style={styles.profilePicture} />
+        <View style={styles.profileInfo}>
+          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.date}>{relativeDate ? formatWeeksAgo(date) : formatDate(date)}</Text>
+        </View>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.expandButtonContainer} onPress={onActionPress}>
         <View style={styles.expandButtonWrapper}>
           {showExpandIcon ? (
@@ -72,6 +82,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomColor: 'rgba(0,0,0,0.05)',
     backgroundColor: theme.colors.secondary,
+  },
+  profile: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   profilePicture: {
     width: 32,

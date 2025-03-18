@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 import Card from '../components/cooked/Card'
+import Notes from '../components/cooked/FullNotes'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
@@ -21,7 +22,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
-  COLLAPSED: SCREEN_HEIGHT - 120, //PHOTO_HEIGHT - 110,
+  COLLAPSED: SCREEN_HEIGHT - 120,
   MID: PHOTO_HEIGHT - 125 - 110,
   EXPANDED: 0, // At the top
 }
@@ -100,7 +101,6 @@ const Cooked = ({ navigation, route }) => {
       borderTopLeftRadius: borderRadius,
       borderTopRightRadius: borderRadius,
       height: imageHeight,
-      overflow: 'hidden',
     }
   }, [])
 
@@ -120,6 +120,7 @@ const Cooked = ({ navigation, route }) => {
       borderTopColor: theme.colors.primary,
     }
   }, [])
+
   const cardBodyAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
       translateY.value,
@@ -254,7 +255,7 @@ const Cooked = ({ navigation, route }) => {
 
     const timer = setTimeout(() => {
       setShouldLoadRecipe(true)
-    }, 250)
+    }, 1000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -282,12 +283,13 @@ const Cooked = ({ navigation, route }) => {
           cooked={cooked}
           relativeDate={false}
           showShareIcon={true}
-          containerStyle={cardAnimatedStyle}
+          containerStyle={[styles.cardContainerStyle, cardAnimatedStyle]}
           photoStyle={imageAnimatedStyle}
           bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
           contentsStyle={cardContentsAnimatedStyle}
-          renderDragIndicator={renderDragIndicator}
-        />
+          renderDragIndicator={renderDragIndicator}>
+          <Notes notes={cooked['notes']} />
+        </Card>
       </GestureDetector>
     </GestureHandlerRootView>
   )
@@ -302,21 +304,11 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
   },
-  cardContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: -SCREEN_HEIGHT,
-    height: SCREEN_HEIGHT,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 10,
-    zIndex: 10,
+  cardContainerStyle: {
+    backgroundColor: 'transparent',
   },
   cardBodyStyle: {
-    minHeight: SCREEN_HEIGHT / 2,
+    minHeight: SCREEN_HEIGHT - SNAP_POINTS.MID + 60,
   },
   dragIndicator: {
     backgroundColor: theme.colors.primary,

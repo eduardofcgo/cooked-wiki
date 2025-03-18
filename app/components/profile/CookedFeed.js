@@ -40,22 +40,7 @@ const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
     await profileStore.reloadProfileCooked(username)
   }, [username])
 
-  const renderItem = useCallback(
-    ({ item: cooked }) => (
-      <FeedItem
-        cooked={cooked}
-        // canEdit={loggedInUsername === username}
-        // hideAuthor={true}
-        // onUserPress={() => {
-        // navigation.navigate('PublicProfile', { username: post.username })
-        // }}
-        // onRecipePress={() => {
-        // navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
-        // }}
-      />
-    ),
-    [],
-  )
+  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} />, [])
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingProfileCookedsNextPage && hasMore) {
