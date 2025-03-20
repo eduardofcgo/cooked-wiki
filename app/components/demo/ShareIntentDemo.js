@@ -72,8 +72,7 @@ const ShareIntentDemo = ({
           style={styles.labelText}
           key={`label-${currentIndex}`}
           entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(300)}
-        >
+          exiting={FadeOut.duration(300)}>
           {currentScreenshot.label}
         </Animated.Text>
       )}
@@ -82,12 +81,11 @@ const ShareIntentDemo = ({
         key={`screenshot-${currentIndex}`}
         style={styles.screenshotContainer}
         entering={FadeIn.duration(300)}
-        exiting={FadeOut.duration(300)}
-      >
+        exiting={FadeOut.duration(300)}>
         <Image source={currentScreenshot.source} style={styles.screenshot} resizeMode='contain' />
 
         <Image
-          source={require('../../../assets/demo/iphone_xr_frame2.png')}
+          source={require('../../../assets/demo/iphone_xr_frame.png')}
           style={styles.phoneFrame}
           resizeMode='contain'
         />
