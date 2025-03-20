@@ -1,16 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+import { StatusBar } from 'react-native'
 
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import Logo from '../components/core/Logo'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Logo from '../../components/core/Logo'
+import { theme } from '../../style/style'
 
 export default function Start({ navigation, route }) {
   const handleLogin = () => {
-    navigation.navigate('Login')
+    navigation.navigate('HowItWorks')
   }
 
   const handleRegister = () => {
     navigation.navigate('Register')
   }
+
+  useEffect(() => {
+    StatusBar.setBackgroundColor(theme.colors.background, true)
+  }, [])
 
   return (
     <View style={styles.container}>

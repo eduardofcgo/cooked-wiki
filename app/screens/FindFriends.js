@@ -46,7 +46,8 @@ const UserItem = observer(({ user, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}>
+      onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
+    >
       <View style={styles.userInfo}>
         <Image source={{ uri: getProfileImageUrl(user.username) }} style={styles.avatarPlaceholder} />
         {/* <View style={styles.avatarPlaceholder}>

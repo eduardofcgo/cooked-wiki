@@ -70,7 +70,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
       [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -94,7 +94,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
       [PHOTO_HEIGHT, 0],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -111,7 +111,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.MID + 20], // Animate over 20 units after MID point
       [0, 2],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -126,7 +126,7 @@ const Cooked = ({ navigation, route }) => {
       translateY.value,
       [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
       [0, 500],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     )
 
     return {
@@ -269,7 +269,8 @@ const Cooked = ({ navigation, route }) => {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        onTouchStart={handleRecipeInteraction}>
+        onTouchStart={handleRecipeInteraction}
+      >
         {shouldLoadRecipe ? (
           <Recipe recipeId={recipeId} extractId={extractId} route={route} navigation={navigation} />
         ) : (
@@ -287,7 +288,8 @@ const Cooked = ({ navigation, route }) => {
           photoStyle={imageAnimatedStyle}
           bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
           contentsStyle={cardContentsAnimatedStyle}
-          renderDragIndicator={renderDragIndicator}>
+          renderDragIndicator={renderDragIndicator}
+        >
           <Notes notes={cooked['notes']} />
         </Card>
       </GestureDetector>

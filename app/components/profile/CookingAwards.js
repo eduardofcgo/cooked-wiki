@@ -68,7 +68,8 @@ const CookingAwards = ({ visible, onClose, cookedCount }) => {
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Cooking awards</Text>
         </View>
-      }>
+      }
+    >
       <ScrollView style={styles.scrollView}>
         <View style={styles.awardsContainer}>
           {awards.map(award => (
