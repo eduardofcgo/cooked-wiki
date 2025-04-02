@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "738495561582",
+    "project_id": "cooked-48c6d",
+    "storage_bucket": "cooked-48c6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738495561582:android:823dc20f9c65cbbbf80b7f",
+        "android_client_info": {
+          "package_name": "wiki.cooked"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738495561582-dciekt14ot4e5sls81udrdb5i0afd6fq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbigFoEI4dYWLPvPpi7I0yd-ONPQ24hfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738495561582-dciekt14ot4e5sls81udrdb5i0afd6fq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

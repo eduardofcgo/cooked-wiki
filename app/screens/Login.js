@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Linking } from 'react-native'
 import { IconButton } from 'react-native-paper'
+import { StatusBar } from 'react-native'
 
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
@@ -14,11 +15,21 @@ export default function Login({ navigation, route }) {
 
   const [isLoading, setIsLoading] = useState(false)
 
+  useEffect(() => { 
+    StatusBar.setBackgroundColor(theme.colors.secondary, true)
+  }, [])
+
   const handleLogin = async () => {
     setIsLoading(true)
 
     try {
       await auth.login(username, password)
+      
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      })    
+    
     } catch (error) {
       setIsLoading(false)
 
@@ -40,6 +51,15 @@ export default function Login({ navigation, route }) {
     }
   }
 
+  const handleResetPassword = async () => {
+    try {
+      await Linking.openURL('https://cooked.wiki/user/reset/send');
+    } catch (error) {
+      console.error('Error opening reset password link:', error);
+      alert('Could not open the reset password page. Please try again later.');
+    }
+  }
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -50,19 +70,21 @@ export default function Login({ navigation, route }) {
 
       <View style={styles.contentContainer}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Welcome back</Text>
-          <Text style={styles.subHeaderText}>Sign in to continue</Text>
+          <Text style={styles.headerText}>Welcome back!</Text>
+          <Text style={styles.subHeaderText}>
+            Only for old accounts previously registered on the site with username and password.
+          </Text>
         </View>
 
         <View style={styles.formContainer}>
-          <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
+          {/* <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
             <View style={styles.appleButtonContent}>
               <IconButton icon='apple' iconColor='white' size={20} style={styles.appleIcon} />
               <Text style={styles.appleButtonText}>Sign in with Apple</Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <Text style={styles.helpText}>or</Text>
+          {/* <Text style={styles.helpText}>or</Text> */}
 
           <TextInput
             style={styles.input}
@@ -88,7 +110,7 @@ export default function Login({ navigation, route }) {
 
           <Text style={styles.helpText}>
             Forgot your password?
-            <Text style={{ color: '#d97757' }}> Reset</Text>
+            <Text style={{ color: '#d97757' }} onPress={handleResetPassword}> Reset</Text>
           </Text>
         </View>
       </View>
@@ -167,21 +189,22 @@ const styles = StyleSheet.create({
     shadowRadius: 8, // Increased radius for a more pronounced shadow
   },
   registerButton: {
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#706b57',
-    backgroundColor: '#706b57',
-    paddingVertical: 10,
+    backgroundColor: theme.colors.softBlack,
+    paddingVertical: 12,
     alignItems: 'center',
+    borderRadius: 5,
     elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 }, // Increased height for a more pronounced shadow
-    shadowOpacity: 0.25, // Increased opacity for a more pronounced shadow
-    shadowRadius: 8, // Increased radius for a more pronounced shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   registerButtonText: {
-    color: 'white',
+    color: theme.colors.white,
     fontSize: 16,
+    fontWeight: '500',
   },
   buttonText: {
     color: '#706b57',
@@ -213,8 +236,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subHeaderText: {
-    fontSize: 16,
-    color: '#706b57',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
     opacity: 0.8,
   },
 })

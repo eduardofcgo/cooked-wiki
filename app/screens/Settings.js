@@ -44,7 +44,7 @@ export default Settings = observer(({ navigation }) => {
           setIsLoading(false)
           navigation.reset({
             index: 0,
-            routes: [{ name: 'Login' }],
+            routes: [{ name: 'Start' }],
           })
         },
         style: 'destructive',

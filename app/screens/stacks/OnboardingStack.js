@@ -36,7 +36,7 @@ export default function OnboardingStack({ StackNavigator }) {
 
       <StackNavigator.Screen name='Start' component={Start} options={{ title: 'Start', headerShown: false }} />
 
-      <StackNavigator.Screen name='Login' component={Login} options={{ title: 'Login', ...screenStyle }} />
+      <StackNavigator.Screen name='Login' component={Login} options={{ title: 'Login with password', ...screenStyle }} />
 
       <StackNavigator.Screen name='Register' component={Register} options={{ title: 'Register', ...screenStyle }} />
     </>

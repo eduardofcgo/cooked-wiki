@@ -34,6 +34,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-google-services.json
-
 .idea
