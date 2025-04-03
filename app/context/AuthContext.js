@@ -21,8 +21,14 @@ export const AuthProvider = ({ children, onLoadedCredentials }) => {
     credentials: undefined,
     loggedIn: false,
 
-    login: async (username, password) => {
-      const newCredentials = await AuthService.login(username, password)
+    loginPassword: async (username, password) => {
+      const newCredentials = await AuthService.loginPassword(username, password)
+
+      setAuthContext({ ...authContext, credentials: newCredentials, loggedIn: true })
+    },
+
+    googleLogin: async (username, idToken) => {
+      const newCredentials = await AuthService.googleLogin(username, idToken)
 
       setAuthContext({ ...authContext, credentials: newCredentials, loggedIn: true })
     },

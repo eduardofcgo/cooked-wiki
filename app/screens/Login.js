@@ -23,12 +23,12 @@ export default function Login({ navigation, route }) {
     setIsLoading(true)
 
     try {
-      await auth.login(username, password)
+      await auth.loginPassword(username, password)
       
       navigation.reset({
         index: 0,
         routes: [{ name: 'Main' }],
-      })    
+      })
     
     } catch (error) {
       setIsLoading(false)

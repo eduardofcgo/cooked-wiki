@@ -1,21 +1,13 @@
 import { btoa, atob, trimBase64Padding } from 'react-native-quick-base64'
 
 import AuthStore from './store'
-import { getAppLoginUrl, getCommunityJournalUrl } from '../urls'
+import { getAppLoginUrl, getCommunityJournalUrl, getGoogleLoginUrl } from '../urls'
 
 export default class AuthService {
   static sessionKey = 'ring-session'
 
-  static async login(username, password) {
-    const response = await fetch(getAppLoginUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    })
-    if (response.ok) {
-      const cookies = response.headers.get('set-cookie')
+  static async login(username, headers) {    
+      const cookies = headers.get('set-cookie')
       const session = cookies
         .split(';')
         .find(cookie => cookie.trim().startsWith(AuthService.sessionKey + '='))
@@ -29,18 +21,55 @@ export default class AuthService {
       await AuthStore.setCredentials(username, token)
 
       return { username, token }
-    } else if (response.status === 401) {
+  }
+
+  static async loginPassword(username, password) {
+    const response = await fetch(getAppLoginUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    })
+
+    if (response.status === 200) {
+      return AuthService.login(username, response.headers)
+    }
+    
+    else if (response.status !== 401) {
       throw {
         code: 'AUTH_INVALID_CREDENTIALS',
         message: 'Invalid username or password',
       }
-    } else {
-      const body = await response.text()
-      console.error('Auth server error:', response.status, body, getAppLoginUrl())
+    } 
+    
+    else {
       throw {
         code: 'AUTH_SERVER_ERROR',
         message: 'Unable to connect to authentication server',
         status: response.status,
+      }
+    }
+  }
+
+  static async googleLogin(username, idToken) {
+    const response = await fetch(getGoogleLoginUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ "id-token": idToken }),
+    })
+
+    const responseData = await response.json()
+
+    if (responseData.code === 'AUTHENTICATED') {
+      return AuthService.login(username, response.headers)
+    
+    } else {
+      throw {
+        code: responseData.code,
+        message: responseData.message,
       }
     }
   }

@@ -1,10 +1,14 @@
-const BASE_URL = 'https://cooked.wiki'
-// const BASE_URL = 'http://192.168.1.96:3000'
+// const BASE_URL = 'https://cooked.wiki'
+const BASE_URL = 'http://192.168.1.96:3000'
 
 export const API_BASE_URL = `${BASE_URL}/api`
 
 export const absoluteUrl = path => `${BASE_URL}${path}`
 export const getAppLoginUrl = () => `${BASE_URL}/app/login`
+
+export const getGoogleLoginUrl = () => `${API_BASE_URL}/login/google`
+export const getGoogleRegisteredUsername = () => `${API_BASE_URL}/login/google/username`
+
 export const getContactUrl = () => `${BASE_URL}/contact`
 export const getTeamUrl = () => `${BASE_URL}/team`
 export const getExtractUrl = url => `${BASE_URL}/new?url=${url}`
