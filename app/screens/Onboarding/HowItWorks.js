@@ -45,7 +45,7 @@ const HowItWorks = ({ navigation }) => {
         <Animated.View style={styles.buttonsContainer} entering={FadeInDown.delay(7000).duration(500)}>
           <PrimaryButton
             title='Got it!'
-            onPress={() => navigation.navigate('Notifications')}
+            onPress={() => navigation.navigate('OnboardingNotifications')}
             style={styles.nextButton}
             icon={<Icon name='arrow-right' size={20} color='white' />}
           />

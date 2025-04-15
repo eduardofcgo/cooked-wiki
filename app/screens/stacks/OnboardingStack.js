@@ -4,6 +4,7 @@ import Notifications from '../Onboarding/Notifications'
 import OnboardingScreen from '../Onboarding/Onboarding'
 import Start from '../Onboarding/Start'
 import Register from '../Register'
+import SetupUsername from '../Onboarding/SetupUsername'
 
 import { screenStyle } from '../../style/style'
 
@@ -27,7 +28,15 @@ export default function OnboardingStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='Notifications'
+        name='SetupUsername'
+        options={{
+          headerShown: false,
+        }}
+        component={SetupUsername}
+      />
+
+      <StackNavigator.Screen
+        name='OnboardingNotifications'
         options={{
           headerShown: false,
         }}

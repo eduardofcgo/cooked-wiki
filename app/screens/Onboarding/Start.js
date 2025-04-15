@@ -52,19 +52,22 @@ export default function Start({ navigation, route }) {
           },
           body: JSON.stringify({ "id-token": idToken }),
         })
-                
+    
         const registeredUsernameResponseData = await registeredUsernameResponse.json()
         const associatedUsername = registeredUsernameResponseData.username
+        const defaultImagePath = registeredUsernameResponseData['default-profile-image-path']
+
+        console.log('associatedUsername', registeredUsernameResponseData)
 
         if (associatedUsername) {
           await auth.googleLogin(associatedUsername, idToken)
-          navigateToMain()
         
         } else {
           navigation.navigate(
             'SetupUsername', 
-            { idToken: idToken,
-              defaultImagePath: responseData.defaultImagePath,
+            {
+              idToken: idToken,
+              defaultImagePath: defaultImagePath,
             }
           )
         }

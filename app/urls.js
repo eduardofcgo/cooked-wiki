@@ -8,6 +8,9 @@ export const getAppLoginUrl = () => `${BASE_URL}/app/login`
 
 export const getGoogleLoginUrl = () => `${API_BASE_URL}/login/google`
 export const getGoogleRegisteredUsername = () => `${API_BASE_URL}/login/google/username`
+export const registerGoogleUsername = () => `${API_BASE_URL}/login/google/register`
+
+export const validateUsernameUrl = () => `${API_BASE_URL}/user/validate-username`
 
 export const getContactUrl = () => `${BASE_URL}/contact`
 export const getTeamUrl = () => `${BASE_URL}/team`
