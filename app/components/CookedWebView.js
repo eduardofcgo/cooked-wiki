@@ -101,18 +101,18 @@ export default function CookedWebView({
 
   const onWebViewRequest = request => {
     const { url } = request
-    console.log(`[WebView] onShouldStartLoadWithRequest: Intercepted URL = ${url}`)
+    // console.log(`[WebView] onShouldStartLoadWithRequest: Intercepted URL = ${url}`)
 
     // Allow the initial load URL explicitly
     const initialUri = startUrl + `?token=${token}`
     if (url === initialUri) {
-      console.log(`[WebView] onShouldStartLoadWithRequest: Allowing initial load URL.`)
+      // console.log(`[WebView] onShouldStartLoadWithRequest: Allowing initial load URL.`)
       return true
     }
 
     // Also allow the base startUrl in case of redirects that clean the token
     if (url === startUrl) {
-      console.log(`[WebView] onShouldStartLoadWithRequest: Allowing base start URL.`)
+      // console.log(`[WebView] onShouldStartLoadWithRequest: Allowing base start URL.`)
       return true
     }
 
@@ -301,22 +301,22 @@ export default function CookedWebView({
               ref={webViewRef}
               onLoadStart={syntheticEvent => {
                 const { nativeEvent } = syntheticEvent
-                console.log('[WebView] onLoadStart:', nativeEvent.url)
+                // console.log('[WebView] onLoadStart:', nativeEvent.url)
               }}
               onLoad={syntheticEvent => {
                 const { nativeEvent } = syntheticEvent
-                console.log('[WebView] onLoad:', nativeEvent.url)
+                // console.log('[WebView] onLoad:', nativeEvent.url)
               }}
               onLoadEnd={syntheticEvent => {
                 const { nativeEvent } = syntheticEvent
-                console.log(
-                  '[WebView] onLoadEnd:',
-                  nativeEvent.loading ? 'Still loading' : 'Load finished',
-                  nativeEvent.url,
-                )
+                // console.log(
+                //   '[WebView] onLoadEnd:',
+                //   nativeEvent.loading ? 'Still loading' : 'Load finished',
+                //   nativeEvent.url,
+                // )
               }}
               onLoadProgress={({ nativeEvent }) => {
-                console.log('[WebView] onLoadProgress:', nativeEvent.progress)
+                // console.log('[WebView] onLoadProgress:', nativeEvent.progress)
               }}
               onError={syntheticEvent => {
                 const { nativeEvent } = syntheticEvent

@@ -64,7 +64,7 @@ export class RecentlyOpenedStore {
     })
   }
 
-  clearRecent() {
+  clear() {
     runInAction(() => {
       this.recipes.clear()
     })

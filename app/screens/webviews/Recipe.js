@@ -10,6 +10,7 @@ import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
 import handler from './router/handler'
+import { Button, SecondaryButton, TransparentButton } from '../../components/core/Button'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -24,7 +25,9 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
   const hasRecentlyOpennedRecipes = Boolean(nextMostRecentRecipe)
 
   useEffect(() => {
-    recentlyOpenedStore.addRecent({ recipeId, extractId })
+    if (recipeId || extractId) {
+      recentlyOpenedStore.addRecent({ recipeId, extractId })
+    }
   }, [recentlyOpenedStore, recipeId, extractId])
 
   const [isExpanded, setIsExpanded] = useState(false)
@@ -37,22 +40,18 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
 
   useKeepAwake()
 
-  const toggleHeader = () => {
-    setIsExpanded(!isExpanded)
-    headerHeight.value = withTiming(isExpanded ? 0 : 170, {
-      duration: 300,
-    })
-  }
-
   const handlePressOrDoublepress = () => {
     const currentTime = new Date().getTime()
     const delta = currentTime - lastPress.current
 
-    if (delta < 500) {
+    const doublePress = delta < 500
+
+    if (doublePress) {
       openMostRecentRecipe()
     } else {
-      toggleHeader()
+      setIsExpanded(!isExpanded)
     }
+    
     lastPress.current = currentTime
   }
 
@@ -62,17 +61,22 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
     }
   }
 
+  useEffect(() => {
+    console.log('updating is exapnded', isExpanded)
+
+    headerHeight.value = withTiming(!isExpanded ? 0 : 170 + 8, {
+      duration: 300,
+    })
+  }, [isExpanded, setIsExpanded])
+
   const openRecipe = recipe => {
     console.log('[Recipe] Opening recipe:', recipe.recipeId, recipe.extractId)
+    setIsExpanded(false)
 
     navigation.setParams({
       recipeId: recipe.recipeId,
       extractId: recipe.extractId,
-    })
-    setIsExpanded(false)
-
-    headerHeight.value = withTiming(0, {
-      duration: 250,
+      recentRecipesExpanded: false,
     })
   }
 
@@ -148,7 +152,7 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
         </View>
       ),
     })
-  }, [navigation, toggleHeader, isExpanded, orientation])
+  }, [navigation, isExpanded, orientation])
 
   const routeHandler = useCallback(
     pathname => {
@@ -158,6 +162,8 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
   )
 
   const recipeStartURL = extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+
+  // console.log('[Recipe] Recently opened recipes:', recentlyOpenedStore.recipes)
 
   return (
     <View style={styles.container}>
@@ -175,6 +181,21 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
                   <RecipeThumbnail recipeId={recipe.recipeId} extractId={recipe.extractId} />
                 </TouchableOpacity>
               ))}
+            <TouchableOpacity
+              onPress={() => {
+                setIsExpanded(false)
+                recentlyOpenedStore.clear()
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 32,
+                marginRight: 32,
+              }}
+            >
+              <Text style={{ color: theme.colors.softBlack }}>Clear</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </Animated.View>
