@@ -11,10 +11,10 @@ function Main() {
   const { userStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
 
-  useEffect(() => { 
+  useEffect(() => {
     StatusBar.setBackgroundColor(theme.colors.secondary, true)
   }, [])
-  
+
   const setNotificationToken = useCallback(
     token => {
       userStore.setNotificationToken(token)

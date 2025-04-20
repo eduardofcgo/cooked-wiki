@@ -48,7 +48,7 @@ export class RecipeMetadataStore {
         this.metadataMap.delete(id)
       })
 
-      console.error('Error loading recipe metadata:', error)
+      console.error(`Error loading recipe metadata for id ${id}:`, error)
     }
   }
 

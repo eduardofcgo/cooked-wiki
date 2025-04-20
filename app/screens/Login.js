@@ -15,7 +15,7 @@ export default function Login({ navigation, route }) {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => { 
+  useEffect(() => {
     StatusBar.setBackgroundColor(theme.colors.secondary, true)
   }, [])
 
@@ -24,12 +24,11 @@ export default function Login({ navigation, route }) {
 
     try {
       await auth.loginPassword(username, password)
-      
+
       navigation.reset({
         index: 0,
         routes: [{ name: 'Main' }],
       })
-    
     } catch (error) {
       setIsLoading(false)
 
@@ -53,10 +52,10 @@ export default function Login({ navigation, route }) {
 
   const handleResetPassword = async () => {
     try {
-      await Linking.openURL('https://cooked.wiki/user/reset/send');
+      await Linking.openURL('https://cooked.wiki/user/reset/send')
     } catch (error) {
-      console.error('Error opening reset password link:', error);
-      alert('Could not open the reset password page. Please try again later.');
+      console.error('Error opening reset password link:', error)
+      alert('Could not open the reset password page. Please try again later.')
     }
   }
 
@@ -110,7 +109,10 @@ export default function Login({ navigation, route }) {
 
           <Text style={styles.helpText}>
             Forgot your password?
-            <Text style={{ color: '#d97757' }} onPress={handleResetPassword}> Reset</Text>
+            <Text style={{ color: '#d97757' }} onPress={handleResetPassword}>
+              {' '}
+              Reset
+            </Text>
           </Text>
         </View>
       </View>

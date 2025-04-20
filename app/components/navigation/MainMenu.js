@@ -2,7 +2,7 @@ import { faSearch, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View, Platform } from 'react-native'
 import { screenStyle, theme } from '../../style/style'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -16,6 +16,65 @@ const TabNavigator = createBottomTabNavigator()
 const TabIcon = ({ icon, focused }) => (
   <FontAwesomeIcon icon={icon} color={focused ? theme.colors.primary : theme.colors.softBlack} />
 )
+
+// Custom Tab Bar to fix iOS styling issues
+function CustomTabBar({ state, descriptors, navigation }) {
+  return (
+    <View style={tabScreenStyle.tabBarStyle}>
+      <View style={{ flexDirection: 'row', height: '100%' }}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key]
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+                ? options.title
+                : route.name
+
+          const isFocused = state.index === index
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+            })
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name)
+            }
+          }
+
+          return (
+            <TouchableOpacity
+              key={index}
+              accessibilityRole='button'
+              accessibilityState={isFocused ? { selected: true } : {}}
+              onPress={onPress}
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: isFocused ? theme.colors.secondary : theme.colors.white,
+                height: '100%',
+              }}
+            >
+              {options.tabBarIcon && options.tabBarIcon({ focused: isFocused })}
+              <Text
+                style={{
+                  color: isFocused ? 'black' : theme.colors.softBlack,
+                  fontSize: theme.fontSizes.small,
+                  fontFamily: theme.fonts.ui,
+                }}
+              >
+                {typeof label === 'function' ? label({ focused: isFocused }) : label}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+    </View>
+  )
+}
 
 function MainMenu({ route }) {
   const navigation = useNavigation()
@@ -91,25 +150,18 @@ function MainMenu({ route }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <TabNavigator.Navigator initialRouteName='Community' screenOptions={tabScreenStyle}>
+      <TabNavigator.Navigator
+        initialRouteName='Community'
+        screenOptions={tabScreenStyle}
+        tabBar={props => <CustomTabBar {...props} />}
+      >
         <TabNavigator.Screen
           name='Community'
           component={Community}
-          options={({ route }) => ({
-            ...screenStyle,
+          options={{
             title: 'Community',
             tabBarIcon: ({ focused }) => <TabIcon icon={faSearch} focused={focused} />,
-            tabBarLabel: ({ focused }) => (
-              <Text
-                style={{
-                  ...tabScreenStyle.tabBarLabelStyle,
-                  color: focused ? 'black' : theme.colors.softBlack,
-                }}
-              >
-                Community
-              </Text>
-            ),
-          })}
+          }}
         />
 
         <TabNavigator.Screen
@@ -119,16 +171,6 @@ function MainMenu({ route }) {
             title: 'Profile',
             headerShown: false,
             tabBarIcon: ({ focused }) => <TabIcon icon={faUser} focused={focused} />,
-            tabBarLabel: ({ focused }) => (
-              <Text
-                style={{
-                  ...tabScreenStyle.tabBarLabelStyle,
-                  color: focused ? 'black' : theme.colors.softBlack,
-                }}
-              >
-                Profile
-              </Text>
-            ),
           }}
         />
       </TabNavigator.Navigator>
@@ -309,9 +351,7 @@ const EmptyComponent = () => null
 
 const tabScreenStyle = {
   tabBarHideOnKeyboard: true,
-  tabBarActiveBackgroundColor: theme.colors.secondary,
   tabBarLabelStyle: {
-    color: theme.colors.softBlack,
     fontSize: theme.fontSizes.small,
     fontFamily: theme.fonts.ui,
   },

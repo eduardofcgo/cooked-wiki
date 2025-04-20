@@ -6,21 +6,21 @@ import { getAppLoginUrl, getCommunityJournalUrl, getGoogleLoginUrl } from '../ur
 export default class AuthService {
   static sessionKey = 'ring-session'
 
-  static async login(username, headers) {    
-      const cookies = headers.get('set-cookie')
-      const session = cookies
-        .split(';')
-        .find(cookie => cookie.trim().startsWith(AuthService.sessionKey + '='))
-        .split('=')[1]
-        .trim()
+  static async login(username, headers) {
+    const cookies = headers.get('set-cookie')
+    const session = cookies
+      .split(';')
+      .find(cookie => cookie.trim().startsWith(AuthService.sessionKey + '='))
+      .split('=')[1]
+      .trim()
 
-      const token = trimBase64Padding(btoa(session))
+    const token = trimBase64Padding(btoa(session))
 
-      console.log('Setting credentials', username, session, token)
+    console.log('Setting credentials', username, session, token)
 
-      await AuthStore.setCredentials(username, token)
+    await AuthStore.setCredentials(username, token)
 
-      return { username, token }
+    return { username, token }
   }
 
   static async loginPassword(username, password) {
@@ -34,16 +34,12 @@ export default class AuthService {
 
     if (response.status === 200) {
       return AuthService.login(username, response.headers)
-    }
-    
-    else if (response.status !== 401) {
+    } else if (response.status !== 401) {
       throw {
         code: 'AUTH_INVALID_CREDENTIALS',
         message: 'Invalid username or password',
       }
-    } 
-    
-    else {
+    } else {
       throw {
         code: 'AUTH_SERVER_ERROR',
         message: 'Unable to connect to authentication server',
@@ -58,14 +54,13 @@ export default class AuthService {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ "id-token": idToken }),
+      body: JSON.stringify({ 'id-token': idToken }),
     })
 
     const responseData = await response.json()
 
     if (responseData.code === 'AUTHENTICATED') {
       return AuthService.login(username, response.headers)
-    
     } else {
       throw {
         code: responseData.code,

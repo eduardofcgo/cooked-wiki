@@ -45,14 +45,14 @@ export class ApiClient {
       },
       error => {
         if (error.response) {
+          console.error(`Request to ${error.config.baseURL}${error.config.url} failed:`, error.response.status)
+
           throw new ApiError(
             error.response.data.message || 'An error occurred: ' + error.response.status,
             error.response.status,
             error.response.data.code,
           )
         }
-
-        console.error(error)
 
         throw new ApiError('Network error', 0, 'NETWORK_ERROR')
       },

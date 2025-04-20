@@ -63,6 +63,8 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
   }
 
   const openRecipe = recipe => {
+    console.log('[Recipe] Opening recipe:', recipe.recipeId, recipe.extractId)
+
     navigation.setParams({
       recipeId: recipe.recipeId,
       extractId: recipe.extractId,
@@ -155,6 +157,8 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
     [navigation],
   )
 
+  const recipeStartURL = extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.recentContainer, animatedStyles]}>
@@ -177,7 +181,8 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
 
       <Animated.View style={[styles.webViewContainer, animatedContentStyle]}>
         <CookedWebView
-          startUrl={extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)}
+          key={recipeStartURL}
+          startUrl={recipeStartURL}
           navigation={navigation}
           onRequestPath={routeHandler}
           route={route}

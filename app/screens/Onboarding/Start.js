@@ -7,15 +7,13 @@ import { theme } from '../../style/style'
 import { getGoogleRegisteredUsername } from '../../urls'
 import { useAuth } from '../../context/AuthContext'
 
-
 import {
   GoogleSignin,
   GoogleSigninButton,
   isErrorWithCode,
   isSuccessResponse,
   statusCodes,
-} from '@react-native-google-signin/google-signin';
-
+} from '@react-native-google-signin/google-signin'
 
 export default function Start({ navigation, route }) {
   const auth = useAuth()
@@ -30,29 +28,32 @@ export default function Start({ navigation, route }) {
   useEffect(() => {
     GoogleSignin.configure({
       // webClientId: '738495561582-en2jurt5k698phvs1jrja9kqlb7i04nb.apps.googleusercontent.com',
+
       webClientId: '738495561582-dciekt14ot4e5sls81udrdb5i0afd6fq.apps.googleusercontent.com',
+
+      iosClientId: '738495561582-dciekt14ot4e5sls81udrdb5i0afd6fq.apps.googleusercontent.com',
       offlineAccess: true,
-    });
-  }, []);
+    })
+  }, [])
 
   const handleGoogleLogin = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
+      await GoogleSignin.hasPlayServices()
+      const response = await GoogleSignin.signIn()
 
       console.log('google sign in response', response)
-  
+
       if (isSuccessResponse(response)) {
-        const { idToken } = response.data;
+        const { idToken } = response.data
 
         const registeredUsernameResponse = await fetch(getGoogleRegisteredUsername(), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ "id-token": idToken }),
+          body: JSON.stringify({ 'id-token': idToken }),
         })
-    
+
         const registeredUsernameResponseData = await registeredUsernameResponse.json()
         const associatedUsername = registeredUsernameResponseData.username
         const defaultImagePath = registeredUsernameResponseData['default-profile-image-path']
@@ -61,18 +62,14 @@ export default function Start({ navigation, route }) {
 
         if (associatedUsername) {
           await auth.googleLogin(associatedUsername, idToken)
-        
         } else {
-          navigation.navigate(
-            'SetupUsername', 
-            {
-              idToken: idToken,
-              defaultImagePath: defaultImagePath,
-            }
-          )
+          navigation.navigate('SetupUsername', {
+            idToken: idToken,
+            defaultImagePath: defaultImagePath,
+          })
         }
       } else {
-        console.log('sign in was cancelled by user');
+        console.log('sign in was cancelled by user')
       }
     } catch (error) {
       if (isErrorWithCode(error)) {
@@ -80,18 +77,18 @@ export default function Start({ navigation, route }) {
           case statusCodes.IN_PROGRESS:
             // operation (eg. sign in) already in progress
             console.log('sign in already in progress')
-            break;
+            break
           case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
             // Android only, play services not available or outdated
             console.log('play services not available or outdated')
-            break;
+            break
           default:
             console.log('some other error happened', error)
         }
       } else {
         throw error
       }
-    }  
+    }
   }
 
   const handleFacebookLogin = () => {

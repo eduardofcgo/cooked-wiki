@@ -1,6 +1,6 @@
 import Constants from 'expo-constants'
 import * as Linking from 'expo-linking'
-import { addStateListener, getScheme, getShareExtensionKey, hasShareIntent } from 'expo-share-intent'
+// import { addStateListener, getScheme, getShareExtensionKey, hasShareIntent } from 'expo-share-intent'
 import { getStateFromPath } from '@react-navigation/native'
 
 const PREFIX = Linking.createURL('/')
@@ -31,58 +31,59 @@ export default {
   // see: https://reactnavigation.org/docs/configuring-links/#advanced-cases
   getStateFromPath(path, config) {
     // REQUIRED FOR iOS FIRST LAUNCH
-    if (path.includes(`dataUrl=${getShareExtensionKey()}`)) {
-      // redirect to the ShareIntent Screen to handle data with the hook
-      console.debug('react-navigation[getStateFromPath] redirect to ShareIntent screen')
-      return {
-        routes: [
-          {
-            name: 'Extract',
-          },
-        ],
-      }
-    }
-    return getStateFromPath(path, config)
+    // if (path.includes(`dataUrl=${getShareExtensionKey()}`)) {
+    //   // redirect to the ShareIntent Screen to handle data with the hook
+    //   console.debug('react-navigation[getStateFromPath] redirect to ShareIntent screen')
+    //   return {
+    //     routes: [
+    //       {
+    //         name: 'Extract',
+    //       },
+    //     ],
+    //   }
+    // }
+    // return getStateFromPath(path, config)
   },
   subscribe(listener) {
     console.debug('react-navigation[subscribe]', PREFIX, PACKAGE_NAME)
-    const onReceiveURL = ({ url }) => {
-      if (url.includes(getShareExtensionKey())) {
-        // REQUIRED FOR iOS WHEN APP IS IN BACKGROUND
-        console.debug('react-navigation[onReceiveURL] Redirect to ShareIntent Screen', url)
-        console.log(`${getScheme()}://extract`)
-        listener(`${getScheme()}://extract`)
-      } else {
-        console.log(`${getScheme()}://extract`)
-        console.debug('react-navigation[onReceiveURL] OPEN URL', url)
-        listener(url)
-      }
-    }
-    const shareIntentEventSubscription = addStateListener(event => {
-      // REQUIRED FOR ANDROID WHEN APP IS IN BACKGROUND
-      console.debug('react-navigation[subscribe] shareIntentStateListener', event.value)
-      if (event.value === 'pending') {
-        console.log(`${getScheme()}://extract`)
-        listener(`${getScheme()}://extract`)
-      }
-    })
-    const urlEventSubscription = Linking.addEventListener('url', onReceiveURL)
-    return () => {
-      // Clean up the event listeners
-      shareIntentEventSubscription.remove()
-      urlEventSubscription.remove()
-    }
+    // const onReceiveURL = ({ url }) => {
+    //   if (url.includes(getShareExtensionKey())) {
+    //     // REQUIRED FOR iOS WHEN APP IS IN BACKGROUND
+    //     console.debug('react-navigation[onReceiveURL] Redirect to ShareIntent Screen', url)
+    //     console.log(`${getScheme()}://extract`)
+    //     listener(`${getScheme()}://extract`)
+    //   } else {
+    //     console.log(`${getScheme()}://extract`)
+    //     console.debug('react-navigation[onReceiveURL] OPEN URL', url)
+    //     listener(url)
+    //   }
+    // }
+
+    // const shareIntentEventSubscription = addStateListener(event => {
+    //   // REQUIRED FOR ANDROID WHEN APP IS IN BACKGROUND
+    //   console.debug('react-navigation[subscribe] shareIntentStateListener', event.value)
+    //   if (event.value === 'pending') {
+    //     console.log(`${getScheme()}://extract`)
+    //     listener(`${getScheme()}://extract`)
+    //   }
+    // })
+    // const urlEventSubscription = Linking.addEventListener('url', onReceiveURL)
+    // return () => {
+    //   // Clean up the event listeners
+    //   shareIntentEventSubscription.remove()
+    //   urlEventSubscription.remove()
+    // }
   },
   // https://reactnavigation.org/docs/deep-linking/#third-party-integrations
   async getInitialURL() {
     // REQUIRED FOR ANDROID FIRST LAUNCH
-    const needRedirect = hasShareIntent(getShareExtensionKey())
-    console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
-    if (needRedirect) {
-      return `${Constants.expoConfig?.scheme}://extract`
-    }
-    // As a fallback, do the default deep link handling
-    const url = await Linking.getInitialURL()
-    return url
+    // const needRedirect = hasShareIntent(getShareExtensionKey())
+    // console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
+    // if (needRedirect) {
+    //   return `${Constants.expoConfig?.scheme}://extract`
+    // }
+    // // As a fallback, do the default deep link handling
+    // const url = await Linking.getInitialURL()
+    // return url
   },
 }

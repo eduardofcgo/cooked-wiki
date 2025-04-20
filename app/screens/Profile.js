@@ -5,7 +5,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { ActivityIndicator, Dimensions, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  SafeAreaView,
+} from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue } from 'react-native-reanimated'
 
@@ -147,9 +157,11 @@ const Profile = observer(({ route, navigation, username, menu }) => {
   // Create animated style for header
   const animatedHeaderStyle = useAnimatedStyle(() => {
     const headerTranslateY = interpolate(scrollY.value, [0, 200], [0, -64], { extrapolateRight: 'clamp' })
+    const headerOpacity = interpolate(scrollY.value, [0, 100], [1, 0], { extrapolateRight: 'clamp' })
 
     return {
       transform: [{ translateY: headerTranslateY }],
+      opacity: headerOpacity,
     }
   })
 
@@ -318,14 +330,14 @@ export function LoggedInProfile({ route, navigation }) {
   }
 
   return (
-    <View style={{ ...styles.container, paddingTop: StatusBar.currentHeight }}>
+    <SafeAreaView style={styles.container}>
       <Profile
         route={route}
         navigation={navigation}
         username={credentials.username}
-        menu={<ProfileMenu navigation={navigation} />}
+        menu={<ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -348,6 +360,7 @@ const tabStyle = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.secondary,
   },
   headerContainer: {
     position: 'relative',

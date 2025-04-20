@@ -101,19 +101,32 @@ export default function CookedWebView({
 
   const onWebViewRequest = request => {
     const { url } = request
+    console.log(`[WebView] onShouldStartLoadWithRequest: Intercepted URL = ${url}`)
 
-    // Always load normally the WebView at the beggining,
-    // only further requests will be checked - when the user navigates
-    if (url === startUrl) return true
+    // Allow the initial load URL explicitly
+    const initialUri = startUrl + `?token=${token}`
+    if (url === initialUri) {
+      console.log(`[WebView] onShouldStartLoadWithRequest: Allowing initial load URL.`)
+      return true
+    }
 
+    // Also allow the base startUrl in case of redirects that clean the token
+    if (url === startUrl) {
+      console.log(`[WebView] onShouldStartLoadWithRequest: Allowing base start URL.`)
+      return true
+    }
+
+    // Previous logic for specific path handling
     if (onRequestPath) {
+      console.log(`[WebView] onShouldStartLoadWithRequest: URL not allowed directly, checking onRequestPath.`)
       setTimeout(() => {
         const pathname = new URL(url).pathname
         onRequestPath(pathname)
       }, 1)
     }
 
-    return false
+    console.log(`[WebView] onShouldStartLoadWithRequest: Blocking URL.`)
+    return false // Block other navigations
   }
 
   const handleMessage = event => {
@@ -286,6 +299,29 @@ export default function CookedWebView({
                 return loadingComponent || <LoadingScreen />
               }}
               ref={webViewRef}
+              onLoadStart={syntheticEvent => {
+                const { nativeEvent } = syntheticEvent
+                console.log('[WebView] onLoadStart:', nativeEvent.url)
+              }}
+              onLoad={syntheticEvent => {
+                const { nativeEvent } = syntheticEvent
+                console.log('[WebView] onLoad:', nativeEvent.url)
+              }}
+              onLoadEnd={syntheticEvent => {
+                const { nativeEvent } = syntheticEvent
+                console.log(
+                  '[WebView] onLoadEnd:',
+                  nativeEvent.loading ? 'Still loading' : 'Load finished',
+                  nativeEvent.url,
+                )
+              }}
+              onLoadProgress={({ nativeEvent }) => {
+                console.log('[WebView] onLoadProgress:', nativeEvent.progress)
+              }}
+              onError={syntheticEvent => {
+                const { nativeEvent } = syntheticEvent
+                console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
+              }}
               style={{
                 backgroundColor: theme.colors.background,
                 justifyContent: 'flex-start',
