@@ -172,8 +172,6 @@ export class ProfileStore {
   }
 
   async likeCooked(cookedId) {
-    await this.apiClient.post(`/journal/${cookedId}/stats/like`)
-
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
       if (!stats?.liked) {
@@ -181,11 +179,11 @@ export class ProfileStore {
         stats['like-count']++
       }
     })
+
+    await this.apiClient.post(`/journal/${cookedId}/stats/like`)
   }
 
   async unlikeCooked(cookedId) {
-    await this.apiClient.delete(`/journal/${cookedId}/stats/like`)
-
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
       if (stats?.liked) {
@@ -193,6 +191,8 @@ export class ProfileStore {
         stats['like-count']--
       }
     })
+
+    await this.apiClient.delete(`/journal/${cookedId}/stats/like`)
   }
 
   async reloadProfileCooked(username) {

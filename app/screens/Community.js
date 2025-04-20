@@ -151,7 +151,7 @@ export default Community = observer(({ navigation, route }) => {
     navigation.navigate('Recipe', { recipeId: cooked['recipe-id'] })
   }, [navigation])
 
-  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} />, [])
+  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
 
   const handleLoadMore = () => {
     if (!isLoadingCommunityFeedNextPage) {
@@ -306,6 +306,7 @@ export default Community = observer(({ navigation, route }) => {
           onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
+          style={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         />
       )}
