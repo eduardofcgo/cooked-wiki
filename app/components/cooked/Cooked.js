@@ -163,6 +163,9 @@ const CookedView = observer(
 
             <View style={styles.actionsContainer}>
               {canEdit ? <EditButton onPress={onEdit} /> : <View />}
+              {stats &&
+                  
+              }
               <LikeButton isLiked={stats?.liked} likeCount={stats?.['like-count']} onPress={onLike} />
             </View>
           </View>

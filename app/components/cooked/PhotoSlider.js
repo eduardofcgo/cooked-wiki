@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
-
+import DoubleTapLike from './DoubleTapLike'
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
-const PhotoSlider = ({ images, photoStyle, onImagePress, onImageSlide }) => {
+const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
-    onImageSlide(currentImageIndex)
-  }, [currentImageIndex])
+    onImageSlide && onImageSlide(currentImageIndex)
+  }, [currentImageIndex, onImageSlide])
 
   const hasMultiplePhotos = images?.length > 1
 
@@ -30,9 +30,9 @@ const PhotoSlider = ({ images, photoStyle, onImagePress, onImageSlide }) => {
         }}
         scrollEventThrottle={16}
         renderItem={({ item }) => (
-          <TouchableOpacity activeOpacity={0.9} onPress={() => onImagePress && onImagePress(item)}>
+          <DoubleTapLike onDoubleTap={onDoubleTap}>
             <Animated.Image source={{ uri: item }} style={[styles.photo, photoStyle]} resizeMode='cover' />
-          </TouchableOpacity>
+          </DoubleTapLike>
         )}
         keyExtractor={(item, index) => `photo-${index}`}
       />

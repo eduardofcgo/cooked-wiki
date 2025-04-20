@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo } from 'react'
 
 import RootStore from '../store/RootStore'
+import { useApi } from './ApiContext'
 
 const StoreContext = createContext()
 
@@ -13,7 +14,8 @@ export function useStore() {
   return context
 }
 
-export function StoreProvider({ apiClient, children }) {
+export function StoreProvider({ children }) {
+  const apiClient = useApi()
   const rootStore = useMemo(() => new RootStore(apiClient), [apiClient])
 
   return <StoreContext.Provider value={rootStore}>{children}</StoreContext.Provider>

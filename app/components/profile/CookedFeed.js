@@ -10,13 +10,13 @@ import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
 import RefreshControl from '../core/RefreshControl'
 import ProfileStats from './ProfileStats'
+import HeaderText from '../core/HeaderText'
 
 const FeedHeader = observer(({ username }) => {
   return (
     <>
       <ProfileStats username={username} />
-
-      <Text style={styles.headerText}>Cooked journal</Text>
+      <HeaderText>Cooked journal</HeaderText>
     </>
   )
 })
@@ -40,22 +40,7 @@ const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
     await profileStore.reloadProfileCooked(username)
   }, [username])
 
-  const renderItem = useCallback(
-    ({ item: cooked }) => (
-      <FeedItem
-        cooked={cooked}
-        // canEdit={loggedInUsername === username}
-        // hideAuthor={true}
-        // onUserPress={() => {
-        // navigation.navigate('PublicProfile', { username: post.username })
-        // }}
-        // onRecipePress={() => {
-        // navigation.navigate('Recipe', { recipeId: post['recipe-id'] })
-        // }}
-      />
-    ),
-    [],
-  )
+  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingProfileCookedsNextPage && hasMore) {
@@ -82,11 +67,6 @@ const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
 
   return (
     <View style={styles.container}>
-      {/* {profileCookeds?.length === 0 ? (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>No recipes cooked yet.</Text>
-          </View>
-        ) : ( */}
       <FlatList
         data={profileCookeds}
         renderItem={renderItem}
@@ -102,7 +82,6 @@ const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={true}
       />
-      {/* )} */}
     </View>
   )
 })
@@ -110,6 +89,7 @@ const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
     backgroundColor: theme.colors.background,
   },
   loadingContainer: {
@@ -127,13 +107,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.default,
     color: theme.colors.softBlack,
     textAlign: 'center',
-  },
-  headerText: {
-    fontFamily: theme.fonts.title,
-    fontSize: theme.fontSizes.large,
-    color: theme.colors.black,
-    textAlign: 'center',
-    paddingBottom: 20,
   },
   feedContent: {},
   footerLoader: {

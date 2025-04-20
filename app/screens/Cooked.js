@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import Card from '../components/cooked/Card'
 import Notes from '../components/cooked/FullNotes'
+import HeaderText from '../components/core/HeaderText'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
@@ -182,6 +183,8 @@ const Cooked = ({ navigation, route }) => {
       // Enable scrolling when beyond expanded position
       if (newY <= SNAP_POINTS.EXPANDED) {
         scrollEnabled.value = true
+      } else {
+        scrollEnabled.value = false
       }
     })
     .onEnd(event => {
@@ -189,21 +192,7 @@ const Cooked = ({ navigation, route }) => {
 
       // If we're beyond EXPANDED (negative values), apply scroll physics
       if (currentPosition < SNAP_POINTS.EXPANDED) {
-        // Apply momentum-based scrolling
-        const velocity = event.velocityY
-        const projection = currentPosition + velocity * 0.2 // Projection based on velocity
-
-        // Limit how far we can scroll with momentum (optional - adjust or remove as needed)
-        const minPosition = -500 // How far up the card can go with momentum
-        const limitedProjection = Math.max(minPosition, projection)
-
-        // Apply physics-based animation with proper deceleration
-        translateY.value = withDecay({
-          velocity: velocity,
-          clamp: [minPosition, SNAP_POINTS.EXPANDED], // Optional: limit scrolling range
-          deceleration: 0.995, // Adjust for faster/slower deceleration (0.998 = slower, 0.99 = faster)
-        })
-
+        scrollEnabled.value = true
         return
       }
 
@@ -289,9 +278,8 @@ const Cooked = ({ navigation, route }) => {
           bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
           contentsStyle={cardContentsAnimatedStyle}
           renderDragIndicator={renderDragIndicator}
-        >
-          <Notes notes={cooked['notes']} />
-        </Card>
+          showSimilarCooks={true}
+        />
       </GestureDetector>
     </GestureHandlerRootView>
   )

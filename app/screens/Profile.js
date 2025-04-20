@@ -17,7 +17,13 @@ import {
   SafeAreaView,
 } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
-import Animated, { interpolate, useAnimatedStyle, useSharedValue } from 'react-native-reanimated'
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  useAnimatedReaction,
+  runOnJS,
+} from 'react-native-reanimated'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -154,6 +160,16 @@ const Profile = observer(({ route, navigation, username, menu }) => {
   // Use both a shared value (for animations) and state (for UI updates)
   const scrollY = useSharedValue(0)
 
+  // Function to update the navigation header title (runs on JS thread)
+  const updateHeaderTitle = useCallback(
+    showTitle => {
+      navigation.setOptions({
+        headerTitle: showTitle ? username : 'Profile',
+      })
+    },
+    [navigation, username],
+  )
+
   // Create animated style for header
   const animatedHeaderStyle = useAnimatedStyle(() => {
     const headerTranslateY = interpolate(scrollY.value, [0, 200], [0, -64], { extrapolateRight: 'clamp' })
@@ -173,6 +189,17 @@ const Profile = observer(({ route, navigation, username, menu }) => {
       transform: [{ translateY: contentTranslateY }],
     }
   })
+
+  // Update navigation header title based on scroll position
+  useAnimatedReaction(
+    () => {
+      return interpolate(scrollY.value, [0, 100], [0, 1], { extrapolateRight: 'clamp' })
+    },
+    headerTitleOpacity => {
+      const showTitle = headerTitleOpacity > 0.5
+      runOnJS(updateHeaderTitle)(showTitle)
+    },
+  )
 
   const handleSaveBio = async newBio => {
     await profileStore.updateBio(newBio)
@@ -365,7 +392,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     position: 'relative',
     backgroundColor: theme.colors.secondary,
-    height: 64,
+    height: 72,
     zIndex: 10,
   },
   header: {
@@ -375,6 +402,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     paddingLeft: 16,
     paddingRight: 8,
+    paddingTop: 8,
   },
   content: {
     flex: 1,

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
+import { ApiProvider } from './ApiContext'
 import { StoreProvider } from './StoreContext'
 
 import { ApiClient } from '../api/client'
@@ -70,7 +71,11 @@ export const AuthProvider = ({ children, onLoadedCredentials }) => {
 
   return (
     <AuthContext.Provider value={authContext}>
-      {loadedCredentials ? <StoreProvider apiClient={apiClient}>{children}</StoreProvider> : null}
+      {loadedCredentials ? (
+        <ApiProvider client={apiClient}>
+          <StoreProvider>{children}</StoreProvider>
+        </ApiProvider>
+      ) : null}
     </AuthContext.Provider>
   )
 }

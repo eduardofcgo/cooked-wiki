@@ -176,7 +176,7 @@ export class ProfileStore {
 
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
-      if (stats) {
+      if (!stats?.liked) {
         stats.liked = true
         stats['like-count']++
       }
@@ -188,7 +188,7 @@ export class ProfileStore {
 
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
-      if (stats) {
+      if (stats?.liked) {
         stats.liked = false
         stats['like-count']--
       }

@@ -5,7 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../../style/style'
 import Card from './Card'
 
-const RecipeHeader = ({ cooked, onPress }) => {
+const RecipeHeader = ({ cooked, rounded }) => {
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
 
@@ -19,7 +19,11 @@ const RecipeHeader = ({ cooked, onPress }) => {
   }, [navigation, recipeId, extractId])
 
   return hasRecipe ? (
-    <TouchableOpacity style={styles.recipeHeader} onPress={navigateToRecipe} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={[styles.recipeHeader, rounded && { borderTopLeftRadius: 16, borderTopRightRadius: 16 }]}
+      onPress={navigateToRecipe}
+      activeOpacity={0.7}
+    >
       <View style={styles.recipeHeaderContent}>
         <Text style={styles.recipeName}>{recipeTitle}</Text>
         <Feather name='chevron-right' size={20} color={theme.colors.primary} />
@@ -32,12 +36,20 @@ const RecipeHeader = ({ cooked, onPress }) => {
   )
 }
 
-const FeedItem = ({ cooked }) => {
+const FeedItem = ({ cooked, rounded }) => {
   return (
     <View style={styles.container}>
-      <RecipeHeader cooked={cooked} />
+      <RecipeHeader cooked={cooked} rounded={rounded} />
 
-      <Card cooked={cooked} showShareIcon={true} relativeDate={true} photoSlider={true} collapseNotes={true} />
+      <Card
+        cooked={cooked}
+        showShareIcon={true}
+        relativeDate={true}
+        photoSlider={true}
+        collapseNotes={true}
+        rounded={rounded}
+        bodyBackgroundColor={theme.colors.white}
+      />
     </View>
   )
 }
@@ -45,6 +57,7 @@ const FeedItem = ({ cooked }) => {
 const styles = StyleSheet.create({
   container: {},
   recipeHeader: {
+    backgroundColor: theme.colors.white,
     paddingHorizontal: 16,
     paddingVertical: 16,
   },

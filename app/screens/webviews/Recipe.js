@@ -51,7 +51,7 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
     } else {
       setIsExpanded(!isExpanded)
     }
-    
+
     lastPress.current = currentTime
   }
 

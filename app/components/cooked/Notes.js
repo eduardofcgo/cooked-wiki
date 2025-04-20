@@ -4,34 +4,28 @@ import { theme } from '../../style/style'
 
 const MAX_LINES = 2
 
-const Notes = ({ notes, style, onPress }) => {
-  if (!notes) return null
-
-  const [textTruncated, setTextTruncated] = useState(false)
-
-  const onTextLayout = e => {
-    const { nativeEvent } = e
-    if (nativeEvent.lines.length > MAX_LINES) {
-      setTextTruncated(true)
-    }
-  }
+const Notes = ({ notes, style, goToCooked, goToRecipe }) => {
+  if (!notes)
+    return (
+      <TouchableOpacity onPress={goToRecipe}>
+        <Text style={[styles.readMoreText, { paddingBottom: 16 }]}>Read more</Text>
+      </TouchableOpacity>
+    )
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={goToCooked}>
       <View style={[styles.notes, style]}>
-        <Text style={styles.notesText} numberOfLines={MAX_LINES} onTextLayout={onTextLayout}>
+        <Text style={styles.notesText} numberOfLines={MAX_LINES}>
           {notes}
         </Text>
-        {textTruncated && <Text style={styles.readMoreText}>Read more</Text>}
+        <Text style={styles.readMoreText}>Read more</Text>
       </View>
     </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
-  notes: {
-    // We'll add any specific styles here as needed
-  },
+  notes: {},
   notesText: {
     fontSize: theme.fontSizes.default,
     lineHeight: 22,

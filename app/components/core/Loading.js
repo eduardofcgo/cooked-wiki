@@ -1,17 +1,19 @@
 import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 
-export default function Loading() {
+import { theme } from '../../style/style'
+
+export default function Loading({ backgroundColor = theme.colors.background }) {
   return (
     <View
       style={{
-        backgroundColor: '#fafaf7',
+        backgroundColor,
         justifyContent: 'flex-start',
         flexDirection: 'column',
         flex: 1,
       }}
     >
-      <ActivityIndicator color='#d97757' size='large' />
+      <ActivityIndicator color={theme.colors.primary} size='large' />
     </View>
   )
 }

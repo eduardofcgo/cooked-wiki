@@ -1,9 +1,10 @@
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useNavigationState } from '@react-navigation/native'
 import { observer } from 'mobx-react'
 import moment from 'moment'
-import React, { useCallback } from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect } from 'react'
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 
 const formatDate = dateString => {
@@ -16,24 +17,51 @@ const formatWeeksAgo = dateString => {
   return moment(dateString).fromNow()
 }
 
-const SocialMenuIcons = ({ onHeartPress, onSharePress, likeCount = 0 }) => {
+const SocialMenuIcons = observer(({ cookedId, onHeartPress, onSharePress }) => {
+  const { profileStore } = useStore()
+
+  const stats = profileStore.cookedStats.get(cookedId)
+  const likeCount = stats?.['like-count']
+  const liked = stats?.liked
+
+  const likeCooked = useCallback(() => {
+    profileStore.likeCooked(cookedId)
+  }, [cookedId, profileStore])
+
+  const unlikeCooked = useCallback(() => {
+    profileStore.unlikeCooked(cookedId)
+  }, [cookedId, profileStore])
+
+  useEffect(() => {
+    profileStore.loadCookedStats(cookedId)
+  }, [cookedId, profileStore])
+
   return (
     <View style={styles.iconWrapper}>
-      <View style={styles.heartContainer}>
-        {likeCount > 0 && <Text style={styles.likeCounter}>{likeCount}</Text>}
-        <TouchableOpacity onPress={onHeartPress} style={styles.iconContainer}>
-          <FontAwesome name='heart' size={18} color={`${theme.colors.primary}80`} />
-        </TouchableOpacity>
-      </View>
+      {stats ? (
+        <View style={styles.heartContainer}>
+          {likeCount > 0 && <Text style={styles.likeCounter}>{likeCount}</Text>}
+          <TouchableOpacity onPress={liked ? unlikeCooked : likeCooked} style={styles.iconContainer}>
+            {liked ? (
+              <FontAwesome name='heart' size={18} color={'#d87192'} />
+            ) : (
+              <FontAwesome name='heart' size={18} color={`${theme.colors.primary}80`} />
+            )}
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ActivityIndicator size='small' color={theme.colors.primary} />
+      )}
 
       <TouchableOpacity onPress={onSharePress} style={styles.iconContainer}>
         <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
       </TouchableOpacity>
     </View>
   )
-}
+})
 
 const SocialMenu = ({
+  cookedId,
   onActionPress,
   profileImage,
   username,
@@ -41,13 +69,33 @@ const SocialMenu = ({
   showExpandIcon,
   onHeartPress,
   relativeDate = false,
-  likeCount = 0,
 }) => {
   const navigation = useNavigation()
+  const navState = useNavigationState(state => state)
 
   const onUserPress = useCallback(() => {
-    navigation.navigate('PublicProfile', { username })
-  }, [navigation, username])
+    // Check if the PublicProfile screen with this username is in navigation history
+    const routes = navState.routes || []
+    let targetRouteIndex = -1
+
+    for (let i = 0; i < routes.length; i++) {
+      if (routes[i].name === 'PublicProfile' && routes[i].params?.username === username) {
+        targetRouteIndex = i
+        break
+      }
+    }
+
+    if (targetRouteIndex >= 0) {
+      // The screen exists in history, go back to it
+      const backCount = routes.length - 1 - targetRouteIndex
+      if (backCount > 0) {
+        navigation.pop(backCount)
+      }
+    } else {
+      // Screen not in history, navigate normally
+      navigation.navigate('PublicProfile', { username })
+    }
+  }, [navigation, username, navState])
 
   return (
     <View style={styles.profileHeader}>
@@ -66,7 +114,7 @@ const SocialMenu = ({
               <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
             </View>
           ) : (
-            <SocialMenuIcons onHeartPress={onHeartPress} likeCount={12} />
+            <SocialMenuIcons cookedId={cookedId} onHeartPress={onHeartPress} onSharePress={undefined} />
           )}
         </View>
       </TouchableOpacity>
