@@ -47,6 +47,10 @@ export class ProfileStore {
     return this.profileDataMap.get(username)?.isPatron === true
   }
 
+  getImagePath(username) {
+    return this.profileDataMap.get(username)?.imagePath
+  }
+
   async updateBio(username, bio) {
     runInAction(() => {
       this.profileDataMap.get(username).bio = bio
@@ -164,6 +168,7 @@ export class ProfileStore {
       profileData.page = 1
       profileData.bio = metadata.bio
       profileData.isPatron = metadata['is-patron?']
+      profileData.imagePath = metadata['image-path']
     })
   }
 

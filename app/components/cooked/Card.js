@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Dimensions, Image, StyleSheet, Text, ScrollView } from 'react-native'
+import { Dimensions, Image, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native'
 import { useStore } from '../../context/StoreContext'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
@@ -106,9 +106,9 @@ const Card = ({
       //   sharedTransitionTag={'cooked-card-' + cookedId}
     >
       {!photoUrls && (
-        <DoubleTapLike onDoubleTap={onDoubleTapPhoto}>
+        <TouchableOpacity onPress={goToRecipe}>
           <Image source={{ uri: recipePhotoUrl }} style={styles.recipePhoto} />
-        </DoubleTapLike>
+        </TouchableOpacity>
       )}
 
       {photoUrls && (

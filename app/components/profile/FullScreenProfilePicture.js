@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { faCarrot, faEgg, faLeaf, faPepperHot, faUtensils } from '@fortawesome/free-solid-svg-icons'
+import { faCarrot, faEgg, faLeaf, faPepperHot, faUtensils, faStar } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import React from 'react'
 import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
@@ -213,7 +213,7 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
 
               {isPatron && (
                 <View style={styles.patronBadge}>
-                  <MaterialCommunityIcons name='crown' color={theme.colors.primary} size={25} />
+                  <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={25} />
                   <Text style={styles.patronText}>Patron</Text>
                 </View>
               )}
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   patronBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.white,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,

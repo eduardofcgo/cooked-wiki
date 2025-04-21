@@ -17,7 +17,9 @@ const formatWeeksAgo = dateString => {
   return moment(dateString).fromNow()
 }
 
-const SocialMenuIcons = observer(({ cookedId, onHeartPress, onSharePress }) => {
+const SocialMenuIcons = observer(({ cookedId, onSharePress }) => {
+  const navigation = useNavigation()
+
   const { profileStore } = useStore()
 
   const stats = profileStore.cookedStats.get(cookedId)
@@ -32,6 +34,10 @@ const SocialMenuIcons = observer(({ cookedId, onHeartPress, onSharePress }) => {
     profileStore.unlikeCooked(cookedId)
   }, [cookedId, profileStore])
 
+  const onPressLikeCount = useCallback(() => {
+    navigation.navigate('CookedLikes', { cookedId })
+  }, [cookedId, navigation])
+
   useEffect(() => {
     profileStore.loadCookedStats(cookedId)
   }, [cookedId, profileStore])
@@ -40,7 +46,13 @@ const SocialMenuIcons = observer(({ cookedId, onHeartPress, onSharePress }) => {
     <View style={styles.iconWrapper}>
       {stats ? (
         <View style={styles.heartContainer}>
-          {likeCount > 0 && <Text style={styles.likeCounter}>{likeCount}</Text>}
+          {likeCount > 0 && (
+            <TouchableOpacity 
+              onPress={onPressLikeCount}
+              hitSlop={{top: 10, bottom: 10, left: 20, right: 10}}>
+                <Text style={styles.likeCounter}>{likeCount}</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={liked ? unlikeCooked : likeCooked} style={styles.iconContainer}>
             {liked ? (
               <FontAwesome name='heart' size={18} color={'#d87192'} />
@@ -67,7 +79,6 @@ const SocialMenu = ({
   username,
   date,
   showExpandIcon,
-  onHeartPress,
   relativeDate = false,
 }) => {
   const navigation = useNavigation()
@@ -114,7 +125,7 @@ const SocialMenu = ({
               <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
             </View>
           ) : (
-            <SocialMenuIcons cookedId={cookedId} onHeartPress={onHeartPress} onSharePress={undefined} />
+            <SocialMenuIcons cookedId={cookedId} onSharePress={undefined} />
           )}
         </View>
       </TouchableOpacity>

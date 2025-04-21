@@ -1,5 +1,6 @@
 import Contact from '../../screens/Contact'
 import Cooked from '../../screens/Cooked'
+import CookedLikes from '../../screens/CookedLikes'
 import Extract from '../../screens/Extract'
 import FindFriends from '../../screens/FindFriends'
 import Followers from '../../screens/Followers'
@@ -147,6 +148,16 @@ export default function LoggedInStack({ StackNavigator }) {
           title: 'Followers',
           headerBackTitle: 'Back',
           animation: 'slide_from_right',
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='CookedLikes'
+        component={CookedLikes}
+        options={{
+          title: 'Likes',
+          headerBackTitle: 'Back',
+          animation: 'slide_from_bottom',
         }}
       />
 

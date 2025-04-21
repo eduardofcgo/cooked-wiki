@@ -1,6 +1,7 @@
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
+import { faStar } from '@fortawesome/free-solid-svg-icons/faStar'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { observer } from 'mobx-react-lite'
@@ -26,6 +27,7 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FontAwesome } from '@expo/vector-icons'
 import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
@@ -37,7 +39,7 @@ import CookedFeed from '../components/profile/CookedFeed'
 import EditBio from '../components/profile/EditBio'
 import FullScreenProfilePicture from '../components/profile/FullScreenProfilePicture'
 import { useAuth } from '../context/AuthContext'
-import { getProfileImageUrl } from '../urls'
+import { getProfileImageUrl, getThumbnailUrl } from '../urls'
 import Recipes from './webviews/Recipes'
 import Shopping from './webviews/Shopping'
 
@@ -121,18 +123,27 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
   const { profileStore } = useStore()
   const bio = profileStore.getBio(username)
   const isPatron = profileStore.isPatron(username)
+  const profileImageThumbnail = profileStore.getImagePath(username) ? getThumbnailUrl(profileStore.getImagePath(username)) : null
+
   return (
     <View style={styles.header}>
       <View style={styles.profileContainer}>
         {showImage ? (
           <>
             <TouchableOpacity onPress={() => setIsImageFullScreen(true)}>
-              <Image
-                source={{
-                  uri: getProfileImageUrl(username),
-                }}
-                style={styles.profileImage}
-              />
+              <View style={styles.profileImageContainer}>
+                <Image
+                  source={{
+                    uri: profileImageThumbnail,
+                  }}
+                  style={[styles.profileImage, isPatron && styles.patronImage]}
+                />
+                {isPatron && (
+                  <View style={styles.patronBadge}>
+                    <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={12} />
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
             <FullScreenProfilePicture
               visible={isImageFullScreen}
@@ -410,11 +421,20 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 10,
   },
+  profileImageContainer: {
+    position: 'relative',
+  },
   profileImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
     overflow: 'hidden',
+    paddingRight: 5,
+    backgroundColor: theme.colors.white,
+  },
+  patronImage: {
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
   },
   avatarPlaceholder: {
     width: 64,
@@ -440,5 +460,29 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     fontSize: theme.fontSizes.small,
     paddingRight: 5,
+  },
+  patronBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.white,
+    padding: 5,
+    borderRadius: 20,
+    position: 'absolute',
+    top: -8,
+    left: '50%',
+    transform: [{ translateX: -28 }],
+    zIndex: 10,
+    gap: 4,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+  },
+  patronText: {
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.uiBold,
+    fontWeight: 'bold',
+    fontSize: theme.fontSizes.extraSmall,
   },
 })
