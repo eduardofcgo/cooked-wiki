@@ -51,6 +51,27 @@ export class ProfileStore {
     return this.profileDataMap.get(username)?.imagePath
   }
 
+  async updateProfileImage(username, file) {
+    const formData = new FormData()
+    formData.append('profile-image', file)
+
+    const response = await this.apiClient.request({
+      url: `/user/profile/image`,
+      method: 'post',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      transformRequest: (data, headers) => formData,
+      data: formData,
+    })
+
+    const imagePath = response['image-path']
+
+    runInAction(() => {
+      this.profileDataMap.get(username).imagePath = imagePath
+    })
+  }
+
   async updateBio(username, bio) {
     runInAction(() => {
       this.profileDataMap.get(username).bio = bio

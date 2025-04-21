@@ -47,10 +47,8 @@ const SocialMenuIcons = observer(({ cookedId, onSharePress }) => {
       {stats ? (
         <View style={styles.heartContainer}>
           {likeCount > 0 && (
-            <TouchableOpacity 
-              onPress={onPressLikeCount}
-              hitSlop={{top: 10, bottom: 10, left: 20, right: 10}}>
-                <Text style={styles.likeCounter}>{likeCount}</Text>
+            <TouchableOpacity onPress={onPressLikeCount} hitSlop={{ top: 10, bottom: 10, left: 20, right: 10 }}>
+              <Text style={styles.likeCounter}>{likeCount}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={liked ? unlikeCooked : likeCooked} style={styles.iconContainer}>

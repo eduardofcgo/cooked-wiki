@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
   SafeAreaView,
+  Alert,
 } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import Animated, {
@@ -42,6 +43,8 @@ import { useAuth } from '../context/AuthContext'
 import { getProfileImageUrl, getThumbnailUrl } from '../urls'
 import Recipes from './webviews/Recipes'
 import Shopping from './webviews/Shopping'
+import PhotoSelectionModal from '../components/PhotoSelectionModal'
+import * as ImagePicker from 'expo-image-picker'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -67,54 +70,151 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileMenu = ({ navigation, onEditBio }) => {
-  const [menuVisible, setMenuVisible] = React.useState(false)
+const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
+  const [menuVisible, setMenuVisible] = useState(false)
+  const [photoSelectionModalVisible, setPhotoSelectionModalVisible] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const { profileStore } = useStore()
+  const { showInAppNotification } = useInAppNotification()
+
+  const handleCameraPress = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync()
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Sorry, we need camera permissions to make this work!')
+      return
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    })
+
+    if (!result.canceled) {
+      setPhotoSelectionModalVisible(false)
+      setIsUploading(true)
+
+      const file = {
+        uri: result.assets[0].uri,
+        name: result.assets[0].fileName || `profile_${Date.now()}.jpg`,
+        type: result.assets[0].mimeType || 'image/jpeg',
+      }
+
+      try {
+        await updateProfileImage(file)
+        showInAppNotification(ActionToast, {
+          props: { message: 'Profile photo updated' },
+          resetQueue: true,
+        })
+      } catch (error) {
+        console.error('Error updating profile photo:', error)
+        Alert.alert('Error', 'Failed to update profile photo. Please try again.')
+      } finally {
+        setIsUploading(false)
+      }
+    }
+  }
+
+  const handleGalleryPress = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Sorry, we need gallery permissions to make this work!')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    })
+
+    if (!result.canceled) {
+      setPhotoSelectionModalVisible(false)
+      setIsUploading(true)
+
+      const file = {
+        uri: result.assets[0].uri,
+        name: result.assets[0].fileName || `profile_${Date.now()}.jpg`,
+        type: result.assets[0].mimeType || 'image/jpeg',
+      }
+
+      try {
+        await profileStore.updateProfileImage(username, file)
+        showInAppNotification(ActionToast, {
+          props: { message: 'Profile photo updated' },
+          resetQueue: true,
+        })
+      } catch (error) {
+        console.error('Error updating profile photo:', error)
+        Alert.alert('Error', 'Failed to update profile photo. Please try again.')
+      } finally {
+        setIsUploading(false)
+      }
+    }
+  }
 
   return (
-    <Menu
-      visible={menuVisible}
-      onDismiss={() => setMenuVisible(false)}
-      anchor={
-        <IconButton
-          icon='dots-vertical'
-          iconColor={theme.colors.primary}
-          size={23}
-          onPress={() => setMenuVisible(true)}
+    <>
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        anchor={
+          <IconButton
+            icon='dots-vertical'
+            iconColor={theme.colors.primary}
+            size={23}
+            onPress={() => setMenuVisible(true)}
+          />
+        }
+        anchorPosition='bottom'
+      >
+        <Menu.Item
+          onPress={() => {
+            setMenuVisible(false)
+            navigation.navigate('Settings')
+          }}
+          title='Share'
         />
-      }
-      anchorPosition='bottom'
-    >
-      <Menu.Item
-        onPress={() => {
-          setMenuVisible(false)
-          navigation.navigate('Settings')
-        }}
-        title='Share'
+        <Menu.Item
+          onPress={() => {
+            setMenuVisible(false)
+            navigation.navigate('Settings')
+          }}
+          title='Settings'
+        />
+        <Menu.Item
+          onPress={() => {
+            setMenuVisible(false)
+            onEditBio()
+          }}
+          title='Update bio'
+        />
+        <Menu.Item
+          onPress={() => {
+            setMenuVisible(false)
+            setPhotoSelectionModalVisible(true)
+          }}
+          title='Update photo'
+        />
+        <Menu.Item
+          onPress={() => {
+            setMenuVisible(false)
+            navigation.navigate('Help')
+          }}
+          title='Help'
+        />
+      </Menu>
+      <PhotoSelectionModal
+        visible={photoSelectionModalVisible}
+        onClose={() => setPhotoSelectionModalVisible(false)}
+        onCameraPress={handleCameraPress}
+        onGalleryPress={handleGalleryPress}
       />
-      <Menu.Item
-        onPress={() => {
-          setMenuVisible(false)
-          navigation.navigate('Settings')
-        }}
-        title='Settings'
-      />
-      <Menu.Item
-        onPress={() => {
-          setMenuVisible(false)
-          onEditBio()
-        }}
-        title='Update bio'
-      />
-      <Menu.Item
-        onPress={() => {
-          setMenuVisible(false)
-          navigation.navigate('Help')
-        }}
-        title='Help'
-      />
-    </Menu>
+    </>
   )
-}
+})
 
 const ProfileHeader = observer(({ username, navigation, menu }) => {
   const showImage = true
@@ -123,7 +223,9 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
   const { profileStore } = useStore()
   const bio = profileStore.getBio(username)
   const isPatron = profileStore.isPatron(username)
-  const profileImageThumbnail = profileStore.getImagePath(username) ? getThumbnailUrl(profileStore.getImagePath(username)) : null
+  const profileImageThumbnail = profileStore.getImagePath(username)
+    ? getThumbnailUrl(profileStore.getImagePath(username))
+    : null
 
   return (
     <View style={styles.header}>
@@ -147,7 +249,7 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
             </TouchableOpacity>
             <FullScreenProfilePicture
               visible={isImageFullScreen}
-              imageUrl={getProfileImageUrl(username)}
+              imageUrl={profileImageThumbnail}
               onClose={() => setIsImageFullScreen(false)}
               bio={bio}
               isPatron={isPatron}
@@ -228,7 +330,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           navigation={navigation}
           menu={
             !publicView ? (
-              <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />
+              <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} username={username} />
             ) : (
               <TouchableOpacity style={{ padding: 16 }}>
                 <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
@@ -359,7 +461,7 @@ export const PublicProfile = observer(({ route, navigation }) => {
   )
 })
 
-export function LoggedInProfile({ route, navigation }) {
+export const LoggedInProfile = observer(({ route, navigation }) => {
   const { credentials } = useAuth()
 
   if (!credentials) {
@@ -371,7 +473,7 @@ export function LoggedInProfile({ route, navigation }) {
       <Profile route={route} navigation={navigation} username={credentials.username} publicView={false} />
     </SafeAreaView>
   )
-}
+})
 
 const tabBarLabelStyle = {
   flexDirection: 'row',

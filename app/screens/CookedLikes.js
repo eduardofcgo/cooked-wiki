@@ -35,7 +35,6 @@ function CookedLikes({ route, navigation }) {
     if (!searchQuery) return likes
 
     return likes.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase()))
-  
   }, [likes, searchQuery])
 
   return (
@@ -130,4 +129,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default observer(CookedLikes) 
+export default observer(CookedLikes)

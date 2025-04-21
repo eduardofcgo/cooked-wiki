@@ -48,7 +48,7 @@ function EditBio({ visible, onClose }) {
       onClose={handleClose}
       titleComponent={
         <View style={styles.titleContainer}>
-          <Text style={styles.modalTitle}>Edit bio</Text>
+          <Text style={styles.modalTitle}>Update bio</Text>
         </View>
       }
     >

@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.colors.background,
     paddingBottom: 32,
-    paddingHorizontal: 16,
+    paddingHorizontal: 32,
     paddingTop: 0,
   },
   modalHeader: {

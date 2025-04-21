@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
 import ModalCard from './core/ModalCard'
+import { observer } from 'mobx-react-lite'
 
-export default function PhotoSelectionModal({ visible, onClose, onCameraPress, onGalleryPress }) {
+function PhotoSelectionModal({ visible, onClose, onCameraPress, onGalleryPress }) {
   return (
     <ModalCard visible={visible} onClose={onClose} title='Add photo'>
       <View style={styles.buttonGrid}>
@@ -43,3 +44,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 })
+
+export default observer(PhotoSelectionModal)
