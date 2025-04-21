@@ -1,25 +1,44 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { theme } from '../../style/style'
-import { SecondaryButton, TransparentButton } from '../core/Button'
+import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
+import ActionToast from '../notification/ActionToast'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '../../context/StoreContext'
+import { useAuth } from '../../context/AuthContext'
+import { useInAppNotification } from '../../context/NotificationContext'
 
-export default function EditBio({ visible, onClose, onSave, initialBio, initialSocials }) {
-  const [bio, setBio] = useState(initialBio || '')
-  const [socials, setSocials] = useState(
-    initialSocials || {
-      instagram: '',
-    },
-  )
+function EditBio({ visible, onClose }) {
+  const { showInAppNotification } = useInAppNotification()
 
-  const handleSave = () => {
-    onSave(bio, socials)
+  const { credentials } = useAuth()
+  const { profileStore } = useStore()
+
+  const bio = profileStore.getBio(credentials.username)
+
+  const [editingBio, setEditingBio] = useState(bio)
+
+  const onSave = async () => {
+    onClose()
+
+    try {
+      await profileStore.updateBio(credentials.username, editingBio)
+
+      showInAppNotification(ActionToast, {
+        props: { message: 'Bio updated' },
+        resetQueue: true,
+      })
+    } catch (error) {
+      showInAppNotification(ActionToast, {
+        props: { message: 'Failed to update bio', success: false },
+        resetQueue: true,
+      })
+    }
   }
 
   const handleClose = () => {
     onClose()
-    setBio(initialBio || '')
-    setSocials(initialSocials || { instagram: '' })
   }
 
   return (
@@ -35,33 +54,18 @@ export default function EditBio({ visible, onClose, onSave, initialBio, initialS
     >
       <TextInput
         cursorColor={theme.colors.primary}
-        style={styles.bioInput}
-        multiline
-        placeholder='Tell us about yourself and what you love to cook.'
-        value={bio}
-        onChangeText={setBio}
+        style={[styles.bioInput]}
+        multiline={true}
+        placeholder='Tell about yourself and what you love to cook.'
+        defaultValue={bio}
         autoFocus={false}
         keyboardType='default'
         maxLength={150}
+        onChangeText={setEditingBio}
       />
 
-      <View style={styles.socialsContainer}>
-        <Text style={styles.socialsTitle}>Your socials</Text>
-
-        <View style={styles.socialInputContainer}>
-          <TextInput
-            cursorColor={theme.colors.primary}
-            style={styles.socialInput}
-            placeholder='@instagram_handle'
-            value={socials.instagram}
-            onChangeText={text => setSocials(prev => ({ ...prev, instagram: text }))}
-            autoCapitalize='none'
-          />
-        </View>
-      </View>
-
       <View style={styles.modalButtons}>
-        <SecondaryButton title='Save' onPress={handleSave} />
+        <PrimaryButton title='Save' onPress={onSave} />
         <TransparentButton title='Cancel' onPress={handleClose} />
       </View>
     </ModalCard>
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     padding: 15,
-    height: 150,
+    height: 70,
     textAlignVertical: 'top',
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,
@@ -122,3 +126,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 })
+
+export default observer(EditBio)

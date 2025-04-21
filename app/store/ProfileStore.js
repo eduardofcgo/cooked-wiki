@@ -10,6 +10,8 @@ class ProfileData {
   stats = undefined
   isLoadingStats = false
 
+  bio = undefined
+
   constructor() {
     makeAutoObservable(this)
   }
@@ -35,6 +37,26 @@ export class ProfileStore {
     this.apiClient = apiClient
 
     makeAutoObservable(this)
+  }
+
+  getBio(username) {
+    return this.profileDataMap.get(username)?.bio
+  }
+
+  isPatron(username) {
+    return this.profileDataMap.get(username)?.isPatron === true
+  }
+
+  async updateBio(username, bio) {
+    runInAction(() => {
+      this.profileDataMap.get(username).bio = bio
+    })
+
+    const response = await this.apiClient.patch(`/user/metadata`, { bio })
+
+    runInAction(() => {
+      this.profileDataMap.get(username).bio = response.updated.bio
+    })
   }
 
   async follow(username) {
@@ -128,7 +150,10 @@ export class ProfileStore {
       profileData.isLoading = true
     })
 
-    const cookeds = await this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } })
+    const [metadata, cookeds] = await Promise.all([
+      this.apiClient.get(`/user/${username}/metadata`),
+      this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } }),
+    ])
 
     runInAction(() => {
       const profileData = this.profileDataMap.get(username)
@@ -137,6 +162,8 @@ export class ProfileStore {
       profileData.isLoading = false
       profileData.hasMore = cookeds.length > 0
       profileData.page = 1
+      profileData.bio = metadata.bio
+      profileData.isPatron = metadata['is-patron?']
     })
   }
 

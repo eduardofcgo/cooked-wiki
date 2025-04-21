@@ -16,6 +16,7 @@ import Animated, {
 import { theme } from '../../style/style'
 
 import FadeInStatusBar from '../FadeInStatusBar'
+import { observer } from 'mobx-react-lite'
 
 // Create a forwarded ref version of FontAwesomeIcon
 const ForwardedFontAwesomeIcon = React.forwardRef((props, ref) => (
@@ -27,7 +28,7 @@ const ForwardedFontAwesomeIcon = React.forwardRef((props, ref) => (
 // Create animated component from the forwarded ref version
 const AnimatedFontAwesomeIcon = Animated.createAnimatedComponent(ForwardedFontAwesomeIcon)
 
-const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
+const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron }) => {
   const plateRotation = useSharedValue(0)
   const scale = useSharedValue(0)
   const borderWidth = useSharedValue(20)
@@ -41,90 +42,99 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
 
   React.useEffect(() => {
     if (visible) {
-      // Single bounce plate rotation
-      plateRotation.value = withSequence(
-        withSpring(15, {
-          damping: 4,
-          stiffness: 40,
-          mass: 1,
-          velocity: 12,
-        }),
-        withSpring(0, {
-          damping: 5,
-          stiffness: 35,
-          mass: 1,
-          velocity: 1,
-        }),
-      )
-
-      // Scale in animation
+      // Scale in animation (common for both)
       scale.value = withSpring(1)
 
-      // Animate border width
-      borderWidth.value = withSequence(
-        withTiming(2, {
-          duration: 1000,
-          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-        }),
-        // After icons float 3 times (6000ms) + small delay, animate border to 0
-        withDelay(
-          4500,
-          withTiming(0, {
-            duration: 800,
-            easing: Easing.bezier(0.4, 0, 1, 1),
+      if (isPatron) {
+        // Patron-specific animations
+        // Single bounce plate rotation
+        plateRotation.value = withSequence(
+          withSpring(15, {
+            damping: 4,
+            stiffness: 40,
+            mass: 1,
+            velocity: 12,
           }),
-        ),
-      )
+          withSpring(0, {
+            damping: 5,
+            stiffness: 35,
+            mass: 1,
+            velocity: 1,
+          }),
+        )
 
-      // Modified floating icons animation
-      iconPositions.forEach((pos, index) => {
-        const radius = 180
-        const angle = (index * 2 * Math.PI) / 5
-        const centerOffset = 0 // Half of the icon size (24/2) to center the icons
+        // Animate border width for patrons
+        borderWidth.value = withSequence(
+          withTiming(20, { duration: 0 }), // Ensure starts at 20 immediately
+          withTiming(2, {
+            duration: 1000,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          }),
+          // After icons float 3 times (6000ms) + small delay, animate border to 0
+          withDelay(
+            4500,
+            withTiming(0, {
+              duration: 800,
+              easing: Easing.bezier(0.4, 0, 1, 1),
+            }),
+          ),
+        )
 
-        pos.x.value = withSequence(
-          withRepeat(
-            withSequence(
-              withTiming(radius * Math.cos(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 }),
+        // Modified floating icons animation for patrons
+        iconPositions.forEach((pos, index) => {
+          const radius = 180
+          const angle = (index * 2 * Math.PI) / 5
+          const centerOffset = 0 // Half of the icon size (24/2) to center the icons
+
+          pos.x.value = withSequence(
+            withRepeat(
+              withSequence(
+                withTiming(radius * Math.cos(angle) + centerOffset, { duration: 1000 }),
+                withTiming(radius * 0.8 * Math.cos(angle) + centerOffset, { duration: 1000 }),
+              ),
+              3,
+              true,
             ),
-            3,
-            true,
-          ),
-          withTiming(radius * 3 * Math.cos(angle) + centerOffset, {
-            duration: 800,
-            easing: Easing.bezier(0.4, 0, 1, 1),
-          }),
-        )
+            withTiming(radius * 3 * Math.cos(angle) + centerOffset, {
+              duration: 800,
+              easing: Easing.bezier(0.4, 0, 1, 1),
+            }),
+          )
 
-        pos.y.value = withSequence(
-          withRepeat(
-            withSequence(
-              withTiming(radius * Math.sin(angle) + centerOffset, { duration: 1000 }),
-              withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 }),
+          pos.y.value = withSequence(
+            withRepeat(
+              withSequence(
+                withTiming(radius * Math.sin(angle) + centerOffset, { duration: 1000 }),
+                withTiming(radius * 0.8 * Math.sin(angle) + centerOffset, { duration: 1000 }),
+              ),
+              3,
+              true,
             ),
-            3,
-            true,
-          ),
-          withTiming(radius * 3 * Math.sin(angle) + centerOffset, {
-            duration: 800,
-            easing: Easing.bezier(0.4, 0, 1, 1),
-          }),
-        )
+            withTiming(radius * 3 * Math.sin(angle) + centerOffset, {
+              duration: 800,
+              easing: Easing.bezier(0.4, 0, 1, 1),
+            }),
+          )
 
-        // Extended rotation animation
-        pos.rotation.value = withSequence(
-          withRepeat(
-            withTiming(360, { duration: 2000 }),
-            3, // Three rotations to match the floating duration
-            false,
-          ),
-        )
-      })
+          // Extended rotation animation
+          pos.rotation.value = withSequence(withRepeat(withTiming(360, { duration: 2000 }), 3, false))
+        })
+      } else {
+        // Not a patron: Reset animations immediately
+        plateRotation.value = 0
+        borderWidth.value = 0
+
+        // Reset icon positions
+        iconPositions.forEach(pos => {
+          pos.x.value = -12 // centerOffset
+          pos.y.value = -12 // centerOffset
+          pos.rotation.value = 0
+        })
+      }
     } else {
       // Reset all animation values when modal closes
       scale.value = withTiming(0)
-      borderWidth.value = withTiming(20)
+      borderWidth.value = 0 // Reset to 0
       plateRotation.value = 0
 
       // Reset icon positions with centerOffset
@@ -134,14 +144,48 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
         pos.rotation.value = 0
       })
     }
-  }, [visible])
+  }, [visible, isPatron]) // Added isPatron dependency
 
-  const containerStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${plateRotation.value}deg` }, { scale: scale.value }],
-    borderWidth: borderWidth.value,
-  }))
+  const containerStyle = useAnimatedStyle(() => {
+    // Base transform style applied regardless of patron status
+    const baseStyle = {
+      transform: [{ rotate: `${plateRotation.value}deg` }, { scale: scale.value }],
+    }
+
+    // Conditional styles for patrons
+    const patronStyles = isPatron
+      ? {
+          borderWidth: borderWidth.value,
+          borderColor: theme.colors.primary,
+          elevation: 10,
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.5,
+          shadowRadius: 10,
+        }
+      : {
+          // Explicitly set non-patron styles to avoid inheriting from StyleSheet
+          borderWidth: 0,
+          borderColor: 'transparent', // Ensure no border color shows
+          elevation: 0,
+          shadowOpacity: 0, // Ensure no shadow
+        }
+
+    return {
+      ...baseStyle,
+      ...patronStyles,
+    }
+  })
 
   const icons = [faUtensils, faCarrot, faPepperHot, faLeaf, faEgg]
+
+  // Define animated styles for icons unconditionally
+  const iconAnimatedStyles = iconPositions.map(pos => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useAnimatedStyle(() => ({
+      transform: [{ translateX: pos.x.value }, { translateY: pos.y.value }, { rotate: `${pos.rotation.value}deg` }],
+    }))
+  })
 
   return (
     <>
@@ -149,35 +193,30 @@ const FullScreenImage = ({ visible, imageUrl, onClose, bio }) => {
       <Modal visible={visible} transparent={true} animationType='fade' onRequestClose={onClose}>
         <TouchableOpacity style={styles.fullScreenOverlay} activeOpacity={1} onPress={onClose}>
           <View style={styles.fullScreenContent}>
-            {/* Decorative floating icons */}
-            {iconPositions.map((pos, index) => (
-              <AnimatedFontAwesomeIcon
-                key={index}
-                icon={icons[index]}
-                style={[
-                  styles.floatingIcon,
-                  useAnimatedStyle(() => ({
-                    transform: [
-                      { translateX: pos.x.value },
-                      { translateY: pos.y.value },
-                      { rotate: `${pos.rotation.value}deg` },
-                    ],
-                  })),
-                ]}
-                color={theme.colors.primary}
-                size={24}
-              />
-            ))}
+            {/* Decorative floating icons - only show if patron */}
+            {isPatron &&
+              iconPositions.map((pos, index) => (
+                <AnimatedFontAwesomeIcon
+                  key={index}
+                  icon={icons[index]}
+                  style={[
+                    styles.floatingIcon,
+                    iconAnimatedStyles[index], // Use pre-defined animated style
+                  ]}
+                  color={theme.colors.primary}
+                  size={24}
+                />
+              ))}
 
-            {/* Image container */}
             <Animated.View style={[styles.imageContainer, containerStyle]}>
               <Animated.Image source={{ uri: imageUrl }} style={styles.fullScreenImage} resizeMode='cover' />
 
-              {/* Patron badge */}
-              <View style={styles.patronBadge}>
-                <MaterialCommunityIcons name='crown' color={theme.colors.primary} size={25} />
-                <Text style={styles.patronText}>Patron</Text>
-              </View>
+              {isPatron && (
+                <View style={styles.patronBadge}>
+                  <MaterialCommunityIcons name='crown' color={theme.colors.primary} size={25} />
+                  <Text style={styles.patronText}>Patron</Text>
+                </View>
+              )}
             </Animated.View>
 
             <Animated.Text
@@ -233,13 +272,7 @@ const styles = StyleSheet.create({
     borderRadius: 140,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 200,
-    borderColor: theme.colors.primary,
-    elevation: 10,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    backgroundColor: theme.colors.secondary,
   },
   fullScreenImage: {
     width: '100%',
@@ -305,4 +338,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default FullScreenImage
+export default observer(FullScreenProfilePicture)

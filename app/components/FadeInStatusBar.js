@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { StatusBar } from 'react-native'
+import { StatusBar, Platform } from 'react-native'
 import { useIsFocused } from '@react-navigation/native'
 import { theme } from '../style/style'
 
@@ -8,15 +8,22 @@ export default function FadeInStatusBar({ color = theme.colors.primary }) {
 
   useEffect(() => {
     if (isFocused) {
-      StatusBar.setBackgroundColor(theme.colors.secondary, true)
+      // Android-specific background color change
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(theme.colors.secondary, true)
+      }
 
       const timer = setTimeout(() => {
-        StatusBar.setBackgroundColor(color, true)
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor(color, true)
+        }
       }, 100)
 
       return () => {
         clearTimeout(timer)
-        StatusBar.setBackgroundColor(theme.colors.secondary, true)
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor(theme.colors.secondary, true)
+        }
       }
     }
   }, [isFocused, color])

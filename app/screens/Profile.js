@@ -26,7 +26,7 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-
+import { FontAwesome } from '@expo/vector-icons'
 import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
 import { theme, titleStyle } from '../style/style'
@@ -35,7 +35,7 @@ import { Button, SecondaryButton } from '../components/core/Button'
 import ActionToast from '../components/notification/ActionToast'
 import CookedFeed from '../components/profile/CookedFeed'
 import EditBio from '../components/profile/EditBio'
-import FullScreenImage from '../components/profile/FullScreenImage'
+import FullScreenProfilePicture from '../components/profile/FullScreenProfilePicture'
 import { useAuth } from '../context/AuthContext'
 import { getProfileImageUrl } from '../urls'
 import Recipes from './webviews/Recipes'
@@ -114,10 +114,13 @@ const ProfileMenu = ({ navigation, onEditBio }) => {
   )
 }
 
-const ProfileHeader = ({ username, bio, navigation, menu }) => {
+const ProfileHeader = observer(({ username, navigation, menu }) => {
   const showImage = true
-  const [isImageFullScreen, setIsImageFullScreen] = React.useState(false)
+  const [isImageFullScreen, setIsImageFullScreen] = useState(false)
 
+  const { profileStore } = useStore()
+  const bio = profileStore.getBio(username)
+  const isPatron = profileStore.isPatron(username)
   return (
     <View style={styles.header}>
       <View style={styles.profileContainer}>
@@ -131,11 +134,12 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
                 style={styles.profileImage}
               />
             </TouchableOpacity>
-            <FullScreenImage
+            <FullScreenProfilePicture
               visible={isImageFullScreen}
               imageUrl={getProfileImageUrl(username)}
               onClose={() => setIsImageFullScreen(false)}
               bio={bio}
+              isPatron={isPatron}
             />
           </>
         ) : (
@@ -143,19 +147,17 @@ const ProfileHeader = ({ username, bio, navigation, menu }) => {
         )}
         <View style={styles.profileText}>
           <Text style={styles.username}>{username}</Text>
-          <Text style={styles.bio}>{bio || 'No bio yet.'}</Text>
+          <Text style={styles.bio}>{bio}</Text>
         </View>
       </View>
 
       {menu}
     </View>
   )
-}
+})
 
-const Profile = observer(({ route, navigation, username, menu }) => {
-  const [editBioVisible, setEditBioVisible] = React.useState(false)
-  const { profileStore } = useStore()
-  const bio = null
+const Profile = observer(({ route, navigation, username, publicView }) => {
+  const [editBioVisible, setEditBioVisible] = useState(false)
 
   // Use both a shared value (for animations) and state (for UI updates)
   const scrollY = useSharedValue(0)
@@ -201,11 +203,6 @@ const Profile = observer(({ route, navigation, username, menu }) => {
     },
   )
 
-  const handleSaveBio = async newBio => {
-    await profileStore.updateBio(newBio)
-    setEditBioVisible(false)
-  }
-
   const handleScroll = event => {
     const yOffset = event.nativeEvent.contentOffset.y
 
@@ -217,17 +214,19 @@ const Profile = observer(({ route, navigation, username, menu }) => {
       <Animated.View style={[styles.headerContainer, animatedHeaderStyle]}>
         <ProfileHeader
           username={username}
-          bio={bio}
           navigation={navigation}
-          menu={<ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />}
+          menu={
+            !publicView ? (
+              <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />
+            ) : (
+              <TouchableOpacity style={{ padding: 16 }}>
+                <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
+              </TouchableOpacity>
+            )
+          }
         />
       </Animated.View>
-      <EditBio
-        visible={editBioVisible}
-        onClose={() => setEditBioVisible(false)}
-        onSave={handleSaveBio}
-        initialBio={bio}
-      />
+      <EditBio visible={editBioVisible} onClose={() => setEditBioVisible(false)} />
       <Animated.View style={[animatedContentStyle, styles.content]}>
         <Tab.Navigator
           screenOptions={{
@@ -344,7 +343,7 @@ export const PublicProfile = observer(({ route, navigation }) => {
 
   return (
     <View style={{ ...styles.container, paddingTop: 0 }}>
-      <Profile route={route} navigation={navigation} username={username} menu={null} />
+      <Profile route={route} navigation={navigation} username={username} publicView={true} />
     </View>
   )
 })
@@ -358,12 +357,7 @@ export function LoggedInProfile({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Profile
-        route={route}
-        navigation={navigation}
-        username={credentials.username}
-        menu={<ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} />}
-      />
+      <Profile route={route} navigation={navigation} username={credentials.username} publicView={false} />
     </SafeAreaView>
   )
 }

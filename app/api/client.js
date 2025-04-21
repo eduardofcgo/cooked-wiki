@@ -91,4 +91,8 @@ export class ApiClient {
   async request(config) {
     return this.client.request(config)
   }
+
+  async patch(url, data = {}, config = {}) {
+    return this.client.patch(url, data, config)
+  }
 }
