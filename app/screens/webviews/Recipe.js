@@ -201,8 +201,8 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
       </Animated.View>
 
       <Animated.View style={[animatedContentStyle, { flex: 1 }]}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-        <CookedWebView
+      {/* <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}> */}
+        {/* <CookedWebView
             key={recipeStartURL}
             startUrl={recipeStartURL}
             navigation={navigation}
@@ -210,9 +210,9 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
             route={route}
             disableRefresh={true}
             loadingComponent={loadingComponent}
-          />
-          {/* <RecipeCookedFeed recipeId={recipeId} /> */}
-        </ScrollView>
+          /> */}
+          <RecipeCookedFeed recipeId={recipeId} />
+        {/* </ScrollView> */}
       </Animated.View>
     </View>
   )

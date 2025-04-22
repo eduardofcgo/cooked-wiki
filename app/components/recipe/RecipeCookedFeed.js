@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
-import React, { useCallback, useEffect } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { WebView } from 'react-native-webview'
 
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
@@ -25,17 +26,19 @@ const RecipeCookedFeed = observer(({ recipeId, recipeName }) => {
   const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(recipeId)
   const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
 
+  const [webViewHeight, setWebViewHeight] = useState(300);
+
   useEffect(() => {
     recipeJournalStore.loadCookeds(recipeId)
-    const loadAll = async () => {
-      while (recipeJournalStore.hasMoreRecipeCookeds(recipeId)) {
-        await recipeJournalStore.loadNextCookedsPage(recipeId)
-      }
-    }
-    loadAll()
   }, [recipeId, recipeJournalStore])
 
-  const renderItem = useCallback((cooked) => <FeedItem key={cooked.id} cooked={cooked} rounded={true} />, [])
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingRecipeCookedsNextPage && hasMore) {
+      recipeJournalStore.loadNextCookedsPage(recipeId)
+    }
+  }, [isLoadingRecipeCookedsNextPage, hasMore, recipeId, recipeJournalStore])
+
+  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
 
   const ListFooter = useCallback(() => {
     if (isLoadingRecipeCookedsNextPage) {
@@ -60,32 +63,62 @@ const RecipeCookedFeed = observer(({ recipeId, recipeName }) => {
     return null
   }, [isLoadingRecipeCookeds, recipeCookeds])
 
+  const ItemSeparatorComponent = useCallback(() => <View style={styles.itemSpacing} />, [])
+
+  const injectedJavaScript = `
+    const ro = new ResizeObserver(entries => {
+      window.ReactNativeWebView.postMessage(document.body.scrollHeight)
+    });
+    ro.observe(document.body);
+    window.ReactNativeWebView.postMessage(document.body.scrollHeight);
+    true;
+  `;
+
+  const handleWebViewMessage = (event) => {
+    const height = parseInt(event.nativeEvent.data);
+    if (!isNaN(height) && height !== webViewHeight) {
+      setWebViewHeight(height);
+    }
+  };
+
   if (isLoadingRecipeCookeds && (!recipeCookeds || recipeCookeds.length === 0)) {
     return <LoadingScreen />
   }
 
   return (
     <View style={styles.container}>
-      <FeedHeader recipeName={recipeName} />
-      {recipeCookeds && recipeCookeds.length > 0 ? (
-        recipeCookeds.map((cooked, index) => (
-          <View key={cooked.id} style={index > 0 ? styles.itemSpacing : null}>
-            {renderItem(cooked)}
-          </View>
-        ))
-      ) : (
-        <EmptyComponent />
-      )}
-      <ListFooter />
+      <FlatList
+        data={recipeCookeds}
+        renderItem={renderItem}
+        keyExtractor={cooked => cooked.id.toString()}
+        contentContainerStyle={styles.feedContent}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={1}
+        ListHeaderComponent={
+          <WebView
+            originWhitelist={['*']}
+            source={{ uri: 'https://stackoverflow.com/questions/53764311/react-native-webview-flatlist-in-a-scrollview-to-be-scrollable' }}
+            style={{ height: webViewHeight, marginBottom: 16 }}
+            scrollEnabled={false}
+            injectedJavaScript={injectedJavaScript}
+            onMessage={handleWebViewMessage}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+          />
+        }
+        ListFooterComponent={ListFooter}
+        ListEmptyComponent={EmptyComponent}
+        ItemSeparatorComponent={ItemSeparatorComponent}
+        showsVerticalScrollIndicator={true}
+      />
     </View>
   )
 })
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    flex: 1,
     backgroundColor: theme.colors.background,
-    paddingBottom: 20,
   },
   loadingContainer: {
     justifyContent: 'center',
@@ -111,12 +144,16 @@ const styles = StyleSheet.create({
   },
   footerLoader: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   itemSpacing: {
-    marginTop: 16,
+    height: 16,
+  },
+  feedContent: {
+    paddingBottom: 20,
+    paddingHorizontal: 16,
   },
 })
 
