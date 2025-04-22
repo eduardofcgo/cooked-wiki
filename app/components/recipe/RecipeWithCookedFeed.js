@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { FlatList, StyleSheet, Text, View, Dimensions } from 'react-native'
 import debounce from 'lodash.debounce'
 
@@ -11,7 +11,7 @@ import Loading from '../core/Loading'
 import HeaderText from '../core/HeaderText'
 import CookedWebView from '../CookedWebView'
 
-const RecipeWebView = ({
+const RecipeWebView = forwardRef(({
   startUrl,
   webViewHeight,
   debouncedSetWebViewHeight,
@@ -20,10 +20,11 @@ const RecipeWebView = ({
   route,
   disableRefresh,
   loadingComponent,
-}) => {
+}, ref) => {
   return (
     <View style={styles.webViewContainer}>
       <CookedWebView
+        ref={ref}
         startUrl={startUrl}
         style={{ minHeight: webViewHeight, height: webViewHeight, marginBottom: 16 }}
         dynamicHeight={true}
@@ -37,7 +38,7 @@ const RecipeWebView = ({
       />
     </View>
   )
-}
+})
 
 const RecipeWithCookedFeed = observer(
   ({ recipeId, startUrl, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
@@ -53,8 +54,35 @@ const RecipeWithCookedFeed = observer(
       recipeJournalStore.loadCookeds(recipeId)
     }, [recipeId, recipeJournalStore])
 
-    // Debounce the height update function
     const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 1000), [])
+
+    const webViewRef = useRef(null)
+
+    // const injectScrollPosition = useCallback(
+    //   throttle(scrollY => {
+    //     if (webViewRef.current) {
+    //       webViewRef.current.injectScrollPosition(scrollY)
+    //     }
+    //   }, 100),
+    //   [webViewRef],
+    // )
+
+    const injectScrollPosition = useCallback(
+      scrollY => {
+        if (webViewRef.current) {
+          webViewRef.current.injectScrollPosition(scrollY)
+        }
+      },
+      [webViewRef],
+    )
+
+    const handleScroll = useCallback(
+      event => {
+        const scrollY = event.nativeEvent.contentOffset.y
+        injectScrollPosition(scrollY)
+      },
+      [injectScrollPosition],
+    )
 
     const handleLoadMore = useCallback(() => {
       if (!isLoadingRecipeCookedsNextPage && hasMore) {
@@ -102,8 +130,13 @@ const RecipeWithCookedFeed = observer(
           contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
+
+          onScroll={handleScroll}
+
           ListHeaderComponent={
             <RecipeWebView
+              ref={webViewRef}
+              onScroll={handleScroll}
               startUrl={startUrl}
               webViewHeight={webViewHeight}
               debouncedSetWebViewHeight={debouncedSetWebViewHeight}
