@@ -85,10 +85,8 @@ export class RecipeJournalStore {
         recipeCooked.isLoadingCookedsNextPage = false
         recipeCooked.cookedsPage++
       })
-
     } catch (error) {
       throw error
-    
     } finally {
       runInAction(() => {
         recipeCooked.isLoadingCookedsNextPage = false

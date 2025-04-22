@@ -29,7 +29,7 @@ const SNAP_POINTS = {
 }
 
 // Replace the direct import with lazy loading
-const Recipe = React.lazy(() => import('../screens/webviews/Recipe'))
+const Recipe = React.lazy(() => import('../screens/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
   const { preloadedCooked, cookedId } = route.params

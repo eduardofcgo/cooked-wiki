@@ -4,14 +4,12 @@ import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from
 import { IconButton } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import Share from 'react-native/Libraries/Share/Share'
-import CookedWebView from '../../components/CookedWebView'
-import RecipeThumbnail from '../../components/core/RecipeThumbnail'
-import { useStore } from '../../context/StoreContext'
-import { theme } from '../../style/style'
-import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
-import handler from './router/handler'
-import { Button, SecondaryButton, TransparentButton } from '../../components/core/Button'
-import RecipeCookedFeed from '../../components/recipe/RecipeCookedFeed'
+import RecipeThumbnail from '../components/core/RecipeThumbnail'
+import { useStore } from '../context/StoreContext'
+import { theme } from '../style/style'
+import { getExtractUrl, getSavedRecipeUrl } from '../urls'
+import handler from './webviews/router/handler'
+import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 export default function Recipe({ loadingComponent, navigation, route, ...props }) {
@@ -201,18 +199,16 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
       </Animated.View>
 
       <Animated.View style={[animatedContentStyle, { flex: 1 }]}>
-      {/* <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}> */}
-        {/* <CookedWebView
-            key={recipeStartURL}
-            startUrl={recipeStartURL}
-            navigation={navigation}
-            onRequestPath={routeHandler}
-            route={route}
-            disableRefresh={true}
-            loadingComponent={loadingComponent}
-          /> */}
-          <RecipeCookedFeed recipeId={recipeId} />
-        {/* </ScrollView> */}
+        <RecipeWithCookedFeed
+          key={recipeStartURL}
+          recipeId={recipeId}
+          startUrl={recipeStartURL}
+          navigation={navigation}
+          onRequestPath={routeHandler}
+          route={route}
+          disableRefresh={true}
+          loadingComponent={loadingComponent}
+        />
       </Animated.View>
     </View>
   )

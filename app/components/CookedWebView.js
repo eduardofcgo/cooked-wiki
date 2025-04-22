@@ -1,4 +1,4 @@
-import { Dimensions, Platform, SafeAreaView, Text } from 'react-native'
+import { Dimensions, Platform, SafeAreaView, Text, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import { useEffect, useRef, useState } from 'react'
@@ -15,6 +15,10 @@ export default function CookedWebView({
   disableRefresh,
   disableBottomMargin,
   loadingComponent,
+  dynamicHeight,
+  onHeightChange,
+  disableScroll,
+  style,
 }) {
   const webViewRef = useRef()
   const [isWebViewReady, setIsWebViewReady] = useState(false)
@@ -132,6 +136,18 @@ export default function CookedWebView({
   const handleMessage = event => {
     const data = event.nativeEvent.data
 
+    // First, check if it's a height message (simple number string)
+    const height = parseInt(data)
+    if (!isNaN(height) && dynamicHeight && onHeightChange) {
+      // It's a height message
+      if (height > 0) {
+        // Ensure height is positive
+        onHeightChange(height)
+      }
+      return // Don't try to parse as JSON
+    }
+
+    // Otherwise, try parsing as JSON for other messages
     try {
       const message = JSON.parse(data)
       if (message.type === 'logged-user') {
@@ -147,6 +163,7 @@ export default function CookedWebView({
       }
     } catch (error) {
       console.log('Error parsing message:', error)
+      console.log('Received non-JSON, non-height message from WebView:', data) // Log if parsing failed
     }
   }
 
@@ -256,6 +273,44 @@ export default function CookedWebView({
       window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
     });`
 
+  // Combine injected JS for existing functionality and dynamic height
+  const combinedInjectedJavaScript = `
+    ${injectedJavaScript} // Existing JS
+
+    // Dynamic Height Calculation (only if dynamicHeight is enabled)
+    ${
+      dynamicHeight
+        ? `
+      let lastHeight = 0;
+      const postHeight = () => {
+        const currentHeight = document.body.scrollHeight;
+        if (currentHeight !== lastHeight && currentHeight > 0) {
+          lastHeight = currentHeight;
+          window.ReactNativeWebView.postMessage(String(currentHeight));
+        }
+      };
+
+      const ro = new ResizeObserver(entries => {
+        postHeight();
+      });
+      ro.observe(document.body);
+
+      // Also post height on load and potentially other events
+      window.addEventListener('load', postHeight);
+      // Consider MutationObserver if ResizeObserver is not enough
+      const observer = new MutationObserver(postHeight);
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+      // Initial post in case content is already rendered
+      setTimeout(postHeight, 100); // Small delay might be needed
+      postHeight(); // Post immediately too
+    `
+        : ''
+    }
+
+    true; // Required for Android
+  `
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsWebViewReady(true)
@@ -322,18 +377,11 @@ export default function CookedWebView({
                 const { nativeEvent } = syntheticEvent
                 console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
               }}
-              style={{
-                backgroundColor: theme.colors.background,
-                justifyContent: 'flex-start',
-                flexDirection: 'column',
-                marginBottom: 0,
-                margin: 0,
-                padding: 0,
-                userSelect: 'none',
-              }}
-              injectedJavaScript={injectedJavaScript}
+              style={[styles.baseWebViewStyle, style]}
+              injectedJavaScript={combinedInjectedJavaScript}
               onMessage={handleMessage}
               javaScriptEnabled={true}
+              scrollEnabled={!disableScroll}
             />
           ) : (
             loadingComponent || <LoadingScreen />
@@ -343,3 +391,17 @@ export default function CookedWebView({
     </SafeAreaView>
   )
 }
+
+// Add base styles for WebView
+const styles = StyleSheet.create({
+  baseWebViewStyle: {
+    backgroundColor: theme.colors.background,
+    justifyContent: 'flex-start',
+    flexDirection: 'column',
+    marginBottom: 0,
+    margin: 0,
+    padding: 0,
+    userSelect: 'none',
+    opacity: 0.99, // Workaround for Android rendering issues sometimes
+  },
+})
