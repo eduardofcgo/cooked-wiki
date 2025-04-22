@@ -6,6 +6,7 @@ import { ProfileStore } from './ProfileStore'
 import { RecentlyOpenedStore } from './RecentlyOpenedStore'
 import { RecipeMetadataStore } from './RecipeMetadataStore'
 import { UserStore } from './UserStore'
+import { RecipeJournalStore } from './RecipeJournalStore'
 
 export default class RootStore {
   userStore
@@ -25,6 +26,8 @@ export default class RootStore {
 
     this.recentlyOpenedStore = new RecentlyOpenedStore()
     this.recipeMetadataStore = new RecipeMetadataStore(apiClient)
+
+    this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore)
 
     makeAutoObservable(this)
   }

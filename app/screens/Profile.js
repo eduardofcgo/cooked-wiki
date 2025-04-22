@@ -1,5 +1,6 @@
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook'
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox'
+import { faBookmark } from '@fortawesome/free-solid-svg-icons/faBookmark'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping'
 import { faStar } from '@fortawesome/free-solid-svg-icons/faStar'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -358,7 +359,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           <Tab.Screen
             name='Recipes'
             options={{
-              tabBarLabel: ({ focused }) => <TabBarLabel icon={faBox} label='Recipes' focused={focused} />,
+              tabBarLabel: ({ focused }) => <TabBarLabel icon={faBookmark} label='Recipes' focused={focused} />,
             }}
           >
             {() => <Recipes username={username} navigation={navigation} route={route} />}

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
 import { Text, TouchableOpacity, View, Platform } from 'react-native'
+import { faBookmark } from '@fortawesome/free-solid-svg-icons/faBookmark'
 import { screenStyle, theme } from '../../style/style'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -235,7 +236,7 @@ function MainMenu({ route }) {
                 position: 'relative',
               }}
             >
-              <MaterialCommunityIcons name='camera' color={theme.colors.white} size={20} />
+              <FontAwesomeIcon icon={faBookmark} color={theme.colors.white} size={20} />
 
               {/* Label positioned absolutely */}
               <View
@@ -292,7 +293,7 @@ function MainMenu({ route }) {
                 position: 'relative',
               }}
             >
-              <MaterialCommunityIcons name='book' color={theme.colors.white} size={20} />
+              <MaterialCommunityIcons name='bookmark' color={theme.colors.white} size={20} />
 
               {/* Label positioned absolutely */}
               <View

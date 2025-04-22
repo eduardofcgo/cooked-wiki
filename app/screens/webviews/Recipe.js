@@ -11,7 +11,7 @@ import { theme } from '../../style/style'
 import { getExtractUrl, getSavedRecipeUrl } from '../../urls'
 import handler from './router/handler'
 import { Button, SecondaryButton, TransparentButton } from '../../components/core/Button'
-
+import RecipeCookedFeed from '../../components/recipe/RecipeCookedFeed'
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 export default function Recipe({ loadingComponent, navigation, route, ...props }) {
@@ -200,16 +200,19 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
         </View>
       </Animated.View>
 
-      <Animated.View style={[styles.webViewContainer, animatedContentStyle]}>
+      <Animated.View style={[animatedContentStyle, { flex: 1 }]}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
         <CookedWebView
-          key={recipeStartURL}
-          startUrl={recipeStartURL}
-          navigation={navigation}
-          onRequestPath={routeHandler}
-          route={route}
-          disableRefresh={true}
-          loadingComponent={loadingComponent}
-        />
+            key={recipeStartURL}
+            startUrl={recipeStartURL}
+            navigation={navigation}
+            onRequestPath={routeHandler}
+            route={route}
+            disableRefresh={true}
+            loadingComponent={loadingComponent}
+          />
+          {/* <RecipeCookedFeed recipeId={recipeId} /> */}
+        </ScrollView>
       </Animated.View>
     </View>
   )
@@ -255,8 +258,7 @@ const styles = StyleSheet.create({
   webViewContainer: {
     flex: 1,
     overflow: 'hidden',
-    // width: '100%',
-    height: '200px',
+    width: '100%',
     position: 'relative',
   },
 })

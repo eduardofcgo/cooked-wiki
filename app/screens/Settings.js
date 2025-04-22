@@ -76,15 +76,6 @@ export default Settings = observer(({ navigation }) => {
       )}
       <ScrollView style={styles.scrollView}>
         <List.Section>
-          <List.Subheader>Account</List.Subheader>
-          <List.Item
-            title='Profile'
-            left={props => <List.Icon {...props} icon='account' />}
-            onPress={() => navigation.navigate('PublicProfile')}
-          />
-        </List.Section>
-
-        <List.Section>
           <List.Subheader>Device Settings</List.Subheader>
           <List.Item
             title='Enable Notifications'
@@ -101,14 +92,12 @@ export default Settings = observer(({ navigation }) => {
           <List.Item
             title='About'
             left={props => <List.Icon {...props} icon='information' />}
-            onPress={() => {
-              /* Handle about */
-            }}
+            onPress={() => Linking.openURL('https://cooked.wiki/team')}
           />
           <List.Item
-            title='Help'
+            title='Contact'
             left={props => <List.Icon {...props} icon='help-circle' />}
-            onPress={() => navigation.navigate('Help')}
+            onPress={() => Linking.openURL('https://cooked.wiki/contact')}
           />
         </List.Section>
       </ScrollView>
@@ -131,8 +120,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoutContainer: {
-    padding: 16,
+    padding: 32,
     borderTopWidth: 1,
+    backgroundColor: theme.colors.white,
     borderTopColor: theme.colors.border,
   },
   logoutButton: {

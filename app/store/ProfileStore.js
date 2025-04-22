@@ -304,6 +304,7 @@ export class ProfileStore {
   }
 
   async uploadProfileCookedPhoto(cookedId, file) {
+    // TODO: move to the client
     const formData = new FormData()
     formData.append('cooked-photo', file)
 

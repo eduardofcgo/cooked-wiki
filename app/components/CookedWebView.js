@@ -1,4 +1,4 @@
-import { Dimensions, Platform, SafeAreaView } from 'react-native'
+import { Dimensions, Platform, SafeAreaView, Text } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import { useEffect, useRef, useState } from 'react'
