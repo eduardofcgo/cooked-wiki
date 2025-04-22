@@ -118,6 +118,7 @@ const RecipeWithCookedFeed = observer(
           ListEmptyComponent={EmptyComponent}
           ItemSeparatorComponent={ItemSeparatorComponent}
           showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true}
         />
       </View>
     )

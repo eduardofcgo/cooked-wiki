@@ -167,17 +167,8 @@ export default function CookedWebView({
     }
   }
 
-  const injectedJavaScript = `
-    console = new Object();
-    console.log = function(log) {
-      window.ReactNativeWebView.postMessage(log)
-    };
-    console.debug = console.log;
-    console.info = console.log;
-    console.warn = console.log;
-    console.error = console.log;
-
-    // Add pull-to-refresh detection
+  // --- Pull-to-refresh JS ---
+  const pullToRefreshJS = `
     let touchStartY = 0;
     let touchEndY = 0;
     const THRESHOLD = 150; // Minimum pull distance to trigger refresh
@@ -200,44 +191,72 @@ export default function CookedWebView({
     }
 
     document.addEventListener('touchstart', function(e) {
-      touchStartY = e.touches[0].clientY;
-      getContentWrapper().style.transition = 'none';
-    }, false);
+      // Only track start if at the top and not already pulling
+      if (window.scrollY === 0) {
+          const wrapper = getContentWrapper();
+          // Ensure transition is off only during the drag
+          wrapper.style.transition = 'none'; 
+          touchStartY = e.touches[0].clientY;
+      } else {
+          touchStartY = 0; // Reset if not at top
+      }
+    }, { passive: true }); // Use passive: true where possible
 
     document.addEventListener('touchmove', function(e) {
-      if (window.scrollY === 0) {
+      // Only process move if started at the top
+      if (touchStartY > 0 && window.scrollY === 0) {
         touchEndY = e.touches[0].clientY;
         const pullDistance = touchEndY - touchStartY;
         
         if (pullDistance > 0) {
-          e.preventDefault();
+          // Prevent native scroll ONLY when actively pulling down
+          e.preventDefault(); 
+          const wrapper = getContentWrapper();
           // Apply transform with damping effect
           const damping = 0.4;
           const movement = Math.min(pullDistance * damping, MAX_PULL);
-          getContentWrapper().style.transform = \`translateY(\${movement}px)\`;
+          wrapper.style.transform = \`translateY(\${movement}px)\`;
         }
       }
-    }, { passive: false });
+    }, { passive: false }); // Need false here to preventDefault
 
     document.addEventListener('touchend', function() {
-      if (window.scrollY === 0) {
-        const pullDistance = touchEndY - touchStartY;
-        
-        // Smoothly animate back to original position
-        getContentWrapper().style.transition = 'transform 0.2s';
-        getContentWrapper().style.transform = 'translateY(0)';
-        
-        if (pullDistance > THRESHOLD) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'refresh',
-            pullDistance: pullDistance
-          }));
-        }
-      }
-      // Reset values
-      touchStartY = 0;
-      touchEndY = 0;
-    }, false);
+       // Only process touchend if we were potentially pulling
+       if (touchStartY > 0) {
+           const pullDistance = touchEndY - touchStartY;
+           const wrapper = getContentWrapper();
+           
+           // Smoothly animate back to original position regardless
+           wrapper.style.transition = 'transform 0.2s';
+           wrapper.style.transform = 'translateY(0)';
+           
+           // Trigger refresh only if threshold is met AND we were at scrollY 0
+           // (window.scrollY === 0 check might be redundant if touchstart handled it, but safer)
+           if (window.scrollY === 0 && pullDistance > THRESHOLD) {
+               window.ReactNativeWebView.postMessage(JSON.stringify({
+                   type: 'refresh',
+                   pullDistance: pullDistance
+               }));
+           }
+       }
+       // Reset values after touchend
+       touchStartY = 0;
+       touchEndY = 0;
+    }, { passive: true }); // Can be passive
+  `;
+  // --- End Pull-to-refresh JS ---
+
+  const injectedJavaScript = `
+    console = new Object();
+    console.log = function(log) {
+      window.ReactNativeWebView.postMessage(log)
+    };
+    console.debug = console.log;
+    console.info = console.log;
+    console.warn = console.log;
+    console.error = console.log;
+
+    // Removed pull-to-refresh code from here
 
     // Existing message handling code
     const message = {
@@ -275,9 +294,36 @@ export default function CookedWebView({
 
   // Combine injected JS for existing functionality and dynamic height
   const combinedInjectedJavaScript = `
-    ${injectedJavaScript} // Existing JS
+    // --- Existing Base JS ---
+    ${injectedJavaScript} 
+    // --- End Base JS ---
 
-    // Dynamic Height Calculation (only if dynamicHeight is enabled)
+    // Conditionally add pull-to-refresh JS
+    ${
+      !disableScroll // Inject only if scrolling is enabled
+        ? `
+        // --- Pull-to-Refresh JS ---
+        ${pullToRefreshJS}
+        // --- End Pull-to-Refresh JS ---
+        `
+        : ''
+    }
+
+    // Conditionally prevent default touchmove when scroll is disabled
+    ${
+      disableScroll
+        ? `
+        document.addEventListener('touchmove', function(e) {
+          // Allow scrolling if the touched element or its parent has the 'ingredients' class
+          // if (!e.target.closest('.ingredients')) {
+          //   e.preventDefault();
+          // }
+        }, { passive: false });
+        `
+        : ''
+    }
+
+    // Pull-to-Refresh JS (conditionally added)
     ${
       dynamicHeight
         ? `
@@ -348,7 +394,7 @@ export default function CookedWebView({
               thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
               incognito={false}
               cacheEnabled={true}
-              pullToRefreshEnabled={true}
+              pullToRefreshEnabled={!disableScroll}
               startInLoadingState={true}
               renderLoading={() => {
                 return loadingComponent || <LoadingScreen />
@@ -382,6 +428,7 @@ export default function CookedWebView({
               onMessage={handleMessage}
               javaScriptEnabled={true}
               scrollEnabled={!disableScroll}
+              bounces={false}
             />
           ) : (
             loadingComponent || <LoadingScreen />
