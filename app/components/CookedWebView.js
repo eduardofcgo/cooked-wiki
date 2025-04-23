@@ -19,6 +19,7 @@ const CookedWebView = forwardRef(
       loadingComponent,
       dynamicHeight,
       onHeightChange,
+      onWebViewReady,
       disableScroll,
       style,
     },
@@ -33,7 +34,6 @@ const CookedWebView = forwardRef(
 
     const [currentURI, setURI] = useState(startUrl + `?token=${token}`)
 
-    const [height, setHeight] = useState(Dimensions.get('screen').height)
     const [isRefreshing, setRefreshing] = useState(false)
 
     const [canGoBack, setCanGoBack] = useState(false)
@@ -92,6 +92,15 @@ const CookedWebView = forwardRef(
     // }, [route])
 
     useEffect(() => {
+      console.log('isWebViewReady', isWebViewReady)
+
+      if (isWebViewReady && onWebViewReady) {
+        console.log('calling onWebViewReady')
+        onWebViewReady()
+      }
+    }, [isWebViewReady])
+
+    useEffect(() => {
       const unsubscribe = navigation.addListener('blur', () => {
         webViewRef.current.injectJavaScript('window.closeModals && window.closeModals()')
       })
@@ -138,12 +147,17 @@ const CookedWebView = forwardRef(
     }
 
     const handleMessage = event => {
+      if (!isWebViewReady) {
+        setIsWebViewReady(true)
+      }
+
       const data = event.nativeEvent.data
 
       // Check for height message first (simple number string)
       const height = parseInt(data)
       if (!isNaN(height) && dynamicHeight && onHeightChange) {
         if (height > 0) {
+          console.log('Webview updated height', height)
           onHeightChange(height)
         }
         return
@@ -270,7 +284,7 @@ const CookedWebView = forwardRef(
          touchStartY = 0;
          touchEndY = 0;
       }, { passive: true }); // Can be passive
-    `;
+    `
     // --- End Pull-to-refresh JS ---
 
     const injectedJavaScript = `
@@ -349,7 +363,7 @@ const CookedWebView = forwardRef(
       // Add a scroll event listener for testing
       window.addEventListener('scroll', function() {
         // Use a simple string message for testing
-        window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");
+        // window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");
       });
 
       // Conditionally add pull-to-refresh JS
@@ -369,7 +383,7 @@ const CookedWebView = forwardRef(
           ? `
             window.externalScrollY = 0;
             window.setExternalScrollY = function(scrollY) {
-              console.log('Received scrollY from React Native:', scrollY);
+              // console.log('Received scrollY from React Native:', scrollY);
               window.externalScrollY = scrollY;
 
               // Create a scroll event that bubbles
@@ -417,22 +431,14 @@ const CookedWebView = forwardRef(
     `
 
     useEffect(() => {
-      const timer = setTimeout(() => {
-        setIsWebViewReady(true)
-      }, 250)
-
-      return () => clearTimeout(timer)
-    }, [])
-
-    useEffect(() => {
       // Inject viewport height when webview is ready
-      if (isWebViewReady && webViewRef.current) {
-        const windowHeight = Dimensions.get('window').height;
-        const script = `window.externalViewportHeight = ${windowHeight}; true;`; // Corrected template literal
-        webViewRef.current.injectJavaScript(script);
+      if (webViewRef.current) {
+        const windowHeight = Dimensions.get('window').height
+        const script = `window.externalViewportHeight = ${windowHeight}; true;` // Corrected template literal
+        webViewRef.current.injectJavaScript(script)
         // console.log(`[WebView] Injected viewportHeight: ${windowHeight}`); // Optional: for debugging
       }
-    }, [isWebViewReady]); // Run when webview is ready
+    }, [webViewRef.current])
 
     useImperativeHandle(ref, () => ({
       injectScrollPosition: scrollY => {
@@ -444,10 +450,12 @@ const CookedWebView = forwardRef(
               console.warn('window.setExternalScrollY is not defined in WebView');
             }
             true; // Return true for Android
-          `;
-          webViewRef.current.injectJavaScript(script);
+          `
+          webViewRef.current.injectJavaScript(script)
         } else if (!disableScroll) {
-          console.warn("injectScrollPosition called but disableScroll is false. Scroll is handled by the WebView itself.")
+          console.warn(
+            'injectScrollPosition called but disableScroll is false. Scroll is handled by the WebView itself.',
+          )
         }
       },
     }))
@@ -462,7 +470,7 @@ const CookedWebView = forwardRef(
           <LoadingScreen />
         ) : (
           <>
-            {isWebViewReady ? (
+            {true ? (
               <WebView
                 source={{
                   uri: currentURI,
@@ -524,7 +532,7 @@ const CookedWebView = forwardRef(
         )}
       </SafeAreaView>
     )
-  }
+  },
 )
 
 // Add base styles for WebView

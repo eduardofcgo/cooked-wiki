@@ -2,13 +2,17 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { theme } from '../../style/style'
 
-const Notes = ({ notes, style }) => {
-  if (!notes)
-    return (
-      <View style={[styles.notes, style]}>
-        <Text style={styles.emptyNotesText}>Cooked without notes.</Text>
-      </View>
-    )
+const Notes = ({ notes, style, showCookedWithoutNotes = true }) => {
+  if (!notes) {
+    if (showCookedWithoutNotes) {
+      return (
+        <View style={[styles.notes, style]}>
+          <Text style={styles.emptyNotesText}>Cooked without notes.</Text>
+        </View>
+      )
+    }
+    return null
+  }
 
   return (
     <View style={[styles.notes, style]}>
@@ -18,9 +22,7 @@ const Notes = ({ notes, style }) => {
 }
 
 const styles = StyleSheet.create({
-  notes: {
-    paddingVertical: 16,
-  },
+  notes: {},
   notesText: {
     fontSize: theme.fontSizes.default,
     lineHeight: 22,
@@ -32,6 +34,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.ui,
     fontStyle: 'italic',
     color: theme.colors.softBlack,
+    paddingBottom: 16,
   },
 })
 

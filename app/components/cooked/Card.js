@@ -31,7 +31,10 @@ const Card = ({
   collapseNotes,
   showSimilarCooks,
   scrollEnabled,
-  rounded,
+  roundedTop,
+  roundedBottom,
+  showRecipe,
+  showCookedWithoutNotes,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
@@ -98,14 +101,18 @@ const Card = ({
       style={[
         styles.container,
         containerStyle,
-        rounded && {
+        roundedTop && {
+          borderTopLeftRadius: theme.borderRadius.default,
+          borderTopRightRadius: theme.borderRadius.default,
+        },
+        roundedBottom && {
           borderBottomLeftRadius: theme.borderRadius.default,
           borderBottomRightRadius: theme.borderRadius.default,
         },
       ]}
       //   sharedTransitionTag={'cooked-card-' + cookedId}
     >
-      {!photoUrls && (
+      {!photoUrls && showRecipe && (
         <TouchableOpacity onPress={goToRecipe}>
           <Image source={{ uri: recipePhotoUrl }} style={styles.recipePhoto} />
         </TouchableOpacity>
@@ -154,9 +161,14 @@ const Card = ({
             nestedScrollEnabled={true}
           >
             {collapseNotes ? (
-              <Notes notes={cooked['notes']} goToCooked={handleNotesPress} goToRecipe={goToRecipe} />
+              <Notes
+                notes={cooked['notes']}
+                showCookedWithoutNotes={showCookedWithoutNotes}
+                goToCooked={handleNotesPress}
+                goToRecipe={goToRecipe}
+              />
             ) : (
-              <FullNotes notes={cooked['notes']} />
+              <FullNotes notes={cooked['notes']} showCookedWithoutNotes={showCookedWithoutNotes} />
             )}
 
             {showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}
@@ -167,16 +179,21 @@ const Card = ({
               styles.body,
               !cooked['notes'] && { paddingBottom: 0 },
               bodyStyle,
-              rounded && {
+              roundedBottom && {
                 borderBottomLeftRadius: theme.borderRadius.default,
                 borderBottomRightRadius: theme.borderRadius.default,
               },
             ]}
           >
             {collapseNotes ? (
-              <Notes notes={cooked['notes']} goToCooked={handleNotesPress} goToRecipe={goToRecipe} />
+              <Notes
+                notes={cooked['notes']}
+                showCookedWithoutNotes={showCookedWithoutNotes}
+                goToCooked={handleNotesPress}
+                goToRecipe={goToRecipe}
+              />
             ) : (
-              <FullNotes notes={cooked['notes']} />
+              <FullNotes notes={cooked['notes']} showCookedWithoutNotes={showCookedWithoutNotes} />
             )}
 
             {showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}

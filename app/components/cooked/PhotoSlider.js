@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
-import DoubleTapLike from './DoubleTapLike'
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
@@ -30,9 +30,7 @@ const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
         }}
         scrollEventThrottle={16}
         renderItem={({ item }) => (
-          <DoubleTapLike onDoubleTap={onDoubleTap}>
-            <Animated.Image source={{ uri: item }} style={[styles.photo, photoStyle]} resizeMode='cover' />
-          </DoubleTapLike>
+          <Animated.Image source={{ uri: item }} style={[styles.photo, photoStyle]} resizeMode='cover' />
         )}
         keyExtractor={(item, index) => `photo-${index}`}
       />

@@ -137,8 +137,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: 'black',
     backgroundColor: theme.colors.secondary,
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
   },
   profile: {
     flex: 1,

@@ -8,37 +8,44 @@ import LoadingScreen from '../../screens/Loading'
 import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
-import HeaderText from '../core/HeaderText'
 import CookedWebView from '../CookedWebView'
 
-const RecipeWebView = forwardRef(({
-  startUrl,
-  webViewHeight,
-  debouncedSetWebViewHeight,
-  navigation,
-  onRequestPath,
-  route,
-  disableRefresh,
-  loadingComponent,
-}, ref) => {
-  return (
-    <View style={styles.webViewContainer}>
-      <CookedWebView
-        ref={ref}
-        startUrl={startUrl}
-        style={{ minHeight: webViewHeight, height: webViewHeight, marginBottom: 16 }}
-        dynamicHeight={true}
-        onHeightChange={debouncedSetWebViewHeight}
-        disableScroll={true}
-        navigation={navigation}
-        onRequestPath={onRequestPath}
-        route={route}
-        disableRefresh={disableRefresh}
-        loadingComponent={loadingComponent}
-      />
-    </View>
-  )
-})
+const RecipeWebView = forwardRef(
+  (
+    {
+      startUrl,
+      webViewHeight,
+      setWebViewHeight,
+      navigation,
+      onRequestPath,
+      route,
+      disableRefresh,
+      loadingComponent,
+      onWebViewReady,
+      webViewReady,
+    },
+    ref,
+  ) => {
+    return (
+      <View style={[styles.webViewContainer, { opacity: webViewReady ? 1 : 0 }]}>
+        <CookedWebView
+          ref={ref}
+          startUrl={startUrl}
+          style={{ height: webViewHeight, marginBottom: 16 }}
+          dynamicHeight={true}
+          onHeightChange={setWebViewHeight}
+          disableScroll={true}
+          navigation={navigation}
+          onRequestPath={onRequestPath}
+          route={route}
+          disableRefresh={disableRefresh}
+          loadingComponent={loadingComponent}
+          onWebViewReady={onWebViewReady}
+        />
+      </View>
+    )
+  },
+)
 
 const RecipeWithCookedFeed = observer(
   ({ recipeId, startUrl, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
@@ -48,7 +55,13 @@ const RecipeWithCookedFeed = observer(
     const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(recipeId)
     const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
 
-    const [webViewHeight, setWebViewHeight] = useState(Dimensions.get('window').height)
+    const [webViewHeight, setWebViewHeight] = useState(null)
+    const [webViewReady, setWebViewReady] = useState(false)
+
+    const onWebViewReady = useCallback(() => {
+      console.log('webViewReady')
+      setWebViewReady(true)
+    }, [])
 
     useEffect(() => {
       recipeJournalStore.loadCookeds(recipeId)
@@ -57,15 +70,6 @@ const RecipeWithCookedFeed = observer(
     const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 1000), [])
 
     const webViewRef = useRef(null)
-
-    // const injectScrollPosition = useCallback(
-    //   throttle(scrollY => {
-    //     if (webViewRef.current) {
-    //       webViewRef.current.injectScrollPosition(scrollY)
-    //     }
-    //   }, 100),
-    //   [webViewRef],
-    // )
 
     const injectScrollPosition = useCallback(
       scrollY => {
@@ -77,6 +81,7 @@ const RecipeWithCookedFeed = observer(
     )
 
     const handleScroll = useCallback(
+      // TODO: should we throttle/debounce this?
       event => {
         const scrollY = event.nativeEvent.contentOffset.y
         injectScrollPosition(scrollY)
@@ -90,7 +95,19 @@ const RecipeWithCookedFeed = observer(
       }
     }, [isLoadingRecipeCookedsNextPage, hasMore, recipeId, recipeJournalStore])
 
-    const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
+    const renderItem = useCallback(({ item: cooked }) => {
+      return (
+        <View style={{ paddingHorizontal: 16 }}>
+          <FeedItem
+            cooked={cooked}
+            rounded={true}
+            showRecipe={false}
+            collapseNotes={false}
+            // showCookedWithoutNotes={false}
+          />
+        </View>
+      )
+    }, [])
 
     const ListFooter = useCallback(() => {
       if (isLoadingRecipeCookedsNextPage) {
@@ -117,34 +134,34 @@ const RecipeWithCookedFeed = observer(
 
     const ItemSeparatorComponent = useCallback(() => <View style={styles.itemSpacing} />, [])
 
-    if (isLoadingRecipeCookeds && (!recipeCookeds || recipeCookeds.length === 0)) {
+    if (isLoadingRecipeCookeds || !recipeCookeds) {
       return <LoadingScreen />
     }
 
     return (
       <View style={styles.container}>
         <FlatList
-          data={recipeCookeds}
+          data={webViewReady ? recipeCookeds : []}
           renderItem={renderItem}
           keyExtractor={cooked => cooked.id.toString()}
           contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
-
           onScroll={handleScroll}
-
           ListHeaderComponent={
             <RecipeWebView
               ref={webViewRef}
               onScroll={handleScroll}
               startUrl={startUrl}
               webViewHeight={webViewHeight}
-              debouncedSetWebViewHeight={debouncedSetWebViewHeight}
+              setWebViewHeight={debouncedSetWebViewHeight}
               navigation={navigation}
               onRequestPath={onRequestPath}
               route={route}
               disableRefresh={disableRefresh}
               loadingComponent={loadingComponent}
+              onWebViewReady={onWebViewReady}
+              webViewReady={webViewReady}
             />
           }
           ListFooterComponent={ListFooter}
@@ -196,10 +213,9 @@ const styles = StyleSheet.create({
   },
   feedContent: {
     paddingBottom: 20,
-    paddingHorizontal: 16,
   },
   webViewContainer: {
-    minHeight: Dimensions.get('window').height,
+    minHeight: 330,
   },
 })
 

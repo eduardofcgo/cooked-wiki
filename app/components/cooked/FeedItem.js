@@ -36,26 +36,28 @@ const RecipeHeader = ({ cooked, rounded }) => {
   )
 }
 
-const FeedItem = ({ cooked, rounded }) => {
+const FeedItem = ({ cooked, rounded, showRecipe = true, collapseNotes = true, showCookedWithoutNotes = true }) => {
   return (
     <View style={styles.container}>
-      <RecipeHeader cooked={cooked} rounded={rounded} />
+      {showRecipe && <RecipeHeader cooked={cooked} rounded={rounded} />}
 
       <Card
         cooked={cooked}
         showShareIcon={true}
         relativeDate={true}
         photoSlider={true}
-        collapseNotes={true}
-        rounded={rounded}
+        collapseNotes={collapseNotes}
+        roundedTop={!showRecipe && rounded}
+        showRecipe={showRecipe}
+        roundedBottom={rounded}
         bodyBackgroundColor={theme.colors.white}
+        showCookedWithoutNotes={showCookedWithoutNotes}
       />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {},
   recipeHeader: {
     backgroundColor: theme.colors.white,
     paddingHorizontal: 16,
