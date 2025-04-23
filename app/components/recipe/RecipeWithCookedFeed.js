@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, Text, View, Dimensions } from 'react-native'
 import debounce from 'lodash.debounce'
 
@@ -9,6 +9,7 @@ import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
 import CookedWebView from '../CookedWebView'
+import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
 
 const RecipeWebView = forwardRef(
   (
@@ -109,16 +110,26 @@ const RecipeWithCookedFeed = observer(
       )
     }, [])
 
-    const ListFooter = useCallback(() => {
+    const ListFooter = useMemo(() => {
       if (isLoadingRecipeCookedsNextPage) {
         return (
-          <View style={styles.footerLoader}>
+          <View style={styles.footer}>
             <Loading />
           </View>
         )
       }
+
+      if (!isLoadingRecipeCookeds && webViewReady && !hasMore) {
+        return (
+          <View style={styles.footer}>
+            <SimilarCookedFeed recipeId={recipeId} />
+          </View>
+        )
+      }
+
       return null
-    }, [isLoadingRecipeCookedsNextPage])
+    
+    }, [isLoadingRecipeCookedsNextPage, isLoadingRecipeCookeds, webViewReady, hasMore, recipeId])
 
     const EmptyComponent = useCallback(() => {
       if (!isLoadingRecipeCookeds && (!recipeCookeds || recipeCookeds.length === 0)) {
@@ -132,7 +143,7 @@ const RecipeWithCookedFeed = observer(
       return null
     }, [isLoadingRecipeCookeds, recipeCookeds])
 
-    const ItemSeparatorComponent = useCallback(() => <View style={styles.itemSpacing} />, [])
+    const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
 
     if (isLoadingRecipeCookeds || !recipeCookeds) {
       return <LoadingScreen />
@@ -167,8 +178,7 @@ const RecipeWithCookedFeed = observer(
           ListFooterComponent={ListFooter}
           ListEmptyComponent={EmptyComponent}
           ItemSeparatorComponent={ItemSeparatorComponent}
-          showsVerticalScrollIndicator={true}
-          nestedScrollEnabled={true}
+          nestedScrollEnabled={false}
         />
       </View>
     )
@@ -202,11 +212,8 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     marginBottom: 16,
   },
-  footerLoader: {
-    padding: 20,
-    paddingBottom: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+  footer: {
+    padding: 16,
   },
   itemSpacing: {
     height: 16,

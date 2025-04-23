@@ -15,7 +15,7 @@ const RecipeHeader = ({ cooked, rounded }) => {
   const navigation = useNavigation()
 
   const navigateToRecipe = useCallback(() => {
-    navigation.navigate('Recipe', { recipeId, extractId })
+    navigation.push('Recipe', { recipeId, extractId })
   }, [navigation, recipeId, extractId])
 
   return hasRecipe ? (
