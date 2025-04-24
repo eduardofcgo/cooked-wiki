@@ -202,6 +202,7 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
         <RecipeWithCookedFeed
           key={recipeStartURL}
           recipeId={recipeId}
+          extractId={extractId}
           startUrl={recipeStartURL}
           navigation={navigation}
           onRequestPath={routeHandler}

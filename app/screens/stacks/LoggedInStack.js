@@ -76,7 +76,7 @@ export default function LoggedInStack({ StackNavigator }) {
         name='RecordCook'
         component={RecordCook}
         options={{
-          title: 'Add to journal',
+          title: 'Record Cook',
           animation: 'slide_from_bottom',
         }}
       />

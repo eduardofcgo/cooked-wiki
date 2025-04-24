@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useContext, useRef, useMemo } from 'react'
 import {
   View,
   Text,
@@ -21,26 +21,27 @@ import ImageUploadButton from '../ImageUploadButton'
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-import { getPhotoUrl } from '../../urls'
+import { getCookedPhotoUrl } from '../../urls'
 import { useStore } from '../../context/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
 import Loading from '../core/Loading'
 import ConfirmationModal from './ConfirmationModal'
-import SuccessModal from './SuccessModal'
 import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
 import { useAuth } from '../../context/AuthContext'
 import NotesModal from './NotesModal'
-
-const EditableImage = ({ path, index, onExclude }) => (
-  <View style={[styles.imageContainer, styles.imageContainerEditing]}>
-    <Image
-      source={{ uri: getPhotoUrl(path) }}
-      style={[styles.mainImage, { width: 110, height: 110, borderRadius: theme.borderRadius.default }]}
-    />
-    <SecondaryButton title='Exclude' onPress={() => onExclude(index)} style={styles.excludeButton} />
-  </View>
-)
+import { useNavigation } from '@react-navigation/native'
+const EditableImage = ({ path, index, onExclude }) => {
+  return (
+    <View style={[styles.imageContainer, styles.imageContainerEditing]}>
+      <Image
+        source={{ uri: getCookedPhotoUrl(path) }}
+        style={[styles.mainImage, { width: 110, height: 110, borderRadius: theme.borderRadius.default }]}
+      />
+      <SecondaryButton title='Exclude' onPress={() => onExclude(index)} style={styles.excludeButton} />
+    </View>
+  )
+}
 
 const recentRecipes = [
   { id: '1', name: 'Spaghetti Carbonara', lastCooked: '2 days ago' },
@@ -103,16 +104,22 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
   </TouchableOpacity>
 )
 
-export default function RecordCook({ navigation, route, editMode, hasChanges, setHasChanges, onSaved, onDelete }) {
+export default function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
+  const navigation = useNavigation()
+
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
   const { profileStore } = useStore()
+
+  const photoOptional = useMemo(() => {
+    return Boolean(preSelectedRecipe)
+  }, [preSelectedRecipe])
 
   const [loadingCooked, setLoadingCooked] = useState(true)
 
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState([])
-  const [selectedRecipe, setSelectedRecipe] = useState(undefined)
+  const [selectedRecipe, setSelectedRecipe] = useState(preSelectedRecipe)
   const [notes, setNotes] = useState(undefined)
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
@@ -120,7 +127,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false)
 
   const stepTwoActive = editMode || photos.length > 0
-  const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined)
+  const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined) || preSelectedRecipe
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
 
   const saveChanges = () => {
@@ -243,7 +250,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
       setHasChanges(true)
     }
 
-    if (!editMode) {
+    if (!editMode && !preSelectedRecipe) {
       setIsConfirmationModalVisible(true)
     }
   }
@@ -265,7 +272,13 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
         <View style={styles.mainContent}>
           {!editMode && <RecordCookIntro />}
 
-          <Step number='1' text='Select a photo' isActive={true} isFilled={stepTwoActive} editMode={editMode}>
+          <Step
+            number='1'
+            text={photoOptional ? 'Select a photo (optional)' : 'Select a photo'}
+            isActive={true}
+            isFilled={stepTwoActive}
+            editMode={editMode}
+          >
             <View style={styles.photoSection}>
               {photos?.map((path, index) => (
                 <EditableImage key={index} path={path} index={index} onExclude={handleExcludeImage} />
@@ -279,7 +292,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
             </View>
           </Step>
 
-          {photos.length === 0 && (
+          {photos.length === 0 && !preSelectedRecipe && (
             <Text style={styles.description}>
               Cooking without a recipe? No problem, you can still add it to your journal.
             </Text>
@@ -296,7 +309,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
                   />
                 ) : (
                   <PrimaryButton
-                    title='Select recipe'
+                    title={optionalPhoto ? 'Select recipe' : 'Add recipe'}
                     onPress={() => navigation.navigate('RecipeSearch')}
                     style={[
                       styles.shareButton,
@@ -311,7 +324,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
           )}
 
           <Step
-            number='3'
+            number={preSelectedRecipe ? '2' : '3'}
             text='Add your notes'
             isActive={stepThreeActive}
             isFilled={stepFourActive}
@@ -338,7 +351,7 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
 
           {!editMode ? (
             <Step
-              number='4'
+              number={preSelectedRecipe ? '3' : '4'}
               text='All set!'
               isActive={stepFourActive}
               isFilled={false}
@@ -374,33 +387,22 @@ export default function RecordCook({ navigation, route, editMode, hasChanges, se
 
       <ConfirmationModal
         visible={isConfirmationModalVisible}
-        onClose={() => setIsConfirmationModalVisible(false)}
+        onClose={() => {
+          setIsConfirmationModalVisible(false)
+        }}
         onConfirm={() => {
           setIsConfirmationModalVisible(false)
-          // Handle adding to journal with notes
-          console.log('Adding to journal with notes:', notes)
-          // Show success modal
-          setIsSuccessModalVisible(true)
-        }}
-      />
 
-      <SuccessModal
-        visible={isSuccessModalVisible}
-        onClose={() => {
-          setIsSuccessModalVisible(false)
-          navigation.goBack()
-        }}
-        onView={() => {
-          setIsSuccessModalVisible(false)
-          // Navigate to the journal entry
-          navigation.navigate('Journal', { scrollToLatest: true })
-        }}
-        onShare={() => {
-          // Handle sharing the journal entry
-          // This could open the native share dialog
-          Share.share({
-            message: 'Check out what I just cooked on Cooked.wiki!',
-            url: 'https://cooked.wiki/journal/entry/123', // Replace with actual entry URL
+          navigation.replace('Cooked', {
+            showShareModal: true,
+            cookedId: 'b3da3f5e-211e-4940-a29d-ac2f2754418d',
+            startPosition: 0,
+            preloadedCooked: {
+              'cooked-photos-path': photos,
+              notes: notes,
+              'recipe-id': selectedRecipe?.recipeId,
+              'extract-id': selectedRecipe?.extractId,
+            },
           })
         }}
       />

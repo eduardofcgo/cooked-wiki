@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, StyleSheet, Text, View, Dimensions } from 'react-native'
+import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import debounce from 'lodash.debounce'
 
 import { useStore } from '../../context/StoreContext'
@@ -10,10 +10,13 @@ import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
 import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
+import RecordCook from '../core/RecordCook'
 
 const RecipeWebView = forwardRef(
   (
     {
+      recipeId,
+      extractId,
       startUrl,
       webViewHeight,
       setWebViewHeight,
@@ -32,7 +35,7 @@ const RecipeWebView = forwardRef(
         <CookedWebView
           ref={ref}
           startUrl={startUrl}
-          style={{ height: webViewHeight, marginBottom: 16 }}
+          style={{ height: webViewHeight }}
           dynamicHeight={true}
           onHeightChange={setWebViewHeight}
           disableScroll={true}
@@ -43,13 +46,21 @@ const RecipeWebView = forwardRef(
           loadingComponent={loadingComponent}
           onWebViewReady={onWebViewReady}
         />
+        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
+            <RecordCook showText={true} description='Add your own notes and save to your journal.' />
+            <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
+              Add your own notes and save to your journal.
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     )
   },
 )
 
 const RecipeWithCookedFeed = observer(
-  ({ recipeId, startUrl, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
+  ({ recipeId, extractId, startUrl, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
     const { recipeJournalStore } = useStore()
     const recipeCookeds = recipeJournalStore.getRecipeCooked(recipeId)
     const isLoadingRecipeCookeds = recipeJournalStore.isLoadingRecipeCooked(recipeId)
@@ -128,20 +139,7 @@ const RecipeWithCookedFeed = observer(
       }
 
       return null
-    
     }, [isLoadingRecipeCookedsNextPage, isLoadingRecipeCookeds, webViewReady, hasMore, recipeId])
-
-    const EmptyComponent = useCallback(() => {
-      if (!isLoadingRecipeCookeds && (!recipeCookeds || recipeCookeds.length === 0)) {
-        return (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>No one has cooked this recipe yet.</Text>
-            <Text style={styles.emptyStateText}>Be the first one!</Text>
-          </View>
-        )
-      }
-      return null
-    }, [isLoadingRecipeCookeds, recipeCookeds])
 
     const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
 
@@ -160,23 +158,26 @@ const RecipeWithCookedFeed = observer(
           onEndReachedThreshold={1}
           onScroll={handleScroll}
           ListHeaderComponent={
-            <RecipeWebView
-              ref={webViewRef}
-              onScroll={handleScroll}
-              startUrl={startUrl}
-              webViewHeight={webViewHeight}
-              setWebViewHeight={debouncedSetWebViewHeight}
-              navigation={navigation}
-              onRequestPath={onRequestPath}
-              route={route}
-              disableRefresh={disableRefresh}
-              loadingComponent={loadingComponent}
-              onWebViewReady={onWebViewReady}
-              webViewReady={webViewReady}
-            />
+            <>
+              <RecipeWebView
+                ref={webViewRef}
+                startUrl={startUrl}
+                recipeId={recipeId}
+                extractId={extractId}
+                onScroll={handleScroll}
+                webViewHeight={webViewHeight}
+                setWebViewHeight={debouncedSetWebViewHeight}
+                navigation={navigation}
+                onRequestPath={onRequestPath}
+                route={route}
+                disableRefresh={disableRefresh}
+                loadingComponent={loadingComponent}
+                onWebViewReady={onWebViewReady}
+                webViewReady={webViewReady}
+              />
+            </>
           }
           ListFooterComponent={ListFooter}
-          ListEmptyComponent={EmptyComponent}
           ItemSeparatorComponent={ItemSeparatorComponent}
           nestedScrollEnabled={false}
         />

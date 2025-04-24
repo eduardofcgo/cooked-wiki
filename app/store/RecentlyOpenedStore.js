@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mobx'
-import { equals } from 'ramda'
 
 export class RecentlyOpenedStore {
   recipes = observable.array()
@@ -51,7 +50,9 @@ export class RecentlyOpenedStore {
 
   addRecent(recipe) {
     runInAction(() => {
-      const existingIndex = this.recipes.findIndex(r => equals(r, recipe))
+      const existingIndex = this.recipes.findIndex(r => {
+        return r.recipeId == recipe.recipeId || r.extractId == recipe.extractId
+      })
       if (existingIndex !== -1) {
         this.recipes.splice(existingIndex, 1)
       }

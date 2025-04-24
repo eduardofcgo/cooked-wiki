@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react'
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native'
 import Loading from '../../components/core/Loading'
 import HeaderText from '../../components/core/HeaderText'
 import { theme } from '../../style/style'
@@ -7,14 +7,37 @@ import FeedItem from './FeedItem'
 import useTryGetSimilarCooks from '../../hooks/services/useSimilarCooks'
 
 export default function SimilarCookedFeed({ recipeId }) {
-  const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage } = useTryGetSimilarCooks({ recipeId })
-  const lastItemRef = useRef(null)
+  const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage, hasMoreSimilarCooks } =
+    useTryGetSimilarCooks({ recipeId })
 
-  const onLastItemLayout = useCallback(() => {
-    if (!loadingNextPage && !loadingSimilarCooks) {
+  const handleLoadMore = useCallback(() => {
+    if (!loadingNextPage && hasMoreSimilarCooks) {
+      console.log('SimilarCookedFeed: Triggering loadNextPage via onEndReached')
       loadNextPage()
     }
-  }, [loadingNextPage, loadingSimilarCooks, loadNextPage])
+  }, [loadingNextPage, hasMoreSimilarCooks, loadNextPage])
+
+  const renderCookedItem = useCallback(
+    ({ item: cooked }) => (
+      <View style={styles.itemContainer}>
+        <FeedItem cooked={cooked} rounded={true} />
+      </View>
+    ),
+    [],
+  )
+
+  const keyExtractor = useCallback(item => item.id.toString(), [])
+
+  const ListFooter = useMemo(() => {
+    if (loadingNextPage) {
+      return (
+        <View style={styles.loadingMore}>
+          <Loading size='small' backgroundColor='transparent' />
+        </View>
+      )
+    }
+    return null
+  }, [loadingNextPage])
 
   return (
     <View style={styles.container} collapsable={false}>
@@ -22,30 +45,20 @@ export default function SimilarCookedFeed({ recipeId }) {
         <Loading backgroundColor='transparent' />
       ) : (
         <>
-          {similarCooks?.length > 0 ? (
-            <>
-              <View>
-                <HeaderText>Similar Cooked</HeaderText>
-              </View>
-              {similarCooks.map((cooked, index) => (
-                <View
-                  key={index}
-                  style={{ marginBottom: 16 }}
-                  ref={index === similarCooks.length - 1 ? lastItemRef : null}
-                  onLayout={index === similarCooks.length - 1 ? onLastItemLayout : undefined}
-                >
-                  <FeedItem cooked={cooked} rounded={true} />
-                </View>
-              ))}
-
-              {loadingNextPage && (
-                <View style={styles.loadingMore}>
-                  <Loading size='small' backgroundColor='transparent' />
-                </View>
-              )}
-            </>
-          ) : // let's fail silently for the user
-          null}
+          {similarCooks?.length > 0 && (
+            <View style={styles.headerContainer}>
+              <HeaderText>Similar Cooked</HeaderText>
+            </View>
+          )}
+          <FlatList
+            data={similarCooks}
+            renderItem={renderCookedItem}
+            keyExtractor={keyExtractor}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5} // Trigger when halfway through the last item
+            ListFooterComponent={ListFooter}
+            // We might need to adjust styling or add a contentContainerStyle
+          />
         </>
       )}
     </View>
@@ -56,6 +69,14 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     paddingBottom: 100,
+  },
+  headerContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  itemContainer: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
   debugText: {
     fontSize: 12,

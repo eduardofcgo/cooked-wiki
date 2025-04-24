@@ -15,6 +15,7 @@ import { theme } from '../style/style'
 import Loading from '../components/core/Loading'
 import { Button, SecondaryButton } from '../components/core/Button'
 import FadeInStatusBar from '../components/FadeInStatusBar'
+import { useStore } from '../context/StoreContext'
 
 // Temporary mock data
 const allRecipes = [
@@ -44,7 +45,9 @@ const RecipeItem = ({ recipe, onSelect }) => (
 
 export default function RecipeSearch({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(false)
+
+  const { recentlyOpenedStore } = useStore()
+  const recentRecipes = recentlyOpenedStore.recipes
 
   const handleRecipeSelect = recipe => {
     DeviceEventEmitter.emit('event.selectedRecipe', recipe)
@@ -55,10 +58,6 @@ export default function RecipeSearch({ navigation }) {
     DeviceEventEmitter.emit('event.selectedRecipe', null)
     navigation.goBack()
   }
-
-  const filteredRecipes = searchQuery
-    ? allRecipes.filter(recipe => recipe.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : allRecipes
 
   return (
     <View style={styles.container}>
@@ -80,45 +79,39 @@ export default function RecipeSearch({ navigation }) {
         ) : null}
       </View>
 
-      {loading ? (
-        <View style={styles.resultsContainer}>
-          <Loading />
-        </View>
-      ) : (
-        <View style={styles.resultsContainer}>
-          <TouchableOpacity style={styles.freestyleCard} onPress={handleNoRecipeSelect}>
-            <View style={styles.freestyleContent}>
-              <MaterialCommunityIcons name='chef-hat' size={24} color={theme.colors.softBlack} />
-              <View style={styles.freestyleTextContainer}>
-                <Text style={styles.freestyleTitle}>Cooked without a recipe</Text>
-                <Text style={styles.freestyleSubtitle}>Freestyle cooking</Text>
-              </View>
+      <View style={styles.resultsContainer}>
+        <TouchableOpacity style={styles.freestyleCard} onPress={handleNoRecipeSelect}>
+          <View style={styles.freestyleContent}>
+            <MaterialCommunityIcons name='chef-hat' size={24} color={theme.colors.softBlack} />
+            <View style={styles.freestyleTextContainer}>
+              <Text style={styles.freestyleTitle}>Cooked without a recipe</Text>
+              <Text style={styles.freestyleSubtitle}>Freestyle cooking</Text>
             </View>
-          </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
 
-          <Text style={styles.subtitle}>
-            {searchQuery ? (
-              'Search Results'
-            ) : (
-              <View style={styles.subtitleContainer}>
-                <MaterialCommunityIcons name='history' size={16} color={theme.colors.softBlack} />
-                <Text style={styles.subtitleText}>Recently opened</Text>
-              </View>
-            )}
-          </Text>
-
-          {filteredRecipes.length > 0 ? (
-            <FlatList
-              data={filteredRecipes}
-              renderItem={({ item }) => <RecipeItem recipe={item} onSelect={handleRecipeSelect} />}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.listContainer}
-            />
+        <Text style={styles.subtitle}>
+          {searchQuery ? (
+            'Search Results'
           ) : (
-            <Text style={styles.emptySearchText}>No recipes found</Text>
+            <View style={styles.subtitleContainer}>
+              <MaterialCommunityIcons name='history' size={16} color={theme.colors.softBlack} />
+              <Text style={styles.subtitleText}>Recently opened</Text>
+            </View>
           )}
-        </View>
-      )}
+        </Text>
+
+        {recentRecipes.length > 0 ? (
+          <FlatList
+            data={recentRecipes}
+            renderItem={({ item }) => <RecipeItem recipe={item} onSelect={handleRecipeSelect} />}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
+        ) : (
+          <Text style={styles.emptySearchText}>No recent recipes found. You can search to choose a recipe.</Text>
+        )}
+      </View>
     </View>
   )
 }

@@ -11,6 +11,7 @@ import PhotoSlider from './PhotoSlider'
 import SocialMenu from './SocialMenu'
 import DoubleTapLike from './DoubleTapLike'
 import SimilarCookedFeed from './SimilarCookedFeed'
+import ShareCook from '../recordcook/ShareCook'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -35,6 +36,9 @@ const Card = ({
   roundedBottom,
   showRecipe,
   showCookedWithoutNotes,
+  showShareCook,
+  onShareCook,
+  onDismissShareCook,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
@@ -171,6 +175,8 @@ const Card = ({
               <FullNotes notes={cooked['notes']} showCookedWithoutNotes={showCookedWithoutNotes} />
             )}
 
+            {showShareCook && <ShareCook onShare={onShareCook} onClose={onDismissShareCook} />}
+
             {showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}
           </Animated.ScrollView>
         ) : (
@@ -195,6 +201,8 @@ const Card = ({
             ) : (
               <FullNotes notes={cooked['notes']} showCookedWithoutNotes={showCookedWithoutNotes} />
             )}
+
+            {showShareCook && <ShareCook onShare={onShareCook} onClose={onDismissShareCook} />}
 
             {showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}
           </Animated.View>

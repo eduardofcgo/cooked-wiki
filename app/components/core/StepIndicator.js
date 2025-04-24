@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   stepNumberText: {
     color: theme.colors.background,
-    fontFamily: theme.fonts.ui,
+    fontFamily: theme.fonts.uiBold,
     fontSize: theme.fontSizes.small,
     fontWeight: 'bold',
   },

@@ -11,6 +11,7 @@ import React, { useState } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import Community from '../../screens/Community'
 import { LoggedInProfile } from '../../screens/Profile'
+import RecordCook from '../core/RecordCook'
 
 const TabNavigator = createBottomTabNavigator()
 
@@ -236,7 +237,7 @@ function MainMenu({ route }) {
                 position: 'relative',
               }}
             >
-              <FontAwesomeIcon icon={faBookmark} color={theme.colors.white} size={20} />
+              <RecordCook />
 
               {/* Label positioned absolutely */}
               <View

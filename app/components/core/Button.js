@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: theme.fontSizes.small,
-    fontFamily: theme.fonts.ui,
+    fontFamily: theme.fonts.uiBold,
   },
   secondaryButtonText: {
     color: theme.colors.softBlack,

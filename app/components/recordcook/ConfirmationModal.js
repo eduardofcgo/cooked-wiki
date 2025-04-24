@@ -48,6 +48,7 @@ const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
     <ModalCard
       visible={visible}
       onClose={onClose}
+      closeOnOverlay={false}
       titleComponent={
         <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
           <Bounce trigger={visible} delay={2500}>

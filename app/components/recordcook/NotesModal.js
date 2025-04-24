@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { theme } from '../../style/style'
-import { SecondaryButton, TransparentButton } from '../core/Button'
+import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
 
 export default function NotesModal({ visible, onClose, onSave, initialNotes, recipe }) {
@@ -44,7 +44,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
         keyboardType='default'
       />
       <View style={styles.modalButtons}>
-        <SecondaryButton title='Done' onPress={handleSave} />
+        <PrimaryButton title='Done' onPress={handleSave} />
         <TransparentButton title='Cancel' onPress={handleClose} />
       </View>
     </ModalCard>

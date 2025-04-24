@@ -16,6 +16,7 @@ import HeaderText from '../components/core/HeaderText'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
+import ShareCook from '../components/recordcook/ShareCook'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -32,13 +33,14 @@ const SNAP_POINTS = {
 const Recipe = React.lazy(() => import('../screens/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
-  const { preloadedCooked, cookedId } = route.params
+  const { preloadedCooked, cookedId, showShareModal } = route.params
   const startPosition = route.params?.startPosition?.y || SCREEN_HEIGHT - 55
 
   const { profileStore } = useStore()
 
   const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
   const [cooked, setCooked] = useState(preloadedCooked)
+  const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
 
   const photoCount = cooked['cooked-photos-path']?.length || 0
 
@@ -249,6 +251,25 @@ const Cooked = ({ navigation, route }) => {
     return () => clearTimeout(timer)
   }, [])
 
+  // Show ShareCook if showShareModal is true
+  useEffect(() => {
+    if (showShareModal) {
+      setShouldShowShareCook(true)
+    }
+  }, [showShareModal])
+
+  // Placeholder function for sharing (remains mostly the same, just hides inline component)
+  const handleShare = () => {
+    console.log('Sharing cooked item:', cooked)
+    // Implement actual sharing logic here
+    setShouldShowShareCook(false)
+  }
+
+  // Function to dismiss the inline ShareCook component
+  const handleDismissShareCook = () => {
+    setShouldShowShareCook(false)
+  }
+
   // Function to render the animated drag indicator
   const renderDragIndicator = () => {
     return <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
@@ -279,6 +300,9 @@ const Cooked = ({ navigation, route }) => {
           contentsStyle={cardContentsAnimatedStyle}
           renderDragIndicator={renderDragIndicator}
           showSimilarCooks={true}
+          showShareCook={shouldShowShareCook}
+          onShareCook={handleShare}
+          onDismissShareCook={handleDismissShareCook}
         />
       </GestureDetector>
     </GestureHandlerRootView>
