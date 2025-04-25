@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { lazy, useEffect, useLayoutEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
@@ -9,6 +9,9 @@ import Animated, {
   useSharedValue,
   withDecay,
   withSpring,
+  useDerivedValue,
+  useAnimatedReaction,
+  runOnJS,
 } from 'react-native-reanimated'
 import Card from '../components/cooked/Card'
 import Notes from '../components/cooked/FullNotes'
@@ -19,7 +22,7 @@ import LoadingScreen from './Loading'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-// Square
+// Square photo height
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
@@ -28,8 +31,7 @@ const SNAP_POINTS = {
   EXPANDED: 0, // At the top
 }
 
-// Replace the direct import with lazy loading
-const Recipe = React.lazy(() => import('../screens/Recipe'))
+const Recipe = lazy(() => import('../screens/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
   const { preloadedCooked, cookedId, showShareModal, photosBelow } = route.params
@@ -40,8 +42,7 @@ const Cooked = ({ navigation, route }) => {
   const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
   const [cooked, setCooked] = useState(preloadedCooked)
   const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
-
-  const photoCount = cooked['cooked-photos-path']?.length || 0
+  const [isCardCollapsed, setIsCardCollapsed] = useState(false)
 
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
@@ -66,6 +67,23 @@ const Cooked = ({ navigation, route }) => {
   const context = useSharedValue({ y: 0 })
   const scrollEnabled = useSharedValue(false)
 
+  // Derive collapsed state from translateY
+  const isCollapsed = useDerivedValue(() => {
+    // Consider it collapsed when it's closer to COLLAPSED snap point than MID
+    return translateY.value > (SNAP_POINTS.COLLAPSED + SNAP_POINTS.MID) / 2;
+  });
+
+  // React to changes in the collapsed state
+  useAnimatedReaction(
+    () => isCollapsed.value,
+    (collapsed, previousCollapsed) => {
+      if (collapsed !== previousCollapsed) {
+        runOnJS(setIsCardCollapsed)(collapsed);
+      }
+    },
+    [isCollapsed]
+  );
+
   // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
     // Calculate dynamic height based on position
@@ -82,37 +100,12 @@ const Cooked = ({ navigation, route }) => {
     }
   }, [])
 
-  const imageAnimatedStyle = useAnimatedStyle(() => {
-    let borderRadius
-
-    // interpolate supports more than two values / branches?
-    if (translateY.value >= SNAP_POINTS.MID) {
-      borderRadius = interpolate(translateY.value, [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID], [0, 20], Extrapolate.CLAMP)
-    } else {
-      borderRadius = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.EXPANDED], [20, 0], Extrapolate.CLAMP)
-    }
-
-    // Add image height animation when card is collapsed
-    const imageHeight = interpolate(
-      translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
-      [PHOTO_HEIGHT, 0],
-      Extrapolate.CLAMP,
-    )
-
-    return {
-      borderTopLeftRadius: borderRadius,
-      borderTopRightRadius: borderRadius,
-      height: imageHeight,
-    }
-  }, [])
-
   const cardContentsAnimatedStyle = useAnimatedStyle(() => {
     const height = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, -55], Extrapolate.CLAMP)
 
     const borderWidth = interpolate(
       translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.MID + 20], // Animate over 20 units after MID point
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], // Animate over 20 units after MID point
       [0, 2],
       Extrapolate.CLAMP,
     )
@@ -164,6 +157,11 @@ const Cooked = ({ navigation, route }) => {
     'worklet'
     translateY.value = withSpring(point, { damping: 20, stiffness: 90 })
     scrollEnabled.value = point === SNAP_POINTS.EXPANDED
+  }
+
+  // Function to expand card to mid position when expand icon is pressed
+  const expandCard = () => {
+    snapTo(SNAP_POINTS.MID)
   }
 
   // Add touch handler for recipe container
@@ -244,12 +242,15 @@ const Cooked = ({ navigation, route }) => {
   useLayoutEffect(() => {
     translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
 
+    // just slow delay the recipe loading to avoid frame drops in the card open animation
     const timer = setTimeout(() => {
       setShouldLoadRecipe(true)
-    }, 1000)
+    }, 100)
 
     return () => clearTimeout(timer)
   }, [])
+
+  console.log('isCollapsed', isCardCollapsed)
 
   // Show ShareCook if showShareModal is true
   useEffect(() => {
@@ -294,9 +295,9 @@ const Cooked = ({ navigation, route }) => {
           <Card
             cooked={cooked}
             relativeDate={false}
-            showShareIcon={true}
+            showExpandIcon={isCardCollapsed}
+            onExpandPress={expandCard}
             photosBelow={photosBelow}
-            photoStyle={imageAnimatedStyle}
             bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
             contentsStyle={cardContentsAnimatedStyle}
             renderDragIndicator={renderDragIndicator}

@@ -19,7 +19,6 @@ const Card = ({
   cooked,
   showExpandIcon,
   showShareIcon,
-  onActionPress,
   renderDragIndicator,
   photoStyle,
   notesStyle,
@@ -40,6 +39,7 @@ const Card = ({
   photosBelow,
   onShareCook,
   onDismissShareCook,
+  onExpandPress,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
@@ -127,7 +127,6 @@ const Card = ({
           {photoSlider ? (
             <PhotoSlider
               images={photoUrls}
-              photoStyle={photoStyle}
               onImagePress={navigateToCookedScreen}
               onImageSlide={handleImageSlide}
               cookedId={cookedId}
@@ -149,7 +148,7 @@ const Card = ({
         <Animated.View ref={socialMenuRef}>
           <SocialMenu
             cookedId={cookedId}
-            onActionPress={onActionPress}
+            onExpandPress={onExpandPress}
             profileImage={getProfileImageUrl(cooked['username'])}
             username={cooked['username']}
             date={cooked['cooked-date']}
@@ -229,7 +228,7 @@ const Card = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: 'transparent',
   },
   touchableContainer: {
     width: '100%',

@@ -77,6 +77,7 @@ const SocialMenu = ({
   username,
   date,
   showExpandIcon,
+  onExpandPress,
   relativeDate = false,
 }) => {
   const navigation = useNavigation()
@@ -119,9 +120,13 @@ const SocialMenu = ({
       <TouchableOpacity style={styles.expandButtonContainer} onPress={onActionPress}>
         <View style={styles.expandButtonWrapper}>
           {showExpandIcon ? (
-            <View style={styles.iconContainer}>
+            <TouchableOpacity 
+              style={styles.iconContainer} 
+              onPress={onExpandPress}
+              hitSlop={{ top: 20, bottom: 20, left: 100, right: 20 }}
+            >
               <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
-            </View>
+            </TouchableOpacity>
           ) : (
             <SocialMenuIcons cookedId={cookedId} onSharePress={undefined} />
           )}
