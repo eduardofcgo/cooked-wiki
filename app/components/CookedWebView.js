@@ -92,10 +92,7 @@ const CookedWebView = forwardRef(
     // }, [route])
 
     useEffect(() => {
-      console.log('isWebViewReady', isWebViewReady)
-
       if (isWebViewReady && onWebViewReady) {
-        console.log('calling onWebViewReady')
         onWebViewReady()
       }
     }, [isWebViewReady])
@@ -157,7 +154,6 @@ const CookedWebView = forwardRef(
       const height = parseInt(data)
       if (!isNaN(height) && dynamicHeight && onHeightChange) {
         if (height > 0) {
-          console.log('Webview updated height', height)
           onHeightChange(height)
         }
         return

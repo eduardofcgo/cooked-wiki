@@ -41,7 +41,6 @@ export default function LoggedInStack({ StackNavigator }) {
         options={{
           title: 'Recipe',
           ...screenStyle,
-          animation: 'none',
         }}
       />
 
@@ -111,7 +110,7 @@ export default function LoggedInStack({ StackNavigator }) {
         component={Cooked}
         options={{
           ...screenStyle,
-          animation: 'none',
+          // animation: 'none',
         }}
       />
 

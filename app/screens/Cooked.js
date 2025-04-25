@@ -16,7 +16,6 @@ import HeaderText from '../components/core/HeaderText'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
-import ShareCook from '../components/recordcook/ShareCook'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -33,9 +32,9 @@ const SNAP_POINTS = {
 const Recipe = React.lazy(() => import('../screens/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
-  const { preloadedCooked, cookedId, showShareModal } = route.params
-  const startPosition = route.params?.startPosition?.y || SCREEN_HEIGHT - 55
-
+  const { preloadedCooked, cookedId, showShareModal, photosBelow } = route.params
+  const startPosition = route.params?.startPosition || SCREEN_HEIGHT - 55 
+  
   const { profileStore } = useStore()
 
   const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
@@ -62,7 +61,8 @@ const Cooked = ({ navigation, route }) => {
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
 
   // Animation values
-  const translateY = useSharedValue(startPosition || SNAP_POINTS.COLLAPSED)
+  const paddingAdjustedStartPosition = startPosition - 55
+  const translateY = useSharedValue(paddingAdjustedStartPosition || SNAP_POINTS.COLLAPSED)
   const context = useSharedValue({ y: 0 })
   const scrollEnabled = useSharedValue(false)
 
@@ -290,20 +290,23 @@ const Cooked = ({ navigation, route }) => {
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <Card
-          cooked={cooked}
-          relativeDate={false}
-          showShareIcon={true}
-          containerStyle={[styles.cardContainerStyle, cardAnimatedStyle]}
-          photoStyle={imageAnimatedStyle}
-          bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
-          contentsStyle={cardContentsAnimatedStyle}
-          renderDragIndicator={renderDragIndicator}
-          showSimilarCooks={true}
-          showShareCook={shouldShowShareCook}
-          onShareCook={handleShare}
-          onDismissShareCook={handleDismissShareCook}
-        />
+        <Animated.View style={[styles.cardContainerStyle, cardAnimatedStyle]}>
+          <Card
+            cooked={cooked}
+            relativeDate={false}
+            showShareIcon={true}
+            photosBelow={photosBelow}
+            photoStyle={imageAnimatedStyle}
+            bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
+            contentsStyle={cardContentsAnimatedStyle}
+            renderDragIndicator={renderDragIndicator}
+            showRecipe={false}
+            showSimilarCooks={!shouldShowShareCook}
+            showShareCook={shouldShowShareCook}
+            onShareCook={handleShare}
+            onDismissShareCook={handleDismissShareCook}
+          />
+        </Animated.View>
       </GestureDetector>
     </GestureHandlerRootView>
   )

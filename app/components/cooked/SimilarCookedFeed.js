@@ -42,7 +42,9 @@ export default function SimilarCookedFeed({ recipeId }) {
   return (
     <View style={styles.container} collapsable={false}>
       {loadingSimilarCooks ? (
-        <Loading backgroundColor='transparent' />
+        <View style={styles.loadingContainer}>
+          <Loading backgroundColor='transparent' />
+        </View>
       ) : (
         <>
           {similarCooks?.length > 0 && (
@@ -55,9 +57,11 @@ export default function SimilarCookedFeed({ recipeId }) {
             renderItem={renderCookedItem}
             keyExtractor={keyExtractor}
             onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5} // Trigger when halfway through the last item
+            onEndReachedThreshold={0.5}
             ListFooterComponent={ListFooter}
-            // We might need to adjust styling or add a contentContainerStyle
+            scrollEnabled={false}
+            nestedScrollEnabled={false}
+            contentContainerStyle={styles.flatListContent}
           />
         </>
       )}
@@ -70,13 +74,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     paddingBottom: 100,
   },
+  flatListContent: {
+    flexGrow: 1,
+  },
+  loadingContainer: {
+    padding: 32,
+    alignItems: 'center',
+  },
   headerContainer: {
     paddingHorizontal: 16,
     marginBottom: 16,
+    marginTop: 16,
   },
   itemContainer: {
     marginBottom: 16,
-    paddingHorizontal: 16,
   },
   debugText: {
     fontSize: 12,

@@ -37,11 +37,14 @@ const Card = ({
   showRecipe,
   showCookedWithoutNotes,
   showShareCook,
+  photosBelow,
   onShareCook,
   onDismissShareCook,
 }) => {
   const navigation = useNavigation()
   const cardRef = useRef(null)
+  const notesRef = useRef(null)
+  const socialMenuRef = useRef(null)
 
   const cookedId = cooked['id']
   const cookedPhotoPaths = cooked['cooked-photos-path']
@@ -50,19 +53,17 @@ const Card = ({
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  const navigateToCookedScreen = ({ skipPhotos = false }) => {
-    cardRef.current.measure((x, y, width, height, pageX, pageY) => {
+  const navigateToCookedScreen = ({ skipPhotos = false, photosBelow = false }) => {
+    socialMenuRef.current.measure((x, y, width, height, pageX, pageY) => {
       // For smooth screen transition, we pass the previously loaded cooked to the Cooked screen.
-      // If the cooked screen does not receive this, the standard animation will be used.
+      const startPosition = pageY - height
 
-      // The next screen will know the current position of the card
-      const startPosition = { x: pageX, y: pageY, width, height }
-
-      let cookedPhotoPaths = cooked['cooked-photos-path']
+      let cookedPhotoPaths = cooked['cooked-photos-path'] || []
 
       if (skipPhotos) {
         cookedPhotoPaths = []
-      } else {
+      
+      } else if (cookedPhotoPaths.length > 0) {
         // Make sure that when the user navigates to the Cooked screen,
         // the photo that is currently in view is the first photo showing.
         const inViewPhotoPath = cookedPhotoPaths?.[currentImageIndex]
@@ -75,12 +76,12 @@ const Card = ({
 
       const preloadedCooked = { ...cooked, 'cooked-photos-path': cookedPhotoPaths }
 
-      navigation.push('Cooked', { startPosition, preloadedCooked, cookedId })
+      navigation.push('Cooked', { startPosition, preloadedCooked, cookedId, photosBelow })
     })
   }
 
   const handleNotesPress = () => {
-    navigateToCookedScreen({ skipPhotos: true })
+    navigateToCookedScreen({ photosBelow: true, skipPhotos: false })
   }
 
   const goToRecipe = () => {
@@ -114,7 +115,6 @@ const Card = ({
           borderBottomRightRadius: theme.borderRadius.default,
         },
       ]}
-      //   sharedTransitionTag={'cooked-card-' + cookedId}
     >
       {!photoUrls && showRecipe && (
         <TouchableOpacity onPress={goToRecipe}>
@@ -122,7 +122,7 @@ const Card = ({
         </TouchableOpacity>
       )}
 
-      {photoUrls && (
+      {photoUrls && !photosBelow && photoUrls.length > 0 && (
         <Animated.View style={photoContainerStyle}>
           {photoSlider ? (
             <PhotoSlider
@@ -146,19 +146,22 @@ const Card = ({
       {renderDragIndicator && renderDragIndicator()}
 
       <Animated.View style={[styles.contents, contentsStyle]}>
-        <SocialMenu
-          cookedId={cookedId}
-          onActionPress={onActionPress}
-          profileImage={getProfileImageUrl(cooked['username'])}
-          username={cooked['username']}
-          date={cooked['cooked-date']}
-          showExpandIcon={showExpandIcon}
-          showShareIcon={showShareIcon}
-          relativeDate={relativeDate}
-        />
+        <Animated.View ref={socialMenuRef}>
+          <SocialMenu
+            cookedId={cookedId}
+            onActionPress={onActionPress}
+            profileImage={getProfileImageUrl(cooked['username'])}
+            username={cooked['username']}
+            date={cooked['cooked-date']}
+            showExpandIcon={showExpandIcon}
+            showShareIcon={showShareIcon}
+            relativeDate={relativeDate}
+          />
+        </Animated.View>
 
         {scrollEnabled?.value ? (
           <Animated.ScrollView
+            ref={notesRef}
             style={[styles.body, !cooked['notes'] && { paddingBottom: 0 }, bodyStyle]}
             showsVerticalScrollIndicator={true}
             bounces={true}
@@ -181,6 +184,7 @@ const Card = ({
           </Animated.ScrollView>
         ) : (
           <Animated.View
+            ref={notesRef}
             style={[
               styles.body,
               !cooked['notes'] && { paddingBottom: 0 },
@@ -204,7 +208,17 @@ const Card = ({
 
             {showShareCook && <ShareCook onShare={onShareCook} onClose={onDismissShareCook} />}
 
-            {showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}
+            {photosBelow && photoUrls.length > 0 && (
+              <Animated.View style={{ 
+                paddingVertical: 16, 
+              }}>
+                {photoUrls.map((photoUrl, index) => (
+                  <Image key={index} source={{ uri: photoUrl }} style={styles.photoBelow} resizeMode='cover' />
+                ))}
+              </Animated.View>
+            )}
+
+            {!showShareCook && showSimilarCooks && <SimilarCookedFeed recipeId={cooked['recipe-id'] || cooked['extract-id']} />}
           </Animated.View>
         )}
       </Animated.View>
@@ -247,6 +261,11 @@ const styles = StyleSheet.create({
   photo: {
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH,
+    zIndex: 10,
+  },
+  photoBelow: {
+    width: '100%',
+    aspectRatio: 1,
     zIndex: 10,
   },
 })

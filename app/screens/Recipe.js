@@ -60,8 +60,6 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
   }
 
   useEffect(() => {
-    console.log('updating is exapnded', isExpanded)
-
     headerHeight.value = withTiming(!isExpanded ? 0 : 170 + 8, {
       duration: 300,
     })

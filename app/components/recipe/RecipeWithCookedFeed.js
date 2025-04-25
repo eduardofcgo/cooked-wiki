@@ -71,7 +71,6 @@ const RecipeWithCookedFeed = observer(
     const [webViewReady, setWebViewReady] = useState(false)
 
     const onWebViewReady = useCallback(() => {
-      console.log('webViewReady')
       setWebViewReady(true)
     }, [])
 
