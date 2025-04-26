@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-
-const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
+const PhotoSlider = ({ images, onImageSlide }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [sliderWidth, setSliderWidth] = useState(0)
 
   useEffect(() => {
     onImageSlide && onImageSlide(currentImageIndex)
@@ -14,28 +13,48 @@ const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
 
   const hasMultiplePhotos = images?.length > 1
 
-  return (
-    <View>
-      <FlatList
-        data={images}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={event => {
-          const contentOffset = event.nativeEvent.contentOffset.x
-          const newIndex = Math.round(contentOffset / SCREEN_WIDTH)
-          if (newIndex !== currentImageIndex) {
-            setCurrentImageIndex(newIndex)
-          }
-        }}
-        scrollEventThrottle={16}
-        renderItem={({ item }) => (
-          <Animated.Image source={{ uri: item }} style={[styles.photo, photoStyle]} resizeMode='cover' />
-        )}
-        keyExtractor={(item, index) => `photo-${index}`}
-      />
+  const handleLayout = useCallback((event) => {
+    const { width } = event.nativeEvent.layout
+    setSliderWidth(width)
+  }, [])
 
-      {/* Pagination indicators */}
+  const onScroll = useCallback((event) => {
+    const contentOffset = event.nativeEvent.contentOffset.x
+    const newIndex = Math.round(contentOffset / sliderWidth)
+    if (newIndex !== currentImageIndex) {
+        setCurrentImageIndex(newIndex)
+      }
+  }, [currentImageIndex, sliderWidth])
+
+  const renderItem = useCallback(({ item }) => {
+    const photoStyle = {
+      width: sliderWidth,
+      aspectRatio: 1,
+      zIndex: 10,
+    };
+    return (
+      <Animated.Image source={{ uri: item }} style={photoStyle} resizeMode='cover' />  
+    );
+  }, [sliderWidth])
+
+  const keyExtractor = useCallback((item, index) => `photo-${index}`, [])
+
+  return (
+    <View style={styles.container} onLayout={handleLayout}>
+      {sliderWidth > 0 && (
+        <FlatList
+          data={images}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          style={{ width: sliderWidth }}
+        />
+      )}
+
       {hasMultiplePhotos && (
         <View style={styles.paginationContainer}>
           {images.map((_, index) => (
@@ -51,10 +70,9 @@ const PhotoSlider = ({ images, photoStyle, onDoubleTap, onImageSlide }) => {
 }
 
 const styles = StyleSheet.create({
-  photo: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH,
-    zIndex: 10,
+  container: {
+    width: '100%',
+    overflow: 'hidden',
   },
   paginationContainer: {
     position: 'absolute',

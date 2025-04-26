@@ -102,10 +102,19 @@ const Cooked = ({ navigation, route }) => {
       Extrapolate.CLAMP,
     )
 
+    const borderRadius = interpolate(
+      translateY.value,
+      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
+      [theme.borderRadius.default, 0],
+      Extrapolate.CLAMP,
+    )
+
     return {
       transform: [{ translateY: translateY.value }],
       height,
       minHeight: height,
+      borderTopLeftRadius: borderRadius,
+      borderTopRightRadius: borderRadius,
     }
   }, [])
 
@@ -342,7 +351,7 @@ const styles = StyleSheet.create({
   },
   cardContainerStyle: {
     width: '100%',
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.white,
   },
   cardBodyStyle: {
     paddingHorizontal: 16,
