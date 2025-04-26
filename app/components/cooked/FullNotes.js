@@ -1,8 +1,9 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { theme } from '../../style/style'
+import { observer } from 'mobx-react-lite'
 
-const Notes = ({ notes, style, showCookedWithoutNotes = true }) => {
+const FullNotes = ({ notes, style, showCookedWithoutNotes = true }) => {
   if (!notes) {
     if (showCookedWithoutNotes) {
       return (
@@ -38,4 +39,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Notes
+export default observer(FullNotes)

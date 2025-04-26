@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     paddingBottom: 100,
+    flex: 1,
   },
   flatListContent: {
     flexGrow: 1,

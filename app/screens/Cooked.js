@@ -1,13 +1,12 @@
 import { observer } from 'mobx-react-lite'
 import React, { lazy, useEffect, useLayoutEffect, useState } from 'react'
-import { Dimensions, StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View, Image } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
   Extrapolate,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withDecay,
   withSpring,
   useDerivedValue,
   useAnimatedReaction,
@@ -19,49 +18,58 @@ import HeaderText from '../components/core/HeaderText'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
+import useCooked from '../hooks/services/useCooked'
+import FullNotes from '../components/cooked/FullNotes'
+import { getCookedPhotoUrl, getProfileImageUrl } from '../urls'
+import SocialMenu from '../components/cooked/SocialMenu'
+import SimilarCookedFeed from '../components/cooked/SimilarCookedFeed'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-// Square photo height
+// Square photo height, adjust photo to fit the screen
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
-  COLLAPSED: SCREEN_HEIGHT - 120,
+  // Just enough to preserve the social menu to be able to be expanded
+  COLLAPSED: SCREEN_HEIGHT - 110,
+
+  // The mid point should be enough to partially fit the image
   MID: PHOTO_HEIGHT - 125 - 110,
-  EXPANDED: 0, // At the top
+
+  // At the top
+  EXPANDED: 0,
 }
 
+// Recipe which contains the webview can be slow to load
+// Making sure that it does not make the card animation lag.
 const Recipe = lazy(() => import('../screens/Recipe'))
 
 const Cooked = ({ navigation, route }) => {
-  const { preloadedCooked, cookedId, showShareModal, photosBelow } = route.params
-  const startPosition = route.params?.startPosition || SCREEN_HEIGHT - 55 
-  
-  const { profileStore } = useStore()
+  const { cookedId, showShareModal } = route.params
 
-  const [loadingCooked, setLoadingCooked] = useState(!preloadedCooked)
-  const [cooked, setCooked] = useState(preloadedCooked)
+  const startPosition = route.params?.startPosition || SCREEN_HEIGHT - 55
+
+  const { cookedStore } = useStore()
+
+  useEffect(() => {
+    cookedStore.ensureExists(cookedId)
+  }, [cookedId])
+
+  const cooked = cookedStore.getCooked(cookedId)
+  const cookedLoadState = cookedStore.getCookedLoadState(cookedId)
+
   const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
   const [isCardCollapsed, setIsCardCollapsed] = useState(false)
 
+  const cookedPhotoPaths = cooked['cooked-photos-path']
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
 
-  useEffect(() => {
-    ;(async () => {
-      if (!preloadedCooked) {
-        setLoadingCooked(true)
-        const cooked = await profileStore.getCooked(loggedInUsername, cookedId)
-        setCooked(cooked)
-        setLoadingCooked(false)
-      }
-    })()
-  }, [cookedId])
+  // TODO: move to the store and server
+  const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
 
-  // Add state to control when to load the Recipe component
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
 
-  // Animation values
   const paddingAdjustedStartPosition = startPosition - 55
   const translateY = useSharedValue(paddingAdjustedStartPosition || SNAP_POINTS.COLLAPSED)
   const context = useSharedValue({ y: 0 })
@@ -70,19 +78,19 @@ const Cooked = ({ navigation, route }) => {
   // Derive collapsed state from translateY
   const isCollapsed = useDerivedValue(() => {
     // Consider it collapsed when it's closer to COLLAPSED snap point than MID
-    return translateY.value > (SNAP_POINTS.COLLAPSED + SNAP_POINTS.MID) / 2;
-  });
+    return translateY.value > (SNAP_POINTS.COLLAPSED + SNAP_POINTS.MID) / 2
+  })
 
   // React to changes in the collapsed state
   useAnimatedReaction(
     () => isCollapsed.value,
     (collapsed, previousCollapsed) => {
       if (collapsed !== previousCollapsed) {
-        runOnJS(setIsCardCollapsed)(collapsed);
+        runOnJS(setIsCardCollapsed)(collapsed)
       }
     },
-    [isCollapsed]
-  );
+    [isCollapsed],
+  )
 
   // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
@@ -90,13 +98,14 @@ const Cooked = ({ navigation, route }) => {
     const height = interpolate(
       translateY.value,
       [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
-      [SCREEN_HEIGHT, SCREEN_HEIGHT - SNAP_POINTS.MID],
+      [SCREEN_HEIGHT * 1.5, SCREEN_HEIGHT - SNAP_POINTS.MID],
       Extrapolate.CLAMP,
     )
 
     return {
       transform: [{ translateY: translateY.value }],
-      // height,
+      height,
+      minHeight: height,
     }
   }, [])
 
@@ -126,7 +135,8 @@ const Cooked = ({ navigation, route }) => {
     )
 
     return {
-      // minHeight: height,
+      minHeight: height,
+      flexGrow: 1,
     }
   }, [])
 
@@ -242,7 +252,7 @@ const Cooked = ({ navigation, route }) => {
   useLayoutEffect(() => {
     translateY.value = withSpring(SNAP_POINTS.MID, { damping: 20 })
 
-    // just slow delay the recipe loading to avoid frame drops in the card open animation
+    // just to slow down the recipe loading to avoid frame drops on the card open animation
     const timer = setTimeout(() => {
       setShouldLoadRecipe(true)
     }, 100)
@@ -250,9 +260,6 @@ const Cooked = ({ navigation, route }) => {
     return () => clearTimeout(timer)
   }, [])
 
-  console.log('isCollapsed', isCardCollapsed)
-
-  // Show ShareCook if showShareModal is true
   useEffect(() => {
     if (showShareModal) {
       setShouldShowShareCook(true)
@@ -271,9 +278,8 @@ const Cooked = ({ navigation, route }) => {
     setShouldShowShareCook(false)
   }
 
-  // Function to render the animated drag indicator
-  const renderDragIndicator = () => {
-    return <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
+  if (!cookedLoadState || cookedLoadState === 'loading') {
+    return <LoadingScreen />
   }
 
   return (
@@ -292,21 +298,33 @@ const Cooked = ({ navigation, route }) => {
 
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.cardContainerStyle, cardAnimatedStyle]}>
-          <Card
-            cooked={cooked}
-            relativeDate={false}
-            showExpandIcon={isCardCollapsed}
-            onExpandPress={expandCard}
-            photosBelow={photosBelow}
-            bodyStyle={[styles.cardBodyStyle, cardBodyAnimatedStyle]}
-            contentsStyle={cardContentsAnimatedStyle}
-            renderDragIndicator={renderDragIndicator}
-            showRecipe={false}
-            showSimilarCooks={!shouldShowShareCook}
-            showShareCook={shouldShowShareCook}
-            onShareCook={handleShare}
-            onDismissShareCook={handleDismissShareCook}
-          />
+          <Animated.View style={[cardContentsAnimatedStyle, { flex: 1 }]}>
+            <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
+
+            <SocialMenu
+              cookedId={cookedId}
+              showExpandIcon={isCardCollapsed}
+              onExpandPress={expandCard}
+              profileImage={getProfileImageUrl(cooked['username'])}
+              username={cooked['username']}
+              date={cooked['cooked-date']}
+              roundedBottom={false}
+            />
+
+            <Animated.View style={[styles.cardBodyStyle, cardBodyAnimatedStyle]}>
+              <FullNotes notes={cooked['notes']} />
+
+              {photoUrls && photoUrls.length > 0 && (
+                <View style={styles.photoContainer}>
+                  {photoUrls.map((photoUrl, index) => (
+                    <Image key={index} source={{ uri: photoUrl }} style={styles.photoBelow} resizeMode='cover' />
+                  ))}
+
+                  <SimilarCookedFeed recipeId={recipeId || extractId} />
+                </View>
+              )}
+            </Animated.View>
+          </Animated.View>
         </Animated.View>
       </GestureDetector>
     </GestureHandlerRootView>
@@ -323,9 +341,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   cardContainerStyle: {
-    backgroundColor: 'transparent',
+    width: '100%',
+    backgroundColor: theme.colors.secondary,
   },
   cardBodyStyle: {
+    paddingHorizontal: 16,
+    flex: 1,
     minHeight: SCREEN_HEIGHT - SNAP_POINTS.MID + 60,
   },
   dragIndicator: {
@@ -362,6 +383,16 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 0,
     marginBottom: 0,
+  },
+  photoContainer: {
+    paddingVertical: 16,
+    flex: 1,
+    gap: 16,
+    flexGrow: 1,
+  },
+  photoBelow: {
+    width: '100%',
+    aspectRatio: 1,
   },
 })
 

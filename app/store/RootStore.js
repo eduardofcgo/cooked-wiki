@@ -7,6 +7,7 @@ import { RecentlyOpenedStore } from './RecentlyOpenedStore'
 import { RecipeMetadataStore } from './RecipeMetadataStore'
 import { UserStore } from './UserStore'
 import { RecipeJournalStore } from './RecipeJournalStore'
+import { CookedStore } from './CookedStore'
 
 export default class RootStore {
   userStore
@@ -21,7 +22,9 @@ export default class RootStore {
 
     this.onboardingStore = new OnboardingStore()
 
-    this.profileStore = new ProfileStore(apiClient)
+    this.cookedStore = new CookedStore(apiClient)
+
+    this.profileStore = new ProfileStore(apiClient, this.cookedStore)
     this.findFriendsStore = new FindFriendsStore(apiClient, this.profileStore)
 
     this.recentlyOpenedStore = new RecentlyOpenedStore()

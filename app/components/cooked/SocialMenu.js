@@ -1,8 +1,8 @@
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
@@ -79,6 +79,7 @@ const SocialMenu = ({
   showExpandIcon,
   onExpandPress,
   relativeDate = false,
+  roundedTop = false,
 }) => {
   const navigation = useNavigation()
   const navState = useNavigationState(state => state)
@@ -107,21 +108,25 @@ const SocialMenu = ({
     }
   }, [navigation, username, navState])
 
+  const formattedDate = useMemo(() => {
+    return relativeDate ? formatWeeksAgo(date) : formatDate(date)
+  }, [relativeDate, date])
+
   return (
-    <View style={styles.profileHeader}>
+    <View style={[styles.profileHeader, roundedTop && { borderTopLeftRadius: 16, borderTopRightRadius: 16 }]}>
       <TouchableOpacity style={styles.profile} onPress={onUserPress} activeOpacity={0.7}>
         <Image source={{ uri: profileImage }} style={styles.profilePicture} />
         <View style={styles.profileInfo}>
           <Text style={styles.username}>{username}</Text>
-          <Text style={styles.date}>{relativeDate ? formatWeeksAgo(date) : formatDate(date)}</Text>
+          <Text style={styles.date}>{formattedDate}</Text>
         </View>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.expandButtonContainer} onPress={onActionPress}>
         <View style={styles.expandButtonWrapper}>
           {showExpandIcon ? (
-            <TouchableOpacity 
-              style={styles.iconContainer} 
+            <TouchableOpacity
+              style={styles.iconContainer}
               onPress={onExpandPress}
               hitSlop={{ top: 20, bottom: 20, left: 100, right: 20 }}
             >
@@ -142,7 +147,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'black',
     backgroundColor: theme.colors.secondary,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,

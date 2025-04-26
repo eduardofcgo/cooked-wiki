@@ -30,9 +30,11 @@ const RecipeHeader = ({ cooked, rounded }) => {
       </View>
     </TouchableOpacity>
   ) : (
-    <View style={styles.recipeHeader}>
-      <Text style={styles.recipeName}>{recipeTitle}</Text>
-    </View>
+    recipeTitle && (
+      <View style={[styles.recipeHeader, rounded && { borderTopLeftRadius: 16, borderTopRightRadius: 16 }]}>
+        <Text style={styles.recipeName}>{recipeTitle}</Text>
+      </View>
+    )
   )
 }
 
@@ -59,7 +61,7 @@ const FeedItem = ({ cooked, rounded, showRecipe = true, collapseNotes = true, sh
 
 const styles = StyleSheet.create({
   recipeHeader: {
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.secondary,
     paddingHorizontal: 16,
     paddingVertical: 16,
   },

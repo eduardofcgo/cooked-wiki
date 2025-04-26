@@ -17,8 +17,6 @@ const UserItem = observer(({ username, navigation }) => {
           <Text style={styles.userName}>{username}</Text>
         </View>
       </View>
-      {/* Placeholder for potential future actions */}
-      <View></View>
     </TouchableOpacity>
   )
 })

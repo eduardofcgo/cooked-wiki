@@ -33,8 +33,9 @@ export class ProfileStore {
 
   cookedStats = observable.map()
 
-  constructor(apiClient) {
+  constructor(apiClient, cookedStore) {
     this.apiClient = apiClient
+    this.cookedStore = cookedStore
 
     makeAutoObservable(this)
   }
@@ -134,6 +135,10 @@ export class ProfileStore {
       this.hasMoreCommunityFeed = cookeds.length > 0
       this.communityFeedPage = 1
       this.needsRefreshCommunityFeed = false
+
+      cookeds.forEach(cooked => {
+        this.cookedStore.saveToStore(cooked.id, cooked)
+      })
     })
   }
 
@@ -150,7 +155,9 @@ export class ProfileStore {
   async loadNextCommunityFeedPage() {
     if (!this.hasMoreCommunityFeed || this.isLoadingCommunityFeedNextPage) return
 
-    this.isLoadingCommunityFeedNextPage = true
+    runInAction(() => {
+      this.isLoadingCommunityFeedNextPage = true
+    })
 
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: this.communityFeedPage + 1 } })
 
@@ -160,6 +167,10 @@ export class ProfileStore {
       } else {
         this.communityFeed.push(...cookeds)
         this.communityFeedPage++
+
+        cookeds.forEach(cooked => {
+          this.cookedStore.saveToStore(cooked.id, cooked)
+        })
       }
 
       this.isLoadingCommunityFeedNextPage = false
@@ -190,6 +201,10 @@ export class ProfileStore {
       profileData.bio = metadata.bio
       profileData.isPatron = metadata['is-patron?']
       profileData.imagePath = metadata['image-path']
+
+      cookeds.forEach(cooked => {
+        this.cookedStore.saveToStore(cooked.id, cooked)
+      })
     })
   }
 
@@ -205,15 +220,6 @@ export class ProfileStore {
     // So for now let's not save this in the store, and request everytime it's needed.
     const { users } = await this.apiClient.get(`/user/${username}/followers`)
     return users.map(user => user.username)
-  }
-
-  async getCooked(username, cookedId) {
-    const cooked = this.profileDataMap.get(username)?.cookeds.find(cooked => cooked.id === cookedId)
-    if (cooked) return cooked
-
-    const fetchedCooked = await this.apiClient.get(`/journal/${cookedId}`)
-
-    return fetchedCooked
   }
 
   async loadCookedStats(cookedId) {
@@ -270,6 +276,10 @@ export class ProfileStore {
       } else {
         profileData.cookeds.push(...cookeds)
         profileData.page++
+
+        cookeds.forEach(cooked => {
+          this.cookedStore.saveToStore(cooked.id, cooked)
+        })
       }
 
       profileData.isLoadingNextPage = false
@@ -334,6 +344,7 @@ export class ProfileStore {
       const index = profileData.cookeds.findIndex(cooked => cooked.id === cookedId)
       if (index !== -1) {
         runInAction(() => {
+          // Update the whole cooked, no need to track dependencies deep.
           profileData.cookeds[index] = {
             ...profileData.cookeds[index],
             notes: newCooked.notes,
@@ -342,6 +353,10 @@ export class ProfileStore {
         })
       }
     }
+
+    runInAction(() => {
+      this.cookedStore.saveToStore(cookedId, newCooked)
+    })
   }
 
   isFollowing(username) {

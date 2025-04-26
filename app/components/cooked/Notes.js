@@ -1,20 +1,22 @@
 import React, { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../../style/style'
+import { observer } from 'mobx-react-lite'
 
 const MAX_LINES = 2
 
-const Notes = ({ notes, style, goToCooked, goToRecipe }) => {
-  if (!notes)
+const Notes = ({ notes, goToCooked, goToRecipe }) => {
+  if (!notes) {
     return (
       <TouchableOpacity onPress={goToRecipe}>
         <Text style={[styles.readMoreText, { paddingBottom: 16 }]}>Read more</Text>
       </TouchableOpacity>
     )
+  }
 
   return (
     <TouchableOpacity onPress={goToCooked}>
-      <View style={[styles.notes, style]}>
+      <View style={[styles.notes]}>
         <Text style={styles.notesText} numberOfLines={MAX_LINES}>
           {notes}
         </Text>
@@ -40,4 +42,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Notes
+export default observer(Notes)
