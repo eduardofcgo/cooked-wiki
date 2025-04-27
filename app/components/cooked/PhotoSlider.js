@@ -13,29 +13,33 @@ const PhotoSlider = ({ images, onImageSlide }) => {
 
   const hasMultiplePhotos = images?.length > 1
 
-  const handleLayout = useCallback((event) => {
+  const handleLayout = useCallback(event => {
     const { width } = event.nativeEvent.layout
     setSliderWidth(width)
   }, [])
 
-  const onScroll = useCallback((event) => {
-    const contentOffset = event.nativeEvent.contentOffset.x
-    const newIndex = Math.round(contentOffset / sliderWidth)
-    if (newIndex !== currentImageIndex) {
+  const onScroll = useCallback(
+    event => {
+      const contentOffset = event.nativeEvent.contentOffset.x
+      const newIndex = Math.round(contentOffset / sliderWidth)
+      if (newIndex !== currentImageIndex) {
         setCurrentImageIndex(newIndex)
       }
-  }, [currentImageIndex, sliderWidth])
+    },
+    [currentImageIndex, sliderWidth],
+  )
 
-  const renderItem = useCallback(({ item }) => {
-    const photoStyle = {
-      width: sliderWidth,
-      aspectRatio: 1,
-      zIndex: 10,
-    };
-    return (
-      <Animated.Image source={{ uri: item }} style={photoStyle} resizeMode='cover' />  
-    );
-  }, [sliderWidth])
+  const renderItem = useCallback(
+    ({ item }) => {
+      const photoStyle = {
+        width: sliderWidth,
+        aspectRatio: 1,
+        zIndex: 10,
+      }
+      return <Animated.Image source={{ uri: item }} style={photoStyle} resizeMode='cover' />
+    },
+    [sliderWidth],
+  )
 
   const keyExtractor = useCallback((item, index) => `photo-${index}`, [])
 

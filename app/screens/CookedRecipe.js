@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite'
 import React, { lazy, useEffect, useLayoutEffect, useState } from 'react'
-import { Dimensions, StyleSheet, View, Image } from 'react-native'
+import { Dimensions, StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
   Extrapolate,
   interpolate,
+  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -12,17 +13,15 @@ import Animated, {
   useAnimatedReaction,
   runOnJS,
 } from 'react-native-reanimated'
-import Card from '../components/cooked/Card'
-import Notes from '../components/cooked/FullNotes'
-import HeaderText from '../components/core/HeaderText'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
-import useCooked from '../hooks/services/useCooked'
 import FullNotes from '../components/cooked/FullNotes'
 import { getCookedPhotoUrl, getProfileImageUrl } from '../urls'
-import SocialMenu from '../components/cooked/SocialMenu'
+import AuthorBar from '../components/cooked/AuthorBar'
 import SimilarCookedFeed from '../components/cooked/SimilarCookedFeed'
+import SocialMenuIcons from '../components/cooked/SocialMenuIcons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -30,8 +29,8 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 
 const SNAP_POINTS = {
-  // Just enough to preserve the social menu to be able to be expanded
-  COLLAPSED: SCREEN_HEIGHT - 110,
+  // Just enough to preserve the social men to be able to be expanded
+  COLLAPSED: SCREEN_HEIGHT - 175,
 
   // The mid point should be enough to partially fit the image
   MID: PHOTO_HEIGHT - 125 - 110,
@@ -42,9 +41,9 @@ const SNAP_POINTS = {
 
 // Recipe which contains the webview can be slow to load
 // Making sure that it does not make the card animation lag.
-const Recipe = lazy(() => import('../screens/Recipe'))
+const Recipe = lazy(() => import('./Recipe'))
 
-const Cooked = ({ navigation, route }) => {
+const CookedRecipe = ({ navigation, route }) => {
   const { cookedId, showShareModal } = route.params
 
   const startPosition = route.params?.startPosition || SCREEN_HEIGHT - 55
@@ -61,9 +60,9 @@ const Cooked = ({ navigation, route }) => {
   const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
   const [isCardCollapsed, setIsCardCollapsed] = useState(false)
 
-  const cookedPhotoPaths = cooked['cooked-photos-path']
-  const recipeId = cooked['recipe-id']
-  const extractId = cooked['extract-id']
+  const cookedPhotoPaths = cooked?.['cooked-photos-path']
+  const recipeId = cooked?.['recipe-id']
+  const extractId = cooked?.['extract-id']
 
   // TODO: move to the store and server
   const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
@@ -92,16 +91,7 @@ const Cooked = ({ navigation, route }) => {
     [isCollapsed],
   )
 
-  // Memoize animation styles to prevent recalculations
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    // Calculate dynamic height based on position
-    const height = interpolate(
-      translateY.value,
-      [SNAP_POINTS.EXPANDED, SNAP_POINTS.MID],
-      [SCREEN_HEIGHT * 1.5, SCREEN_HEIGHT - SNAP_POINTS.MID],
-      Extrapolate.CLAMP,
-    )
-
     const borderRadius = interpolate(
       translateY.value,
       [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED],
@@ -111,41 +101,19 @@ const Cooked = ({ navigation, route }) => {
 
     return {
       transform: [{ translateY: translateY.value }],
-      height,
-      minHeight: height,
-      borderTopLeftRadius: borderRadius,
       borderTopRightRadius: borderRadius,
     }
   }, [])
 
   const cardContentsAnimatedStyle = useAnimatedStyle(() => {
-    const height = interpolate(translateY.value, [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], [0, -55], Extrapolate.CLAMP)
-
-    const borderWidth = interpolate(
+    const borderTopColor = interpolateColor(
       translateY.value,
-      [SNAP_POINTS.MID, SNAP_POINTS.COLLAPSED], // Animate over 20 units after MID point
-      [0, 2],
-      Extrapolate.CLAMP,
+      [SNAP_POINTS.COLLAPSED, SNAP_POINTS.MID],
+      [theme.colors.primary, 'rgba(0,0,0,0)'],
     )
 
     return {
-      transform: [{ translateY: height }],
-      borderTopWidth: borderWidth,
-      borderTopColor: theme.colors.primary,
-    }
-  }, [])
-
-  const cardBodyAnimatedStyle = useAnimatedStyle(() => {
-    const height = interpolate(
-      translateY.value,
-      [SNAP_POINTS.COLLAPSED, SNAP_POINTS.EXPANDED],
-      [0, 500],
-      Extrapolate.CLAMP,
-    )
-
-    return {
-      minHeight: height,
-      flexGrow: 1,
+      borderTopColor: borderTopColor,
     }
   }, [])
 
@@ -181,6 +149,15 @@ const Cooked = ({ navigation, route }) => {
   // Function to expand card to mid position when expand icon is pressed
   const expandCard = () => {
     snapTo(SNAP_POINTS.MID)
+  }
+
+  // Callback to toggle between collapsed and mid states
+  const toggleCollapse = () => {
+    if (isCardCollapsed) {
+      expandCard() // Expand to MID when collapsed
+    } else {
+      snapTo(SNAP_POINTS.COLLAPSED) // Collapse when not collapsed
+    }
   }
 
   // Add touch handler for recipe container
@@ -287,14 +264,14 @@ const Cooked = ({ navigation, route }) => {
     setShouldShowShareCook(false)
   }
 
-  if (!cookedLoadState || cookedLoadState === 'loading') {
+  if (!cooked || cookedLoadState === 'loading') {
     return <LoadingScreen />
   }
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <View
-        style={{ zIndex: -10, flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={{ zIndex: -10, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         onTouchStart={handleRecipeInteraction}
       >
         {shouldLoadRecipe ? (
@@ -307,32 +284,52 @@ const Cooked = ({ navigation, route }) => {
 
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.cardContainerStyle, cardAnimatedStyle]}>
-          <Animated.View style={[cardContentsAnimatedStyle, { flex: 1 }]}>
+          <Animated.View style={[styles.cardContentsStyle, cardContentsAnimatedStyle]}>
             <Animated.View style={[styles.dragIndicator, dragIndicatorAnimatedStyle]} />
 
-            <SocialMenu
-              cookedId={cookedId}
-              showExpandIcon={isCardCollapsed}
+            <AuthorBar
               onExpandPress={expandCard}
               profileImage={getProfileImageUrl(cooked['username'])}
               username={cooked['username']}
               date={cooked['cooked-date']}
               roundedBottom={false}
-            />
+              backgroundColor={theme.colors.background}
+            >
+              <TouchableOpacity
+                style={{ alignItems: 'center' }}
+                onPress={toggleCollapse}
+                hitSlop={{ top: 20, bottom: 20, left: 100, right: 20 }}
+              >
+                <MaterialIcons
+                  name={isCardCollapsed ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
+                  size={25}
+                  color={theme.colors.primary}
+                />
+                <Text style={[styles.showRecipeText, { opacity: isCardCollapsed ? 0 : 1 }]}>Show Recipe</Text>
+              </TouchableOpacity>
+            </AuthorBar>
 
-            <Animated.View style={[styles.cardBodyStyle, cardBodyAnimatedStyle]}>
+            <View style={[styles.cardBodyStyle]}>
               <FullNotes notes={cooked['notes']} />
+
+              <View style={styles.socialMenuContainer}>
+                <TouchableOpacity style={styles.iconContainer}>
+                  <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
+                </TouchableOpacity>
+
+                <SocialMenuIcons cookedId={cookedId} onSharePress={handleShare} />
+              </View>
 
               {photoUrls && photoUrls.length > 0 && (
                 <View style={styles.photoContainer}>
                   {photoUrls.map((photoUrl, index) => (
-                    <Image key={index} source={{ uri: photoUrl }} style={styles.photoBelow} resizeMode='cover' />
+                    <Image key={index} source={{ uri: photoUrl }} style={styles.cookedPhoto} resizeMode='cover' />
                   ))}
-
-                  <SimilarCookedFeed recipeId={recipeId || extractId} />
                 </View>
               )}
-            </Animated.View>
+
+              <SimilarCookedFeed recipeId={recipeId || extractId} />
+            </View>
           </Animated.View>
         </Animated.View>
       </GestureDetector>
@@ -351,13 +348,22 @@ const styles = StyleSheet.create({
   },
   cardContainerStyle: {
     width: '100%',
-    backgroundColor: theme.colors.white,
+  },
+  cardContentsStyle: {
+    borderTopWidth: 2,
+    borderTopColor: theme.colors.primary,
   },
   cardBodyStyle: {
+    flexGrow: 1,
     paddingHorizontal: 16,
-    flex: 1,
-    minHeight: SCREEN_HEIGHT - SNAP_POINTS.MID + 60,
+    backgroundColor: theme.colors.background,
   },
+  socialMenuContainer: {
+    paddingVertical: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  iconContainer: {},
   dragIndicator: {
     backgroundColor: theme.colors.primary,
     borderRadius: 2.5,
@@ -395,14 +401,17 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     paddingVertical: 16,
-    flex: 1,
-    gap: 16,
-    flexGrow: 1,
   },
-  photoBelow: {
+  cookedPhoto: {
+    backgroundColor: theme.colors.background,
     width: '100%',
     aspectRatio: 1,
   },
+  showRecipeText: {
+    marginLeft: 5,
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.small,
+  },
 })
 
-export default observer(Cooked)
+export default observer(CookedRecipe)

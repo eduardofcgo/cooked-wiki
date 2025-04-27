@@ -16,6 +16,7 @@ export const theme = {
     white: 'white',
     softBlack: '#706b57',
     border: '#ccc',
+    pink: '#d87192',
   },
   fonts: {
     ui: 'AtkinsonHyperlegible_400Regular',

@@ -111,7 +111,7 @@ const Notifications = ({ navigation }) => {
       case 'cooked_your_recipe':
       case 'liked_cook':
       case 'new_cook':
-        navigation.navigate('Cook', { cookId: notification.cookId })
+        navigation.navigate('CookedRecipe', { cookedId: notification.cookId })
         break
     }
   }

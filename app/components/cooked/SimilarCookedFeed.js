@@ -11,6 +11,8 @@ export default function SimilarCookedFeed({ recipeId }) {
     useTryGetSimilarCooks({ recipeId })
 
   const handleLoadMore = useCallback(() => {
+    console.log('SimilarCookedFeed: loadMore', loadingNextPage, hasMoreSimilarCooks)
+
     if (!loadingNextPage && hasMoreSimilarCooks) {
       console.log('SimilarCookedFeed: Triggering loadNextPage via onEndReached')
       loadNextPage()
@@ -73,11 +75,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     paddingBottom: 100,
-    flex: 1,
   },
-  flatListContent: {
-    flexGrow: 1,
-  },
+  flatListContent: {},
   loadingContainer: {
     padding: 32,
     alignItems: 'center',

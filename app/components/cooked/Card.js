@@ -7,11 +7,12 @@ import { getCookedPhotoUrl, getProfileImageUrl, getThumbnailUrl } from '../../ur
 import FullNotes from './FullNotes'
 import Notes from './Notes'
 import PhotoSlider from './PhotoSlider'
-import SocialMenu from './SocialMenu'
+import AuthorBar from './AuthorBar'
 import DoubleTapLike from './DoubleTapLike'
 import SimilarCookedFeed from './SimilarCookedFeed'
 import ShareCook from '../recordcook/ShareCook'
 import { observer } from 'mobx-react-lite'
+import SocialMenuIcons from './SocialMenuIcons'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -39,7 +40,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
 
     socialMenuContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
       const startPosition = pageY - height
-      navigation.push('Cooked', { cookedId, startPosition })
+      navigation.push('CookedRecipe', { cookedId, startPosition })
     })
   }, [cookedId])
 
@@ -70,14 +71,15 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
 
       <View style={[styles.contents]}>
         <View ref={socialMenuContainerRef}>
-          <SocialMenu
-            cookedId={cookedId}
+          <AuthorBar
             profileImage={getProfileImageUrl(cooked['username'])}
             username={cooked['username']}
             date={cooked['cooked-date']}
             roundedTop={!cooked['notes']}
             roundedBottom={!cooked['notes']}
-          />
+          >
+            <SocialMenuIcons cookedId={cookedId} onSharePress={undefined} />
+          </AuthorBar>
         </View>
 
         <View style={[styles.body, !cooked['notes'] && { paddingBottom: 0 }]}>

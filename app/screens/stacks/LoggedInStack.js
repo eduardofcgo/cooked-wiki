@@ -1,5 +1,5 @@
 import Contact from '../../screens/Contact'
-import Cooked from '../../screens/Cooked'
+import CookedRecipe from '../../screens/CookedRecipe'
 import CookedLikes from '../../screens/CookedLikes'
 import Extract from '../../screens/Extract'
 import FindFriends from '../../screens/FindFriends'
@@ -106,8 +106,8 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='Cooked'
-        component={Cooked}
+        name='CookedRecipe'
+        component={CookedRecipe}
         options={{
           ...screenStyle,
           // animation: 'none',

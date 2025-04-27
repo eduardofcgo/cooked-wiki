@@ -39,5 +39,13 @@ export default function useTryGetSimilarCooks({ recipeId }) {
     })()
   }, [recipeId, api])
 
-  return { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage }
+  return {
+    similarCooks,
+    loadingSimilarCooks,
+    loadNextPage,
+    loadingNextPage,
+
+    // Infinite scroll
+    hasMoreSimilarCooks: true,
+  }
 }
