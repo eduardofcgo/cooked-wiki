@@ -31,7 +31,7 @@ const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
 // Making sure that it does not make the card animation lag.
 const Recipe = lazy(() => import('./Recipe'))
 
-const BottomSheetHandle = React.memo(
+const BottomSheetHandle = observer(
   ({ username, cookedDate, expandCard, toggleCollapse, animatedPosition, absoluteSnapPoints }) => {
     const iconRotationStyle = useAnimatedStyle(() => {
       const rotation = interpolate(
@@ -85,7 +85,7 @@ const BottomSheetHandle = React.memo(
   },
 )
 
-const SocialMenu = React.memo(({ cookedId, onSharePress }) => (
+const SocialMenu = observer(({ cookedId, onSharePress }) => (
   <View style={styles.socialMenuContainer}>
     <TouchableOpacity style={styles.iconContainer}>
       <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
@@ -94,7 +94,7 @@ const SocialMenu = React.memo(({ cookedId, onSharePress }) => (
   </View>
 ))
 
-const PhotoGallery = React.memo(({ photoUrls }) => {
+const PhotoGallery = observer(({ photoUrls }) => {
   if (!photoUrls || photoUrls.length === 0) return null
 
   return (
@@ -107,7 +107,7 @@ const PhotoGallery = React.memo(({ photoUrls }) => {
 })
 
 // MemoizedListHeader component extracted from the main component
-const ListHeader = React.memo(({ cookedId, cooked, photoUrls, handleShare }) => (
+const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare }) => (
   <View style={styles.cardBodyStyle}>
     <FullNotes notes={cooked?.['notes']} />
     <SocialMenu cookedId={cookedId} onSharePress={handleShare} />
@@ -130,8 +130,8 @@ const CookedRecipe = ({ navigation, route }) => {
     cookedStore.ensureLoaded(cookedId)
   }, [cookedId, cookedStore])
 
-  const cooked = useMemo(() => cookedStore.getCooked(cookedId), [cookedId, cookedStore])
-  const cookedLoadState = useMemo(() => cookedStore.getCookedLoadState(cookedId), [cookedId, cookedStore])
+  const cooked = cookedStore.getCooked(cookedId)
+  const cookedLoadState = cookedStore.getCookedLoadState(cookedId)
 
   const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
   const [sheetIndex, setSheetIndex] = useState(1)
@@ -215,7 +215,7 @@ const CookedRecipe = ({ navigation, route }) => {
 
   const handleSheetChanges = useCallback(index => {
     setSheetIndex(index)
-    
+
     if (index === 0 && flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true })
     }

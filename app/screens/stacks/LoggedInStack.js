@@ -50,7 +50,8 @@ export default function LoggedInStack({ StackNavigator }) {
         options={{
           title: 'Cooked',
           ...screenStyle,
-          animation: 'slide_from_right',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
         }}
       />
 
@@ -76,6 +77,7 @@ export default function LoggedInStack({ StackNavigator }) {
         component={RecordCook}
         options={{
           title: 'Record Cook',
+          presentation: 'modal',
           animation: 'slide_from_bottom',
         }}
       />

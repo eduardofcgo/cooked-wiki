@@ -309,7 +309,7 @@ export default function RecordCook({ editMode, hasChanges, setHasChanges, onSave
                   />
                 ) : (
                   <PrimaryButton
-                    title={optionalPhoto ? 'Select recipe' : 'Add recipe'}
+                    title={photoOptional ? 'Select recipe' : 'Add recipe'}
                     onPress={() => navigation.navigate('RecipeSearch')}
                     style={[
                       styles.shareButton,
