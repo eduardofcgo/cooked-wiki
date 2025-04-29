@@ -123,6 +123,7 @@ const CookedRecipe = ({ navigation, route }) => {
   const { cookedStore } = useStore()
 
   const bottomSheetRef = useRef(null)
+  const flatListRef = useRef(null)
   const animatedPosition = useSharedValue(0)
 
   useEffect(() => {
@@ -212,9 +213,12 @@ const CookedRecipe = ({ navigation, route }) => {
     [isCardCollapsed, toggleCollapse],
   )
 
-  // Handle bottom sheet changes
   const handleSheetChanges = useCallback(index => {
     setSheetIndex(index)
+    
+    if (index === 0 && flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true })
+    }
   }, [])
 
   // Placeholder function for sharing
@@ -315,6 +319,7 @@ const CookedRecipe = ({ navigation, route }) => {
         style={styles.bottomSheetShadow}
       >
         <BottomSheetFlatList
+          ref={flatListRef}
           data={similarCooks}
           renderItem={renderCookedItem}
           keyExtractor={keyExtractor}
