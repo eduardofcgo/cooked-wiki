@@ -305,12 +305,12 @@ export default function RecordCook({ editMode, hasChanges, setHasChanges, onSave
                   <SelectedRecipe
                     recipe={selectedRecipe}
                     onClear={() => setSelectedRecipe(undefined)}
-                    onPress={() => navigation.navigate('RecipeSearch')}
+                    onPress={() => navigation.navigate('RecipePicker')}
                   />
                 ) : (
                   <PrimaryButton
                     title={photoOptional ? 'Select recipe' : 'Add recipe'}
-                    onPress={() => navigation.navigate('RecipeSearch')}
+                    onPress={() => navigation.navigate('RecipePicker')}
                     style={[
                       styles.shareButton,
                       !stepTwoActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },

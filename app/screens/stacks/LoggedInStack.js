@@ -8,7 +8,7 @@ import Following from '../../screens/Following'
 import Main from '../../screens/Main'
 import Notifications from '../../screens/Notifications'
 import { PublicProfile } from '../../screens/Profile'
-import RecipeSearch from '../../screens/RecipeSearch'
+import RecipePicker from '../../screens/RecipePicker'
 import RecordCook from '../../screens/RecordCook'
 import RecordCookRecipe from '../../screens/RecordCookRecipe'
 import Settings from '../../screens/Settings'
@@ -163,8 +163,8 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='RecipeSearch'
-        component={RecipeSearch}
+        name='RecipePicker'
+        component={RecipePicker}
         options={{
           title: 'Select recipe',
           presentation: 'modal',

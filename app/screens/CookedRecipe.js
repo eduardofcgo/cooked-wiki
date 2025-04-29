@@ -21,6 +21,7 @@ import BottomSheet, { BottomSheetFlatList, BottomSheetBackdrop } from '@gorhom/b
 import useTryGetSimilarCooks from '../hooks/services/useSimilarCooks'
 import Loading from '../components/core/Loading'
 import HeaderText from '../components/core/HeaderText'
+import DragIndicator from '../components/core/DragIndicator'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -61,6 +62,9 @@ const BottomSheetHandle = observer(
 
     return (
       <View style={styles.handleHeader}>
+        <View style={styles.dragIndicatorContainer}>
+          <DragIndicator />
+        </View>
         <AuthorBar
           onExpandPress={expandCard}
           profileImage={getProfileImageUrl(username)}
@@ -151,7 +155,7 @@ const CookedRecipe = ({ navigation, route }) => {
   // TODO: move to the store and server
   const photoUrls = useMemo(() => cookedPhotoPaths?.map(path => getCookedPhotoUrl(path)), [cookedPhotoPaths])
 
-  const snapPoints = useMemo(() => [75, '70%', '90%'], [])
+  const snapPoints = useMemo(() => [105, '70%', '90%'], [])
 
   const windowHeight = useWindowDimensions().height
 
@@ -347,6 +351,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   bottomSheetShadow: {
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
+    backgroundColor: theme.colors.background,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -382,12 +389,12 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: theme.fontSizes.small,
   },
-  handleHeader: {},
-  panelHandle: {
-    width: 40,
-    height: 5,
-    backgroundColor: theme.colors.primary,
-    borderRadius: 2.5,
+  handleHeader: {
+    paddingVertical: 8,
+  },
+  dragIndicatorContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
   },
   loadingContainer: {
     padding: 32,

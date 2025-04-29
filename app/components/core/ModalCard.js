@@ -11,6 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { theme } from '../../style/style'
+import DragIndicator from './DragIndicator'
 // import FadeInStatusBar from './FadeInStatusBar'
 
 export default function ModalCard({
@@ -128,7 +129,7 @@ export default function ModalCard({
           </TouchableOpacity>
           <PanGestureHandler onGestureEvent={gestureHandler}>
             <Animated.View style={[styles.modalContent, animatedStyle]}>
-              <View style={styles.dragIndicator} />
+              <DragIndicator />
               <View style={styles.modalHeader}>{titleComponent || <Text style={styles.modalTitle}>{title}</Text>}</View>
               {children}
             </Animated.View>
@@ -148,9 +149,9 @@ const styles = StyleSheet.create({
   modalContent: {
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.colors.background,
+    paddingTop: 16,
     paddingBottom: 32,
     paddingHorizontal: 32,
-    paddingTop: 0,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -167,20 +168,5 @@ const styles = StyleSheet.create({
   closeButton: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  dragIndicator: {
-    width: 40,
-    height: 5,
-    marginTop: 10,
-    marginBottom: 10,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.default,
-    alignSelf: 'center',
-    zIndex: 100,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 3,
   },
 })

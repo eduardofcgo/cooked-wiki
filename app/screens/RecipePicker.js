@@ -43,7 +43,7 @@ const RecipeItem = ({ recipe, onSelect }) => (
   </TouchableOpacity>
 )
 
-export default function RecipeSearch({ navigation }) {
+export default function RecipePicker({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { recentlyOpenedStore } = useStore()
