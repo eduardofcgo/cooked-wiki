@@ -14,7 +14,7 @@ export default function SimilarCookedFeed({ recipeId }) {
     console.log('SimilarCookedFeed: loadMore', loadingNextPage, hasMoreSimilarCooks)
 
     if (!loadingNextPage && hasMoreSimilarCooks) {
-      console.log('SimilarCookedFeed: Triggering loadNextPage via onEndReached')
+      console.log('loading next page')
       loadNextPage()
     }
   }, [loadingNextPage, hasMoreSimilarCooks, loadNextPage])
@@ -28,7 +28,9 @@ export default function SimilarCookedFeed({ recipeId }) {
     [],
   )
 
-  const keyExtractor = useCallback(item => item.id.toString(), [])
+  const keyExtractor = useCallback(item => {
+    return item.id
+  }, [])
 
   const ListFooter = useMemo(() => {
     if (loadingNextPage) {
@@ -73,7 +75,6 @@ export default function SimilarCookedFeed({ recipeId }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
     paddingBottom: 100,
   },
   flatListContent: {},

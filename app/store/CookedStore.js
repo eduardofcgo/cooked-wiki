@@ -18,7 +18,7 @@ export class CookedStore {
     return this.cooked.get(cookedId)?.value
   }
 
-  ensureExists(cookedId) {
+  ensureLoaded(cookedId) {
     if (!this.cooked.has(cookedId)) {
       runInAction(() => {
         this.cooked.set(cookedId, fromPromise(this.apiClient.get(`/journal/${cookedId}`)))
