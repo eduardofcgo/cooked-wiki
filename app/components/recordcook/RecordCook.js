@@ -15,13 +15,14 @@ import {
   StatusBar,
   Share,
 } from 'react-native'
+import moment from 'moment'
 import { theme } from '../../style/style'
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
 import ImageUploadButton from '../ImageUploadButton'
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-import { getCookedPhotoUrl } from '../../urls'
+import { getCookedPhotoUrl, absoluteUrl } from '../../urls'
 import { useStore } from '../../context/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
 import Loading from '../core/Loading'
@@ -31,6 +32,8 @@ import Step from './Step'
 import { useAuth } from '../../context/AuthContext'
 import NotesModal from './NotesModal'
 import { useNavigation } from '@react-navigation/native'
+import { observer } from 'mobx-react-lite'
+
 const EditableImage = ({ path, index, onExclude }) => {
   return (
     <View style={[styles.imageContainer, styles.imageContainerEditing]}>
@@ -43,48 +46,46 @@ const EditableImage = ({ path, index, onExclude }) => {
   )
 }
 
-const recentRecipes = [
-  { id: '1', name: 'Spaghetti Carbonara', lastCooked: '2 days ago' },
-  { id: '2', name: 'Chicken Curry', lastCooked: '1 week ago' },
-  { id: '3', name: 'Beef Stir Fry', lastCooked: '2 weeks ago' },
-]
+const SelectedRecipe = observer(({ recipe, onClear, onPress }) => {
+  const formattedTime = useMemo(() => recipe && moment(recipe.openedAt).fromNow(), [recipe?.openedAt])
 
-const SelectedRecipe = ({ recipe, onClear, onPress }) => (
-  <TouchableOpacity style={styles.selectedRecipeContainer} onPress={onPress}>
-    <View style={styles.selectedRecipeContent}>
-      {recipe === null ? (
-        <>
-          <MaterialCommunityIcons
-            name='chef-hat'
-            size={24}
-            color={theme.colors.softBlack}
-            style={{ marginRight: 12 }}
-          />
-          <View>
-            <Text style={styles.selectedRecipeName}>Cooked without a recipe</Text>
-            <Text style={styles.selectedRecipeSubtitle}>Freestyle cooking</Text>
-          </View>
-        </>
-      ) : (
-        <>
-          <Image
-            source={{
-              uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg',
-            }}
-            style={styles.selectedRecipeImage}
-          />
-          <View style={styles.selectedRecipeInfo}>
-            <Text style={styles.selectedRecipeName}>{recipe.name}</Text>
-            <Text style={styles.selectedRecipeSubtitle}>Last cooked {recipe.lastCooked}</Text>
-          </View>
-        </>
-      )}
-    </View>
-    <MaterialCommunityIcons name='pencil' size={15} color={theme.colors.softBlack} />
-  </TouchableOpacity>
-)
+  return (
+    <TouchableOpacity style={styles.selectedRecipeContainer} onPress={onPress}>
+      <View style={styles.selectedRecipeContent}>
+        {recipe === null ? (
+          <>
+            <MaterialCommunityIcons
+              name='chef-hat'
+              size={24}
+              color={theme.colors.softBlack}
+              style={{ marginRight: 12 }}
+            />
+            <View>
+              <Text style={styles.selectedRecipeName}>Cooked without a recipe</Text>
+              <Text style={styles.selectedRecipeSubtitle}>Freestyle cooking</Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <Image
+              source={{
+                uri: absoluteUrl(recipe.thumbnail),
+              }}
+              style={styles.selectedRecipeImage}
+            />
+            <View style={styles.selectedRecipeInfo}>
+              <Text style={styles.selectedRecipeName}>{recipe.title}</Text>
+              <Text style={styles.selectedRecipeSubtitle}>{formattedTime}</Text>
+            </View>
+          </>
+        )}
+      </View>
+      <MaterialCommunityIcons name='pencil' size={15} color={theme.colors.softBlack} />
+    </TouchableOpacity>
+  )
+})
 
-const NotesPreview = ({ notes, onPress, editMode }) => (
+const NotesPreview = observer(({ notes, onPress, editMode }) => (
   <TouchableOpacity style={[styles.selectedRecipeContainer, editMode && { height: 110 }]} onPress={onPress}>
     <View style={[styles.selectedRecipeContent, editMode && { height: 110 }]}>
       {notes && notes.length > 0 ? (
@@ -102,14 +103,20 @@ const NotesPreview = ({ notes, onPress, editMode }) => (
     </View>
     <MaterialCommunityIcons name='pencil' size={15} color={theme.colors.softBlack} />
   </TouchableOpacity>
-)
+))
 
-export default function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
+function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
   const navigation = useNavigation()
 
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
-  const { profileStore } = useStore()
+  const { profileStore, recentlyOpenedStore } = useStore()
+
+  console.log('[RecordCook] Preselected recipe:', preSelectedRecipe)
+
+  useEffect(() => {
+    recentlyOpenedStore.ensureLoadedMetadata()
+  }, [])
 
   const photoOptional = useMemo(() => {
     return Boolean(preSelectedRecipe)
@@ -717,3 +724,5 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
   },
 })
+
+export default observer(RecordCook)

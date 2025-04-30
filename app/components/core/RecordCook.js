@@ -11,7 +11,7 @@ export default function RecordCook({ showText = false }) {
   return (
     <View style={containerStyle}>
       <MaterialCommunityIcons name='camera' color={theme.colors.white} size={iconSize} />
-      {showText && <Text style={styles.ctaText}>Record Cook</Text>}
+      {showText && <Text style={styles.ctaText}>Record cook</Text>}
     </View>
   )
 }

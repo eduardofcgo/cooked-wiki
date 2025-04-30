@@ -76,7 +76,7 @@ export default function LoggedInStack({ StackNavigator }) {
         name='RecordCook'
         component={RecordCook}
         options={{
-          title: 'Record Cook',
+          title: 'Record cook',
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }}

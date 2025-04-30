@@ -3,7 +3,9 @@ import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mob
 
 export class RecentlyOpenedStore {
   recipeIds = observable.array()
-  maxRecentItems = 20
+  openDates = observable.map()
+
+  maxRecentItems = 50
 
   loaded = false
   loading = false
@@ -14,10 +16,10 @@ export class RecentlyOpenedStore {
     makeAutoObservable(this)
 
     reaction(
-      () => toJS(this.recipeIds),
-      recipeIds => {
-        if (this.loaded) {
-          this.saveToLocalStorage(recipeIds)
+      () => toJS(this.openDates),
+      openDates => {
+        if (this.loaded && openDates.size > 1) {
+          this.saveToLocalStorage()
         }
       },
     )
@@ -25,16 +27,38 @@ export class RecentlyOpenedStore {
     this.loadFromLocalStorage()
   }
 
-  async saveToLocalStorage(recipeIds) {
-    await AsyncStorage.setItem('recentRecipeIds', JSON.stringify(recipeIds))
+  async saveToLocalStorage() {
+    await AsyncStorage.setItem('recentRecipeIds', JSON.stringify(toJS(this.recipeIds)))
+
+    const serializedDates = {}
+    this.openDates.forEach((date, key) => {
+      serializedDates[key] = date.toISOString()
+    })
+    await AsyncStorage.setItem('recipeOpenDates', JSON.stringify(toJS(serializedDates)))
+
+    console.log(
+      'Saved to local storage recently opened recipes',
+      JSON.stringify(toJS(this.recipeIds)),
+      JSON.stringify(toJS(this.serializedDates)),
+    )
   }
 
   async loadFromLocalStorage() {
     try {
       const savedRecipeIds = await AsyncStorage.getItem('recentRecipeIds')
+      const savedOpenDates = await AsyncStorage.getItem('recipeOpenDates')
+
       runInAction(() => {
         if (savedRecipeIds) {
           this.recipeIds.replace(JSON.parse(savedRecipeIds))
+        }
+
+        if (savedOpenDates) {
+          const parsedDates = JSON.parse(savedOpenDates)
+
+          Object.keys(parsedDates).forEach(key => {
+            this.openDates.set(key, new Date(parsedDates[key]))
+          })
         }
 
         this.loading = false
@@ -47,23 +71,43 @@ export class RecentlyOpenedStore {
         this.loading = false
         this.loaded = true
       })
+
+      console.log('Loaded from local storage recently opened recipes', savedRecipeIds, savedOpenDates)
     }
+  }
+
+  ensureLoadedMetadata() {
+    console.log('Ensuring loaded metadata for recently opened recipes', this.recipeIds)
+
+    runInAction(() => {
+      this.recipeIds.forEach(id => {
+        this.recipeMetadataStore.ensureLoadedMetadata(id)
+      })
+    })
   }
 
   get mostRecentRecipesMetadata() {
     return (
       this.recipeIds
         .map(id => this.recipeMetadataStore.getMetadata(id))
+
         // Ensure the metadata is loaded / exists
         .filter(metadata => Boolean(metadata))
+
+        .map(metadata => ({
+          ...metadata,
+          openedAt: this.openDates.get(metadata.id),
+        }))
     )
   }
 
   addRecent(recipeId) {
     runInAction(() => {
-      // Let's preload it here, most likelly the user will open the
-      // recent recipes component which needs the recipe thumbnail
+      // Let's preload it here, so it's ready when the user opens
+      // a component that needs it (e.g. Recent recipes bar or Recipe picker)
       this.recipeMetadataStore.ensureLoadedMetadata(recipeId)
+
+      this.openDates.set(recipeId, new Date())
 
       const existingIndex = this.recipeIds.findIndex(id => {
         return id == recipeId
@@ -75,7 +119,8 @@ export class RecentlyOpenedStore {
       this.recipeIds.unshift(recipeId)
 
       if (this.recipeIds.length > this.maxRecentItems) {
-        this.recipeIds.pop()
+        const removedId = this.recipeIds.pop()
+        this.openDates.delete(removedId)
       }
     })
   }
@@ -83,6 +128,7 @@ export class RecentlyOpenedStore {
   clear() {
     runInAction(() => {
       this.recipeIds.clear()
+      this.openDates.clear()
     })
   }
 }

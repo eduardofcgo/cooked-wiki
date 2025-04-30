@@ -18,6 +18,9 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
 
+  // Add a key to force re-render of the RecipeWithCookedFeed component
+  const [componentKey, setComponentKey] = useState(Date.now())
+
   const id = recipeId || extractId
 
   const { recentlyOpenedStore } = useStore()
@@ -30,6 +33,15 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
       recentlyOpenedStore.addRecent(recipeId || extractId)
     }
   }, [recentlyOpenedStore, recipeId, extractId])
+
+  // Update the key whenever recipe/extract ID changes to force re-render
+  useEffect(() => {
+    setComponentKey(Date.now())
+  }, [recipeId, extractId])
+
+  useEffect(() => {
+    recentlyOpenedStore.ensureLoadedMetadata()
+  }, [])
 
   const [isExpanded, setIsExpanded] = useState(false)
   const scrollViewRef = useRef(null)
@@ -69,15 +81,24 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   }, [isExpanded, setIsExpanded])
 
   const openRecipe = recipe => {
-    console.log('[Recipe] Opening recipe:', recipe)
+    if (recipe.id !== id) {
+      console.log('[Recipe] Opening recipe:', {
+        recipeId: recipe.type == 'saved' && recipe.id,
+        extractId: recipe.type == 'extract' && recipe.id,
+        recentRecipesExpanded: false,
+      })
+
+      navigation.setParams({
+        recipeId: recipe.type == 'saved' && recipe.id,
+        extractId: recipe.type == 'extract' && recipe.id,
+        recentRecipesExpanded: false,
+      })
+
+      // Force component to re-render with a new key
+      setComponentKey(Date.now())
+    }
 
     setIsExpanded(false)
-
-    navigation.setParams({
-      recipeId: recipe.type == 'saved' && recipe.id,
-      extractId: recipe.type == 'extract' && recipe.id,
-      recentRecipesExpanded: false,
-    })
   }
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -104,10 +125,24 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     }
   })
 
-  React.useLayoutEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          onPress={handlePressOrDoublepress}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+          disabled={!hasRecentlyOpenedRecipes}
+        >
+          <IconButton
+            icon='history'
+            size={20}
+            color={theme.colors.softBlack}
+            style={{
+              marginLeft: -8,
+              marginRight: 4,
+              opacity: hasRecentlyOpenedRecipes ? 1 : 0,
+            }}
+          />
           <Text
             style={{
               fontSize: theme.fontSizes.large,
@@ -117,16 +152,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           >
             Recipe
           </Text>
-          {hasRecentlyOpenedRecipes && (
-            <IconButton
-              icon='history'
-              size={20}
-              onPress={handlePressOrDoublepress}
-              color={theme.colors.softBlack}
-              style={{ marginRight: -8, marginTop: 10 }}
-            />
-          )}
-        </View>
+        </TouchableOpacity>
       ),
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
@@ -152,7 +178,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
         </View>
       ),
     })
-  }, [navigation, isExpanded, orientation])
+  }, [hasRecentlyOpenedRecipes, navigation, isExpanded, orientation])
 
   const routeHandler = useCallback(
     pathname => {
@@ -200,7 +226,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
       <Animated.View style={[animatedContentStyle, { flex: 1 }]}>
         <RecipeWithCookedFeed
-          key={recipeStartURL}
+          key={componentKey}
           recipeId={recipeId}
           extractId={extractId}
           startUrl={recipeStartURL}

@@ -16,7 +16,8 @@ export default function useTryGetSimilarCooks({ recipeId }) {
       setLoadingNextPage(true)
 
       const data = await api.get(`/community/similar/${recipeId}?page=${currentPage + 1}`)
-      setSimilarCooks(prevCooks => [...prevCooks, ...data])
+
+      setSimilarCooks(prevCooks => [...prevCooks, ...(data || [])])
       setCurrentPage(prevPage => prevPage + 1)
     } catch (err) {
       console.error('Error fetching similar cooks:', err)

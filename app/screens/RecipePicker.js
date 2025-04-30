@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   View,
   Text,
@@ -16,40 +16,42 @@ import Loading from '../components/core/Loading'
 import { Button, SecondaryButton } from '../components/core/Button'
 import FadeInStatusBar from '../components/FadeInStatusBar'
 import { useStore } from '../context/StoreContext'
+import { absoluteUrl } from '../urls'
+import moment from 'moment'
 
-// Temporary mock data
-const allRecipes = [
-  { id: '1', name: 'Spaghetti Carbonara', lastCooked: '2 days ago' },
-  { id: '2', name: 'Chicken Curry', lastCooked: '1 week ago' },
-  { id: '3', name: 'Beef Stir Fry', lastCooked: '2 weeks ago' },
-  { id: '4', name: 'Pizza Margherita', lastCooked: '1 month ago' },
-  { id: '5', name: 'Caesar Salad', lastCooked: '3 weeks ago' },
-]
+const RecipeItem = ({ thumbnail, title, openedAt, onSelect }) => {
+  const formattedTime = useMemo(() => moment(openedAt).fromNow(), [openedAt])
 
-const RecipeItem = ({ recipe, onSelect }) => (
-  <TouchableOpacity style={styles.recipeItem} onPress={() => onSelect(recipe)}>
-    <View style={styles.recipeItemContent}>
-      <Image
-        source={{
-          uri: 'https://cooked.wiki/imgproxy/unsafe/resizing_type:fill/width:250/height:250/enlarge:1/quality:90/MTI2Y2UzYjQtZTE0Ni00N2VmLWFiZmYtMjI5NTk0YjhjZTJm.jpg',
-        }}
-        style={styles.recipeImage}
-      />
-      <View style={styles.recipeInfo}>
-        <Text style={styles.recipeName}>{recipe.name}</Text>
-        <Text style={styles.recipeDate}>{recipe.lastCooked}</Text>
+  return (
+    <TouchableOpacity style={styles.recipeItem} onPress={onSelect}>
+      <View style={styles.recipeItemContent}>
+        <Image
+          source={{
+            uri: absoluteUrl(thumbnail),
+          }}
+          style={styles.recipeImage}
+        />
+        <View style={styles.recipeInfo}>
+          <Text style={styles.recipeName}>{title}</Text>
+          <Text style={styles.recipeDate}>{formattedTime}</Text>
+        </View>
       </View>
-    </View>
-  </TouchableOpacity>
-)
+    </TouchableOpacity>
+  )
+}
 
 export default function RecipePicker({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { recentlyOpenedStore } = useStore()
-  const recentRecipes = recentlyOpenedStore.recipes
+
+  useEffect(() => {
+    recentlyOpenedStore.ensureLoadedMetadata()
+  }, [])
 
   const handleRecipeSelect = recipe => {
+    console.log('[RecipePicker] Selected recipe:', recipe)
+
     DeviceEventEmitter.emit('event.selectedRecipe', recipe)
     navigation.goBack()
   }
@@ -101,10 +103,17 @@ export default function RecipePicker({ navigation }) {
           )}
         </Text>
 
-        {recentRecipes.length > 0 ? (
+        {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
           <FlatList
-            data={recentRecipes}
-            renderItem={({ item }) => <RecipeItem recipe={item} onSelect={handleRecipeSelect} />}
+            data={recentlyOpenedStore.mostRecentRecipesMetadata}
+            renderItem={({ item }) => (
+              <RecipeItem
+                thumbnail={item.thumbnail}
+                title={item.title}
+                openedAt={item.openedAt}
+                onSelect={() => handleRecipeSelect(item)}
+              />
+            )}
             keyExtractor={item => item.id}
             contentContainerStyle={styles.listContainer}
           />
