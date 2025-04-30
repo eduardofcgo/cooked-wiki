@@ -27,8 +27,9 @@ export default class RootStore {
     this.profileStore = new ProfileStore(apiClient, this.cookedStore)
     this.findFriendsStore = new FindFriendsStore(apiClient, this.profileStore)
 
-    this.recentlyOpenedStore = new RecentlyOpenedStore()
     this.recipeMetadataStore = new RecipeMetadataStore(apiClient)
+
+    this.recentlyOpenedStore = new RecentlyOpenedStore(this.recipeMetadataStore)
 
     this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore)
 

@@ -171,7 +171,8 @@ const CookedRecipe = ({ navigation, route }) => {
     [snapPoints, windowHeight],
   )
 
-  // Preload the recipe with a shorter delay
+  // Delay the loading of the recipe webview to avoid lag
+  // on the bottom sheet open animation
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldLoadRecipe(true)

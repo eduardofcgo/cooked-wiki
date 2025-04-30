@@ -1,4 +1,5 @@
 import { useKeepAwake } from 'expo-keep-awake'
+import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { IconButton } from 'react-native-paper'
@@ -10,21 +11,23 @@ import { theme } from '../style/style'
 import { getExtractUrl, getSavedRecipeUrl } from '../urls'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
+
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-export default function Recipe({ loadingComponent, navigation, route, ...props }) {
+function Recipe({ loadingComponent, navigation, route, ...props }) {
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
 
+  const id = recipeId || extractId
+
   const { recentlyOpenedStore } = useStore()
-  const nextMostRecentRecipe = recentlyOpenedStore.recipes.find(
-    recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId,
-  )
-  const hasRecentlyOpennedRecipes = Boolean(nextMostRecentRecipe)
+
+  const nextMostRecentRecipe = recentlyOpenedStore.mostRecentRecipesMetadata.find(recipe => recipe.id !== id)
+  const hasRecentlyOpenedRecipes = Boolean(nextMostRecentRecipe)
 
   useEffect(() => {
     if (recipeId || extractId) {
-      recentlyOpenedStore.addRecent({ recipeId, extractId })
+      recentlyOpenedStore.addRecent(recipeId || extractId)
     }
   }, [recentlyOpenedStore, recipeId, extractId])
 
@@ -66,12 +69,13 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
   }, [isExpanded, setIsExpanded])
 
   const openRecipe = recipe => {
-    console.log('[Recipe] Opening recipe:', recipe.recipeId, recipe.extractId)
+    console.log('[Recipe] Opening recipe:', recipe)
+
     setIsExpanded(false)
 
     navigation.setParams({
-      recipeId: recipe.recipeId,
-      extractId: recipe.extractId,
+      recipeId: recipe.type == 'saved' && recipe.id,
+      extractId: recipe.type == 'extract' && recipe.id,
       recentRecipesExpanded: false,
     })
   }
@@ -113,7 +117,7 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
           >
             Recipe
           </Text>
-          {hasRecentlyOpennedRecipes && (
+          {hasRecentlyOpenedRecipes && (
             <IconButton
               icon='history'
               size={20}
@@ -166,17 +170,15 @@ export default function Recipe({ loadingComponent, navigation, route, ...props }
       <Animated.View style={[styles.recentContainer, animatedStyles]}>
         <View style={styles.scrollContainer}>
           <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} scrollEventThrottle={16}>
-            {recentlyOpenedStore.recipes
-              .filter(recipe => recipe.recipeId !== recipeId || recipe.extractId !== extractId)
-              .map((recipe, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
-                  onPress={() => openRecipe(recipe)}
-                >
-                  <RecipeThumbnail recipeId={recipe.recipeId} extractId={recipe.extractId} />
-                </TouchableOpacity>
-              ))}
+            {recentlyOpenedStore.mostRecentRecipesMetadata.map((recipe, index) => (
+              <TouchableOpacity
+                key={recipe.id}
+                style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
+                onPress={() => openRecipe(recipe)}
+              >
+                <RecipeThumbnail thumbnail={recipe.thumbnail} title={recipe.title} />
+              </TouchableOpacity>
+            ))}
             <TouchableOpacity
               onPress={() => {
                 setIsExpanded(false)
@@ -257,3 +259,5 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 })
+
+export default observer(Recipe)

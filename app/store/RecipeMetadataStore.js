@@ -1,16 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx'
-
-class RecipeMetadata {
-  title = ''
-  thumbnail = ''
-  type = ''
-
-  isLoading = false
-
-  constructor() {
-    makeAutoObservable(this)
-  }
-}
+import { fromPromise } from 'mobx-utils'
 
 export class RecipeMetadataStore {
   metadataMap = observable.map()
@@ -21,38 +10,28 @@ export class RecipeMetadataStore {
     makeAutoObservable(this)
   }
 
-  async ensureLoadedMetadata(id) {
-    if (this.metadataMap.has(id)) {
-      return this.metadataMap.get(id)
-    }
-
-    const metadata = new RecipeMetadata()
-    metadata.isLoading = true
-
-    runInAction(() => {
-      this.metadataMap.set(id, metadata)
-    })
-
-    try {
-      const data = await this.apiClient.get(`/recipe/${id}/metadata`)
-
-      runInAction(() => {
-        metadata.title = data.title
-        metadata.thumbnail = data['image-path'] && '/image/thumbnail/' + data['image-path']
-        metadata.type = data.type
-
-        metadata.isLoading = false
-      })
-    } catch (error) {
-      runInAction(() => {
-        this.metadataMap.delete(id)
-      })
-
-      console.error(`Error loading recipe metadata for id ${id}:`, error)
-    }
+  getMetadataLoadState(recipeId) {
+    return this.metadataMap.get(recipeId)?.state
   }
 
-  getMetadata(id) {
-    return this.metadataMap.get(id)
+  getMetadata(recipeId) {
+    return this.metadataMap.get(recipeId)?.value
+  }
+
+  ensureLoadedMetadata(recipeId) {
+    if (!this.metadataMap.has(recipeId)) {
+      runInAction(() => {
+        this.metadataMap.set(
+          recipeId,
+          fromPromise(
+            this.apiClient.get(`/recipe/${recipeId}/metadata`).then(data => ({
+              // TODO: the server should already return the thumbnail field
+              thumbnail: data['image-path'] && '/image/thumbnail/' + data['image-path'],
+              ...data,
+            })),
+          ),
+        )
+      })
+    }
   }
 }

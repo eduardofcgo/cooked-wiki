@@ -2,20 +2,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mobx'
 
 export class RecentlyOpenedStore {
-  recipes = observable.array()
-  maxRecentItems = 10
+  recipeIds = observable.array()
+  maxRecentItems = 20
 
   loaded = false
   loading = false
 
-  constructor() {
+  constructor(recipeMetadataStore) {
+    this.recipeMetadataStore = recipeMetadataStore
+
     makeAutoObservable(this)
 
     reaction(
-      () => toJS(this.recipes),
-      recipes => {
+      () => toJS(this.recipeIds),
+      recipeIds => {
         if (this.loaded) {
-          this.saveToLocalStorage(recipes)
+          this.saveToLocalStorage(recipeIds)
         }
       },
     )
@@ -23,16 +25,16 @@ export class RecentlyOpenedStore {
     this.loadFromLocalStorage()
   }
 
-  async saveToLocalStorage(recipes) {
-    await AsyncStorage.setItem('recentRecipes', JSON.stringify(recipes))
+  async saveToLocalStorage(recipeIds) {
+    await AsyncStorage.setItem('recentRecipeIds', JSON.stringify(recipeIds))
   }
 
   async loadFromLocalStorage() {
     try {
-      const savedRecipes = await AsyncStorage.getItem('recentRecipes')
+      const savedRecipeIds = await AsyncStorage.getItem('recentRecipeIds')
       runInAction(() => {
-        if (savedRecipes) {
-          this.recipes.replace(JSON.parse(savedRecipes))
+        if (savedRecipeIds) {
+          this.recipeIds.replace(JSON.parse(savedRecipeIds))
         }
 
         this.loading = false
@@ -40,7 +42,7 @@ export class RecentlyOpenedStore {
       })
     } catch (error) {
       console.error('Error loading recent recipes from storage', error)
-
+    } finally {
       runInAction(() => {
         this.loading = false
         this.loaded = true
@@ -48,26 +50,39 @@ export class RecentlyOpenedStore {
     }
   }
 
-  addRecent(recipe) {
+  get mostRecentRecipesMetadata() {
+    return (
+      this.recipeIds
+        .map(id => this.recipeMetadataStore.getMetadata(id))
+        // Ensure the metadata is loaded / exists
+        .filter(metadata => Boolean(metadata))
+    )
+  }
+
+  addRecent(recipeId) {
     runInAction(() => {
-      const existingIndex = this.recipes.findIndex(r => {
-        return r.recipeId == recipe.recipeId || r.extractId == recipe.extractId
+      // Let's preload it here, most likelly the user will open the
+      // recent recipes component which needs the recipe thumbnail
+      this.recipeMetadataStore.ensureLoadedMetadata(recipeId)
+
+      const existingIndex = this.recipeIds.findIndex(id => {
+        return id == recipeId
       })
       if (existingIndex !== -1) {
-        this.recipes.splice(existingIndex, 1)
+        this.recipeIds.splice(existingIndex, 1)
       }
 
-      this.recipes.unshift(recipe)
+      this.recipeIds.unshift(recipeId)
 
-      if (this.recipes.length > this.maxRecentItems) {
-        this.recipes.pop()
+      if (this.recipeIds.length > this.maxRecentItems) {
+        this.recipeIds.pop()
       }
     })
   }
 
   clear() {
     runInAction(() => {
-      this.recipes.clear()
+      this.recipeIds.clear()
     })
   }
 }

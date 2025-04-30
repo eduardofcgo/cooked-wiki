@@ -7,30 +7,16 @@ import { absoluteUrl } from '../../urls'
 
 const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 
-const RecipeThumbnail = observer(({ recipeId, extractId }) => {
-  const { recipeMetadataStore } = useStore()
-
-  const id = recipeId || extractId
-  const metadata = recipeMetadataStore.getMetadata(id)
-
-  useEffect(() => {
-    if (!recipeId && !extractId) return
-    ;(async () => {
-      await recipeMetadataStore.ensureLoadedMetadata(id)
-    })()
-  }, [recipeMetadataStore, id])
-
-  if (!metadata || metadata.isLoading) return null
-
+const RecipeThumbnail = observer(({ thumbnail, title }) => {
   return (
     <View style={[styles.container]}>
-      {metadata.thumbnail ? (
-        <Image source={{ uri: absoluteUrl(metadata.thumbnail) }} style={[styles.thumbnail]} resizeMode='cover' />
+      {thumbnail ? (
+        <Image source={{ uri: absoluteUrl(thumbnail) }} style={[styles.thumbnail]} resizeMode='cover' />
       ) : (
         <NoImagePlaceholder />
       )}
       <Text style={[styles.title]} numberOfLines={2}>
-        {metadata.title}
+        {title}
       </Text>
     </View>
   )
