@@ -7,11 +7,11 @@ import { absoluteUrl } from '../../urls'
 
 const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 
-const RecipeThumbnail = observer(({ thumbnail, title }) => {
+const RecipeThumbnail = observer(({ thumbnailUrl, title }) => {
   return (
     <View style={[styles.container]}>
-      {thumbnail ? (
-        <Image source={{ uri: absoluteUrl(thumbnail) }} style={[styles.thumbnail]} resizeMode='cover' />
+      {thumbnailUrl ? (
+        <Image source={{ uri: thumbnailUrl }} style={[styles.thumbnail]} resizeMode='cover' />
       ) : (
         <NoImagePlaceholder />
       )}

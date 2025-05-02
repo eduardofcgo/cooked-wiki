@@ -1,39 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  Image,
-  DeviceEventEmitter,
-  StatusBar,
-} from 'react-native'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Image, DeviceEventEmitter } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
-import Loading from '../components/core/Loading'
-import { Button, SecondaryButton } from '../components/core/Button'
 import FadeInStatusBar from '../components/FadeInStatusBar'
 import { useStore } from '../context/StoreContext'
-import { absoluteUrl } from '../urls'
 import moment from 'moment'
+import useUserRecipesSearch from '../hooks/services/useUserRecipesSearch'
+import Loading from '../components/core/Loading'
 
-const RecipeItem = ({ thumbnail, title, openedAt, onSelect }) => {
-  const formattedTime = useMemo(() => moment(openedAt).fromNow(), [openedAt])
+const RecipeItem = ({ thumbnailUrl, title, openedAt, onSelect }) => {
+  const formattedTime = useMemo(() => (openedAt ? moment(openedAt).fromNow() : null), [openedAt])
 
   return (
     <TouchableOpacity style={styles.recipeItem} onPress={onSelect}>
       <View style={styles.recipeItemContent}>
         <Image
           source={{
-            uri: absoluteUrl(thumbnail),
+            uri: thumbnailUrl,
           }}
           style={styles.recipeImage}
         />
         <View style={styles.recipeInfo}>
           <Text style={styles.recipeName}>{title}</Text>
-          <Text style={styles.recipeDate}>{formattedTime}</Text>
+          {formattedTime ? <Text style={styles.recipeDate}>{formattedTime}</Text> : null}
         </View>
       </View>
     </TouchableOpacity>
@@ -41,7 +30,20 @@ const RecipeItem = ({ thumbnail, title, openedAt, onSelect }) => {
 }
 
 export default function RecipePicker({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(null)
+  const searchInputRef = useRef(null)
+
+  const handleFocusSearch = useCallback(() => setSearchQuery(''), [])
+  const handleResetSearch = useCallback(() => {
+    setSearchQuery(null)
+    searchInputRef.current?.blur()
+  }, [])
+
+  // Let's load it directly from the API (hook) and not from the store,
+  // Because this these results should not react to updated or be cached.
+  const { recipes: searchResults, loading: searchResultsLoading } = useUserRecipesSearch({
+    query: searchQuery,
+  })
 
   const { recentlyOpenedStore } = useStore()
 
@@ -67,15 +69,17 @@ export default function RecipePicker({ navigation }) {
       <View style={styles.searchContainer}>
         <MaterialCommunityIcons name='magnify' size={20} color={theme.colors.softBlack} />
         <TextInput
+          ref={searchInputRef}
           style={styles.searchInput}
           placeholder='Search recipes'
           value={searchQuery}
           onChangeText={setSearchQuery}
+          onFocus={handleFocusSearch}
           selectionColor={theme.colors.primary}
           autoCapitalize='none'
         />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
+        {searchQuery !== null ? (
+          <TouchableOpacity onPress={handleResetSearch}>
             <MaterialCommunityIcons name='close' size={20} color={theme.colors.softBlack} />
           </TouchableOpacity>
         ) : null}
@@ -93,8 +97,11 @@ export default function RecipePicker({ navigation }) {
         </TouchableOpacity>
 
         <Text style={styles.subtitle}>
-          {searchQuery ? (
-            'Search Results'
+          {searchQuery !== null ? (
+            <View style={styles.subtitleContainer}>
+              <MaterialCommunityIcons name='magnify' size={16} color={theme.colors.softBlack} />
+              <Text style={styles.subtitleText}>Search Results</Text>
+            </View>
           ) : (
             <View style={styles.subtitleContainer}>
               <MaterialCommunityIcons name='history' size={16} color={theme.colors.softBlack} />
@@ -103,22 +110,44 @@ export default function RecipePicker({ navigation }) {
           )}
         </Text>
 
-        {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
-          <FlatList
-            data={recentlyOpenedStore.mostRecentRecipesMetadata}
-            renderItem={({ item }) => (
-              <RecipeItem
-                thumbnail={item.thumbnail}
-                title={item.title}
-                openedAt={item.openedAt}
-                onSelect={() => handleRecipeSelect(item)}
-              />
-            )}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.listContainer}
-          />
+        {searchQuery !== null ? (
+          searchResultsLoading ? (
+            <Loading />
+          ) : (
+            <FlatList
+              data={searchResults}
+              renderItem={({ item }) => (
+                <RecipeItem
+                  thumbnailUrl={item?.['thumbnail-url']}
+                  title={item.title}
+                  openedAt={null}
+                  onSelect={() => handleRecipeSelect(item)}
+                />
+              )}
+              keyExtractor={item => item.id}
+              contentContainerStyle={styles.listContainer}
+            />
+          )
         ) : (
-          <Text style={styles.emptySearchText}>No recent recipes found. You can search to choose a recipe.</Text>
+          <>
+            {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
+              <FlatList
+                data={recentlyOpenedStore.mostRecentRecipesMetadata}
+                renderItem={({ item }) => (
+                  <RecipeItem
+                    thumbnailUrl={item?.['thumbnail-url']}
+                    title={item.title}
+                    openedAt={item.openedAt}
+                    onSelect={() => handleRecipeSelect(item)}
+                  />
+                )}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
+              />
+            ) : (
+              <Text style={styles.emptySearchText}>No recent recipes found. You can search to choose a recipe.</Text>
+            )}
+          </>
         )}
       </View>
     </View>

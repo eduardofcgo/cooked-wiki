@@ -24,14 +24,7 @@ export class RecipeMetadataStore {
         this.metadataMap.set(
           recipeId,
 
-          fromPromise(
-            this.apiClient.get(`/recipe/${recipeId}/metadata`).then(data => ({
-              // TODO: the server should already return the scaled thumbnail
-              thumbnail: data['image-path'] && '/image/thumbnail/' + data['image-path'],
-
-              ...data,
-            })),
-          ),
+          fromPromise(this.apiClient.get(`/recipe/${recipeId}/metadata`)),
         )
       })
     }

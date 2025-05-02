@@ -202,7 +202,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
                 style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
                 onPress={() => openRecipe(recipe)}
               >
-                <RecipeThumbnail thumbnail={recipe.thumbnail} title={recipe.title} />
+                <RecipeThumbnail thumbnailUrl={recipe?.['thumbnail-url']} title={recipe.title} />
               </TouchableOpacity>
             ))}
             <TouchableOpacity

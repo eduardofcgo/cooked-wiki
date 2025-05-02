@@ -22,7 +22,7 @@ import ImageUploadButton from '../ImageUploadButton'
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-import { getCookedPhotoUrl, absoluteUrl } from '../../urls'
+import { getCookedPhotoUrl } from '../../urls'
 import { useStore } from '../../context/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
 import Loading from '../core/Loading'
@@ -46,9 +46,7 @@ const EditableImage = ({ path, index, onExclude }) => {
   )
 }
 
-const SelectedRecipe = observer(({ recipe, onClear, onPress }) => {
-  const formattedTime = useMemo(() => recipe && moment(recipe.openedAt).fromNow(), [recipe?.openedAt])
-
+const SelectedRecipe = observer(({ recipe, onPress }) => {
   return (
     <TouchableOpacity style={styles.selectedRecipeContainer} onPress={onPress}>
       <View style={styles.selectedRecipeContent}>
@@ -69,13 +67,12 @@ const SelectedRecipe = observer(({ recipe, onClear, onPress }) => {
           <>
             <Image
               source={{
-                uri: absoluteUrl(recipe.thumbnail),
+                uri: recipe?.['thumbnail-url'],
               }}
               style={styles.selectedRecipeImage}
             />
             <View style={styles.selectedRecipeInfo}>
               <Text style={styles.selectedRecipeName}>{recipe.title}</Text>
-              <Text style={styles.selectedRecipeSubtitle}>{formattedTime}</Text>
             </View>
           </>
         )}
