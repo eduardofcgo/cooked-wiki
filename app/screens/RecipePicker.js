@@ -71,7 +71,7 @@ export default function RecipePicker({ navigation }) {
         <TextInput
           ref={searchInputRef}
           style={styles.searchInput}
-          placeholder='Search recipes'
+          placeholder='Search my recipes'
           value={searchQuery}
           onChangeText={setSearchQuery}
           onFocus={handleFocusSearch}

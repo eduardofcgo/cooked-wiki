@@ -31,7 +31,7 @@ import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
 import { useAuth } from '../../context/AuthContext'
 import NotesModal from './NotesModal'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
 
 const EditableImage = ({ path, index, onExclude }) => {
@@ -104,6 +104,9 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
 
 function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
   const navigation = useNavigation()
+  const route = useRoute()
+
+  console.log('[RecordCook] Route:', route)
 
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
@@ -134,16 +137,16 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined) || preSelectedRecipe
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
 
-  const saveChanges = () => {
-    profileStore.updateProfileCooked(loggedInUsername, route.params.cookedId, notes, photos)
+  const saveChanges = useCallback(() => {
+    profileStore.updateProfileCooked(loggedInUsername, route.params?.cookedId, notes, photos)
     setHasChanges(false)
     onSaved()
-  }
+  }, [loggedInUsername, route.params?.cookedId, notes, photos, profileStore, setHasChanges, onSaved])
 
   useEffect(() => {
     ;(async () => {
       if (editMode) {
-        const cooked = await profileStore.getCooked(loggedInUsername, route.params.cookedId)
+        const cooked = await profileStore.getCooked(loggedInUsername, route.params?.cookedId)
         setNotes(cooked.notes)
         setPhotos(cooked['cooked-photos-path'] || [])
       }
@@ -162,28 +165,28 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     }
   }, [])
 
-  useEffect(() => {
-    if (editMode) {
-      navigation.setOptions({
-        title: 'Tomato Pasta',
-      })
-    }
-  }, [editMode, navigation])
+  // useEffect(() => {
+  //   if (editMode) {
+  //     navigation.setOptions({
+  //       title: 'Tomato Pasta',
+  //     })
+  //   }
+  // }, [editMode, navigation])
 
-  const handleExcludeImage = index => {
+  const handleExcludeImage = useCallback(index => {
     const updatedPhotos = photos.filter((_, i) => i !== index)
     setPhotos(updatedPhotos)
 
     if (setHasChanges) {
       setHasChanges(true)
     }
-  }
+  }, [photos, setHasChanges])
 
   const handleAddImage = useCallback(() => {
     setIsPhotoModalVisible(true)
   }, [])
 
-  const handleCameraPress = async () => {
+  const handleCameraPress = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync()
     if (status !== 'granted') {
       Alert.alert('Sorry, we need camera permissions to make this work!')
@@ -210,9 +213,9 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       setIsUploading(false)
       setPhotos(prevPhotos => [...prevPhotos, imagePath])
     }
-  }
+  }, [profileStore, setIsUploading, setPhotos])
 
-  const handleGalleryPress = async () => {
+  const handleGalleryPress = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (status !== 'granted') {
       Alert.alert('Sorry, we need gallery permissions to make this work!')
@@ -244,27 +247,23 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       }
     }
     setIsPhotoModalVisible(false)
-  }
+  }, [profileStore, setIsUploading, setPhotos, setHasChanges])
 
-  const handleNotesSave = newNotes => {
+  const handleNotesSave = useCallback(newNotes => {
     setNotes(newNotes)
     setIsNotesModalVisible(false)
 
     if (setHasChanges) {
       setHasChanges(true)
-    }
+    }    
+  }, [setHasChanges])
 
-    if (!editMode && !preSelectedRecipe) {
-      setIsConfirmationModalVisible(true)
-    }
-  }
-
-  const handleNotesClose = newNotes => {
+  const handleNotesClose = useCallback(newNotes => {
     if (!newNotes || (newNotes.trim && newNotes.trim().length === 0)) {
       setNotes(null)
     }
     setIsNotesModalVisible(false)
-  }
+  }, [])
 
   if (loadingCooked) {
     return <Loading />
@@ -302,7 +301,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
             </Text>
           )}
 
-          {!editMode && (
+          {!editMode && !preSelectedRecipe && (
             <Step number='2' text='What did you make?' isActive={stepTwoActive} isFilled={stepThreeActive}>
               <View style={styles.buttonContainer}>
                 {selectedRecipe !== undefined ? (

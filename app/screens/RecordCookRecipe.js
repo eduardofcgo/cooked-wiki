@@ -44,8 +44,6 @@ export default function RecordCookRecipe({ route, navigation }) {
     <>
       <RecordCook
         editMode={true}
-        route={route}
-        navigation={navigation}
         hasChanges={hasChanges}
         setHasChanges={setHasChanges}
         onSaved={handleSaved}

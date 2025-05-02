@@ -1,7 +1,12 @@
-Developing for Android
+Developing
 
 `yarn install`
 
-Make sure Android SDK is installed, and the ANDROID_HOME environment variable is set.
+For Android, make sure Android SDK is installed, and the ANDROID_HOME environment variable is set.
 
-`yarn expo start`
+`expo run:android`
+
+For iOS
+
+`npx expo prebuild --clean --platform ios`
+`npx expo run:ios`
