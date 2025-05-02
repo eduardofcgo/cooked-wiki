@@ -132,6 +132,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false)
+  const [isSavingCooked, setIsSavingCooked] = useState(false)
 
   const stepTwoActive = editMode || photos.length > 0
   const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined) || preSelectedRecipe
@@ -173,14 +174,17 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   //   }
   // }, [editMode, navigation])
 
-  const handleExcludeImage = useCallback(index => {
-    const updatedPhotos = photos.filter((_, i) => i !== index)
-    setPhotos(updatedPhotos)
+  const handleExcludeImage = useCallback(
+    index => {
+      const updatedPhotos = photos.filter((_, i) => i !== index)
+      setPhotos(updatedPhotos)
 
-    if (setHasChanges) {
-      setHasChanges(true)
-    }
-  }, [photos, setHasChanges])
+      if (setHasChanges) {
+        setHasChanges(true)
+      }
+    },
+    [photos, setHasChanges],
+  )
 
   const handleAddImage = useCallback(() => {
     setIsPhotoModalVisible(true)
@@ -249,14 +253,17 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     setIsPhotoModalVisible(false)
   }, [profileStore, setIsUploading, setPhotos, setHasChanges])
 
-  const handleNotesSave = useCallback(newNotes => {
-    setNotes(newNotes)
-    setIsNotesModalVisible(false)
+  const handleNotesSave = useCallback(
+    newNotes => {
+      setNotes(newNotes)
+      setIsNotesModalVisible(false)
 
-    if (setHasChanges) {
-      setHasChanges(true)
-    }    
-  }, [setHasChanges])
+      if (setHasChanges) {
+        setHasChanges(true)
+      }
+    },
+    [setHasChanges],
+  )
 
   const handleNotesClose = useCallback(newNotes => {
     if (!newNotes || (newNotes.trim && newNotes.trim().length === 0)) {
@@ -265,7 +272,25 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     setIsNotesModalVisible(false)
   }, [])
 
-  if (loadingCooked) {
+  const handleSaveCooked = useCallback(async () => {
+    try {
+      setIsSavingCooked(true)
+      console.log('[handleSaveCooked] Saving cooked...', selectedRecipe)
+      const newCooked = await profileStore.recordCooked(loggedInUsername, selectedRecipe.id, notes, photos)
+
+      navigation.replace('CookedRecipe', {
+        showShareModal: true,
+        cookedId: newCooked.id,
+      })
+    } catch (error) {
+      console.error('Error saving cooked:', error)
+      Alert.alert('Error', 'Failed to save your cooking. Please try again.')
+    } finally {
+      setIsSavingCooked(false)
+    }
+  }, [loggedInUsername, selectedRecipe, notes, photos, profileStore, navigation])
+
+  if (loadingCooked || isSavingCooked) {
     return <Loading />
   }
 
@@ -395,18 +420,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         }}
         onConfirm={() => {
           setIsConfirmationModalVisible(false)
-
-          navigation.replace('Cooked', {
-            showShareModal: true,
-            cookedId: 'b3da3f5e-211e-4940-a29d-ac2f2754418d',
-            startPosition: 0,
-            preloadedCooked: {
-              'cooked-photos-path': photos,
-              notes: notes,
-              'recipe-id': selectedRecipe?.recipeId,
-              'extract-id': selectedRecipe?.extractId,
-            },
-          })
+          handleSaveCooked()
         }}
       />
 

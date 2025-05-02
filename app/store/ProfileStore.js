@@ -359,6 +359,29 @@ export class ProfileStore {
     })
   }
 
+  async recordCooked(username, recipeId, notes, cookedPhotosPath) {
+    const recordCookedResponse = await this.apiClient.post(`/journal`, {
+      notes: notes,
+      ['recipe-id']: recipeId,
+      ['image-paths']: cookedPhotosPath,
+    })
+
+    console.log('[recordCooked] recordCookedResponse:', recordCookedResponse)
+
+    const newCooked = recordCookedResponse.cooked
+
+    runInAction(() => {
+      const profileData = this.profileDataMap.get(username)
+      if (profileData) {
+        profileData.cookeds.unshift(newCooked)
+      }
+
+      this.cookedStore.saveToStore(newCooked.id, newCooked)
+    })
+
+    return newCooked
+  }
+
   isFollowing(username) {
     return this.followingUsernames.has(username)
   }
