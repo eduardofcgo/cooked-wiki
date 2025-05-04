@@ -34,13 +34,8 @@ export class RecentlyOpenedStore {
     this.openDates.forEach((date, key) => {
       serializedDates[key] = date.toISOString()
     })
-    await AsyncStorage.setItem('recipeOpenDates', JSON.stringify(toJS(serializedDates)))
 
-    console.log(
-      'Saved to local storage recently opened recipes',
-      JSON.stringify(toJS(this.recipeIds)),
-      JSON.stringify(toJS(this.serializedDates)),
-    )
+    await AsyncStorage.setItem('recipeOpenDates', JSON.stringify(toJS(serializedDates)))
   }
 
   async loadFromLocalStorage() {
@@ -71,14 +66,10 @@ export class RecentlyOpenedStore {
         this.loading = false
         this.loaded = true
       })
-
-      console.log('Loaded from local storage recently opened recipes', savedRecipeIds, savedOpenDates)
     }
   }
 
   ensureLoadedMetadata() {
-    console.log('Ensuring loaded metadata for recently opened recipes', this.recipeIds)
-
     runInAction(() => {
       this.recipeIds.forEach(id => {
         this.recipeMetadataStore.ensureLoadedMetadata(id)

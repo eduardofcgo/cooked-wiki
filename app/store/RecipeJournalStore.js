@@ -20,10 +20,24 @@ export class RecipeJournalStore {
     this.apiClient = apiClient
     this.profileStore = profileStore
     this.cookedStore = cookedStore
+
+    makeAutoObservable(this)
   }
 
   getRecipeCooked(recipeId) {
     return this.recipeCooked.get(recipeId)?.cooked
+  }
+
+  deleteCooked(username, cookedId) {
+    runInAction(() => {
+      this.recipeCooked.forEach(recipeCooked => {
+        const filteredCooked = recipeCooked.cooked.filter(cooked => cooked.id !== cookedId)
+        recipeCooked.cooked.replace(filteredCooked)
+      })
+
+      this.profileStore.deleteCooked(username, cookedId)
+      this.cookedStore.deleteCooked(cookedId)
+    })
   }
 
   isLoadingRecipeCooked(recipeId) {
@@ -49,18 +63,12 @@ export class RecipeJournalStore {
     try {
       const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
 
-      console.log('[loadCookeds] recipeJournalResponse', recipeJournalResponse)
-
       runInAction(() => {
-        console.log('[loadCookeds] cooked results', recipeJournalResponse.cooked.results)
-
         for (const cooked of recipeJournalResponse.cooked.results) {
           this.cookedStore.saveToStore(cooked.id, cooked)
         }
 
         const cookedObserved = recipeJournalResponse.cooked.results.map(cooked => this.cookedStore.getCooked(cooked.id))
-
-        console.log('[loadCookeds] cookedObserved', cookedObserved)
 
         recipeCooked.cooked.replace(cookedObserved)
         recipeCooked.isLoadingCookeds = false

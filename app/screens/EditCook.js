@@ -8,11 +8,16 @@ import ModalCard from '../components/core/ModalCard'
 import { PrimaryButton, TransparentButton } from '../components/core/Button'
 import { theme } from '../style/style'
 import { useInAppNotification } from '../context/NotificationContext'
+import { useStore } from '../context/StoreContext'
+import { useAuth } from '../context/AuthContext'
 
 import { observer } from 'mobx-react-lite'
 
-function EditCook({ navigation }) {
+function EditCook({ navigation, route }) {
   const { showInAppNotification } = useInAppNotification()
+  const { recipeJournalStore, profileStore } = useStore()
+  const { credentials } = useAuth()
+  const loggedInUsername = credentials?.username
 
   const [hasChanges, setHasChanges] = useState(false)
   const [showDiscardModal, setShowDiscardModal] = useState(false)
@@ -26,22 +31,30 @@ function EditCook({ navigation }) {
     }
   }, [navigation, pendingNavigationEvent])
 
-  const handleSaved = useCallback(() => {
-    setShowDiscardModal(false)
-    setHasChanges(false)
-    setPendingNavigationEvent(null)
+  const handleSaved = useCallback(
+    (notes, photos) => {
+      profileStore.updateProfileCooked(loggedInUsername, route.params?.cookedId, notes, photos)
 
-    setTimeout(() => {
-      navigation.goBack()
+      setShowDiscardModal(false)
+      setHasChanges(false)
+      setPendingNavigationEvent(null)
 
-      showInAppNotification(ActionToast, {
-        props: { message: 'Cook updated' },
-        resetQueue: true,
-      })
-    }, 0)
-  }, [navigation])
+      setTimeout(() => {
+        navigation.goBack()
+
+        showInAppNotification(ActionToast, {
+          props: { message: 'Cook updated' },
+          resetQueue: true,
+        })
+      }, 0)
+    },
+    [navigation, route.params?.cookedId, loggedInUsername, profileStore, showInAppNotification],
+  )
 
   const handleDeleteConfirm = useCallback(() => {
+    console.log('[EditCook] Deleting cooked:', loggedInUsername, route.params?.cookedId)
+    recipeJournalStore.deleteCooked(loggedInUsername, route.params?.cookedId)
+
     setShowDeleteModal(false)
     setHasChanges(false)
     setPendingNavigationEvent(null)
@@ -54,7 +67,7 @@ function EditCook({ navigation }) {
         resetQueue: true,
       })
     }, 0)
-  }, [navigation])
+  }, [navigation, recipeJournalStore, route.params?.cookedId, showInAppNotification])
 
   const toggleDiscardModal = useCallback(value => {
     setShowDiscardModal(value ?? false)

@@ -22,9 +22,6 @@ const FeedHeader = observer(({ username }) => {
 })
 
 const ProfileCooked = observer(({ username, onScroll }) => {
-  const { credentials } = useAuth()
-  const loggedInUsername = credentials.username
-
   const { profileStore } = useStore()
   const profileCookeds = profileStore.getProfileCookeds(username)
   const isLoadingProfileCookeds = profileStore.isLoadingProfileCookeds(username)
@@ -68,6 +65,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
     <View style={styles.container}>
       <FlatList
         data={profileCookeds}
+        extraData={profileCookeds?.length}
         renderItem={renderItem}
         keyExtractor={post => post.id.toString()}
         contentContainerStyle={styles.feedContent}

@@ -30,6 +30,8 @@ import ConfirmationModal from './ConfirmationModal'
 import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
 import { useAuth } from '../../context/AuthContext'
+import { useInAppNotification } from '../../context/NotificationContext'
+import ActionToast from '../notification/ActionToast'
 import NotesModal from './NotesModal'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
@@ -112,7 +114,8 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
-  const { profileStore, recentlyOpenedStore, cookedStore } = useStore()
+  const { profileStore, recentlyOpenedStore, cookedStore, recipeJournalStore } = useStore()
+  const { showInAppNotification } = useInAppNotification()
 
   console.log('[RecordCook] Preselected recipe:', preSelectedRecipe)
 
@@ -140,10 +143,9 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
 
   const saveChanges = useCallback(() => {
-    profileStore.updateProfileCooked(loggedInUsername, route.params?.cookedId, notes, photos)
     setHasChanges(false)
-    onSaved()
-  }, [loggedInUsername, route.params?.cookedId, notes, photos, profileStore, setHasChanges, onSaved])
+    onSaved(notes, photos)
+  }, [notes, photos, setHasChanges, onSaved])
 
   useEffect(() => {
     ;(async () => {
@@ -284,6 +286,11 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       console.log('[handleSaveCooked] Saving cooked...', selectedRecipe)
       const newCookedId = await profileStore.recordCooked(loggedInUsername, selectedRecipe.id, notes, photos)
 
+      showInAppNotification(ActionToast, {
+        props: { message: 'Cook added to your journal' },
+        resetQueue: true,
+      })
+
       navigation.replace('CookedRecipe', {
         showShareModal: true,
         cookedId: newCookedId,
@@ -294,7 +301,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     } finally {
       setIsSavingCooked(false)
     }
-  }, [loggedInUsername, selectedRecipe, notes, photos, profileStore, navigation])
+  }, [loggedInUsername, selectedRecipe, notes, photos, profileStore, navigation, showInAppNotification])
 
   if (loadingCooked || isSavingCooked) {
     return <LoadingScreen />

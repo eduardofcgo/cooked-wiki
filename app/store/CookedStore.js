@@ -50,4 +50,25 @@ export class CookedStore {
       this.saveToStore(cookedId, newCooked)
     }
   }
+
+  deleteCooked(cookedId) {
+    // runInAction(() => {
+    //   this.cooked.get(cookedId).deleting = true
+    // })
+
+    this.apiClient
+      .delete(`/journal/${cookedId}`)
+      .then(() => {
+        runInAction(() => {
+          this.cooked.delete(cookedId)
+        })
+      })
+      .catch(error => {
+        console.error(error)
+
+        // runInAction(() => {
+        //   this.cooked.get(cookedId).deleting = false
+        // })
+      })
+  }
 }

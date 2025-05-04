@@ -139,8 +139,6 @@ export class ProfileStore {
         return observedCooked
       })
 
-      console.log('[loadCommunityFeed] wow', cookedObserved)
-
       this.communityFeed.replace(cookedObserved)
       this.isLoadingCommunityFeed = false
       this.hasMoreCommunityFeed = cookeds.length > 0
@@ -378,6 +376,19 @@ export class ProfileStore {
     })
 
     return newCooked.id
+  }
+
+  deleteCooked(username, cookedId) {
+    runInAction(() => {
+      const profileData = this.profileDataMap.get(username)
+      if (profileData) {
+        const index = profileData.cookeds.findIndex(cooked => cooked.id === cookedId)
+        if (index !== -1) {
+          const updatedCookeds = profileData.cookeds.filter(cooked => cooked.id !== cookedId)
+          profileData.cookeds.replace(updatedCookeds)
+        }
+      }
+    })
   }
 
   isFollowing(username) {
