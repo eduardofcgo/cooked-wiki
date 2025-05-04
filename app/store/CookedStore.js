@@ -21,7 +21,11 @@ export class CookedStore {
   ensureLoaded(cookedId) {
     if (!this.cooked.has(cookedId)) {
       runInAction(() => {
-        this.cooked.set(cookedId, fromPromise(this.apiClient.get(`/journal/${cookedId}`)))
+        this.cooked.set(
+          cookedId,
+
+          fromPromise(this.apiClient.get(`/journal/${cookedId}`).then(makeAutoObservable)),
+        )
       })
     }
   }
@@ -52,10 +56,6 @@ export class CookedStore {
   }
 
   deleteCooked(cookedId) {
-    // runInAction(() => {
-    //   this.cooked.get(cookedId).deleting = true
-    // })
-
     this.apiClient
       .delete(`/journal/${cookedId}`)
       .then(() => {
@@ -65,10 +65,6 @@ export class CookedStore {
       })
       .catch(error => {
         console.error(error)
-
-        // runInAction(() => {
-        //   this.cooked.get(cookedId).deleting = false
-        // })
       })
   }
 }

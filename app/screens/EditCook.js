@@ -39,13 +39,13 @@ function EditCook({ navigation, route }) {
       setHasChanges(false)
       setPendingNavigationEvent(null)
 
+      showInAppNotification(ActionToast, {
+        props: { message: 'Cook updated' },
+        resetQueue: true,
+      })
+
       setTimeout(() => {
         navigation.goBack()
-
-        showInAppNotification(ActionToast, {
-          props: { message: 'Cook updated' },
-          resetQueue: true,
-        })
       }, 0)
     },
     [navigation, route.params?.cookedId, loggedInUsername, profileStore, showInAppNotification],
@@ -59,13 +59,26 @@ function EditCook({ navigation, route }) {
     setHasChanges(false)
     setPendingNavigationEvent(null)
 
-    setTimeout(() => {
-      navigation.goBack()
+    showInAppNotification(ActionToast, {
+      props: { message: 'Cook deleted' },
+      resetQueue: true,
+    })
 
-      showInAppNotification(ActionToast, {
-        props: { message: 'Cook deleted' },
-        resetQueue: true,
-      })
+    setTimeout(() => {
+      const state = navigation.getState()
+      const deletedCookedId = route.params?.cookedId
+      const filteredRoutes = state.routes.filter(
+        r => !(r.name === 'CookedRecipe' && r.params?.cookedId === deletedCookedId)
+      )
+      
+      if (filteredRoutes.length !== state.routes.length) {
+        const newState = { ...state, routes: filteredRoutes, index: filteredRoutes.length - 1 }
+        navigation.reset(newState)
+        
+        setTimeout(() => navigation.goBack(), 0)
+      } else {
+        navigation.goBack()
+      }
     }, 0)
   }, [navigation, recipeJournalStore, route.params?.cookedId, showInAppNotification])
 

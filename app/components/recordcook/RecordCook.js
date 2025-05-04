@@ -333,7 +333,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
             </View>
           </Step>
 
-          {photos.length === 0 && !preSelectedRecipe && (
+          {!editMode && photos.length === 0 && !preSelectedRecipe && (
             <Text style={styles.description}>
               Cooking without a recipe? No problem, you can still add it to your journal.
             </Text>
