@@ -10,11 +10,14 @@ import PhotoSlider from './PhotoSlider'
 import AuthorBar from './AuthorBar'
 import { observer } from 'mobx-react-lite'
 import SocialMenuIcons from './SocialMenuIcons'
-
+import { useAuth } from '../../context/AuthContext'
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => {
   const navigation = useNavigation()
+  const { credentials } = useAuth()
+
+  const canEdit = credentials?.username === cooked['username']
 
   const cookedId = cooked['id']
   const cookedPhotoPaths = cooked['cooked-photos-path']
@@ -49,6 +52,10 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
     profileStore.likeCooked(cookedId)
   }, [cookedId, profileStore])
 
+  const navigateToEditCook = useCallback(() => {
+    navigation.navigate('EditCook', { cookedId })
+  }, [cookedId])
+
   return (
     <View
       style={[
@@ -75,7 +82,11 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
             roundedTop={!cooked['notes']}
             roundedBottom={!cooked['notes']}
           >
-            <SocialMenuIcons cookedId={cookedId} onSharePress={undefined} />
+            <SocialMenuIcons
+              cookedId={cookedId}
+              onSharePress={undefined}
+              onEditPress={canEdit ? navigateToEditCook : undefined}
+            />
           </AuthorBar>
         </View>
 

@@ -22,14 +22,9 @@ import useTryGetSimilarCooks from '../hooks/services/useSimilarCooks'
 import Loading from '../components/core/Loading'
 import HeaderText from '../components/core/HeaderText'
 import DragIndicator from '../components/core/DragIndicator'
-
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
-
-// Square photo height, adjust photo to fit the screen
-const PHOTO_HEIGHT = SCREEN_HEIGHT - SCREEN_WIDTH
+import { useAuth } from '../context/AuthContext'
 
 // Recipe which contains the webview can be slow to load
-// Making sure that it does not make the card animation lag.
 const Recipe = lazy(() => import('./Recipe'))
 
 const BottomSheetHandle = observer(
@@ -89,11 +84,17 @@ const BottomSheetHandle = observer(
   },
 )
 
-const SocialMenu = observer(({ cookedId, onSharePress }) => (
+const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
   <View style={styles.socialMenuContainer}>
-    <TouchableOpacity style={styles.iconContainer}>
-      <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
-    </TouchableOpacity>
+    {onEditPress ? (
+      <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
+        <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
+      </TouchableOpacity>
+    ) : (
+      <View style={styles.iconContainer}>
+        <View style={{ width: 18, height: 18 }} />
+      </View>
+    )}
     <SocialMenuIcons cookedId={cookedId} onSharePress={onSharePress} />
   </View>
 ))
@@ -110,11 +111,10 @@ const PhotoGallery = observer(({ photoUrls }) => {
   )
 })
 
-// MemoizedListHeader component extracted from the main component
-const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare }) => (
+const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare, onEditPress }) => (
   <View style={styles.cardBodyStyle}>
     <FullNotes notes={cooked?.['notes']} />
-    <SocialMenu cookedId={cookedId} onSharePress={handleShare} />
+    <SocialMenu cookedId={cookedId} onSharePress={handleShare} onEditPress={onEditPress} />
     <PhotoGallery photoUrls={photoUrls} />
     <View style={styles.headerContainer}>
       <HeaderText>Similar Cooked</HeaderText>
@@ -125,6 +125,9 @@ const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare }) => (
 const CookedRecipe = ({ navigation, route }) => {
   const { cookedId, showShareModal } = route.params
   const { cookedStore } = useStore()
+
+  const { credentials } = useAuth()
+  const loggedInUsername = credentials.username
 
   const bottomSheetRef = useRef(null)
   const flatListRef = useRef(null)
@@ -264,9 +267,21 @@ const CookedRecipe = ({ navigation, route }) => {
     return null
   }, [loadingNextPage])
 
+  const handleEdit = useCallback(() => {
+    navigation.navigate('EditCook', { cookedId })
+  }, [cookedId, navigation])
+
   const memoizedListHeader = useMemo(
-    () => <ListHeader cookedId={cookedId} cooked={cooked} photoUrls={photoUrls} handleShare={handleShare} />,
-    [cookedId, cooked, photoUrls, handleShare],
+    () => (
+      <ListHeader
+        cookedId={cookedId}
+        cooked={cooked}
+        photoUrls={photoUrls}
+        handleShare={handleShare}
+        onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
+      />
+    ),
+    [cookedId, cooked, loggedInUsername, photoUrls, handleShare, handleEdit],
   )
 
   // Custom handle component for the bottom sheet
@@ -294,6 +309,8 @@ const CookedRecipe = ({ navigation, route }) => {
       absoluteSnapPoints,
     ],
   )
+
+  console.log('[CookedRecipe] cooked', cooked, cookedLoadState)
 
   if (!cooked || cookedLoadState === 'loading') {
     return <LoadingScreen />

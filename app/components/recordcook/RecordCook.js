@@ -25,7 +25,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getCookedPhotoUrl } from '../../urls'
 import { useStore } from '../../context/StoreContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
-import Loading from '../core/Loading'
+import LoadingScreen from '../../screens/Loading'
 import ConfirmationModal from './ConfirmationModal'
 import RecordCookIntro from './RecordCookIntro'
 import Step from './Step'
@@ -92,7 +92,7 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
       ) : (
         <Text
           style={[styles.notesPreview, { color: theme.colors.softBlack, fontSize: theme.fontSizes.small }]}
-          numberOfLines={editMode ? 4 : 2}
+          numberOfLines={editMode ? 6 : 2}
         >
           Empty notes
         </Text>
@@ -102,6 +102,8 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
   </TouchableOpacity>
 ))
 
+// For now let's keep this component messy, we should refactor the edit mode and the preselected recipe out
+
 function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
   const navigation = useNavigation()
   const route = useRoute()
@@ -110,7 +112,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
-  const { profileStore, recentlyOpenedStore } = useStore()
+  const { profileStore, recentlyOpenedStore, cookedStore } = useStore()
 
   console.log('[RecordCook] Preselected recipe:', preSelectedRecipe)
 
@@ -131,7 +133,6 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
-  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false)
   const [isSavingCooked, setIsSavingCooked] = useState(false)
 
   const stepTwoActive = editMode || photos.length > 0
@@ -147,14 +148,27 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   useEffect(() => {
     ;(async () => {
       if (editMode) {
-        const cooked = await profileStore.getCooked(loggedInUsername, route.params?.cookedId)
+        console.log('[RecordCook] Editing cooked...', route.params?.cookedId, loggedInUsername)
+
+        // Let's assume the Cooked is already loaded in the store
+        const cooked = cookedStore.getCooked(route.params?.cookedId)
+
+        if (!cooked) {
+          console.error('[RecordCook] Cooked not found in store:', route.params?.cookedId)
+          return
+        }
+
+        console.log('[RecordCook] Cooked:', cooked)
+
         setNotes(cooked.notes)
         setPhotos(cooked['cooked-photos-path'] || [])
       }
 
       setLoadingCooked(false)
+
+      console.log('[RecordCook] Loading cooked...', loadingCooked, isSavingCooked)
     })()
-  }, [editMode])
+  }, [editMode, route.params?.cookedId, profileStore])
 
   useEffect(() => {
     const onSelectedRecipe = DeviceEventEmitter.addListener('event.selectedRecipe', recipe => {
@@ -165,14 +179,6 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       onSelectedRecipe.remove()
     }
   }, [])
-
-  // useEffect(() => {
-  //   if (editMode) {
-  //     navigation.setOptions({
-  //       title: 'Tomato Pasta',
-  //     })
-  //   }
-  // }, [editMode, navigation])
 
   const handleExcludeImage = useCallback(
     index => {
@@ -276,11 +282,11 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     try {
       setIsSavingCooked(true)
       console.log('[handleSaveCooked] Saving cooked...', selectedRecipe)
-      const newCooked = await profileStore.recordCooked(loggedInUsername, selectedRecipe.id, notes, photos)
+      const newCookedId = await profileStore.recordCooked(loggedInUsername, selectedRecipe.id, notes, photos)
 
       navigation.replace('CookedRecipe', {
         showShareModal: true,
-        cookedId: newCooked.id,
+        cookedId: newCookedId,
       })
     } catch (error) {
       console.error('Error saving cooked:', error)
@@ -291,7 +297,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   }, [loggedInUsername, selectedRecipe, notes, photos, profileStore, navigation])
 
   if (loadingCooked || isSavingCooked) {
-    return <Loading />
+    return <LoadingScreen />
   }
 
   return (
@@ -451,12 +457,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  title: {
-    fontFamily: theme.fonts.title,
-    fontSize: theme.fontSizes.large,
-    color: theme.colors.black,
-    textAlign: 'center',
-  },
   description: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
@@ -464,38 +464,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 32,
   },
-  descriptionBelow: {
-    paddingBottom: 100,
-  },
   photoSection: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  photoButton: {
-    width: 110,
-    height: 110,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.default,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  photoButtonContent: {
-    alignItems: 'center',
-    gap: 16,
-  },
-  photoButtonText: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
   },
   imageContainer: {
     position: 'relative',
@@ -533,134 +505,22 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  inputSection: {
-    width: '100%',
-    marginBottom: 15,
-  },
-  inputLabel: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.small,
-    color: theme.colors.softBlack,
-    marginBottom: 8,
-  },
-  recipeInput: {
-    width: '100%',
-    height: 40,
-    paddingHorizontal: 15,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.small,
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  inputPlaceholder: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
-  },
   buttonContainer: {},
   shareButton: {
     width: '100%',
     height: 40,
   },
-  photoButtonWithImage: {
-    backgroundColor: theme.colors.background,
-  },
-  photoButtonTextWithImage: {
-    color: theme.colors.softBlack,
-  },
-  shareButtonDisabled: {
-    opacity: 0.33,
-  },
-  stepContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-  },
-  stepNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  stepNumberText: {
-    color: theme.colors.background,
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.small,
-    fontWeight: 'bold',
-  },
-  stepNumberTextInactive: {
-    color: theme.colors.black,
-  },
-  stepText: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
-    fontWeight: '500',
-  },
-  stepWrapper: {
-    width: '100%',
-    flex: 1,
-  },
-  stepContent: {
-    paddingTop: 16,
-    paddingBottom: 16,
-  },
-  stepContentInner: {
-    padding: 16,
-    backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.default,
-  },
-  inactiveStep: {
-    opacity: 0.5,
-  },
-  recipeInputInactive: {
-    shadowOpacity: 0,
-    elevation: 0,
-  },
   selectRecipeButton: {
     marginBottom: 24,
-  },
-  notesInput: {
-    backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.default,
-    padding: 15,
-    height: 300,
-    textAlignVertical: 'top',
-    fontSize: theme.fontSizes.default,
-    fontFamily: theme.fonts.ui,
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cancelButton: {
-    backgroundColor: theme.colors.background,
   },
   addNotesButton: {
     marginBottom: 10,
   },
   notesPreview: {
-    backgroundColor: theme.colors.secondary,
-    padding: 12,
-    borderRadius: theme.borderRadius.default,
-    opacity: theme.opacity.disabled,
-    marginTop: 10,
-  },
-  notesPreviewText: {
     fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.small,
+    fontSize: theme.fontSizes.default,
     color: theme.colors.softBlack,
+    marginBottom: 4,
   },
   selectedRecipeContainer: {
     flexDirection: 'row',
@@ -687,12 +547,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  notesPreview: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
-    marginBottom: 4,
-  },
   selectedRecipeName: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
@@ -703,35 +557,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.small,
     color: theme.colors.softBlack,
-  },
-  confirmationText: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  confirmationPoints: {
-    marginBottom: 16,
-    paddingTop: 16,
-  },
-  confirmationPoint: {
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
-    color: theme.colors.softBlack,
-    flex: 1,
-  },
-  modalTitle: {
-    fontFamily: theme.fonts.title,
-    fontSize: theme.fontSizes.large,
-    color: theme.colors.black,
-    textAlign: 'center',
-  },
-  stepNumberFilled: {
-    backgroundColor: theme.colors.softBlack,
-  },
-  stepNumberTextFilled: {
-    color: theme.colors.background,
   },
 })
 

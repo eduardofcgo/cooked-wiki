@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import { Image, StyleSheet, Text, View } from 'react-native'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
-import { absoluteUrl } from '../../urls'
 
 const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 

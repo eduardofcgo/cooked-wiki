@@ -4,8 +4,9 @@ import React, { useCallback } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../../style/style'
 import Card from './Card'
+import { observer } from 'mobx-react-lite'
 
-const RecipeHeader = ({ cooked, rounded }) => {
+const RecipeHeader = observer(({ cooked, rounded }) => {
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
 
@@ -36,28 +37,30 @@ const RecipeHeader = ({ cooked, rounded }) => {
       </View>
     )
   )
-}
+})
 
-const FeedItem = ({ cooked, rounded, showRecipe = true, collapseNotes = true, showCookedWithoutNotes = true }) => {
-  return (
-    <View style={styles.container}>
-      {showRecipe && <RecipeHeader cooked={cooked} rounded={rounded} />}
+const FeedItem = observer(
+  ({ cooked, rounded, showRecipe = true, collapseNotes = true, showCookedWithoutNotes = true }) => {
+    return (
+      <View style={styles.container}>
+        {showRecipe && <RecipeHeader cooked={cooked} rounded={rounded} />}
 
-      <Card
-        cooked={cooked}
-        showShareIcon={true}
-        relativeDate={true}
-        photoSlider={true}
-        collapseNotes={collapseNotes}
-        roundedTop={!showRecipe && rounded}
-        showRecipe={showRecipe}
-        roundedBottom={rounded}
-        bodyBackgroundColor={theme.colors.white}
-        showCookedWithoutNotes={showCookedWithoutNotes}
-      />
-    </View>
-  )
-}
+        <Card
+          cooked={cooked}
+          showShareIcon={true}
+          relativeDate={true}
+          photoSlider={true}
+          collapseNotes={collapseNotes}
+          roundedTop={!showRecipe && rounded}
+          showRecipe={showRecipe}
+          roundedBottom={rounded}
+          bodyBackgroundColor={theme.colors.white}
+          showCookedWithoutNotes={showCookedWithoutNotes}
+        />
+      </View>
+    )
+  },
+)
 
 const styles = StyleSheet.create({
   recipeHeader: {

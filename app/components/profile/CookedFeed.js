@@ -21,8 +21,7 @@ const FeedHeader = observer(({ username }) => {
   )
 })
 
-// Using memo to prevent unnecessary re-renders
-const ProfileCooked = observer(({ navigation, route, username, onScroll }) => {
+const ProfileCooked = observer(({ username, onScroll }) => {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
 

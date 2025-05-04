@@ -10,7 +10,7 @@ import Notifications from '../../screens/Notifications'
 import { PublicProfile } from '../../screens/Profile'
 import RecipePicker from '../../screens/RecipePicker'
 import RecordCook from '../../screens/RecordCook'
-import RecordCookRecipe from '../../screens/RecordCookRecipe'
+import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
 import Team from '../../screens/Team'
 import Recipe from '../Recipe'
@@ -45,10 +45,10 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='RecordCookRecipe'
-        component={RecordCookRecipe}
+        name='EditCook'
+        component={EditCook}
         options={{
-          title: 'Cooked',
+          title: 'Edit cook',
           ...screenStyle,
           presentation: 'modal',
           animation: 'slide_from_bottom',

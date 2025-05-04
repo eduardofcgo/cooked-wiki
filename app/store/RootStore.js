@@ -31,7 +31,7 @@ export default class RootStore {
 
     this.recentlyOpenedStore = new RecentlyOpenedStore(this.recipeMetadataStore)
 
-    this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore)
+    this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore, this.cookedStore)
 
     makeAutoObservable(this)
   }

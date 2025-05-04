@@ -12,12 +12,19 @@ export default function useTryGetSimilarCooks({ recipeId }) {
   const loadNextPage = useCallback(async () => {
     if (loadingNextPage || loadingSimilarCooks) throw new Error('Already loading')
 
+    if (!recipeId) {
+      console.log('[useSimilarCooks] no recipeId, returning')
+      return
+    }
+
     try {
       setLoadingNextPage(true)
 
+      console.log('[useSimilarCooks] loadingSimilarCooks', recipeId, currentPage)
+
       const data = await api.get(`/community/similar/${recipeId}?page=${currentPage + 1}`)
 
-      setSimilarCooks(prevCooks => [...prevCooks, ...(data || [])])
+      setSimilarCooks(prevCooks => [...(prevCooks || []), ...(data || [])])
       setCurrentPage(prevPage => prevPage + 1)
     } catch (err) {
       console.error('Error fetching similar cooks:', err)

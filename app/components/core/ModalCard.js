@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     paddingTop: 16,
     paddingBottom: 32,
-    paddingHorizontal: 32,
+    paddingHorizontal: 16,
   },
   modalHeader: {
     flexDirection: 'row',

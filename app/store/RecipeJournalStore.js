@@ -16,9 +16,10 @@ class RecipeCooked {
 export class RecipeJournalStore {
   recipeCooked = observable.map()
 
-  constructor(apiClient, profileStore) {
+  constructor(apiClient, profileStore, cookedStore) {
     this.apiClient = apiClient
     this.profileStore = profileStore
+    this.cookedStore = cookedStore
   }
 
   getRecipeCooked(recipeId) {
@@ -45,12 +46,32 @@ export class RecipeJournalStore {
       this.recipeCooked.set(recipeId, recipeCooked)
     })
 
-    const { cooked } = await this.apiClient.get(`/journal/recipe/${recipeId}`)
+    try {
+      const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
 
-    runInAction(() => {
-      recipeCooked.cooked.replace(cooked.results)
-      recipeCooked.isLoadingCookeds = false
-    })
+      console.log('[loadCookeds] recipeJournalResponse', recipeJournalResponse)
+
+      runInAction(() => {
+        console.log('[loadCookeds] cooked results', recipeJournalResponse.cooked.results)
+
+        for (const cooked of recipeJournalResponse.cooked.results) {
+          this.cookedStore.saveToStore(cooked.id, cooked)
+        }
+
+        const cookedObserved = recipeJournalResponse.cooked.results.map(cooked => this.cookedStore.getCooked(cooked.id))
+
+        console.log('[loadCookeds] cookedObserved', cookedObserved)
+
+        recipeCooked.cooked.replace(cookedObserved)
+        recipeCooked.isLoadingCookeds = false
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      runInAction(() => {
+        recipeCooked.isLoadingCookeds = false
+      })
+    }
   }
 
   async loadNextCookedsPage(recipeId) {

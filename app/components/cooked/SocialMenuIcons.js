@@ -5,8 +5,9 @@ import React, { useCallback, useEffect } from 'react'
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
+import { MaterialIcons } from '@expo/vector-icons'
 
-const SocialMenuIcons = observer(({ cookedId, onSharePress }) => {
+const SocialMenuIcons = observer(({ cookedId, onSharePress, onEditPress }) => {
   const navigation = useNavigation()
   const { profileStore } = useStore()
 
@@ -54,6 +55,12 @@ const SocialMenuIcons = observer(({ cookedId, onSharePress }) => {
       <TouchableOpacity onPress={onSharePress} style={styles.iconContainer}>
         <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
       </TouchableOpacity>
+
+      {onEditPress && (
+        <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
+          <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
+        </TouchableOpacity>
+      )}
     </View>
   )
 })

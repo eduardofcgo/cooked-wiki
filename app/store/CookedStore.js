@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, runInAction } from 'mobx'
+import { makeAutoObservable, observable, runInAction, extendObservable } from 'mobx'
 import { fromPromise } from 'mobx-utils'
 
 export class CookedStore {
@@ -26,7 +26,28 @@ export class CookedStore {
     }
   }
 
-  saveToStore(cookedId, cooked) {
-    this.cooked.set(cookedId, fromPromise(Promise.resolve(cooked)))
+  saveToStore(cookedId, newCooked) {
+    const currentCooked = this.getCooked(cookedId)
+
+    if (!currentCooked) {
+      runInAction(() => {
+        const observableCooked = makeAutoObservable(newCooked)
+        this.cooked.set(cookedId, fromPromise.resolve(observableCooked))
+      })
+    }
+  }
+
+  updateCooked(cookedId, newCooked) {
+    const currentCooked = this.getCooked(cookedId)
+
+    if (currentCooked) {
+      runInAction(() => {
+        for (const key in newCooked) {
+          currentCooked[key] = newCooked[key]
+        }
+      })
+    } else {
+      this.saveToStore(cookedId, newCooked)
+    }
   }
 }

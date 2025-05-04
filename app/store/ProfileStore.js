@@ -130,15 +130,22 @@ export class ProfileStore {
     const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
 
     runInAction(() => {
-      this.communityFeed.replace(cookeds)
+      for (const cooked of cookeds) {
+        this.cookedStore.saveToStore(cooked.id, cooked)
+      }
+
+      const cookedObserved = cookeds.map(cooked => {
+        const observedCooked = this.cookedStore.getCooked(cooked.id)
+        return observedCooked
+      })
+
+      console.log('[loadCommunityFeed] wow', cookedObserved)
+
+      this.communityFeed.replace(cookedObserved)
       this.isLoadingCommunityFeed = false
       this.hasMoreCommunityFeed = cookeds.length > 0
       this.communityFeedPage = 1
       this.needsRefreshCommunityFeed = false
-
-      cookeds.forEach(cooked => {
-        this.cookedStore.saveToStore(cooked.id, cooked)
-      })
     })
   }
 
@@ -165,12 +172,13 @@ export class ProfileStore {
       if (cookeds.length === 0) {
         this.hasMoreCommunityFeed = false
       } else {
-        this.communityFeed.push(...cookeds)
-        this.communityFeedPage++
-
-        cookeds.forEach(cooked => {
+        for (const cooked of cookeds) {
           this.cookedStore.saveToStore(cooked.id, cooked)
-        })
+        }
+        const cookedObserved = cookeds.map(cooked => this.cookedStore.getCooked(cooked.id))
+
+        this.communityFeed.push(...cookedObserved)
+        this.communityFeedPage++
       }
 
       this.isLoadingCommunityFeedNextPage = false
@@ -192,32 +200,33 @@ export class ProfileStore {
     ])
 
     runInAction(() => {
+      for (const cooked of cookeds) {
+        this.cookedStore.saveToStore(cooked.id, cooked)
+      }
+      const cookedObserved = cookeds.map(cooked => this.cookedStore.getCooked(cooked.id))
+
       const profileData = this.profileDataMap.get(username)
 
-      profileData.cookeds.replace(cookeds)
+      profileData.cookeds.replace(cookedObserved)
       profileData.isLoading = false
       profileData.hasMore = cookeds.length > 0
       profileData.page = 1
       profileData.bio = metadata.bio
       profileData.isPatron = metadata['is-patron?']
       profileData.imagePath = metadata['image-path']
-
-      cookeds.forEach(cooked => {
-        this.cookedStore.saveToStore(cooked.id, cooked)
-      })
     })
   }
 
   async getFollowingUsernames(username) {
     // Since it's not edited by the logged in user, there is no need to react to changes.
-    // So for now let's not save this in the store, and request everytime it's needed.
+    // TODO: move to a hook
     const { users } = await this.apiClient.get(`/user/${username}/following`)
     return users.map(user => user.username)
   }
 
   async getFollowersUsernames(username) {
     // Since it's not edited by the logged in user, there is no need to react to changes.
-    // So for now let's not save this in the store, and request everytime it's needed.
+    // TODO: move to a hook
     const { users } = await this.apiClient.get(`/user/${username}/followers`)
     return users.map(user => user.username)
   }
@@ -274,12 +283,13 @@ export class ProfileStore {
       if (cookeds.length === 0) {
         profileData.hasMore = false
       } else {
-        profileData.cookeds.push(...cookeds)
-        profileData.page++
-
-        cookeds.forEach(cooked => {
+        for (const cooked of cookeds) {
           this.cookedStore.saveToStore(cooked.id, cooked)
-        })
+        }
+        const cookedObserved = cookeds.map(cooked => this.cookedStore.getCooked(cooked.id))
+
+        profileData.cookeds.push(...cookedObserved)
+        profileData.page++
       }
 
       profileData.isLoadingNextPage = false
@@ -333,29 +343,16 @@ export class ProfileStore {
   }
 
   async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
-    const newCooked = await this.apiClient.post(`/journal/${cookedId}`, {
+    const updateCookedResponse = await this.apiClient.post(`/journal/${cookedId}`, {
       notes: newNotes,
       ['image-paths']: newCookedPhotosPath,
     })
 
-    const profileData = this.profileDataMap.get(username)
-
-    if (profileData) {
-      const index = profileData.cookeds.findIndex(cooked => cooked.id === cookedId)
-      if (index !== -1) {
-        runInAction(() => {
-          // Update the whole cooked, no need to track dependencies deep.
-          profileData.cookeds[index] = {
-            ...profileData.cookeds[index],
-            notes: newCooked.notes,
-            ['cooked-photos-path']: newCooked['image-paths'],
-          }
-        })
-      }
-    }
+    const newCooked = updateCookedResponse.cooked
 
     runInAction(() => {
-      this.cookedStore.saveToStore(cookedId, newCooked)
+      console.log('[updateProfileCooked] updating cooked', cookedId, newCooked)
+      this.cookedStore.updateCooked(cookedId, newCooked)
     })
   }
 
@@ -371,15 +368,16 @@ export class ProfileStore {
     const newCooked = recordCookedResponse.cooked
 
     runInAction(() => {
+      this.cookedStore.saveToStore(newCooked.id, newCooked)
+      const observedCooked = this.cookedStore.getCooked(newCooked.id)
+
       const profileData = this.profileDataMap.get(username)
       if (profileData) {
-        profileData.cookeds.unshift(newCooked)
+        profileData.cookeds.unshift(observedCooked)
       }
-
-      this.cookedStore.saveToStore(newCooked.id, newCooked)
     })
 
-    return newCooked
+    return newCooked.id
   }
 
   isFollowing(username) {
@@ -388,6 +386,10 @@ export class ProfileStore {
 
   getProfileCookeds(username) {
     return this.profileDataMap.get(username)?.cookeds
+  }
+
+  getProfileCooked(username, cookedId) {
+    return this.profileDataMap.get(username)?.cookeds.find(cooked => cooked.id === cookedId)
   }
 
   isLoadingProfileCookeds(username) {
