@@ -306,6 +306,7 @@ export default Community = observer(({ navigation, route }) => {
           onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
+          showsVerticalScrollIndicator={false}
           style={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         />

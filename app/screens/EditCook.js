@@ -67,14 +67,17 @@ function EditCook({ navigation, route }) {
     setTimeout(() => {
       const state = navigation.getState()
       const deletedCookedId = route.params?.cookedId
+
+      // When deleting the cook, we must make sure that screens refering to it
+      // are not present in the navigation stack.
       const filteredRoutes = state.routes.filter(
-        r => !(r.name === 'CookedRecipe' && r.params?.cookedId === deletedCookedId)
+        r => !((r.name === 'CookedRecipe' || r.name === 'FreestyleCook') && r.params?.cookedId === deletedCookedId),
       )
-      
+
       if (filteredRoutes.length !== state.routes.length) {
         const newState = { ...state, routes: filteredRoutes, index: filteredRoutes.length - 1 }
         navigation.reset(newState)
-        
+
         setTimeout(() => navigation.goBack(), 0)
       } else {
         navigation.goBack()

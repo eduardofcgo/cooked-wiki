@@ -144,14 +144,12 @@ const CookedRecipe = ({ navigation, route }) => {
   const [sheetIndex, setSheetIndex] = useState(1)
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
 
-  // Compute isCardCollapsed based on sheetIndex
   const isCardCollapsed = sheetIndex === 0
 
   const cookedPhotoPaths = cooked?.['cooked-photos-path']
   const recipeId = cooked?.['recipe-id']
   const extractId = cooked?.['extract-id']
 
-  // Get similar cooks data
   const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage, hasMoreSimilarCooks } =
     useTryGetSimilarCooks({ recipeId: recipeId || extractId })
 
@@ -229,20 +227,17 @@ const CookedRecipe = ({ navigation, route }) => {
     }
   }, [])
 
-  // Placeholder function for sharing
   const handleShare = useCallback(() => {
     console.log('Sharing cooked item:', cooked)
     setShouldShowShareCook(false)
   }, [cooked])
 
-  // Handle load more similar cooks
   const handleLoadMore = useCallback(() => {
     if (!loadingNextPage && hasMoreSimilarCooks) {
       loadNextPage()
     }
   }, [loadingNextPage, hasMoreSimilarCooks, loadNextPage])
 
-  // Render similar cooked item
   const renderCookedItem = useCallback(
     ({ item: cooked }) => (
       <View style={styles.itemContainer}>
@@ -252,10 +247,8 @@ const CookedRecipe = ({ navigation, route }) => {
     [],
   )
 
-  // Key extractor for FlatList
   const keyExtractor = useCallback(item => item.id, [])
 
-  // FlatList footer component
   const ListFooter = useMemo(() => {
     if (loadingNextPage) {
       return (
@@ -284,7 +277,6 @@ const CookedRecipe = ({ navigation, route }) => {
     [cookedId, cooked, loggedInUsername, photoUrls, handleShare, handleEdit],
   )
 
-  // Custom handle component for the bottom sheet
   const renderHandle = useCallback(
     () => (
       <BottomSheetHandle
@@ -309,8 +301,6 @@ const CookedRecipe = ({ navigation, route }) => {
       absoluteSnapPoints,
     ],
   )
-
-  console.log('[CookedRecipe] cooked', cooked, cookedLoadState)
 
   if (!cooked || cookedLoadState === 'loading') {
     return <LoadingScreen />

@@ -321,25 +321,6 @@ export class ProfileStore {
     return this.profileDataMap.get(username)?.isLoadingStats
   }
 
-  async uploadProfileCookedPhoto(cookedId, file) {
-    // TODO: move to the client
-    const formData = new FormData()
-    formData.append('cooked-photo', file)
-
-    const response = await this.apiClient.request({
-      url: `/journal/${cookedId}/upload`,
-      method: 'post',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      transformRequest: (data, headers) => formData,
-      uploadProgress: progressEvent => {},
-      data: formData,
-    })
-
-    return response['image-path']
-  }
-
   async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
     const updateCookedResponse = await this.apiClient.post(`/journal/${cookedId}`, {
       notes: newNotes,

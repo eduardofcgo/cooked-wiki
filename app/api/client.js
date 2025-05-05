@@ -45,7 +45,11 @@ export class ApiClient {
       },
       error => {
         if (error.response) {
-          console.error(`Request to ${error.config.baseURL}${error.config.url} failed:`, error.response.status)
+          console.error(
+            `Request to ${error.config.baseURL}${error.config.url} failed:`,
+            error.response.status,
+            error.response.data,
+          )
 
           throw new ApiError(
             error.response.data.message || 'An error occurred: ' + error.response.status,
@@ -88,11 +92,35 @@ export class ApiClient {
     return this.client.delete(url, config)
   }
 
+  async patch(url, data = {}, config = {}) {
+    return this.client.patch(url, data, config)
+  }
+
   async request(config) {
     return this.client.request(config)
   }
 
-  async patch(url, data = {}, config = {}) {
-    return this.client.patch(url, data, config)
+  async uploadFormData(config) {
+    if (!config.data) throw new Error('data is required')
+    if (!config.url) throw new Error('url is required')
+    if (!config.method) throw new Error('method is required')
+    if (!config.data) throw new Error('data is required')
+
+    const formData = new FormData()
+
+    for (const key in config.data) {
+      formData.append(key, config.data[key])
+    }
+
+    return this.client.request({
+      ...config,
+      headers: {
+        ...(config.headers || {}),
+        'Content-Type': 'multipart/form-data',
+      },
+      transformRequest: (data, headers) => formData,
+      uploadProgress: progressEvent => {},
+      data: formData,
+    })
   }
 }

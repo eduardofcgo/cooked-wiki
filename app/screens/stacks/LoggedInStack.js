@@ -10,6 +10,7 @@ import Notifications from '../../screens/Notifications'
 import { PublicProfile } from '../../screens/Profile'
 import RecipePicker from '../../screens/RecipePicker'
 import RecordCook from '../../screens/RecordCook'
+import FreestyleCook from '../../screens/FreestyleCook'
 import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
 import Team from '../../screens/Team'
@@ -111,6 +112,16 @@ export default function LoggedInStack({ StackNavigator }) {
         name='CookedRecipe'
         component={CookedRecipe}
         options={{
+          ...screenStyle,
+          // animation: 'none',
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='FreestyleCook'
+        component={FreestyleCook}
+        options={{
+          title: 'Cook',
           ...screenStyle,
           // animation: 'none',
         }}

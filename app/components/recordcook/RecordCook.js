@@ -24,6 +24,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { getCookedPhotoUrl } from '../../urls'
 import { useStore } from '../../context/StoreContext'
+import { useApi } from '../../context/ApiContext'
 import PhotoSelectionModal from '../PhotoSelectionModal'
 import LoadingScreen from '../../screens/Loading'
 import ConfirmationModal from './ConfirmationModal'
@@ -35,6 +36,7 @@ import ActionToast from '../notification/ActionToast'
 import NotesModal from './NotesModal'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
+import WarningModal from './WarningModal'
 
 const EditableImage = ({ path, index, onExclude }) => {
   return (
@@ -109,6 +111,7 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
 function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
   const navigation = useNavigation()
   const route = useRoute()
+  const apiClient = useApi()
 
   console.log('[RecordCook] Route:', route)
 
@@ -136,6 +139,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
+  const [isWarningModalVisible, setIsWarningModalVisible] = useState(false)
   const [isSavingCooked, setIsSavingCooked] = useState(false)
 
   const stepTwoActive = editMode || photos.length > 0
@@ -143,9 +147,15 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const stepFourActive = editMode || (stepThreeActive && notes !== undefined)
 
   const saveChanges = useCallback(() => {
+    // For freestyle cooks (no recipe selected), photos are required
+    if (!selectedRecipe && photos.length === 0) {
+      setIsWarningModalVisible(true)
+      return
+    }
+
     setHasChanges(false)
     onSaved(notes, photos)
-  }, [notes, photos, setHasChanges, onSaved])
+  }, [notes, photos, setHasChanges, onSaved, selectedRecipe, photos])
 
   useEffect(() => {
     ;(async () => {
@@ -221,11 +231,29 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         name: result.assets[0].fileName,
         type: result.assets[0].mimeType,
       }
-      const imagePath = await profileStore.uploadProfileCookedPhoto('freestyle-cook', file)
+
+      console.log('[handleCameraPress] Uploading photo...', file)
+
+      const response = await apiClient.uploadFormData({
+        url: '/journal/upload-photo',
+        method: 'POST',
+        data: {
+          'cooked-photo': file,
+        },
+      })
+
+      console.log('[handleCameraPress] Uploaded photo...', response)
+
+      const imagePath = response['image-path']
+
       setIsUploading(false)
       setPhotos(prevPhotos => [...prevPhotos, imagePath])
+
+      if (setHasChanges) {
+        setHasChanges(true)
+      }
     }
-  }, [profileStore, setIsUploading, setPhotos])
+  }, [apiClient, setIsUploading, setPhotos, setHasChanges])
 
   const handleGalleryPress = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -250,7 +278,21 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         name: result.assets[0].fileName,
         type: result.assets[0].mimeType,
       }
-      const imagePath = await profileStore.uploadProfileCookedPhoto('freestyle-cook', file)
+
+      console.log('[handleGalleryPress] Uploading photo...', file)
+
+      const response = await apiClient.uploadFormData({
+        url: '/journal/upload-photo',
+        method: 'post',
+        data: {
+          'cooked-photo': file,
+        },
+      })
+
+      console.log('[handleGalleryPress] Uploaded photo...', response)
+
+      const imagePath = response['image-path']
+
       setIsUploading(false)
       setPhotos(prevPhotos => [...prevPhotos, imagePath])
 
@@ -284,17 +326,24 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
     try {
       setIsSavingCooked(true)
       console.log('[handleSaveCooked] Saving cooked...', selectedRecipe)
-      const newCookedId = await profileStore.recordCooked(loggedInUsername, selectedRecipe.id, notes, photos)
+      const newCookedId = await profileStore.recordCooked(loggedInUsername, selectedRecipe?.id, notes, photos)
 
       showInAppNotification(ActionToast, {
         props: { message: 'Cook added to your journal' },
         resetQueue: true,
       })
 
-      navigation.replace('CookedRecipe', {
-        showShareModal: true,
-        cookedId: newCookedId,
-      })
+      if (selectedRecipe) {
+        navigation.replace('CookedRecipe', {
+          showShareModal: true,
+          cookedId: newCookedId,
+        })
+      } else {
+        navigation.replace('FreestyleCook', {
+          showShareModal: true,
+          cookedId: newCookedId,
+        })
+      }
     } catch (error) {
       console.error('Error saving cooked:', error)
       Alert.alert('Error', 'Failed to save your cooking. Please try again.')
@@ -302,6 +351,12 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       setIsSavingCooked(false)
     }
   }, [loggedInUsername, selectedRecipe, notes, photos, profileStore, navigation, showInAppNotification])
+
+  const validateAndShowConfirmation = useCallback(() => {
+    // In create mode, we just show the confirmation modal
+    // Warning for no photos will only be shown in edit mode
+    setIsConfirmationModalVisible(true)
+  }, [])
 
   if (loadingCooked || isSavingCooked) {
     return <LoadingScreen />
@@ -400,9 +455,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
             >
               <PrimaryButton
                 title='Add to journal'
-                onPress={() => {
-                  setIsConfirmationModalVisible(true)
-                }}
+                onPress={validateAndShowConfirmation}
                 style={[!stepFourActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 }]}
                 disabled={!stepFourActive}
               />
@@ -436,6 +489,8 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
           handleSaveCooked()
         }}
       />
+
+      <WarningModal visible={isWarningModalVisible} onClose={() => setIsWarningModalVisible(false)} />
 
       <NotesModal
         visible={isNotesModalVisible}

@@ -14,11 +14,14 @@ function RecordCookScreen() {
 
   const { recipeMetadataStore } = useStore()
   const recipeMetadata = recipeMetadataStore.getMetadata(id)
+
   const metadataLoadState = recipeMetadataStore.getMetadataLoadState(id)
 
   useEffect(() => {
-    recipeMetadataStore.ensureLoadedMetadata(id)
-  }, [recipeId, extractId])
+    if (id) {
+      recipeMetadataStore.ensureLoadedMetadata(id)
+    }
+  }, [id])
 
   if (id) {
     if (!metadataLoadState || metadataLoadState === 'pending') {

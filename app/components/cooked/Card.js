@@ -11,6 +11,7 @@ import AuthorBar from './AuthorBar'
 import { observer } from 'mobx-react-lite'
 import SocialMenuIcons from './SocialMenuIcons'
 import { useAuth } from '../../context/AuthContext'
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => {
@@ -35,14 +36,19 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
   const socialMenuContainerRef = useRef(null)
 
   const navigateToCookedScreen = useCallback(() => {
-    // For smooth screen transition, we pass the current position
-    // on the screen for the Cooked screen card to open from.
+    if (!hasRecipe) {
+      navigation.push('FreestyleCook', { cookedId })
+    } else {
+      // For smooth screen transition, we pass the current position
+      // on the screen for the Cooked screen card to open from.
 
-    socialMenuContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
-      const startPosition = pageY - height
-      navigation.push('CookedRecipe', { cookedId, startPosition })
-    })
-  }, [cookedId])
+      socialMenuContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
+        const startPosition = pageY - height
+
+        navigation.push('CookedRecipe', { cookedId, startPosition })
+      })
+    }
+  }, [cookedId, hasRecipe])
 
   const navigateToRecipe = useCallback(() => {
     navigation.navigate('Recipe', { recipeId: cooked['recipe-id'], extractId: cooked['extract-id'] })
@@ -70,7 +76,18 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
       )}
 
       {photoUrls && photoUrls.length > 0 && (
-        <PhotoSlider images={photoUrls} cookedId={cookedId} onDoubleTap={onDoubleTapPhoto} />
+        <PhotoSlider
+          images={photoUrls}
+          cookedId={cookedId}
+          onDoubleTap={onDoubleTapPhoto}
+          imageStyle={
+            !hasRecipe &&
+            photoUrls.length === 1 && {
+              borderTopLeftRadius: theme.borderRadius.default,
+              borderTopRightRadius: theme.borderRadius.default,
+            }
+          }
+        />
       )}
 
       <View style={[styles.contents]}>
@@ -95,8 +112,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
             <Notes
               notes={cooked['notes']}
               showCookedWithoutNotes={showCookedWithoutNotes}
-              goToCooked={navigateToCookedScreen}
-              goToRecipe={hasRecipe ? navigateToRecipe : undefined}
+              navigateToCookedScreen={navigateToCookedScreen}
             />
           ) : (
             <FullNotes notes={cooked['notes']} showCookedWithoutNotes={showCookedWithoutNotes} />

@@ -3,7 +3,7 @@ import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { theme } from '../../style/style'
 
-const PhotoSlider = ({ images, onImageSlide }) => {
+const PhotoSlider = ({ images, onImageSlide, imageStyle }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [sliderWidth, setSliderWidth] = useState(0)
 
@@ -31,12 +31,13 @@ const PhotoSlider = ({ images, onImageSlide }) => {
 
   const renderItem = useCallback(
     ({ item }) => {
-      const photoStyle = {
+      const style = {
         width: sliderWidth,
         aspectRatio: 1,
         zIndex: 10,
+        ...imageStyle,
       }
-      return <Animated.Image source={{ uri: item }} style={photoStyle} resizeMode='cover' />
+      return <Animated.Image source={{ uri: item }} style={style} resizeMode='cover' />
     },
     [sliderWidth],
   )

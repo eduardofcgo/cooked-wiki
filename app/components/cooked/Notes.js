@@ -5,17 +5,17 @@ import { observer } from 'mobx-react-lite'
 
 const MAX_LINES = 2
 
-const Notes = ({ notes, goToCooked, goToRecipe }) => {
+const Notes = ({ notes, navigateToCookedScreen }) => {
   if (!notes) {
     return (
-      <TouchableOpacity onPress={goToRecipe}>
+      <TouchableOpacity onPress={navigateToCookedScreen}>
         <Text style={[styles.readMoreText, { paddingBottom: 16 }]}>Read more</Text>
       </TouchableOpacity>
     )
   }
 
   return (
-    <TouchableOpacity onPress={goToCooked}>
+    <TouchableOpacity onPress={navigateToCookedScreen}>
       <View style={[styles.notes]}>
         <Text style={styles.notesText} numberOfLines={MAX_LINES}>
           {notes}
