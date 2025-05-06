@@ -81,16 +81,18 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   }, [isExpanded, setIsExpanded])
 
   const openRecipe = recipe => {
+    console.log('openRecipe', recipe)
+
     if (recipe.id !== id) {
       console.log('[Recipe] Opening recipe:', {
         recipeId: recipe.type == 'saved' && recipe.id,
-        extractId: recipe.type == 'extract' && recipe.id,
+        extractId: recipe.type == 'extracted' && recipe.id,
         recentRecipesExpanded: false,
       })
 
       navigation.setParams({
         recipeId: recipe.type == 'saved' && recipe.id,
-        extractId: recipe.type == 'extract' && recipe.id,
+        extractId: recipe.type == 'extracted' && recipe.id,
         recentRecipesExpanded: false,
       })
 
@@ -107,11 +109,11 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     }
   })
 
-  const rotateScreen = () => {
+  const rotateScreen = useCallback(() => {
     const newOrientation = orientation === 0 ? 90 : 0
     setOrientation(newOrientation)
     rotationValue.value = withTiming(newOrientation, { duration: 500 })
-  }
+  }, [orientation, rotationValue])
 
   const animatedContentStyle = useAnimatedStyle(() => {
     const isPortrait = orientation % 180 === 0
@@ -156,13 +158,13 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
       ),
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
-          <IconButton
+          {/* <IconButton
             icon='rotate-right'
             size={24}
             color={theme.colors.softBlack}
             style={{ marginRight: -8 }}
             onPress={rotateScreen}
-          />
+          /> */}
           <IconButton
             icon='share'
             size={20}
@@ -186,8 +188,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     },
     [navigation],
   )
-
-  const recipeStartURL = extractId ? getExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
 
   // console.log('[Recipe] Recently opened recipes:', recentlyOpenedStore.recipes)
 
@@ -229,7 +229,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           key={componentKey}
           recipeId={recipeId}
           extractId={extractId}
-          startUrl={recipeStartURL}
           navigation={navigation}
           onRequestPath={routeHandler}
           route={route}

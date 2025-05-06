@@ -40,7 +40,7 @@ export default function LoggedInStack({ StackNavigator }) {
         name='Extract'
         component={Extract}
         options={{
-          title: 'Recipe',
+          title: 'New Recipe',
           ...screenStyle,
         }}
       />

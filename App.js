@@ -70,10 +70,10 @@ function App() {
   }, [loadedCredentials, loadedFonts])
 
   return (
-    <SafeAreaProvider>
-      <PaperProvider theme={paperTheme}>
-        <AuthProvider onLoadedCredentials={onLoadedCredentials}>
-          <ShareIntentProvider>
+    <ShareIntentProvider>
+      <SafeAreaProvider>
+        <PaperProvider theme={paperTheme}>
+          <AuthProvider onLoadedCredentials={onLoadedCredentials}>
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NavigationContainer linking={linking} theme={navigationTheme}>
@@ -82,10 +82,10 @@ function App() {
                 </NotificationProvider>
               </NavigationContainer>
             </GestureHandlerRootView>
-          </ShareIntentProvider>
-        </AuthProvider>
-      </PaperProvider>
-    </SafeAreaProvider>
+          </AuthProvider>
+        </PaperProvider>
+      </SafeAreaProvider>
+    </ShareIntentProvider>
   )
 }
 

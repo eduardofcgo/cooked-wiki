@@ -11,13 +11,12 @@ import Loading from '../core/Loading'
 import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
 import RecordCook from '../core/RecordCook'
-
+import { getSavedRecipeUrl, getRecentExtractUrl } from '../../urls'
 const RecipeWebView = forwardRef(
   (
     {
       recipeId,
       extractId,
-      startUrl,
       webViewHeight,
       setWebViewHeight,
       navigation,
@@ -30,6 +29,8 @@ const RecipeWebView = forwardRef(
     },
     ref,
   ) => {
+    const startUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+
     return (
       <View style={[styles.webViewContainer, { opacity: webViewReady ? 1 : 0 }]}>
         <CookedWebView
@@ -60,7 +61,7 @@ const RecipeWebView = forwardRef(
 )
 
 const RecipeWithCookedFeed = observer(
-  ({ recipeId, extractId, startUrl, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
+  ({ recipeId, extractId, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
     const { recipeJournalStore } = useStore()
     const recipeCookeds = recipeJournalStore.getRecipeCooked(recipeId)
     const isLoadingRecipeCookeds = recipeJournalStore.isLoadingRecipeCooked(recipeId)
@@ -142,7 +143,7 @@ const RecipeWithCookedFeed = observer(
 
     const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
 
-    if (isLoadingRecipeCookeds || !recipeCookeds) {
+    if (isLoadingRecipeCookeds) {
       return <LoadingScreen />
     }
 
@@ -160,7 +161,6 @@ const RecipeWithCookedFeed = observer(
             <>
               <RecipeWebView
                 ref={webViewRef}
-                startUrl={startUrl}
                 recipeId={recipeId}
                 extractId={extractId}
                 onScroll={handleScroll}

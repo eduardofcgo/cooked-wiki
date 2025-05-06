@@ -63,6 +63,12 @@ export const AuthProvider = ({ children, onLoadedCredentials }) => {
   const loadedCredentials = authContext.credentials !== undefined
   const apiClient = loadedCredentials ? new ApiClient(authContext.credentials) : null
 
+  if (apiClient) {
+    apiClient.onUnauthorized(() => {
+      setAuthContext({ ...authContext, credentials: null, loggedIn: false })
+    })
+  }
+
   useEffect(() => {
     if (loadedCredentials) {
       onLoadedCredentials()
