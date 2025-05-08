@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { View, Text, TextInput, StyleSheet } from 'react-native'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { View, Text, TextInput, StyleSheet, Keyboard, TouchableOpacity } from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
@@ -10,11 +10,19 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
 
   const placeholder = recipe === null ? 'What did you cook and how did it turn out?' : 'How did it turn out?'
 
+  const handleLayout = useCallback(() => {
+    if (visible && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [visible])
+
   const handleSave = () => {
+    Keyboard.dismiss()
     onSave(notes)
   }
 
   const handleClose = () => {
+    Keyboard.dismiss()
     onClose(notes)
     setNotes(initialNotes || '')
   }
@@ -41,6 +49,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
         value={notes}
         onChangeText={setNotes}
         autoFocus={false}
+        onLayout={handleLayout}
         keyboardType='default'
       />
       <View style={styles.modalButtons}>
@@ -68,7 +77,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     padding: 15,
-    height: 300,
+    height: 150,
     textAlignVertical: 'top',
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,

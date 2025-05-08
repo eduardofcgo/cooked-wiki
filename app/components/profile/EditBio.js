@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { View, Text, TextInput, StyleSheet } from 'react-native'
+import React, { useState, useRef, useCallback } from 'react'
+import { View, Text, TextInput, StyleSheet, Keyboard } from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
@@ -11,6 +11,7 @@ import { useInAppNotification } from '../../context/NotificationContext'
 
 function EditBio({ visible, onClose }) {
   const { showInAppNotification } = useInAppNotification()
+  const inputRef = useRef(null)
 
   const { credentials } = useAuth()
   const { profileStore } = useStore()
@@ -19,7 +20,14 @@ function EditBio({ visible, onClose }) {
 
   const [editingBio, setEditingBio] = useState(bio)
 
+  const handleLayout = useCallback(() => {
+    if (visible && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [visible])
+
   const onSave = async () => {
+    Keyboard.dismiss()
     onClose()
 
     try {
@@ -38,6 +46,7 @@ function EditBio({ visible, onClose }) {
   }
 
   const handleClose = () => {
+    Keyboard.dismiss()
     onClose()
   }
 
@@ -53,12 +62,14 @@ function EditBio({ visible, onClose }) {
       }
     >
       <TextInput
+        ref={inputRef}
         cursorColor={theme.colors.primary}
         style={[styles.bioInput]}
         multiline={true}
         placeholder='Tell about yourself and what you love to cook.'
         defaultValue={bio}
         autoFocus={false}
+        onLayout={handleLayout}
         keyboardType='default'
         maxLength={150}
         onChangeText={setEditingBio}

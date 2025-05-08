@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import Animated, {
   interpolate,
@@ -27,8 +37,30 @@ export default function ModalCard({
   const translateY = useSharedValue(screenHeight)
   const [isHiding, setIsHiding] = useState(false)
   const opacity = useSharedValue(0)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const [currentVisible, setCurrentVisible] = useState(visible)
+
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      e => {
+        setKeyboardHeight(e.endCoordinates.height)
+      },
+    )
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0)
+      },
+    )
+
+    return () => {
+      keyboardWillShowListener.remove()
+      keyboardWillHideListener.remove()
+    }
+  }, [])
 
   const handleClose = () => {
     setIsHiding(true)
@@ -127,13 +159,21 @@ export default function ModalCard({
           >
             <View style={styles.modalContainer} />
           </TouchableOpacity>
-          <PanGestureHandler onGestureEvent={gestureHandler}>
-            <Animated.View style={[styles.modalContent, animatedStyle]}>
-              <DragIndicator />
-              <View style={styles.modalHeader}>{titleComponent || <Text style={styles.modalTitle}>{title}</Text>}</View>
-              {children}
-            </Animated.View>
-          </PanGestureHandler>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+            style={styles.keyboardAvoidingContainer}
+          >
+            <PanGestureHandler onGestureEvent={gestureHandler}>
+              <Animated.View style={[styles.modalContent, animatedStyle]}>
+                <DragIndicator />
+                <View style={styles.modalHeader}>
+                  {titleComponent || <Text style={styles.modalTitle}>{title}</Text>}
+                </View>
+                {children}
+              </Animated.View>
+            </PanGestureHandler>
+          </KeyboardAvoidingView>
         </Animated.View>
       </GestureHandlerRootView>
     </Modal>
@@ -168,5 +208,9 @@ const styles = StyleSheet.create({
   closeButton: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  keyboardAvoidingContainer: {
+    width: '100%',
+    justifyContent: 'flex-end',
   },
 })

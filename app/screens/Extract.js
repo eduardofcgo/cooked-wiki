@@ -31,8 +31,6 @@ export default function Extract({}) {
         },
       )
 
-      console.log('response', response)
-
       const extractionId = response?.['extraction-id']
       const recipeId = response?.['recipe-id']
 

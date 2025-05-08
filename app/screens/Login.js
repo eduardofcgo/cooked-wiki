@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Linking } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Linking,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native'
 import { IconButton } from 'react-native-paper'
 import { StatusBar } from 'react-native'
 
@@ -60,71 +72,78 @@ export default function Login({ navigation, route }) {
   }
 
   return (
-    <View style={styles.container}>
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <LoadingScreen />
-        </View>
-      )}
-
-      <View style={styles.contentContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Welcome back!</Text>
-          <Text style={styles.subHeaderText}>
-            Only for old accounts previously registered on the site with username and password.
-          </Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          {/* <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
-            <View style={styles.appleButtonContent}>
-              <IconButton icon='apple' iconColor='white' size={20} style={styles.appleIcon} />
-              <Text style={styles.appleButtonText}>Sign in with Apple</Text>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <LoadingScreen />
             </View>
-          </TouchableOpacity> */}
+          )}
 
-          {/* <Text style={styles.helpText}>or</Text> */}
+          <View style={styles.contentContainer}>
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Welcome back!</Text>
+              <Text style={styles.subHeaderText}>
+                Only for old accounts previously registered on the site with username and password.
+              </Text>
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder='Username'
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize='none'
-          />
-          <TextInput
-            style={styles.input}
-            placeholder='Password'
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize='none'
-            secureTextEntry
-          />
+            <View style={styles.formContainer}>
+              {/* <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
+                <View style={styles.appleButtonContent}>
+                  <IconButton icon='apple' iconColor='white' size={20} style={styles.appleIcon} />
+                  <Text style={styles.appleButtonText}>Sign in with Apple</Text>
+                </View>
+              </TouchableOpacity> */}
 
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
-              <Text style={styles.registerButtonText}>Sign in</Text>
-            </TouchableOpacity>
+              {/* <Text style={styles.helpText}>or</Text> */}
+
+              <TextInput
+                style={styles.input}
+                placeholder='Username'
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize='none'
+              />
+              <TextInput
+                style={styles.input}
+                placeholder='Password'
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize='none'
+                secureTextEntry
+              />
+
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity onPress={handleLogin} style={styles.registerButton}>
+                  <Text style={styles.registerButtonText}>Sign in</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.helpText}>
+                Forgot your password?
+                <Text style={{ color: '#d97757' }} onPress={handleResetPassword}>
+                  {' '}
+                  Reset
+                </Text>
+              </Text>
+            </View>
           </View>
-
-          <Text style={styles.helpText}>
-            Forgot your password?
-            <Text style={{ color: '#d97757' }} onPress={handleResetPassword}>
-              {' '}
-              Reset
-            </Text>
-          </Text>
-        </View>
-      </View>
-    </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#fafaf7',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
   },
   loadingOverlay: {
     position: 'absolute',

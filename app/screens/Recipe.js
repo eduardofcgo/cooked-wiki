@@ -8,7 +8,7 @@ import Share from 'react-native/Libraries/Share/Share'
 import RecipeThumbnail from '../components/core/RecipeThumbnail'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
-import { getExtractUrl, getSavedRecipeUrl } from '../urls'
+import { FontAwesome } from '@expo/vector-icons'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
 
@@ -80,28 +80,38 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     })
   }, [isExpanded, setIsExpanded])
 
-  const openRecipe = recipe => {
-    console.log('openRecipe', recipe)
+  const onShare = useCallback(() => {
+    Share.share({
+      message: '/saved',
+      url: `/saved/${recipeId}`,
+    })
+  }, [recipeId])
 
-    if (recipe.id !== id) {
-      console.log('[Recipe] Opening recipe:', {
-        recipeId: recipe.type == 'saved' && recipe.id,
-        extractId: recipe.type == 'extracted' && recipe.id,
-        recentRecipesExpanded: false,
-      })
+  const openRecipe = useCallback(
+    recipe => {
+      console.log('openRecipe', recipe)
 
-      navigation.setParams({
-        recipeId: recipe.type == 'saved' && recipe.id,
-        extractId: recipe.type == 'extracted' && recipe.id,
-        recentRecipesExpanded: false,
-      })
+      if (recipe.id !== id) {
+        console.log('[Recipe] Opening recipe:', {
+          recipeId: recipe.type == 'saved' && recipe.id,
+          extractId: recipe.type == 'extracted' && recipe.id,
+          recentRecipesExpanded: false,
+        })
 
-      // Force component to re-render with a new key
-      setComponentKey(Date.now())
-    }
+        navigation.setParams({
+          recipeId: recipe.type == 'saved' && recipe.id,
+          extractId: recipe.type == 'extracted' && recipe.id,
+          recentRecipesExpanded: false,
+        })
 
-    setIsExpanded(false)
-  }
+        // Force component to re-render with a new key
+        setComponentKey(Date.now())
+      }
+
+      setIsExpanded(false)
+    },
+    [recipeId, id],
+  )
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -165,18 +175,10 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
             style={{ marginRight: -8 }}
             onPress={rotateScreen}
           /> */}
-          <IconButton
-            icon='share'
-            size={20}
-            color={theme.colors.softBlack}
-            style={{ marginRight: -8 }}
-            onPress={() => {
-              Share.share({
-                message: '/saved',
-                url: `/saved/${recipeId}`,
-              })
-            }}
-          />
+
+          <TouchableOpacity onPress={onShare}>
+            <FontAwesome name='paper-plane' size={17} color={theme.colors.softBlack} />
+          </TouchableOpacity>
         </View>
       ),
     })
