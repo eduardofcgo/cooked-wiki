@@ -205,7 +205,6 @@ function MainMenu({ route }) {
           zIndex: 1000,
         }}
       >
-        {/* First Floating Button */}
         <Animated.View
           style={[
             {
@@ -239,7 +238,6 @@ function MainMenu({ route }) {
             >
               <RecordCook />
 
-              {/* Label positioned absolutely */}
               <View
                 style={{
                   position: 'absolute',
@@ -296,7 +294,6 @@ function MainMenu({ route }) {
             >
               <MaterialCommunityIcons name='bookmark' color={theme.colors.white} size={20} />
 
-              {/* Label positioned absolutely */}
               <View
                 style={{
                   position: 'absolute',
@@ -320,10 +317,19 @@ function MainMenu({ route }) {
         </Animated.View>
 
         {/* Main Create Button */}
-        <TouchableOpacity onPress={toggleMenu}>
+        <View
+          style={{
+            width: 56,
+            height: 56,
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
           <Animated.View
             style={[
               {
+                position: 'absolute',
                 borderWidth: 3,
                 borderColor: theme.colors.white,
                 width: 56,
@@ -342,14 +348,21 @@ function MainMenu({ route }) {
               size={20}
             />
           </Animated.View>
-        </TouchableOpacity>
+
+          {/* Smaller touchable then the actual button so that it is not pressed accidentally */}
+          <TouchableOpacity
+            onPress={toggleMenu}
+            style={{
+              width: 45,
+              height: 45,
+              zIndex: 2,
+            }}
+          />
+        </View>
       </View>
     </View>
   )
 }
-
-// Empty component for the RecordCook tab (no longer needed but kept for reference)
-const EmptyComponent = () => null
 
 const tabScreenStyle = {
   tabBarHideOnKeyboard: true,

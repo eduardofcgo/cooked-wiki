@@ -63,6 +63,8 @@ export class RecipeJournalStore {
     try {
       const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
 
+      console.log('recipeJournalResponse', recipeJournalResponse, recipeId)
+
       runInAction(() => {
         for (const cooked of recipeJournalResponse.cooked.results) {
           this.cookedStore.saveToStore(cooked.id, cooked)

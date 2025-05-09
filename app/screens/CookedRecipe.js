@@ -30,9 +30,10 @@ const Recipe = lazy(() => import('./Recipe'))
 const BottomSheetHandle = observer(
   ({ username, cookedDate, expandCard, toggleCollapse, animatedPosition, absoluteSnapPoints }) => {
     const iconRotationStyle = useAnimatedStyle(() => {
+      const animatePoint = absoluteSnapPoints[0] + 300
       const rotation = interpolate(
         animatedPosition.value,
-        [absoluteSnapPoints[1], absoluteSnapPoints[1] + 50],
+        [animatePoint, animatePoint + 100],
         [180, 0],
         Extrapolate.CLAMP,
       )
@@ -43,12 +44,8 @@ const BottomSheetHandle = observer(
     })
 
     const textOpacityStyle = useAnimatedStyle(() => {
-      const opacity = interpolate(
-        animatedPosition.value,
-        [absoluteSnapPoints[1], absoluteSnapPoints[1] + 50],
-        [1, 0],
-        Extrapolate.CLAMP,
-      )
+      const animatePoint = absoluteSnapPoints[0] + 300
+      const opacity = interpolate(animatedPosition.value, [animatePoint, animatePoint + 100], [1, 0], Extrapolate.CLAMP)
 
       return {
         opacity,

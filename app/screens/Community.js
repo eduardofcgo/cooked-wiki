@@ -77,20 +77,18 @@ export default Community = observer(({ navigation, route }) => {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <HeaderTitleMenu title='Community' reverse={true}>
-          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+          <HeaderTitleMenu title='Community' reverse={true}>
             <AnimatedBell />
-          </TouchableOpacity>
-        </HeaderTitleMenu>
+          </HeaderTitleMenu>
+        </TouchableOpacity>
       ),
       headerRight: () => (
         <TouchableOpacity
           style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
           onPress={handleAddFriends}
-        >
-          <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
-        </TouchableOpacity>
+        ></TouchableOpacity>
       ),
     })
   }, [navigation])
@@ -146,10 +144,6 @@ export default Community = observer(({ navigation, route }) => {
   const onRefresh = useCallback(async () => {
     await profileStore.loadCommunityFeed()
   }, [])
-
-  const onNotesPress = useCallback(() => {
-    navigation.navigate('Recipe', { recipeId: cooked['recipe-id'] })
-  }, [navigation])
 
   const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
 

@@ -11,6 +11,8 @@ export default function Extract({}) {
   const navigation = useNavigation()
   const { hasShareIntent, shareIntent, resetShareIntent, error: shareError } = useShareIntentContext()
 
+  console.log('hasShareIntent', shareIntent)
+
   const sharedUrl = hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
 
   const [error, setError] = useState(null)

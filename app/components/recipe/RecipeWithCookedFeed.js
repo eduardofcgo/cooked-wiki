@@ -76,7 +76,7 @@ const RecipeWithCookedFeed = observer(
     }, [])
 
     useEffect(() => {
-      recipeJournalStore.loadCookeds(recipeId)
+      recipeJournalStore.loadCookeds(recipeId || extractId)
     }, [recipeId, recipeJournalStore])
 
     const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 1000), [])
@@ -133,7 +133,7 @@ const RecipeWithCookedFeed = observer(
       if (!isLoadingRecipeCookeds && webViewReady && !hasMore) {
         return (
           <View style={styles.footer}>
-            <SimilarCookedFeed recipeId={recipeId} />
+            <SimilarCookedFeed recipeId={recipeId || extractId} />
           </View>
         )
       }
