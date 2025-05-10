@@ -68,6 +68,8 @@ const RecipeWithCookedFeed = observer(
     const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(recipeId)
     const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
 
+    console.log('[RecipeWithCookedFeed] recipeCookeds:', recipeCookeds)
+
     const [webViewHeight, setWebViewHeight] = useState(null)
     const [webViewReady, setWebViewReady] = useState(false)
 
@@ -110,13 +112,7 @@ const RecipeWithCookedFeed = observer(
     const renderItem = useCallback(({ item: cooked }) => {
       return (
         <View style={{ paddingHorizontal: 16 }}>
-          <FeedItem
-            cooked={cooked}
-            rounded={true}
-            showRecipe={false}
-            collapseNotes={false}
-            // showCookedWithoutNotes={false}
-          />
+          <FeedItem cooked={cooked} showRecipe={false} collapseNotes={false} />
         </View>
       )
     }, [])

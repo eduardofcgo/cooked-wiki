@@ -28,8 +28,8 @@ export default function SimilarCookedFeed({ recipeId }) {
     [],
   )
 
-  const keyExtractor = useCallback(item => {
-    return item.id
+  const keyExtractor = useCallback((item, index) => {
+    return `${item.id}-${index}`
   }, [])
 
   const ListFooter = useMemo(() => {

@@ -14,9 +14,9 @@ export default function WarningModal({ visible, onClose }) {
       titleComponent={
         <View style={{ flex: 1, gap: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
           <Bounce trigger={visible} delay={300}>
-            <MaterialIcons name='warning' size={40} color={theme.colors.primary} />
+            <MaterialIcons name='warning' size={35} color={theme.colors.primary} />
           </Bounce>
-          <Text style={styles.modalTitle}>Can't Save</Text>
+          <Text style={styles.modalTitle}>Can't save</Text>
         </View>
       }
     >

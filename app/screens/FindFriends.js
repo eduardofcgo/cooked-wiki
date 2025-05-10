@@ -117,7 +117,7 @@ function FindFriends({ navigation }) {
         </Text>
       ) : (
         <Text style={styles.permissionDescription}>
-          Connect with friends already using the app by allowing access to your contacts.
+          We respect your privacy, only encrypted contacts are sent to our servers.
         </Text>
       )}
 
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     color: theme.colors.gray,
   },
   toggleFollowButton: {
-    width: 85,
+    width: 90,
   },
   followingButton: {
     backgroundColor: theme.colors.secondary,

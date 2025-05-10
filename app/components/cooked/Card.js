@@ -29,7 +29,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
 
   // TODO: move to the store and server
   const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
-  const recipePhotoUrl = getThumbnailUrl(cooked['recipe-image-path'])
+  const recipePhotoUrl = cooked['recipe-image-path'] ? getThumbnailUrl(cooked['recipe-image-path']) : null
 
   const { profileStore } = useStore()
 
@@ -66,10 +66,13 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
     <View
       style={[
         styles.container,
-        !photoUrls?.length && !showRecipe && { borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+        ((!photoUrls?.length && !showRecipe) || !showRecipe || (!recipePhotoUrl && !showRecipe)) && {
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+        },
       ]}
     >
-      {!photoUrls && showRecipe && (
+      {!photoUrls && showRecipe && recipePhotoUrl && (
         <TouchableOpacity onPress={navigateToRecipe}>
           <Image source={{ uri: recipePhotoUrl }} style={styles.recipePhoto} />
         </TouchableOpacity>
@@ -81,8 +84,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
           cookedId={cookedId}
           onDoubleTap={onDoubleTapPhoto}
           imageStyle={
-            !hasRecipe &&
-            photoUrls.length === 1 && {
+            (!hasRecipe || !showRecipe) && {
               borderTopLeftRadius: theme.borderRadius.default,
               borderTopRightRadius: theme.borderRadius.default,
             }
@@ -143,7 +145,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     minHeight: 0,
-    backgroundColor: theme.colors.secondary,
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },

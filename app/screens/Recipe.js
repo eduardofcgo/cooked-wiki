@@ -140,11 +140,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <TouchableOpacity
-          onPress={handlePressOrDoublepress}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-          disabled={!hasRecentlyOpenedRecipes}
-        >
+        <TouchableOpacity onPress={handlePressOrDoublepress} style={{ flexDirection: 'row', alignItems: 'center' }}>
           <IconButton
             icon='history'
             size={20}
@@ -152,7 +148,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
             style={{
               marginLeft: -8,
               marginRight: 4,
-              opacity: hasRecentlyOpenedRecipes ? 1 : 0,
             }}
           />
           <Text
@@ -190,8 +185,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     },
     [navigation],
   )
-
-  // console.log('[Recipe] Recently opened recipes:', recentlyOpenedStore.recipes)
 
   return (
     <View style={styles.container}>

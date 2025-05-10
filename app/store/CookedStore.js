@@ -15,7 +15,11 @@ export class CookedStore {
   }
 
   getCooked(cookedId) {
-    return this.cooked.get(cookedId)?.value
+    if (this.getCookedLoadState(cookedId) === 'fulfilled') {
+      return this.cooked.get(cookedId)?.value
+    } else {
+      return undefined
+    }
   }
 
   ensureLoaded(cookedId) {

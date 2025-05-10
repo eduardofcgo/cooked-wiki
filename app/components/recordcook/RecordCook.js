@@ -174,6 +174,13 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
         setNotes(cooked.notes)
         setPhotos(cooked['cooked-photos-path'] || [])
+
+        // Does not really matter what we set here, as long is has something
+        // when the cook has a recipe, on EditMode it serves only to signal
+        // that the user is able to save a recipe without photos.
+        // The EditMode of this component should be refactored out to simplify this.
+        console.log('[RecordCook] Setting selected recipe:', cooked['recipe-id'] || cooked['extract-id'])
+        setSelectedRecipe(cooked['recipe-id'] || cooked['extract-id'])
       }
 
       setLoadingCooked(false)

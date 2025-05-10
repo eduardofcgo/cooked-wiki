@@ -36,7 +36,12 @@ const ProfileCooked = observer(({ username, onScroll }) => {
     await profileStore.reloadProfileCooked(username)
   }, [username])
 
-  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
+  const renderItem = useCallback(
+    ({ item: cooked }) => (
+      <FeedItem cooked={cooked} rounded={true} showRecipe={cooked['recipe-id'] || cooked['extract-id']} />
+    ),
+    [],
+  )
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingProfileCookedsNextPage && hasMore) {

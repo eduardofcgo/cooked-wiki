@@ -350,6 +350,8 @@ const CookedWebView = forwardRef(
         window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
       });`
 
+    const windowHeight = Dimensions.get('window').height
+
     // Combine injected JS for existing functionality and dynamic height
     const combinedInjectedJavaScript = `
       // --- Existing Base JS ---
@@ -377,10 +379,22 @@ const CookedWebView = forwardRef(
       ${
         disableScroll
           ? `
-            window.externalScrollY = 0;
+          window.externalViewportHeight = ${windowHeight};
+          
+          window.externalScrollY = 0;
+
             window.setExternalScrollY = function(scrollY) {
               // console.log('Received scrollY from React Native:', scrollY);
               window.externalScrollY = scrollY;
+
+              const modals = document.querySelectorAll('.modal > .modal-content');
+              modals.forEach(modal => {
+                  const modalHeight = modal.offsetHeight;
+                  const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
+                  const top = window.externalScrollY + centerPosition
+                  const adjustedPosition = Math.min(window.externalViewportHeight, top);
+                  modal.style.top = adjustedPosition + 'px';
+              })
 
               // Create a scroll event that bubbles
               const scrollEvent = new Event('scroll', { bubbles: true });
@@ -403,6 +417,16 @@ const CookedWebView = forwardRef(
             lastHeight = currentHeight;
             window.ReactNativeWebView.postMessage(String(currentHeight));
           }
+          
+          const modals = document.querySelectorAll('.modal > .modal-content');
+          modals.forEach(modal => {
+              const modalHeight = modal.offsetHeight;
+              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
+              const top = window.externalScrollY + centerPosition
+              const adjustedPosition = Math.min(window.externalViewportHeight, top);
+              modal.style.top = adjustedPosition + 'px';
+          })
+
         };
 
         const ro = new ResizeObserver(entries => {
@@ -430,7 +454,7 @@ const CookedWebView = forwardRef(
       // Inject viewport height when webview is ready
       if (webViewRef.current) {
         const windowHeight = Dimensions.get('window').height
-        const script = `window.externalViewportHeight = ${windowHeight}; true;` // Corrected template literal
+        const script = `window.externalViewportHeight = ${windowHeight}; console.log('Injected viewportHeight:', window.externalViewportHeight); true;` // Corrected template literal
         webViewRef.current.injectJavaScript(script)
         // console.log(`[WebView] Injected viewportHeight: ${windowHeight}`); // Optional: for debugging
       }
@@ -439,9 +463,14 @@ const CookedWebView = forwardRef(
     useImperativeHandle(ref, () => ({
       injectScrollPosition: scrollY => {
         if (webViewRef.current && disableScroll) {
+          const windowHeight = Dimensions.get('window').height
+
           const script = `
+            window.externalViewportHeight = ${windowHeight};
+            
             if (typeof window.setExternalScrollY === 'function') {
               window.setExternalScrollY(${scrollY});
+
             } else {
               console.warn('window.setExternalScrollY is not defined in WebView');
             }

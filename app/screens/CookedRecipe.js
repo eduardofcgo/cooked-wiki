@@ -244,7 +244,7 @@ const CookedRecipe = ({ navigation, route }) => {
     [],
   )
 
-  const keyExtractor = useCallback(item => item.id, [])
+  const keyExtractor = useCallback((item, index) => `${item.id}-${index}`, [])
 
   const ListFooter = useMemo(() => {
     if (loadingNextPage) {

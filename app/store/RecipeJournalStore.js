@@ -53,6 +53,7 @@ export class RecipeJournalStore {
   }
 
   async loadCookeds(recipeId) {
+    console.log('[RecipeJournalStore] loadCookeds', recipeId)
     const recipeCooked = new RecipeCooked()
     recipeCooked.isLoadingCookeds = true
 

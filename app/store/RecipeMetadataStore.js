@@ -15,7 +15,11 @@ export class RecipeMetadataStore {
   }
 
   getMetadata(recipeId) {
-    return this.metadataMap.get(recipeId)?.value
+    if (this.getMetadataLoadState(recipeId) === 'fulfilled') {
+      return this.metadataMap.get(recipeId)?.value
+    } else {
+      return undefined
+    }
   }
 
   ensureLoadedMetadata(recipeId) {

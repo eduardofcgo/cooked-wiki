@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: theme.borderRadius.small,
     justifyContent: 'center',
   },
   ctaText: {

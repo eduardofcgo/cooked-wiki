@@ -88,7 +88,9 @@ export default Community = observer(({ navigation, route }) => {
           style={{ marginRight: 16 }}
           hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
           onPress={handleAddFriends}
-        ></TouchableOpacity>
+        >
+          <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
+        </TouchableOpacity>
       ),
     })
   }, [navigation])
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   cardButton: {
-    width: 95,
+    width: 100,
   },
   emptyStateContainer: {
     flex: 1,
