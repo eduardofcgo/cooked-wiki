@@ -224,9 +224,7 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
   const { profileStore } = useStore()
   const bio = profileStore.getBio(username)
   const isPatron = profileStore.isPatron(username)
-  const profileImageThumbnail = profileStore.getImagePath(username)
-    ? getThumbnailUrl(profileStore.getImagePath(username))
-    : null
+  const profileImageThumbnail = getProfileImageUrl(username)
 
   return (
     <View style={styles.header}>

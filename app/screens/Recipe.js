@@ -11,6 +11,7 @@ import { theme } from '../style/style'
 import { FontAwesome } from '@expo/vector-icons'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
+import RecordCook from '../components/core/RecordCook'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -137,6 +138,10 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
     }
   })
 
+  const recordCook = useCallback(() => {
+    navigation.navigate('RecordCook', { recipeId, extractId })
+  }, [navigation, recipeId, extractId])
+
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -148,10 +153,12 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
             style={{
               marginLeft: -8,
               marginRight: 4,
+              marginBottom: 16,
             }}
           />
           <Text
             style={{
+              marginBottom: 16,
               fontSize: theme.fontSizes.large,
               fontFamily: theme.fonts.title,
               color: theme.colors.black,
@@ -162,7 +169,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 10 }}>
           {/* <IconButton
             icon='rotate-right'
             size={24}
@@ -173,6 +180,10 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
           <TouchableOpacity onPress={onShare}>
             <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={recordCook}>
+            <RecordCook size={35} iconSize={16} />
           </TouchableOpacity>
         </View>
       ),

@@ -48,10 +48,6 @@ export class ProfileStore {
     return this.profileDataMap.get(username)?.isPatron === true
   }
 
-  getImagePath(username) {
-    return this.profileDataMap.get(username)?.imagePath
-  }
-
   async updateProfileImage(username, file) {
     const formData = new FormData()
     formData.append('profile-image', file)

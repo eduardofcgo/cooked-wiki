@@ -392,8 +392,8 @@ const CookedWebView = forwardRef(
                   const modalHeight = modal.offsetHeight;
                   const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
                   const top = window.externalScrollY + centerPosition
-                  const adjustedPosition = Math.min(window.externalViewportHeight, top);
-                  modal.style.top = adjustedPosition + 'px';
+                  // const adjustedPosition = Math.min(window.externalViewportHeight, top);
+                  modal.style.top = top + 'px';
               })
 
               // Create a scroll event that bubbles
@@ -423,8 +423,8 @@ const CookedWebView = forwardRef(
               const modalHeight = modal.offsetHeight;
               const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
               const top = window.externalScrollY + centerPosition
-              const adjustedPosition = Math.min(window.externalViewportHeight, top);
-              modal.style.top = adjustedPosition + 'px';
+              // const adjustedPosition = Math.min(window.externalViewportHeight, top);
+              modal.style.top = top + 'px';
           })
 
         };
