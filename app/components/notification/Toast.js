@@ -184,13 +184,14 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: theme.colors.secondary,
+    bottom: 100,
+    left: '50%',
+    width: 270,
+    marginLeft: -135, // Half of the width to center it
+    backgroundColor: theme.colors.background,
     borderWidth: 0,
     borderColor: theme.colors.primary,
-    height: 65,
+    height: 70,
     zIndex: 1000,
     shadowColor: '#000',
     shadowOffset: {
@@ -200,7 +201,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 5,
-    marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: theme.borderRadius.default,
   },

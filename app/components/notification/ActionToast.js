@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.lightGray,
     borderRadius: 15,
   },
   textContainer: {

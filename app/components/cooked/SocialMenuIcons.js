@@ -6,10 +6,13 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useInAppNotification } from '../../context/NotificationContext'
+import ActionToast from '../../components/notification/ActionToast'
 
 const SocialMenuIcons = observer(({ cookedId, onSharePress, onEditPress }) => {
   const navigation = useNavigation()
   const { profileStore } = useStore()
+  const { showInAppNotification } = useInAppNotification()
 
   const stats = profileStore.cookedStats.get(cookedId)
   const likeCount = stats?.['like-count']
@@ -17,11 +20,15 @@ const SocialMenuIcons = observer(({ cookedId, onSharePress, onEditPress }) => {
 
   const likeCooked = useCallback(() => {
     profileStore.likeCooked(cookedId)
-  }, [cookedId, profileStore])
+    showInAppNotification(ActionToast, {
+      props: { message: 'You liked a Cooked', actionType: 'like' },
+      resetQueue: true,
+    })
+  }, [cookedId, profileStore, showInAppNotification])
 
   const unlikeCooked = useCallback(() => {
     profileStore.unlikeCooked(cookedId)
-  }, [cookedId, profileStore])
+  }, [cookedId, profileStore, showInAppNotification])
 
   const onPressLikeCount = useCallback(() => {
     navigation.navigate('CookedLikes', { cookedId })

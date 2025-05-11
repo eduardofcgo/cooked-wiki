@@ -172,7 +172,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           /> */}
 
           <TouchableOpacity onPress={onShare}>
-            <FontAwesome name='paper-plane' size={17} color={theme.colors.softBlack} />
+            <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
           </TouchableOpacity>
         </View>
       ),

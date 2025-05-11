@@ -202,7 +202,7 @@ const Notifications = ({ navigation }) => {
         ListHeaderComponent={
           <Animated.View style={[styles.headerContainer, animatedHeaderStyle]}>
             <View style={styles.headerContent}>
-              <Icon name="check-all" size={16} color={theme.colors.softBlack} style={styles.headerIcon} />
+              <Icon name='check-all' size={16} color={theme.colors.softBlack} style={styles.headerIcon} />
               <Text style={styles.headerText}>All notifications read</Text>
             </View>
           </Animated.View>

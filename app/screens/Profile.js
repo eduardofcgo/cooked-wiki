@@ -164,7 +164,7 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
         anchor={
           <IconButton
             icon='dots-vertical'
-            iconColor={theme.colors.primary}
+            iconColor={theme.colors.softBlack}
             size={23}
             onPress={() => setMenuVisible(true)}
           />
@@ -331,10 +331,15 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           navigation={navigation}
           menu={
             !publicView ? (
-              <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} username={username} />
+              <>
+                <TouchableOpacity style={{ padding: 16 }}>
+                  <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
+                </TouchableOpacity>
+                <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} username={username} />
+              </>
             ) : (
               <TouchableOpacity style={{ padding: 16 }}>
-                <FontAwesome name='paper-plane' size={18} color={`${theme.colors.primary}80`} />
+                <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
               </TouchableOpacity>
             )
           }
