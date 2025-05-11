@@ -123,6 +123,7 @@ export default function LoggedInStack({ StackNavigator }) {
         name='CookedRecipe'
         component={CookedRecipe}
         options={{
+          title: 'Recipe',
           ...screenStyle,
           // animation: 'none',
         }}

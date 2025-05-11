@@ -55,7 +55,11 @@ export class NotificationsStore {
   }
 
   get hasNewNotifications() {
-    return this.notifications?.value?.some(notification => !notification['is-read'])
+    if (this.getNotificationsLoadState() !== 'fulfilled') {
+      return false
+    }
+
+    return this.getNotifications()?.some(notification => !notification['is-read'])
   }
 
   getNotificationsLoadState() {

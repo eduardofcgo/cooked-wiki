@@ -75,7 +75,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
         keyExtractor={post => post.id.toString()}
         contentContainerStyle={styles.feedContent}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={1}
+        onEndReachedThreshold={0.5}
         ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
         ItemSeparatorComponent={ItemSeparatorComponent}
@@ -110,10 +110,12 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     textAlign: 'center',
   },
-  feedContent: {},
+  feedContent: {
+    paddingBottom: 250,
+    flexGrow: 1,
+  },
   footerLoader: {
     padding: 20,
-    paddingBottom: 100,
     alignItems: 'center',
     justifyContent: 'center',
   },

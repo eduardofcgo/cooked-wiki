@@ -33,16 +33,18 @@ const NotificationItem = observer(({ notification }) => {
   const onPress = useCallback(() => {
     switch (notification['notification-type']) {
       case 'follow':
-        navigation.push('PublicProfile', { username: notification.username })
+        notificationsStore.markNotificationAsRead(notification.id)
+        navigation.navigate('PublicProfile', { username: notification.username })
         break
       case 'like':
-        navigation.push('CookedRecipe', { cookedId: notification['cooked-id'] })
+        notificationsStore.markNotificationAsRead(notification.id)
+        navigation.navigate('CookedRecipe', { cookedId: notification['cooked-id'] })
         break
     }
   }, [notification])
 
   const navigateToUser = useCallback(() => {
-    navigation.push('PublicProfile', { username: notification.username })
+    navigation.navigate('PublicProfile', { username: notification.username })
   }, [notification])
 
   const getMessage = useCallback(() => {
@@ -97,6 +99,7 @@ const NotificationItem = observer(({ notification }) => {
       friction={2}
       rightThreshold={40}
       leftThreshold={40}
+      enabled={!notification['is-read']}
     >
       <View style={styles.notificationItem}>
         <TouchableOpacity
@@ -198,7 +201,10 @@ const Notifications = ({ navigation }) => {
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
         ListHeaderComponent={
           <Animated.View style={[styles.headerContainer, animatedHeaderStyle]}>
-            <Text style={styles.headerText}>All notifications read</Text>
+            <View style={styles.headerContent}>
+              <Icon name="check-all" size={16} color={theme.colors.softBlack} style={styles.headerIcon} />
+              <Text style={styles.headerText}>All notifications read</Text>
+            </View>
           </Animated.View>
         }
         ListEmptyComponent={
@@ -294,6 +300,13 @@ const styles = StyleSheet.create({
   headerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    marginRight: 6,
   },
   headerText: {
     fontFamily: theme.fonts.ui,
