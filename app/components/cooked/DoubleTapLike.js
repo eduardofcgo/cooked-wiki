@@ -11,7 +11,8 @@ const DoubleTapLike = ({ onDoubleTap, children, style }) => {
   // Function to handle tap events
   const handleTap = () => {
     const now = Date.now()
-    const DOUBLE_TAP_DELAY = 300 // milliseconds
+    const DOUBLE_TAP_DELAY = 500 // increased from 300ms to reduce accidental triggers
+    const SINGLE_TAP_TIMEOUT = 700 // time to wait before resetting a single tap
 
     if (lastTap && now - lastTap < DOUBLE_TAP_DELAY) {
       // Double tap detected
@@ -21,7 +22,16 @@ const DoubleTapLike = ({ onDoubleTap, children, style }) => {
       setLastTap(null) // Reset to avoid triple-tap
     } else {
       // Single tap - we'll wait to see if it becomes a double tap
+      if (tapTimeout.current) {
+        clearTimeout(tapTimeout.current)
+      }
+
       setLastTap(now)
+
+      // Clear the lastTap state if no second tap occurs within timeout
+      tapTimeout.current = setTimeout(() => {
+        setLastTap(null)
+      }, SINGLE_TAP_TIMEOUT)
     }
   }
 

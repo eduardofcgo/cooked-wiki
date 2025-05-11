@@ -33,7 +33,6 @@ const Recipes = observer(({ navigation, route, username }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 250,
     backgroundColor: theme.colors.background,
   },
 })

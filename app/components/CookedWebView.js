@@ -1,4 +1,4 @@
-import { Dimensions, Platform, SafeAreaView, Text, StyleSheet } from 'react-native'
+import { Dimensions, Platform, SafeAreaView, Text, StyleSheet, View } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
@@ -12,10 +12,8 @@ const CookedWebView = forwardRef(
       startUrl,
       navigation,
       route,
-      onRequest,
       onRequestPath,
       disableRefresh,
-      disableBottomMargin,
       loadingComponent,
       dynamicHeight,
       onHeightChange,
@@ -25,6 +23,8 @@ const CookedWebView = forwardRef(
     },
     ref,
   ) => {
+    const windowHeight = Dimensions.get('window').height
+
     const webViewRef = useRef()
     const [isWebViewReady, setIsWebViewReady] = useState(false)
 
@@ -36,25 +36,12 @@ const CookedWebView = forwardRef(
 
     const [isRefreshing, setRefreshing] = useState(false)
 
-    const [canGoBack, setCanGoBack] = useState(false)
-
-    const scrollToTop = () => {
-      // webViewRef.current.injectJavaScript(`
-      //   window.scroll({
-      //     top: 0,
-      //     left: 0,
-      //     behavior: 'smooth'
-      //   })
-      // `)
-    }
-
     const refreshWebView = () => {
       if (!disableRefresh) {
         setRefreshing(true)
 
         webViewRef.current.injectJavaScript(`window.location.href = "${startUrl}";`)
         webViewRef.current.clearHistory()
-        // scrollToTop()
 
         // For now, we are not waiting for the load event.
         setTimeout(() => {
@@ -63,47 +50,11 @@ const CookedWebView = forwardRef(
       }
     }
 
-    // useEffect(() => {
-    //   console.log('refresh effect')
-
-    //   // const reset = route && route.params && route.params.reset
-    //   const refresh = route && route.params && route.params.refresh
-
-    //   console.log('refresh', refresh)
-
-    //   if (refresh) {
-    //     webViewRef.current.injectJavaScript(
-    //       `window.location.href = "${startUrl}";
-    //        window.location.reload();`
-    //     )
-    //     webViewRef.current.clearHistory()
-    //     scrollToTop()
-    //   }
-
-    //   // if (reset) {
-    //   //   if (canGoBack)
-    //   //     webViewRef.current.injectJavaScript(
-    //   //       `window.location.href = "${startUrl}"`
-    //   //     )
-    //   //   else scrollToTop()
-
-    //   //   webViewRef.current.clearHistory()
-    //   // }
-    // }, [route])
-
     useEffect(() => {
       if (isWebViewReady && onWebViewReady) {
         onWebViewReady()
       }
     }, [isWebViewReady])
-
-    useEffect(() => {
-      const unsubscribe = navigation.addListener('blur', () => {
-        webViewRef.current.injectJavaScript('window.closeModals && window.closeModals()')
-      })
-
-      return unsubscribe
-    })
 
     useEffect(() => {
       const refresh = route.params && route.params.refresh
@@ -189,6 +140,7 @@ const CookedWebView = forwardRef(
 
         // Handle other structured messages
         if (message.type === 'logged-user') {
+          // Webview is communicating a logout (usually initiated by server)
           if (message.username === undefined) {
             console.warn('Logged user is undefined, this should not happen')
           } else if (message.username === null) {
@@ -199,12 +151,10 @@ const CookedWebView = forwardRef(
           refreshWebView()
         }
       } catch (error) {
-        // Log non-JSON, non-height messages (could be our test scroll message or others)
         console.log('[WebView Message]', data)
       }
     }
 
-    // --- Pull-to-refresh JS ---
     const pullToRefreshJS = `
       let touchStartY = 0;
       let touchEndY = 0;
@@ -281,9 +231,8 @@ const CookedWebView = forwardRef(
          touchEndY = 0;
       }, { passive: true }); // Can be passive
     `
-    // --- End Pull-to-refresh JS ---
 
-    const injectedJavaScript = `
+    const loggingJS = `
       (function() { // Wrap in a function to avoid polluting global scope
         const originalConsole = window.console;
         window.console = {
@@ -350,63 +299,47 @@ const CookedWebView = forwardRef(
         window.ReactNativeWebView.postMessage(JSON.stringify(loggedUserMessage));
       });`
 
-    const windowHeight = Dimensions.get('window').height
-
-    // Combine injected JS for existing functionality and dynamic height
-    const combinedInjectedJavaScript = `
-      // --- Existing Base JS ---
-      ${injectedJavaScript} 
-      // --- End Base JS ---
+    const injectedJS = `
+      ${loggingJS}
 
       // Add a scroll event listener for testing
       window.addEventListener('scroll', function() {
-        // Use a simple string message for testing
         // window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");
       });
 
-      // Conditionally add pull-to-refresh JS
-      ${
-        !disableScroll // Inject only if scrolling is enabled
-          ? `
-          // --- Pull-to-Refresh JS ---
-          ${pullToRefreshJS}
-          // --- End Pull-to-Refresh JS ---
-          `
-          : ''
-      }
+      window.externalScrollY = 0;
 
-      // Conditionally prevent default touchmove when scroll is disabled
+      ${!disableScroll ? pullToRefreshJS : ''}
+
       ${
         disableScroll
           ? `
-          window.externalViewportHeight = ${windowHeight};
+        window.externalViewportHeight = ${windowHeight};
+        
+        window.setExternalScrollY = function(scrollY) {
+          window.externalScrollY = scrollY;
+
+          const modals = document.querySelectorAll('.modal > .modal-content');
+          modals.forEach(modal => {
+              const modalHeight = modal.offsetHeight;
+              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
+              const top = window.externalScrollY + centerPosition
+              // const adjustedPosition = Math.min(window.externalViewportHeight, top);
+              modal.style.top = top + 'px';
+          })
+
+          const scrollEvent = new Event('scroll', { bubbles: true });
           
-          window.externalScrollY = 0;
-
-            window.setExternalScrollY = function(scrollY) {
-              // console.log('Received scrollY from React Native:', scrollY);
-              window.externalScrollY = scrollY;
-
-              const modals = document.querySelectorAll('.modal > .modal-content');
-              modals.forEach(modal => {
-                  const modalHeight = modal.offsetHeight;
-                  const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
-                  const top = window.externalScrollY + centerPosition
-                  // const adjustedPosition = Math.min(window.externalViewportHeight, top);
-                  modal.style.top = top + 'px';
-              })
-
-              // Create a scroll event that bubbles
-              const scrollEvent = new Event('scroll', { bubbles: true });
-              
-              // Dispatch the event on the document, which should bubble up to window
-              document.dispatchEvent(scrollEvent);
-            };
-          `
-          : ''
+          document.dispatchEvent(scrollEvent);
+        };`
+          : `
+        
+          window.setExternalScrollY = function(scrollY) {
+            console.log('setExternalScrollY is not defined in WebView')
+          }
+        `
       }
 
-      // Pull-to-Refresh JS (conditionally added)
       ${
         dynamicHeight
           ? `
@@ -426,7 +359,6 @@ const CookedWebView = forwardRef(
               // const adjustedPosition = Math.min(window.externalViewportHeight, top);
               modal.style.top = top + 'px';
           })
-
         };
 
         const ro = new ResizeObserver(entries => {
@@ -451,21 +383,27 @@ const CookedWebView = forwardRef(
     `
 
     useEffect(() => {
-      // Inject viewport height when webview is ready
-      if (webViewRef.current) {
+      const unsubscribe = navigation.addListener('blur', () => {
+        webViewRef.current.injectJavaScript('window.closeModals && window.closeModals()')
+      })
+
+      return unsubscribe
+    })
+
+    useEffect(() => {
+      if (webViewRef.current && disableScroll) {
         const windowHeight = Dimensions.get('window').height
-        const script = `window.externalViewportHeight = ${windowHeight}; console.log('Injected viewportHeight:', window.externalViewportHeight); true;` // Corrected template literal
+        const script = `window.externalViewportHeight = ${windowHeight}; console.log('Injected viewportHeight:', window.externalViewportHeight); true;`
         webViewRef.current.injectJavaScript(script)
-        // console.log(`[WebView] Injected viewportHeight: ${windowHeight}`); // Optional: for debugging
       }
     }, [webViewRef.current])
 
     useImperativeHandle(ref, () => ({
       injectScrollPosition: scrollY => {
-        if (webViewRef.current && disableScroll) {
+        if (webViewRef.current) {
           const windowHeight = Dimensions.get('window').height
 
-          const script = `
+          const setExternalScrollJS = `
             window.externalViewportHeight = ${windowHeight};
             
             if (typeof window.setExternalScrollY === 'function') {
@@ -476,86 +414,64 @@ const CookedWebView = forwardRef(
             }
             true; // Return true for Android
           `
-          webViewRef.current.injectJavaScript(script)
-        } else if (!disableScroll) {
-          console.warn(
-            'injectScrollPosition called but disableScroll is false. Scroll is handled by the WebView itself.',
-          )
+          webViewRef.current.injectJavaScript(setExternalScrollJS)
         }
       },
     }))
 
     return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-        }}
-      >
+      <View style={{ flex: 1 }}>
         {!credentials ? (
           <LoadingScreen />
         ) : (
-          <>
-            {true ? (
-              <WebView
-                source={{
-                  uri: currentURI,
-                }}
-                onShouldStartLoadWithRequest={onWebViewRequest}
-                setSupportMultipleWindows={false}
-                nativeConfig={{
-                  props: {
-                    webContentsDebuggingEnabled: true,
-                  },
-                }}
-                userAgent={'app'}
-                allowsBackForwardNavigationGestures={false}
-                domStorageEnabled={true}
-                sharedCookiesEnabled={true}
-                thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
-                incognito={false}
-                cacheEnabled={true}
-                pullToRefreshEnabled={!disableScroll}
-                startInLoadingState={true}
-                renderLoading={() => {
-                  return loadingComponent || <LoadingScreen />
-                }}
-                ref={webViewRef}
-                onLoadStart={syntheticEvent => {
-                  const { nativeEvent } = syntheticEvent
-                  // console.log('[WebView] onLoadStart:', nativeEvent.url)
-                }}
-                onLoad={syntheticEvent => {
-                  const { nativeEvent } = syntheticEvent
-                  // console.log('[WebView] onLoad:', nativeEvent.url)
-                }}
-                onLoadEnd={syntheticEvent => {
-                  const { nativeEvent } = syntheticEvent
-                  // console.log(
-                  //   '[WebView] onLoadEnd:',
-                  //   nativeEvent.loading ? 'Still loading' : 'Load finished',
-                  //   nativeEvent.url,
-                  // )
-                }}
-                onLoadProgress={({ nativeEvent }) => {
-                  // console.log('[WebView] onLoadProgress:', nativeEvent.progress)
-                }}
-                onError={syntheticEvent => {
-                  const { nativeEvent } = syntheticEvent
-                  console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
-                }}
-                style={[styles.baseWebViewStyle, style]}
-                injectedJavaScript={combinedInjectedJavaScript}
-                onMessage={handleMessage}
-                javaScriptEnabled={true}
-                scrollEnabled={!disableScroll}
-                bounces={false}
-              />
-            ) : (
-              loadingComponent || <LoadingScreen />
-            )}
-          </>
+          <WebView
+            source={{
+              uri: currentURI,
+            }}
+            onShouldStartLoadWithRequest={onWebViewRequest}
+            setSupportMultipleWindows={false}
+            nativeConfig={{
+              props: {
+                webContentsDebuggingEnabled: true,
+              },
+            }}
+            userAgent={'app'}
+            allowsBackForwardNavigationGestures={false}
+            domStorageEnabled={true}
+            sharedCookiesEnabled={true}
+            thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
+            incognito={false}
+            cacheEnabled={true}
+            pullToRefreshEnabled={!disableScroll}
+            startInLoadingState={true}
+            renderLoading={() => {
+              return loadingComponent || <LoadingScreen />
+            }}
+            ref={webViewRef}
+            onLoadStart={syntheticEvent => {
+              const { nativeEvent } = syntheticEvent
+            }}
+            onLoad={syntheticEvent => {
+              const { nativeEvent } = syntheticEvent
+            }}
+            onLoadEnd={syntheticEvent => {
+              const { nativeEvent } = syntheticEvent
+            }}
+            onLoadProgress={({ nativeEvent }) => {}}
+            onError={syntheticEvent => {
+              const { nativeEvent } = syntheticEvent
+              console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
+            }}
+            style={[styles.baseWebViewStyle, style]}
+            injectedJavaScript={injectedJS}
+            onMessage={handleMessage}
+            javaScriptEnabled={true}
+            scrollEnabled={!disableScroll}
+            bounces={false}
+            contentInset={!disableScroll && !dynamicHeight ? { bottom: 300 } : undefined}
+          />
         )}
-      </SafeAreaView>
+      </View>
     )
   },
 )

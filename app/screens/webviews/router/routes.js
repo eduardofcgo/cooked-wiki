@@ -1,3 +1,5 @@
+import { Linking } from 'react-native'
+
 export default routes = [
   {
     path: '/saved/:id',
@@ -19,6 +21,12 @@ export default routes = [
       } else {
         navigation.push('PublicProfile', { username: params.username })
       }
+    },
+  },
+  {
+    path: '/contact',
+    handler: () => {
+      Linking.openURL('https://cooked.wiki/contact')
     },
   },
   {
