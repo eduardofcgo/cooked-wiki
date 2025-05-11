@@ -8,6 +8,7 @@ import { RecipeMetadataStore } from './RecipeMetadataStore'
 import { UserStore } from './UserStore'
 import { RecipeJournalStore } from './RecipeJournalStore'
 import { CookedStore } from './CookedStore'
+import { NotificationsStore } from './NotificationsStore'
 
 export default class RootStore {
   userStore
@@ -18,9 +19,9 @@ export default class RootStore {
   recipeMetadataStore
 
   constructor(apiClient) {
-    this.userStore = new UserStore(apiClient)
-
     this.onboardingStore = new OnboardingStore()
+
+    this.userStore = new UserStore(apiClient)
 
     this.cookedStore = new CookedStore(apiClient)
 
@@ -32,6 +33,8 @@ export default class RootStore {
     this.recentlyOpenedStore = new RecentlyOpenedStore(this.recipeMetadataStore)
 
     this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore, this.cookedStore)
+
+    this.notificationsStore = new NotificationsStore(apiClient, this.profileStore, this.cookedStore)
 
     makeAutoObservable(this)
   }

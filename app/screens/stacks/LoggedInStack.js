@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import Contact from '../../screens/Contact'
 import CookedRecipe from '../../screens/CookedRecipe'
 import CookedLikes from '../../screens/CookedLikes'
@@ -19,8 +21,18 @@ import Recipe from '../Recipe'
 import { IconButton } from 'react-native-paper'
 
 import { screenStyle, theme } from '../../style/style'
+import { useStore } from '../../context/StoreContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function LoggedInStack({ StackNavigator }) {
+  const { profileStore } = useStore()
+  const { credentials } = useAuth()
+
+  useEffect(() => {
+    // Preloading logged in user's profile, this way when the user navigates to the profile, it loads instantly
+    profileStore.ensureLoaded(credentials.username)
+  }, [credentials.username])
+
   return (
     <>
       <StackNavigator.Screen name='Main' options={{ headerShown: false }} component={Main} />
@@ -31,8 +43,7 @@ export default function LoggedInStack({ StackNavigator }) {
         options={{
           title: 'Notifications',
           ...screenStyle,
-          presentation: 'modal',
-          animation: 'slide_from_left',
+          animation: 'slide_from_right',
         }}
       />
 

@@ -11,7 +11,7 @@ export default function useTryGetSimilarCooks({ recipeId }) {
 
   const loadNextPage = useCallback(async () => {
     if (loadingNextPage || loadingSimilarCooks) throw new Error('Already loading')
-    if (!recipeId) throw new Error('No recipeId')
+    if (!recipeId) return
 
     try {
       setLoadingNextPage(true)
@@ -30,7 +30,7 @@ export default function useTryGetSimilarCooks({ recipeId }) {
   })
 
   useEffect(() => {
-    if (!recipeId) throw new Error('No recipeId')
+    if (!recipeId) return
     ;(async () => {
       try {
         setLoadingSimilarCooks(true)

@@ -215,6 +215,12 @@ export class ProfileStore {
     })
   }
 
+  async ensureLoaded(username) {
+    if (!this.profileDataMap.has(username)) {
+      await this.loadProfileCooked(username)
+    }
+  }
+
   async getFollowingUsernames(username) {
     // Since it's not edited by the logged in user, there is no need to react to changes.
     // TODO: move to a hook

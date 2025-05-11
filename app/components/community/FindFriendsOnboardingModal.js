@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, StyleSheet, Text, View } from 'react-native'
+import { Modal, StyleSheet, Text, View, SafeAreaView } from 'react-native'
 import Reanimated, { useAnimatedStyle, withRepeat, withSequence, withTiming } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -27,7 +27,7 @@ export const FindFriendsOnboardingModal = ({ visible, onClose }) => {
 
   return (
     <Modal visible={visible} transparent={true} animationType='fade'>
-      <View style={styles.modalOverlay}>
+      <SafeAreaView style={styles.modalOverlay}>
         <Reanimated.View style={[pulseAnim]}>
           <View style={styles.clearCircle}>
             <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
@@ -40,11 +40,12 @@ export const FindFriendsOnboardingModal = ({ visible, onClose }) => {
 
         <View style={styles.modalTouchable}>
           <View style={styles.modalContent}>
+            <Icon name='account-multiple' size={20} color={theme.colors.softBlack} />
             <Text style={styles.modalText}>You can always tap the icon at the top right corner to find friends.</Text>
             <PrimaryButton title='Got it!' onPress={onClose} textStyle={styles.buttonText} />
           </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   )
 }
@@ -67,15 +68,13 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginTop: 5,
-    marginRight: 5,
     backgroundColor: theme.colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   arrowContainer: {
     position: 'absolute',
-    top: 20,
+    top: 70,
     right: 40,
     transform: [{ rotate: '30deg' }],
   },

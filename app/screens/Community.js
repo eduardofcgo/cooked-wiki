@@ -29,11 +29,13 @@ import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 
 export default Community = observer(({ navigation, route }) => {
-  const { userStore, profileStore, onboardingStore } = useStore()
+  const { userStore, profileStore, onboardingStore, notificationsStore } = useStore()
+
   const notificationPermissionStatus = userStore.notificationPermissionStatus
   const contactsPermissionStatus = userStore.contactsPermissionStatus
 
   const { hiddenNotificationsCard } = userStore
+  const { hasNewNotifications } = notificationsStore
 
   const {
     followingUsernames,
@@ -48,6 +50,8 @@ export default Community = observer(({ navigation, route }) => {
   const [findFriendsOnboardingModalVisible, setFindFriendsOnboardingModalVisible] = useState(false)
   const refreshPromptHeight = useSharedValue(0)
   const listRef = useRef(null)
+
+  const [isScreenFocused, setIsScreenFocused] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -79,7 +83,7 @@ export default Community = observer(({ navigation, route }) => {
       headerTitle: () => (
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
           <HeaderTitleMenu title='Community' reverse={true}>
-            <AnimatedBell />
+            {hasNewNotifications ? <AnimatedBell /> : <Icon name='bell' size={20} color={theme.colors.softBlack} />}
           </HeaderTitleMenu>
         </TouchableOpacity>
       ),
@@ -93,7 +97,7 @@ export default Community = observer(({ navigation, route }) => {
         </TouchableOpacity>
       ),
     })
-  }, [navigation])
+  }, [navigation, hasNewNotifications])
 
   const handleAddFriendsCard = useCallback(() => {
     navigation.navigate('FindFriends')
@@ -126,23 +130,6 @@ export default Community = observer(({ navigation, route }) => {
     notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && !hiddenNotificationsCard
   const showFindFriendsCard = onboardingStore.showFindFriendsHint()
 
-  const pulseAnim = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          scale: withRepeat(
-            withSequence(
-              withTiming(1, { duration: 1000 }),
-              withTiming(1.05, { duration: 500 }),
-              withTiming(1, { duration: 1000 }),
-            ),
-            -1,
-          ),
-        },
-      ],
-    }
-  })
-
   const onRefresh = useCallback(async () => {
     await profileStore.loadCommunityFeed()
   }, [])
@@ -166,9 +153,21 @@ export default Community = observer(({ navigation, route }) => {
     return null
   }
 
-  useInterval(() => {
-    profileStore.checkNeedsRefreshCommunityFeed()
-  }, 5000)
+  useFocusEffect(
+    useCallback(() => {
+      notificationsStore.loadNotifications()
+
+      // Periodically check for new notifications and feed refreshes
+      const intervalId = setInterval(() => {
+        notificationsStore.loadNotifications()
+        profileStore.checkNeedsRefreshCommunityFeed()
+      }, 5000)
+
+      return () => {
+        clearInterval(intervalId)
+      }
+    }, [notificationsStore]),
+  )
 
   const refreshPromptStyle = useAnimatedStyle(() => {
     return {

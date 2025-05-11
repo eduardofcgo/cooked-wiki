@@ -29,7 +29,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   const hasMore = profileStore.hasMoreProfileCookeds(username)
 
   useEffect(() => {
-    profileStore.loadProfileCooked(username)
+    profileStore.ensureLoaded(username)
   }, [username])
 
   const onRefresh = useCallback(async () => {
@@ -82,7 +82,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
         onScroll={onScroll}
         scrollEventThrottle={16}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   )

@@ -1,47 +1,112 @@
-import { makeAutoObservable, observable } from 'mobx'
+import { makeAutoObservable, observable, runInAction, reaction } from 'mobx'
+import { fromPromise } from 'mobx-utils'
 
 export class NotificationsStore {
-  notifications = observable.array([])
-  hasNewNotifications = false
+  notifications = undefined
 
-  loading = false
-
-  constructor(apiClient) {
+  constructor(apiClient, profileStore, cookedStore) {
     this.apiClient = apiClient
+    this.profileStore = profileStore
+    this.cookedStore = cookedStore
 
     makeAutoObservable(this)
 
     reaction(
-      () => this.hasNewNotifications,
-      () => {
-        AsyncStorage.setItem('hasNewNotifications', JSON.stringify(this.hasNewNotifications))
+      () => this.notifications?.state,
+      state => {
+        if (state === 'fulfilled') {
+          this.preloadProfiles()
+          this.preloadCooks()
+        }
       },
     )
-
-    this.loadHasNewNotificationsFromLocalStorage()
   }
 
-  async loadHasNewNotificationsFromLocalStorage() {
-    const hasNewNotifications = await AsyncStorage.getItem('hasNewNotifications')
+  preloadProfiles() {
+    const notifications = this.getNotifications()
+
+    if (notifications?.length > 0) {
+      notifications.slice(0, 5).forEach(notification => {
+        if (notification.username) {
+          this.profileStore.ensureLoaded(notification.username)
+        }
+      })
+    }
+  }
+
+  preloadCooks() {
+    const notifications = this.getNotifications()
+
+    if (notifications?.length > 0) {
+      notifications.slice(0, 5).forEach(notification => {
+        if (notification['cooked-id']) {
+          this.cookedStore.ensureLoaded(notification['cooked-id'])
+        }
+      })
+    }
+  }
+
+  getNotifications() {
+    if (this.getNotificationsLoadState() === 'fulfilled') {
+      return this.notifications?.value
+    } else {
+      return undefined
+    }
+  }
+
+  get hasNewNotifications() {
+    return this.notifications?.value?.some(notification => !notification['is-read'])
+  }
+
+  getNotificationsLoadState() {
+    return this.notifications?.state
+  }
+
+  async markNotificationAsRead(notificationId) {
+    try {
+      // Let's be optimistic
+      runInAction(() => {
+        if (this.getNotifications()) {
+          for (const notification of this.getNotifications()) {
+            if (notification.id === notificationId) {
+              console.log('setting notification as read', notification.id, notificationId)
+              notification['is-read'] = true
+            }
+          }
+        }
+      })
+
+      await this.apiClient.post(`/notifications/${notificationId}/read`)
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
+  }
+
+  async markAllNotificationsAsRead() {
+    try {
+      // Let's be optimistic
+      runInAction(() => {
+        if (this.getNotifications()) {
+          for (const notification of this.getNotifications()) {
+            notification['is-read'] = true
+          }
+        }
+      })
+
+      await this.apiClient.post('/notifications/read-all')
+    } catch (error) {
+      console.error('Error marking notifications as read:', error)
+    }
+  }
+
+  loadNotifications() {
     runInAction(() => {
-      this.hasNewNotifications = JSON.parse(hasNewNotifications)
+      this.notifications = fromPromise(
+        this.apiClient
+          .get('/notifications')
+          .then(response => response.notifications)
+          .then(observable.array),
+      )
     })
-  }
-
-  async loadNotifications() {
-    const newNotifications = await this.apiClient.get('/notifications')
-    const latestNotification = newNotifications[0]
-    const updatedNotifications = latestNotification?.id != this.notifications[0]?.id
-
-    runInAction(() => {
-      if (updatedNotifications) {
-        this.notifications.replace(notifications)
-        this.hasNewNotifications = true
-      }
-    })
-  }
-
-  hasNewNotifications() {
-    return this.notifications.length > 0
   }
 }
