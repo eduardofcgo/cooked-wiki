@@ -8,11 +8,9 @@ export default (pathname, props = {}) => {
     const matchResult = matchFns[i](pathname)
 
     if (matchResult) {
-      routes[i].handler({ ...props, ...matchResult })
-
-      return true
+      return () => routes[i].handler({ ...props, ...matchResult })
     }
   }
 
-  return false
+  return undefined
 }

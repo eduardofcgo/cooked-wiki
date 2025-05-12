@@ -3,14 +3,14 @@ import { Linking } from 'react-native'
 export default routes = [
   {
     path: '/saved/:id',
-    handler: ({ navigation, params }) => {
-      navigation.push('Recipe', { recipeId: params.id })
+    handler: ({ navigation, params, queryParams }) => {
+      navigation.navigate('Recipe', { recipeId: params.id, queryParams })
     },
   },
   {
     path: '/new/recent/:id',
     handler: ({ navigation, params }) => {
-      navigation.push('Recipe', { extractId: params.id })
+      navigation.navigate('Recipe', { extractId: params.id })
     },
   },
   {

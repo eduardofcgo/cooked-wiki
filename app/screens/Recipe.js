@@ -16,8 +16,13 @@ import RecordCook from '../components/core/RecordCook'
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 function Recipe({ loadingComponent, navigation, route, ...props }) {
+  console.log('got params on recipe', route.params)
+
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
+
+  // Webview can pass url query params here
+  const justSaved = route.params?.queryParams?.saved === 'true'
 
   // Add a key to force re-render of the RecipeWithCookedFeed component
   const [componentKey, setComponentKey] = useState(Date.now())
@@ -191,8 +196,8 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   }, [hasRecentlyOpenedRecipes, navigation, isExpanded, orientation])
 
   const routeHandler = useCallback(
-    pathname => {
-      return handler(pathname, { navigation })
+    (pathname, queryParams) => {
+      return handler(pathname, { navigation, queryParams })
     },
     [navigation],
   )
@@ -208,24 +213,39 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
                 style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
                 onPress={() => openRecipe(recipe)}
               >
-                <RecipeThumbnail thumbnailUrl={recipe?.['thumbnail-url']} title={recipe.title} />
+                <RecipeThumbnail thumbnailUrl={recipe?.['thumbnail-url']} title={recipe.title} type={recipe.type} />
               </TouchableOpacity>
             ))}
-            <TouchableOpacity
-              onPress={() => {
-                setIsExpanded(false)
-                recentlyOpenedStore.clear()
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 32,
-                marginRight: 32,
-              }}
-            >
-              <Text style={{ color: theme.colors.softBlack }}>Clear</Text>
-            </TouchableOpacity>
+            {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setIsExpanded(false)
+                  recentlyOpenedStore.clear()
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 32,
+                  marginRight: 32,
+                }}
+              >
+                <Text style={{ color: theme.colors.softBlack }}>Clear</Text>
+              </TouchableOpacity>
+            ) : (
+              <View
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 32,
+                  marginRight: 32,
+                  marginLeft: 16,
+                }}
+              >
+                <Text style={{ color: theme.colors.softBlack }}>No recent recipes</Text>
+              </View>
+            )}
           </ScrollView>
         </View>
       </Animated.View>
@@ -235,6 +255,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           key={componentKey}
           recipeId={recipeId}
           extractId={extractId}
+          justSaved={justSaved}
           navigation={navigation}
           onRequestPath={routeHandler}
           route={route}

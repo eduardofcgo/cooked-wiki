@@ -348,7 +348,10 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
         <Tab.Navigator
           screenOptions={{
             ...tabStyle,
-            lazy: true,
+
+            // If its the user's own profile, we want to eargerly load all the tabs,
+            // since most likely the user will visit them soon.
+            lazy: !publicView,
           }}
         >
           <Tab.Screen

@@ -6,14 +6,21 @@ import { theme } from '../../style/style'
 
 const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 
-const RecipeThumbnail = observer(({ thumbnailUrl, title }) => {
+const RecipeThumbnail = observer(({ thumbnailUrl, title, type }) => {
   return (
     <View style={[styles.container]}>
-      {thumbnailUrl ? (
-        <Image source={{ uri: thumbnailUrl }} style={[styles.thumbnail]} resizeMode='cover' />
-      ) : (
-        <NoImagePlaceholder />
-      )}
+      <View style={{ position: 'relative' }}>
+        {thumbnailUrl ? (
+          <Image source={{ uri: thumbnailUrl }} style={[styles.thumbnail]} resizeMode='cover' />
+        ) : (
+          <NoImagePlaceholder />
+        )}
+        {type !== 'saved' && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>UNSAVED</Text>
+          </View>
+        )}
+      </View>
       <Text style={[styles.title]} numberOfLines={2}>
         {title}
       </Text>
@@ -31,6 +38,21 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     borderRadius: theme.borderRadius.default,
     marginBottom: 4,
+  },
+  badge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: theme.colors.softBlack,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+    fontFamily: theme.fonts.uiBold,
   },
   title: {
     fontSize: theme.fontSizes.default,

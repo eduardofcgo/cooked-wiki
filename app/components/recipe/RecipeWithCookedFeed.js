@@ -12,11 +12,13 @@ import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
 import RecordCook from '../core/RecordCook'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../../urls'
+
 const RecipeWebView = forwardRef(
   (
     {
       recipeId,
       extractId,
+      justSaved,
       webViewHeight,
       setWebViewHeight,
       navigation,
@@ -29,7 +31,11 @@ const RecipeWebView = forwardRef(
     },
     ref,
   ) => {
-    const startUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+    const startUrl = extractId
+      ? getRecentExtractUrl(extractId)
+      : getSavedRecipeUrl(recipeId) + (justSaved ? '?saved=true' : '')
+
+    console.log('Openning recipe with url', startUrl)
 
     return (
       <View style={[styles.webViewContainer, { opacity: webViewReady ? 1 : 0 }]}>
@@ -61,14 +67,12 @@ const RecipeWebView = forwardRef(
 )
 
 const RecipeWithCookedFeed = observer(
-  ({ recipeId, extractId, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
+  ({ recipeId, extractId, justSaved, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
     const { recipeJournalStore } = useStore()
     const recipeCookeds = recipeJournalStore.getRecipeCooked(recipeId)
     const isLoadingRecipeCookeds = recipeJournalStore.isLoadingRecipeCooked(recipeId)
     const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(recipeId)
     const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
-
-    console.log('[RecipeWithCookedFeed] recipeCookeds:', recipeCookeds)
 
     const [webViewHeight, setWebViewHeight] = useState(null)
     const [webViewReady, setWebViewReady] = useState(false)
@@ -159,6 +163,7 @@ const RecipeWithCookedFeed = observer(
                 ref={webViewRef}
                 recipeId={recipeId}
                 extractId={extractId}
+                justSaved={justSaved}
                 onScroll={handleScroll}
                 webViewHeight={webViewHeight}
                 setWebViewHeight={debouncedSetWebViewHeight}

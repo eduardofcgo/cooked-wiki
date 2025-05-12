@@ -66,32 +66,40 @@ const CookedWebView = forwardRef(
 
     const onWebViewRequest = request => {
       const { url } = request
-      // console.log(`[WebView] onShouldStartLoadWithRequest: Intercepted URL = ${url}`)
 
-      // Allow the initial load URL explicitly
       const initialUri = startUrl + `?token=${token}`
-      if (url === initialUri) {
-        // console.log(`[WebView] onShouldStartLoadWithRequest: Allowing initial load URL.`)
+
+      // First page load does not need to check for routing
+      if (url === initialUri || url === startUrl) {
         return true
       }
 
-      // Also allow the base startUrl in case of redirects that clean the token
-      if (url === startUrl) {
-        // console.log(`[WebView] onShouldStartLoadWithRequest: Allowing base start URL.`)
-        return true
-      }
-
-      // Previous logic for specific path handling
       if (onRequestPath) {
-        console.log(`[WebView] onShouldStartLoadWithRequest: URL not allowed directly, checking onRequestPath.`)
-        setTimeout(() => {
-          const pathname = new URL(url).pathname
-          onRequestPath(pathname)
-        }, 1)
+        const pathname = new URL(url).pathname
+        const searchParams = new URL(url).searchParams
+        const queryParams = Object.fromEntries(searchParams.entries())
+
+        const handlePath = onRequestPath(pathname, queryParams)
+
+        if (handlePath) {
+          setTimeout(() => {
+            handlePath()
+
+            // setTimeout(() => {
+            //   // On the native screen, we can read the query params from the routed webview
+            //   navigation.setParams({ queryParams })
+            // }, 1)
+          }, 1)
+
+          // Found a handler, navigating to native screen, block webview navigation
+          return false
+        } else {
+          // No handler found, allow the navigation inside webview
+          return true
+        }
       }
 
-      console.log(`[WebView] onShouldStartLoadWithRequest: Blocking URL.`)
-      return false // Block other navigations
+      return true
     }
 
     const handleMessage = event => {
