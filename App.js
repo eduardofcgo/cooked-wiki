@@ -36,6 +36,8 @@ import navigationTheme from './app/style/navigation'
 import paperTheme from './app/style/paper'
 import { theme } from './app/style/style'
 
+import env from './app/config/environment'
+
 SplashScreen.preventAutoHideAsync()
 
 function App() {
@@ -73,7 +75,7 @@ function App() {
     <ShareIntentProvider>
       <SafeAreaProvider>
         <PaperProvider theme={paperTheme}>
-          <AuthProvider onLoadedCredentials={onLoadedCredentials}>
+          <AuthProvider onLoadedCredentials={onLoadedCredentials} baseURL={env.API_BASE_URL}>
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NavigationContainer linking={linking} theme={navigationTheme}>

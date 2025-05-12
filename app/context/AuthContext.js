@@ -17,7 +17,7 @@ export function useAuth() {
   return context
 }
 
-export const AuthProvider = ({ children, onLoadedCredentials }) => {
+export const AuthProvider = ({ children, onLoadedCredentials, baseURL }) => {
   const [authContext, setAuthContext] = useState({
     credentials: undefined,
     loggedIn: false,
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children, onLoadedCredentials }) => {
   }, [])
 
   const loadedCredentials = authContext.credentials !== undefined
-  const apiClient = loadedCredentials ? new ApiClient(authContext.credentials) : null
+  const apiClient = loadedCredentials ? new ApiClient(baseURL, authContext.credentials) : null
 
   if (apiClient) {
     apiClient.onUnauthorized(() => {

@@ -1,10 +1,9 @@
 import { useKeepAwake } from 'expo-keep-awake'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, Share } from 'react-native'
 import { IconButton } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import Share from 'react-native/Libraries/Share/Share'
 import RecipeThumbnail from '../components/core/RecipeThumbnail'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
@@ -12,11 +11,14 @@ import { FontAwesome } from '@expo/vector-icons'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
 import RecordCook from '../components/core/RecordCook'
+import { useAuth } from '../context/AuthContext'
+import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 function Recipe({ loadingComponent, navigation, route, ...props }) {
-  console.log('got params on recipe', route.params)
+  const { credentials } = useAuth()
+  const loggedInUsername = credentials.username
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
@@ -88,10 +90,10 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
   const onShare = useCallback(() => {
     Share.share({
-      message: '/saved',
-      url: `/saved/${recipeId}`,
+      message: `Check out this recipe on Cooked!`,
+      url: recipeId ? getSavedRecipeUrl(recipeId) : getRecentExtractUrl(extractId),
     })
-  }, [recipeId])
+  }, [recipeId, extractId])
 
   const openRecipe = useCallback(
     recipe => {
@@ -197,9 +199,9 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
   const routeHandler = useCallback(
     (pathname, queryParams) => {
-      return handler(pathname, { navigation, queryParams })
+      return handler(pathname, { navigation, queryParams, loggedInUsername })
     },
-    [navigation],
+    [navigation, loggedInUsername],
   )
 
   return (

@@ -17,7 +17,7 @@ const RecipeThumbnail = observer(({ thumbnailUrl, title, type }) => {
         )}
         {type !== 'saved' && (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>UNSAVED</Text>
+            <Text style={styles.badgeText}>NEW</Text>
           </View>
         )}
       </View>

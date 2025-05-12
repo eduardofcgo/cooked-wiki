@@ -4,12 +4,22 @@ import { StyleSheet, View } from 'react-native'
 import CookedWebView from '../../components/CookedWebView'
 import { useAuth } from '../../context/AuthContext'
 import { theme } from '../../style/style'
-import { getProfileUrl } from '../../urls'
+import { getProfileUrl, getCollectionUrl, getCollectionsUrl } from '../../urls'
 import handler from './router/handler'
+import Loading from '../../screens/Loading'
 
 const Recipes = observer(({ navigation, route, username }) => {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
+
+  const collectionId = route.params?.collectionId
+  const showCollections = route.params?.showCollections
+
+  const startUrl = showCollections
+    ? getCollectionsUrl(username)
+    : collectionId
+      ? getCollectionUrl(username, collectionId)
+      : getProfileUrl(username)
 
   const routeHandler = useCallback(
     pathname => {
@@ -21,9 +31,10 @@ const Recipes = observer(({ navigation, route, username }) => {
   return (
     <View style={styles.container}>
       <CookedWebView
-        startUrl={getProfileUrl(username)}
+        startUrl={startUrl}
         navigation={navigation}
         onRequestPath={routeHandler}
+        loadingComponent={<Loading />}
         route={route}
       />
     </View>

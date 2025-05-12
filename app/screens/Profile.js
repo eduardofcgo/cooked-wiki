@@ -18,6 +18,7 @@ import {
   View,
   SafeAreaView,
   Alert,
+  Share,
 } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import Animated, {
@@ -41,7 +42,7 @@ import CookedFeed from '../components/profile/CookedFeed'
 import EditBio from '../components/profile/EditBio'
 import FullScreenProfilePicture from '../components/profile/FullScreenProfilePicture'
 import { useAuth } from '../context/AuthContext'
-import { getProfileImageUrl, getThumbnailUrl } from '../urls'
+import { getProfileImageUrl, getThumbnailUrl, getShareableProfileUrl } from '../urls'
 import Recipes from './webviews/Recipes'
 import Shopping from './webviews/Shopping'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
@@ -330,13 +331,28 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           menu={
             !publicView ? (
               <>
-                <TouchableOpacity style={{ padding: 16 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    Share.share({
+                      message: `Check out my profile on Cooked!`,
+                      url: getShareableProfileUrl(username),
+                    })
+                  }}
+                >
                   <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
                 </TouchableOpacity>
                 <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} username={username} />
               </>
             ) : (
-              <TouchableOpacity style={{ padding: 16 }}>
+              <TouchableOpacity
+                style={{ padding: 16 }}
+                onPress={() => {
+                  Share.share({
+                    message: `Check out ${username}'s profile on Cooked!`,
+                    url: getShareableProfileUrl(username),
+                  })
+                }}
+              >
                 <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
               </TouchableOpacity>
             )

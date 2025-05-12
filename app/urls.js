@@ -1,8 +1,6 @@
-// const BASE_URL = 'https://cooked.wiki'
-// const BASE_URL = 'http://192.168.1.202:3000'
-const BASE_URL = 'http://localhost:3000'
+import env from './config/environment'
 
-export const API_BASE_URL = `${BASE_URL}/api`
+const { BASE_URL, API_BASE_URL } = env
 
 export const absoluteUrl = path => `${BASE_URL}${path}`
 export const getAppLoginUrl = () => `${BASE_URL}/app/login`
@@ -25,4 +23,7 @@ export const getCookedPhotoUrl = imagePath => `${BASE_URL}/image/photo/${imagePa
 export const getThumbnailUrl = imagePath => `${BASE_URL}/image/thumbnail/${imagePath}`
 export const getJournalUrl = username => `${BASE_URL}/user/${username}/journal`
 export const getProfileUrl = username => `${BASE_URL}/user/${username}`
+export const getShareableProfileUrl = username => `${BASE_URL}/user/${username}`
+export const getCollectionsUrl = username => `${BASE_URL}/user/${username}/collections`
+export const getCollectionUrl = (username, collectionId) => `${BASE_URL}/user/${username}/collections/${collectionId}`
 export const getShoppingListUrl = username => `${BASE_URL}/user/${username}/shopping-list`

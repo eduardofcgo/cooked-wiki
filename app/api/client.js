@@ -1,8 +1,6 @@
 import axios from 'axios'
 import { btoa, atob } from 'react-native-quick-base64'
 
-import { API_BASE_URL } from '../urls'
-
 export class ApiError extends Error {
   constructor(message, status, code) {
     super(message)
@@ -12,9 +10,9 @@ export class ApiError extends Error {
 }
 
 export class ApiClient {
-  constructor(credentials) {
+  constructor(baseURL, credentials) {
     this.client = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: baseURL,
       timeout: 6000,
       headers: {
         'Content-Type': 'application/json',

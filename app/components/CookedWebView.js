@@ -84,11 +84,6 @@ const CookedWebView = forwardRef(
         if (handlePath) {
           setTimeout(() => {
             handlePath()
-
-            // setTimeout(() => {
-            //   // On the native screen, we can read the query params from the routed webview
-            //   navigation.setParams({ queryParams })
-            // }, 1)
           }, 1)
 
           // Found a handler, navigating to native screen, block webview navigation
