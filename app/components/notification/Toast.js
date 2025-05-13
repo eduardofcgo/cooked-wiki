@@ -1,19 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Animated, Text, StyleSheet, TouchableOpacity, View, Easing, PanResponder } from 'react-native'
+import { Animated, Text, StyleSheet, TouchableOpacity, View, Easing, PanResponder, Keyboard } from 'react-native'
 import { theme } from '../../style/style'
 
+const NOTIFICATION_TOP_OFFSET = 100
 const NOTIFICATION_HEIGHT = 80
 const ANIMATION_DURATION = 300
 const SWIPE_THRESHOLD = 50 // minimum distance to trigger swipe dismiss
 
 export const Toast = ({ onPress, onClose, duration, visible, children }) => {
   const [isVisible, setIsVisible] = useState(visible)
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const translateY = useRef(new Animated.Value(NOTIFICATION_HEIGHT)).current
   const translateX = useRef(new Animated.Value(0)).current
   const opacity = useRef(new Animated.Value(0)).current
   const isDragging = useRef(false)
   const closeTimer = useRef(null)
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', event => {
+      setKeyboardVisible(true)
+      setKeyboardHeight(event.endCoordinates.height)
+    })
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false)
+      setKeyboardHeight(0)
+    })
+
+    return () => {
+      keyboardDidShowListener.remove()
+      keyboardDidHideListener.remove()
+    }
+  }, [])
 
   const startCloseTimer = () => {
     if (!duration) return
@@ -34,9 +53,17 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
       },
       onPanResponderMove: (_, gestureState) => {
         translateX.setValue(gestureState.dx)
-        // Only allow downward movement (positive dy) since toast is at bottom
-        if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy)
+        // Allow movement in appropriate direction based on position
+        if (isKeyboardVisible) {
+          // Allow upward movement when at top (negative dy)
+          if (gestureState.dy < 0) {
+            translateY.setValue(gestureState.dy)
+          }
+        } else {
+          // Allow downward movement when at bottom (positive dy)
+          if (gestureState.dy > 0) {
+            translateY.setValue(gestureState.dy)
+          }
         }
       },
       onPanResponderRelease: (_, gestureState) => {
@@ -62,12 +89,15 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
             if (onClose) onClose()
           })
         }
-        // Check for downward swipe (positive dy)
-        else if (gestureState.dy > SWIPE_THRESHOLD) {
-          // Swipe down to dismiss
+        // Check for vertical swipe based on position
+        else if (
+          (isKeyboardVisible && gestureState.dy < -SWIPE_THRESHOLD) ||
+          (!isKeyboardVisible && gestureState.dy > SWIPE_THRESHOLD)
+        ) {
+          // Swipe to dismiss (up when at top, down when at bottom)
           Animated.parallel([
             Animated.timing(translateY, {
-              toValue: NOTIFICATION_HEIGHT * 2,
+              toValue: isKeyboardVisible ? -NOTIFICATION_HEIGHT * 2 : NOTIFICATION_HEIGHT * 2,
               duration: 200,
               useNativeDriver: true,
             }),
@@ -109,7 +139,7 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
 
     Animated.parallel([
       Animated.spring(translateY, {
-        toValue: 0, // Animate to visible position (from bottom)
+        toValue: 0,
         useNativeDriver: true,
         speed: 12,
         bounciness: 5,
@@ -127,7 +157,7 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
   const hideNotification = () => {
     Animated.parallel([
       Animated.timing(translateY, {
-        toValue: NOTIFICATION_HEIGHT, // Animate back down off screen
+        toValue: isKeyboardVisible ? -NOTIFICATION_HEIGHT : NOTIFICATION_HEIGHT,
         duration: ANIMATION_DURATION,
         useNativeDriver: true,
       }),
@@ -154,12 +184,13 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
     return () => {
       if (closeTimer.current) clearTimeout(closeTimer.current)
     }
-  }, [visible, duration])
+  }, [visible, duration, isKeyboardVisible])
 
   return (
     <Animated.View
       style={[
         styles.container,
+        isKeyboardVisible ? { bottom: NOTIFICATION_TOP_OFFSET + keyboardHeight } : { bottom: NOTIFICATION_TOP_OFFSET },
         {
           transform: [{ translateY }, { translateX }],
           opacity,
@@ -184,7 +215,6 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 100,
     left: '50%',
     width: 270,
     marginLeft: -135, // Half of the width to center it
@@ -192,7 +222,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderColor: theme.colors.primary,
     height: 70,
-    zIndex: 1000,
+    zIndex: 1500,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -201,8 +231,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 5,
-    marginBottom: 16,
     borderRadius: theme.borderRadius.default,
+    marginBottom: 16,
+  },
+  containerBottom: {},
+  containerTop: {
+    top: 50,
+    marginTop: 16,
   },
   content: {
     flex: 1,

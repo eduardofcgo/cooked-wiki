@@ -2,16 +2,20 @@ import { faSearch, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useNavigation } from '@react-navigation/native'
-import { Text, TouchableOpacity, View, Platform } from 'react-native'
-import { faBookmark } from '@fortawesome/free-solid-svg-icons/faBookmark'
+import { Text, TouchableOpacity, View, Platform, Linking } from 'react-native'
 import { screenStyle, theme } from '../../style/style'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import Community from '../../screens/Community'
 import { LoggedInProfile } from '../../screens/Profile'
 import RecordCook from '../core/RecordCook'
+import UnderDevelopment from '../UnderDevelopment'
+import ModalCard from '../core/ModalCard'
+import CreateRecipeFromLink from '../recipe/CreateRecipeFromLink'
+import { getLoggedInProfileUrl } from '../../urls'
+import RecipeCreationMenu from '../RecipeCreationMenu'
 
 const TabNavigator = createBottomTabNavigator()
 
@@ -81,6 +85,9 @@ function CustomTabBar({ state, descriptors, navigation }) {
 function MainMenu({ route }) {
   const navigation = useNavigation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showDevModal, setShowDevModal] = useState(false)
+  const [showRecipeModal, setShowRecipeModal] = useState(false)
+  const [showLinkModal, setShowLinkModal] = useState(false)
 
   // Animation values
   const firstButtonY = useSharedValue(0)
@@ -176,6 +183,47 @@ function MainMenu({ route }) {
           }}
         />
       </TabNavigator.Navigator>
+
+      <ModalCard
+        title={showDevModal ? 'Under Development' : 'Create Recipe'}
+        visible={showRecipeModal}
+        onClose={() => {
+          setShowRecipeModal(false)
+          setShowDevModal(false)
+        }}
+      >
+        {showDevModal ? (
+          <UnderDevelopment
+            openURL={getLoggedInProfileUrl()}
+            onClose={() => {
+              setShowDevModal(false)
+            }}
+          />
+        ) : showLinkModal ? (
+          <CreateRecipeFromLink
+            onClose={() => {
+              setShowLinkModal(false)
+              setShowDevModal(false)
+            }}
+            onGenerate={url => {
+              setShowRecipeModal(false)
+              setShowLinkModal(false)
+              setShowDevModal(false)
+
+              setTimeout(() => {
+                navigation.navigate('Generate', { url })
+              }, 1)
+            }}
+          />
+        ) : (
+          <RecipeCreationMenu
+            onLinkPress={() => setShowLinkModal(true)}
+            onTextPress={() => setShowDevModal(true)}
+            onFilePress={() => setShowDevModal(true)}
+            onVoicePress={() => setShowDevModal(true)}
+          />
+        )}
+      </ModalCard>
 
       {/* Background Overlay */}
       <Animated.View
@@ -278,7 +326,7 @@ function MainMenu({ route }) {
           <TouchableOpacity
             onPress={() => {
               toggleMenu()
-              navigation.navigate('CreateRecipe')
+              setShowRecipeModal(true)
             }}
           >
             <View

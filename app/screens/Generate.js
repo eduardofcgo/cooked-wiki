@@ -1,32 +1,32 @@
-import { useShareIntentContext } from 'expo-share-intent'
-
 import { useApi } from '../context/ApiContext'
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Loading from './Extract/Loading'
 import Error from './Extract/Error'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
-export default function Extract({}) {
+export default function Generate({ url }) {
   const apiClient = useApi()
+  const route = useRoute()
   const navigation = useNavigation()
-  const { hasShareIntent, shareIntent, resetShareIntent, error: shareError } = useShareIntentContext()
 
-  console.log('hasShareIntent', shareIntent)
+  console.log('Generate', url, route.params)
 
-  const sharedUrl = hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
+  const generateUrl = url || route.params?.url
 
   const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleExtractUrl = useCallback(async () => {
-    if (!sharedUrl) return
+    if (!generateUrl) return
 
     setError(null)
+    setIsLoading(true)
 
     try {
       const response = await apiClient.post(
         '/new',
         {
-          url: sharedUrl,
+          url: generateUrl,
         },
         {
           timeout: 25000,
@@ -47,19 +47,20 @@ export default function Extract({}) {
       }
     } catch (err) {
       console.error('Extraction error:', err)
-
       setError(err)
+      setIsLoading(false)
     }
-  }, [sharedUrl, apiClient, navigation])
+  }, [generateUrl, apiClient, navigation])
 
+  // Call handleExtractUrl when the component mounts
   useEffect(() => {
-    if (sharedUrl) {
-      console.log('sharedUrl', sharedUrl)
+    if (generateUrl) {
+      console.log('URL to extract:', generateUrl)
       handleExtractUrl()
     }
-  }, [sharedUrl])
+  }, [generateUrl, handleExtractUrl])
 
-  if (!sharedUrl) {
+  if (!generateUrl) {
     return null
   }
 
@@ -67,5 +68,9 @@ export default function Extract({}) {
     return <Error errorMessage={error.message} onRetry={handleExtractUrl} />
   }
 
-  return <Loading />
+  if (isLoading) {
+    return <Loading />
+  }
+
+  return null
 }

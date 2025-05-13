@@ -17,6 +17,7 @@ export const theme = {
     softBlack: '#706b57',
     border: '#ccc',
     pink: '#d87192',
+    error: '#FF3B30',
   },
   fonts: {
     ui: 'AtkinsonHyperlegible_400Regular',

@@ -19,14 +19,16 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
+  FadeIn,
+  FadeOut,
 } from 'react-native-reanimated'
 import { theme } from '../../style/style'
 import DragIndicator from './DragIndicator'
-// import FadeInStatusBar from './FadeInStatusBar'
 
 export default function ModalCard({
   visible,
   onClose,
+  onAfterClose,
   title,
   titleComponent,
   onShow,
@@ -38,8 +40,28 @@ export default function ModalCard({
   const [isHiding, setIsHiding] = useState(false)
   const opacity = useSharedValue(0)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const [childrenKey, setChildrenKey] = useState(0)
+  const [titleKey, setTitleKey] = useState(0)
+  const [prevChildren, setPrevChildren] = useState(null)
+  const [prevTitle, setPrevTitle] = useState(null)
+  const [prevTitleComponent, setPrevTitleComponent] = useState(null)
 
   const [currentVisible, setCurrentVisible] = useState(visible)
+
+  useEffect(() => {
+    if (currentVisible && children !== prevChildren) {
+      setPrevChildren(children)
+      setChildrenKey(prev => prev + 1)
+    }
+  }, [children, currentVisible])
+
+  useEffect(() => {
+    if (currentVisible && (title !== prevTitle || titleComponent !== prevTitleComponent)) {
+      setPrevTitle(title)
+      setPrevTitleComponent(titleComponent)
+      setTitleKey(prev => prev + 1)
+    }
+  }, [title, titleComponent, currentVisible])
 
   useEffect(() => {
     const keyboardWillShowListener = Keyboard.addListener(
@@ -74,6 +96,9 @@ export default function ModalCard({
         runOnJS(setIsHiding)(false)
         runOnJS(setCurrentVisible)(false)
         runOnJS(onClose)()
+        if (onAfterClose) {
+          runOnJS(onAfterClose)()
+        }
       }
     })
   }
@@ -149,7 +174,6 @@ export default function ModalCard({
       onShow={onShow}
       onRequestClose={handleClose}
     >
-      {/* <FadeInStatusBar /> */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.modalContainer, backgroundStyle]}>
           <TouchableOpacity
@@ -168,9 +192,17 @@ export default function ModalCard({
               <Animated.View style={[styles.modalContent, animatedStyle]}>
                 <DragIndicator />
                 <View style={styles.modalHeader}>
-                  {titleComponent || <Text style={styles.modalTitle}>{title}</Text>}
+                  <Animated.View key={titleKey} entering={FadeIn.duration(300)} style={styles.titleContainer}>
+                    {titleComponent || <Text style={styles.modalTitle}>{title}</Text>}
+                  </Animated.View>
                 </View>
-                {children}
+                <Animated.View
+                  key={childrenKey}
+                  entering={FadeIn.duration(500).delay(300)}
+                  style={styles.childrenContainer}
+                >
+                  {children}
+                </Animated.View>
               </Animated.View>
             </PanGestureHandler>
           </KeyboardAvoidingView>
@@ -185,6 +217,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: theme.colors.disabledBackground,
+    zIndex: 900,
   },
   modalContent: {
     borderRadius: theme.borderRadius.default,
@@ -212,5 +245,11 @@ const styles = StyleSheet.create({
   keyboardAvoidingContainer: {
     width: '100%',
     justifyContent: 'flex-end',
+  },
+  childrenContainer: {
+    width: '100%',
+  },
+  titleContainer: {
+    flex: 1,
   },
 })

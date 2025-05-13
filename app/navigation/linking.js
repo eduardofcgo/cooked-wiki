@@ -19,7 +19,8 @@ export default {
   config: {
     initialRouteName: 'Main',
     screens: {
-      Extract: 'extract',
+      Generate: 'generate',
+      ShareIntentGenerate: 'share-generate',
       Main: {
         screens: {
           Community: 'community',
@@ -39,7 +40,7 @@ export default {
       return {
         routes: [
           {
-            name: 'Extract',
+            name: 'ShareIntentGenerate',
           },
         ],
       }
@@ -53,8 +54,8 @@ export default {
       if (url.includes(getShareExtensionKey())) {
         // REQUIRED FOR iOS WHEN APP IS IN BACKGROUND
         console.debug('react-navigation[onReceiveURL] Redirect to ShareIntent Screen', url)
-        console.log(`${getScheme()}://extract`)
-        listener(`${getScheme()}://extract`)
+        console.log(`${getScheme()}://share-generate`)
+        listener(`${getScheme()}://share-generate`)
       } else {
         console.log(`${getScheme()}://extract`)
         console.debug('react-navigation[onReceiveURL] OPEN URL', url)
@@ -66,8 +67,8 @@ export default {
       // REQUIRED FOR ANDROID WHEN APP IS IN BACKGROUND
       console.debug('react-navigation[subscribe] shareIntentStateListener', event.value)
       if (event.value === 'pending') {
-        console.log(`${getScheme()}://extract`)
-        listener(`${getScheme()}://extract`)
+        console.log(`${getScheme()}://share-generate`)
+        listener(`${getScheme()}://share-generate`)
       }
     })
 
@@ -96,7 +97,7 @@ export default {
     console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
 
     if (needRedirect) {
-      return `${Constants.expoConfig?.scheme}://extract`
+      return `${Constants.expoConfig?.scheme}://share-generate`
     }
     // As a fallback, do the default deep link handling
     const url = await Linking.getInitialURL()

@@ -80,8 +80,6 @@ export const NotificationProvider = ({ children }) => {
 
   return (
     <NotificationContext.Provider value={{ showInAppNotification }}>
-      {children}
-
       {component &&
         React.createElement(component, {
           ...props,
@@ -94,6 +92,8 @@ export const NotificationProvider = ({ children }) => {
             handleNotificationClose()
           },
         })}
+
+      {children}
     </NotificationContext.Provider>
   )
 }

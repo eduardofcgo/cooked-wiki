@@ -3,7 +3,8 @@ import { useEffect } from 'react'
 import Contact from '../../screens/Contact'
 import CookedRecipe from '../../screens/CookedRecipe'
 import CookedLikes from '../../screens/CookedLikes'
-import Extract from '../../screens/Extract'
+import Generate from '../../screens/Generate'
+import ShareIntentGenerate from '../../screens/ShareIntentGenerate'
 import FindFriends from '../../screens/FindFriends'
 import Followers from '../../screens/Followers'
 import Following from '../../screens/Following'
@@ -48,8 +49,17 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='Extract'
-        component={Extract}
+        name='ShareIntentGenerate'
+        component={ShareIntentGenerate}
+        options={{
+          title: 'New Recipe',
+          ...screenStyle,
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='Generate'
+        component={Generate}
         options={{
           title: 'New Recipe',
           ...screenStyle,

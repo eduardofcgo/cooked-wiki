@@ -23,6 +23,7 @@ export const getCookedPhotoUrl = imagePath => `${BASE_URL}/image/photo/${imagePa
 export const getThumbnailUrl = imagePath => `${BASE_URL}/image/thumbnail/${imagePath}`
 export const getJournalUrl = username => `${BASE_URL}/user/${username}/journal`
 export const getProfileUrl = username => `${BASE_URL}/user/${username}`
+export const getLoggedInProfileUrl = () => `${BASE_URL}/recipes`
 export const getShareableProfileUrl = username => `${BASE_URL}/user/${username}`
 export const getCollectionsUrl = username => `${BASE_URL}/user/${username}/collections`
 export const getCollectionUrl = (username, collectionId) => `${BASE_URL}/user/${username}/collections/${collectionId}`
