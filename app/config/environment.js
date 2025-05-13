@@ -1,6 +1,6 @@
 import Constants from 'expo-constants'
 
-const releaseChannel = Constants.expoConfig?.releaseChannel || 'development'
+const releaseChannel = Constants.expoConfig?.releaseChannel
 
 const ENV = {
   development: {
@@ -14,9 +14,10 @@ const ENV = {
 }
 
 function getEnvironment() {
-  if (releaseChannel === 'development') {
+  if (releaseChannel === 'development' || __DEV__) {
     return ENV.development
   }
+
   return ENV.production
 }
 

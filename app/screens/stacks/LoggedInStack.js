@@ -30,9 +30,14 @@ export default function LoggedInStack({ StackNavigator }) {
   const { credentials } = useAuth()
 
   useEffect(() => {
-    // Preloading logged in user's profile, this way when the user navigates to the profile, it loads instantly
-    profileStore.ensureLoaded(credentials.username)
-  }, [credentials.username])
+    try {
+      if (credentials?.username) {
+        profileStore.ensureLoaded(credentials.username)
+      }
+    } catch (error) {
+      console.error('Error preloading profile', error)
+    }
+  }, [credentials?.username])
 
   return (
     <>

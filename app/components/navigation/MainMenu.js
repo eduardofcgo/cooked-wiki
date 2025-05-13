@@ -7,7 +7,7 @@ import { screenStyle, theme } from '../../style/style'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import React, { useState, useRef, useEffect } from 'react'
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming, runOnJS } from 'react-native-reanimated'
 import Community from '../../screens/Community'
 import { LoggedInProfile } from '../../screens/Profile'
 import RecordCook from '../core/RecordCook'
@@ -26,57 +26,61 @@ const TabIcon = ({ icon, focused }) => (
 // Custom Tab Bar to fix iOS styling issues
 function CustomTabBar({ state, descriptors, navigation }) {
   return (
-    <View style={tabScreenStyle.tabBarStyle}>
-      <View style={{ flexDirection: 'row', height: '100%' }}>
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key]
-          const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-                ? options.title
-                : route.name
+    <View style={tabScreenStyle.tabBarContainerStyle}>
+      <View style={tabScreenStyle.tabBarStyle}>
+        <View
+          style={{ flexDirection: 'row', height: '100%', overflow: 'hidden', borderRadius: theme.borderRadius.default }}
+        >
+          {state.routes.map((route, index) => {
+            const { options } = descriptors[route.key]
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.name
 
-          const isFocused = state.index === index
+            const isFocused = state.index === index
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-            })
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+              })
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name)
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name)
+              }
             }
-          }
 
-          return (
-            <TouchableOpacity
-              key={index}
-              accessibilityRole='button'
-              accessibilityState={isFocused ? { selected: true } : {}}
-              onPress={onPress}
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: isFocused ? theme.colors.secondary : theme.colors.white,
-                height: '100%',
-              }}
-            >
-              {options.tabBarIcon && options.tabBarIcon({ focused: isFocused })}
-              <Text
+            return (
+              <TouchableOpacity
+                key={index}
+                accessibilityRole='button'
+                accessibilityState={isFocused ? { selected: true } : {}}
+                onPress={onPress}
                 style={{
-                  color: isFocused ? 'black' : theme.colors.softBlack,
-                  fontSize: theme.fontSizes.small,
-                  fontFamily: theme.fonts.ui,
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: isFocused ? theme.colors.secondary : theme.colors.white,
+                  height: '100%',
                 }}
               >
-                {typeof label === 'function' ? label({ focused: isFocused }) : label}
-              </Text>
-            </TouchableOpacity>
-          )
-        })}
+                {options.tabBarIcon && options.tabBarIcon({ focused: isFocused })}
+                <Text
+                  style={{
+                    color: isFocused ? 'black' : theme.colors.softBlack,
+                    fontSize: theme.fontSizes.small,
+                    fontFamily: theme.fonts.ui,
+                  }}
+                >
+                  {typeof label === 'function' ? label({ focused: isFocused }) : label}
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
       </View>
     </View>
   )
@@ -88,6 +92,7 @@ function MainMenu({ route }) {
   const [showDevModal, setShowDevModal] = useState(false)
   const [showRecipeModal, setShowRecipeModal] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false)
 
   // Animation values
   const firstButtonY = useSharedValue(0)
@@ -105,15 +110,21 @@ function MainMenu({ route }) {
 
     if (newState) {
       // Open menu
+      setIsAnimationComplete(false)
       firstButtonY.value = withSpring(-92)
       secondButtonY.value = withSpring(-184)
-      buttonsOpacity.value = withTiming(1, { duration: 200 })
+      buttonsOpacity.value = withTiming(1, { duration: 200 }, finished => {
+        if (finished) {
+          runOnJS(setIsAnimationComplete)(true)
+        }
+      })
       rotateZ.value = withTiming(45, { duration: 200 })
       plustButtonBorder.value = withTiming(0, { duration: 200 })
-      overlayOpacity.value = withTiming(0.85, { duration: 200 })
+      overlayOpacity.value = withTiming(0.8, { duration: 200 })
       plusButtonBackgroundColor.value = withTiming(1, { duration: 200 }) // Animate to secondary
     } else {
       // Close menu
+      setIsAnimationComplete(false)
       firstButtonY.value = withSpring(0)
       secondButtonY.value = withSpring(0)
       buttonsOpacity.value = withTiming(0, { duration: 150 })
@@ -269,9 +280,12 @@ function MainMenu({ route }) {
         >
           <TouchableOpacity
             onPress={() => {
-              toggleMenu()
-              navigation.navigate('RecordCook')
+              if (isAnimationComplete) {
+                toggleMenu()
+                navigation.navigate('RecordCook')
+              }
             }}
+            disabled={!isAnimationComplete}
           >
             <View
               style={{
@@ -282,6 +296,7 @@ function MainMenu({ route }) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 position: 'relative',
+                opacity: isAnimationComplete ? 1 : 0.7,
               }}
             >
               <RecordCook />
@@ -325,9 +340,12 @@ function MainMenu({ route }) {
         >
           <TouchableOpacity
             onPress={() => {
-              toggleMenu()
-              setShowRecipeModal(true)
+              if (isAnimationComplete) {
+                toggleMenu()
+                setShowRecipeModal(true)
+              }
             }}
+            disabled={!isAnimationComplete}
           >
             <View
               style={{
@@ -338,6 +356,7 @@ function MainMenu({ route }) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 position: 'relative',
+                opacity: isAnimationComplete ? 1 : 0.7,
               }}
             >
               <MaterialCommunityIcons name='bookmark' color={theme.colors.white} size={20} />
@@ -418,24 +437,36 @@ const tabScreenStyle = {
     fontSize: theme.fontSizes.small,
     fontFamily: theme.fonts.ui,
   },
+  tabBarContainerStyle: {
+    position: 'absolute',
+    marginHorizontal: 32,
+    left: 0,
+    right: 0,
+    bottom: 16,
+    height: 64,
+    zIndex: 8,
+    ...(Platform.OS === 'android'
+      ? {}
+      : {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        }),
+  },
   tabBarStyle: {
     height: 64,
     borderRadius: theme.borderRadius.default,
-    overflow: 'hidden',
     borderWidth: 0,
     borderTopWidth: 0,
     borderColor: theme.colors.primary,
     backgroundColor: theme.colors.white,
-    position: 'absolute',
-    marginHorizontal: 64,
-    left: 0,
-    right: 0,
-    bottom: 16,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    ...(Platform.OS === 'android'
+      ? {
+          overflow: 'hidden',
+          elevation: 10,
+        }
+      : {}),
   },
 }
 

@@ -51,6 +51,8 @@ function CreateRecipeFromLink({ onClose, onGenerate }) {
       if (hasString) {
         const clipboardContent = await Clipboard.getStringAsync()
         if (clipboardContent) {
+          // Even is the pasted url is not valid, still set it so the user
+          // has the option to fix it.
           setRecipeUrl(clipboardContent)
           importRecipe(clipboardContent)
         }

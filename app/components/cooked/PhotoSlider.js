@@ -16,6 +16,8 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
   const [sliderWidth, setSliderWidth] = useState(0)
   const [lastTap, setLastTap] = useState(null)
   const [showHeart, setShowHeart] = useState(false)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const scrollTimeout = useRef(null)
 
   const scale = useSharedValue(0)
   const opacity = useSharedValue(0)
@@ -33,11 +35,27 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
 
   const onScroll = useCallback(
     event => {
+      // Set scrolling flag
+      setIsScrolling(true)
+
+      // Clear any previous timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+
+      // Reset last tap to prevent accidental double-tap during scroll
+      setLastTap(null)
+
       const contentOffset = event.nativeEvent.contentOffset.x
       const newIndex = Math.round(contentOffset / sliderWidth)
       if (newIndex !== currentImageIndex) {
         setCurrentImageIndex(newIndex)
       }
+
+      // Set a timeout to mark scrolling as finished
+      scrollTimeout.current = setTimeout(() => {
+        setIsScrolling(false)
+      }, 150)
     },
     [currentImageIndex, sliderWidth],
   )
@@ -59,6 +77,9 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
   }, [scale, opacity])
 
   const handleImagePress = useCallback(() => {
+    // Ignore taps while scrolling
+    if (isScrolling) return
+
     const now = Date.now()
     if (lastTap && now - lastTap < 300) {
       onDoubleTap && onDoubleTap(currentImageIndex)
@@ -67,7 +88,16 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
     } else {
       setLastTap(now)
     }
-  }, [lastTap, onDoubleTap, currentImageIndex, animateHeart])
+  }, [lastTap, onDoubleTap, currentImageIndex, animateHeart, isScrolling])
+
+  // Clear the timeout when component unmounts
+  useEffect(() => {
+    return () => {
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+    }
+  }, [])
 
   const heartStyle = useAnimatedStyle(() => {
     return {
@@ -102,19 +132,22 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
-      {sliderWidth > 0 && (
-        <FlatList
-          data={images}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          style={{ width: sliderWidth }}
-        />
-      )}
+      {sliderWidth > 0 &&
+        (images.length > 1 ? (
+          <FlatList
+            data={images}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            style={{ width: sliderWidth }}
+          />
+        ) : (
+          <View style={{ width: sliderWidth }}>{renderItem({ item: images[0] })}</View>
+        ))}
 
       {hasMultiplePhotos && (
         <View style={styles.paginationContainer}>
