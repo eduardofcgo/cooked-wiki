@@ -119,7 +119,7 @@ const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare, onEditP
   </View>
 ))
 
-const CookedRecipe = ({ navigation, route }) => {
+const CookedRecipe = observer(({ navigation, route }) => {
   const { cookedId, showShareModal } = route.params
   const { cookedStore } = useStore()
 
@@ -150,8 +150,8 @@ const CookedRecipe = ({ navigation, route }) => {
   const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage, hasMoreSimilarCooks } =
     useTryGetSimilarCooks({ recipeId: recipeId || extractId })
 
-  // TODO: move to the store and server
-  const photoUrls = useMemo(() => cookedPhotoPaths?.map(path => getCookedPhotoUrl(path)), [cookedPhotoPaths])
+  // TODO: server should already return the urls
+  const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
 
   const snapPoints = useMemo(() => [105, '70%', '90%'], [])
 
@@ -261,42 +261,27 @@ const CookedRecipe = ({ navigation, route }) => {
     navigation.navigate('EditCook', { cookedId })
   }, [cookedId, navigation])
 
-  const memoizedListHeader = useMemo(
-    () => (
-      <ListHeader
-        cookedId={cookedId}
-        cooked={cooked}
-        photoUrls={photoUrls}
-        handleShare={handleShare}
-        onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
-      />
-    ),
-    [cookedId, cooked, loggedInUsername, photoUrls, handleShare, handleEdit],
+  const listHeader = (
+    <ListHeader
+      cookedId={cookedId}
+      cooked={cooked}
+      photoUrls={photoUrls}
+      handleShare={handleShare}
+      onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
+    />
   )
 
-  const renderHandle = useCallback(
-    () => (
-      <BottomSheetHandle
-        key={cookedId}
-        username={cooked?.['username']}
-        cookedDate={cooked?.['cooked-date']}
-        isCardCollapsed={isCardCollapsed}
-        expandCard={expandCard}
-        toggleCollapse={toggleCollapse}
-        animatedPosition={animatedPosition}
-        absoluteSnapPoints={absoluteSnapPoints}
-      />
-    ),
-    [
-      cookedId,
-      cooked?.['username'],
-      cooked?.['cooked-date'],
-      isCardCollapsed,
-      expandCard,
-      toggleCollapse,
-      animatedPosition,
-      absoluteSnapPoints,
-    ],
+  const renderHandle = () => (
+    <BottomSheetHandle
+      key={cookedId}
+      username={cooked?.['username']}
+      cookedDate={cooked?.['cooked-date']}
+      isCardCollapsed={isCardCollapsed}
+      expandCard={expandCard}
+      toggleCollapse={toggleCollapse}
+      animatedPosition={animatedPosition}
+      absoluteSnapPoints={absoluteSnapPoints}
+    />
   )
 
   if (!cooked || cookedLoadState === 'loading') {
@@ -335,7 +320,7 @@ const CookedRecipe = ({ navigation, route }) => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={ListFooter}
-          ListHeaderComponent={memoizedListHeader}
+          ListHeaderComponent={listHeader}
           contentContainerStyle={styles.flatListContent}
           removeClippedSubviews={true}
           maxToRenderPerBatch={5}
@@ -345,7 +330,7 @@ const CookedRecipe = ({ navigation, route }) => {
       </BottomSheet>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
@@ -427,4 +412,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default observer(CookedRecipe)
+export default CookedRecipe

@@ -11,15 +11,12 @@ import AuthorBar from './AuthorBar'
 import { observer } from 'mobx-react-lite'
 import SocialMenuIcons from './SocialMenuIcons'
 import { useAuth } from '../../context/AuthContext'
-import { useInAppNotification } from '../../context/NotificationContext'
-import ActionToast from '../../components/notification/ActionToast'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => {
   const navigation = useNavigation()
   const { credentials } = useAuth()
-  const { showInAppNotification } = useInAppNotification()
 
   const canEdit = credentials?.username === cooked['username']
 
@@ -59,11 +56,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
 
   const onDoubleTapPhoto = useCallback(() => {
     profileStore.likeCooked(cookedId)
-    showInAppNotification(ActionToast, {
-      props: { message: 'Your liked a Cooked', actionType: 'like' },
-      resetQueue: true,
-    })
-  }, [cookedId, profileStore, showInAppNotification])
+  }, [cookedId, profileStore])
 
   const navigateToEditCook = useCallback(() => {
     navigation.navigate('EditCook', { cookedId })

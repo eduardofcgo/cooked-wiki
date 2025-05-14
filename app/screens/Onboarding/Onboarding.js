@@ -8,10 +8,6 @@ import Logo from '../../components/core/Logo'
 import { theme } from '../../style/style'
 
 const OnboardingScreen = ({ navigation }) => {
-  useEffect(() => {
-    StatusBar.setBackgroundColor(theme.colors.background, true)
-  }, [])
-
   return (
     <Animated.View style={styles.container} exiting={SlideOutLeft.duration(400).springify()}>
       <View style={styles.content}>

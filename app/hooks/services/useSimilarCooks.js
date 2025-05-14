@@ -1,6 +1,10 @@
 import { useApi } from '../../context/ApiContext'
 import { useEffect, useState, useCallback } from 'react'
 
+const requestConfig = {
+  timeout: 15000,
+}
+
 export default function useTryGetSimilarCooks({ recipeId }) {
   const api = useApi()
 
@@ -18,7 +22,7 @@ export default function useTryGetSimilarCooks({ recipeId }) {
 
       console.log('[useSimilarCooks] loadingSimilarCooks', recipeId, currentPage)
 
-      const data = await api.get(`/community/similar/${recipeId}?page=${currentPage + 1}`)
+      const data = await api.get(`/community/similar/${recipeId}?page=${currentPage + 1}`, requestConfig)
 
       setSimilarCooks(prevCooks => [...(prevCooks || []), ...(data || [])])
       setCurrentPage(prevPage => prevPage + 1)
@@ -34,7 +38,7 @@ export default function useTryGetSimilarCooks({ recipeId }) {
     ;(async () => {
       try {
         setLoadingSimilarCooks(true)
-        const data = await api.get(`/community/similar/${recipeId}`)
+        const data = await api.get(`/community/similar/${recipeId}`, requestConfig)
         setSimilarCooks(data)
       } catch (err) {
         console.error('Error fetching similar cooks:', err)

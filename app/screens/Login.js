@@ -27,10 +27,6 @@ export default function Login({ navigation, route }) {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    StatusBar.setBackgroundColor(theme.colors.secondary, true)
-  }, [])
-
   const handleLogin = async () => {
     setIsLoading(true)
 

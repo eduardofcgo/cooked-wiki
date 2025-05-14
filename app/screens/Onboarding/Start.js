@@ -105,10 +105,6 @@ export default function Start({ navigation, route }) {
     navigation.navigate('Login')
   }
 
-  useEffect(() => {
-    StatusBar.setBackgroundColor(theme.colors.secondary, true)
-  }, [])
-
   return (
     <View style={styles.container}>
       <View style={styles.topSection}>

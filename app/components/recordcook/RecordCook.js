@@ -235,29 +235,36 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
       const file = {
         uri: result.assets[0].uri,
-        name: result.assets[0].fileName,
+        // In production build, the fileName is null
+        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
         type: result.assets[0].mimeType,
       }
 
       console.log('[handleCameraPress] Uploading photo...', file)
 
-      const response = await apiClient.uploadFormData({
-        url: '/journal/upload-photo',
-        method: 'POST',
-        data: {
-          'cooked-photo': file,
-        },
-      })
+      try {
+        const response = await apiClient.uploadFormData({
+          url: '/journal/upload-photo',
+          method: 'POST',
+          data: {
+            'cooked-photo': file,
+          },
+        })
 
-      console.log('[handleCameraPress] Uploaded photo...', response)
+        console.log('[handleCameraPress] Uploaded photo...', response)
 
-      const imagePath = response['image-path']
+        const imagePath = response['image-path']
 
-      setIsUploading(false)
-      setPhotos(prevPhotos => [...prevPhotos, imagePath])
+        setIsUploading(false)
+        setPhotos(prevPhotos => [...prevPhotos, imagePath])
 
-      if (setHasChanges) {
-        setHasChanges(true)
+        if (setHasChanges) {
+          setHasChanges(true)
+        }
+      } catch (error) {
+        console.error('[handleCameraPress] Error uploading photo', error)
+      } finally {
+        setIsUploading(false)
       }
     }
   }, [apiClient, setIsUploading, setPhotos, setHasChanges])
@@ -282,33 +289,40 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
       const file = {
         uri: result.assets[0].uri,
-        name: result.assets[0].fileName,
+        // In production build, the fileName is null
+        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
         type: result.assets[0].mimeType,
       }
 
       console.log('[handleGalleryPress] Uploading photo...', file)
 
-      const response = await apiClient.uploadFormData({
-        url: '/journal/upload-photo',
-        method: 'post',
-        data: {
-          'cooked-photo': file,
-        },
-      })
+      try {
+        const response = await apiClient.uploadFormData({
+          url: '/journal/upload-photo',
+          method: 'post',
+          data: {
+            'cooked-photo': file,
+          },
+        })
 
-      console.log('[handleGalleryPress] Uploaded photo...', response)
+        console.log('[handleGalleryPress] Uploaded photo...', response)
 
-      const imagePath = response['image-path']
+        const imagePath = response['image-path']
 
-      setIsUploading(false)
-      setPhotos(prevPhotos => [...prevPhotos, imagePath])
+        setIsUploading(false)
+        setPhotos(prevPhotos => [...prevPhotos, imagePath])
 
-      if (setHasChanges) {
-        setHasChanges(true)
+        if (setHasChanges) {
+          setHasChanges(true)
+        }
+      } catch (error) {
+        console.error('[handleGalleryPress] Error uploading photo', error)
+      } finally {
+        setIsUploading(false)
       }
     }
     setIsPhotoModalVisible(false)
-  }, [profileStore, setIsUploading, setPhotos, setHasChanges])
+  }, [apiClient, setIsUploading, setPhotos, setHasChanges])
 
   const handleNotesSave = useCallback(
     newNotes => {

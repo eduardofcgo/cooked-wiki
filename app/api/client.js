@@ -11,6 +11,8 @@ export class ApiError extends Error {
 
 export class ApiClient {
   constructor(baseURL, credentials) {
+    console.log('initializing api client', baseURL, credentials?.username)
+
     this.client = axios.create({
       baseURL: baseURL,
       timeout: 6000,
@@ -56,7 +58,7 @@ export class ApiClient {
           )
         }
 
-        throw new ApiError('Network error', 0, 'NETWORK_ERROR')
+        throw error
       },
     )
   }
@@ -102,12 +104,18 @@ export class ApiClient {
     if (!config.data) throw new Error('data is required')
     if (!config.url) throw new Error('url is required')
     if (!config.method) throw new Error('method is required')
-    if (!config.data) throw new Error('data is required')
 
     const formData = new FormData()
 
     for (const key in config.data) {
-      formData.append(key, config.data[key])
+      const formField = config.data[key]
+
+      // File object
+      if (formField instanceof Object && (!formField.uri || !formField.type || !formField.name)) {
+        throw new Error(`Form field ${key} is missing required properties: uri, type, and name are all required`)
+      }
+
+      formData.append(key, formField)
     }
 
     return this.client.request({

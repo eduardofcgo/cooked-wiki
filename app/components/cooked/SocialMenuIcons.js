@@ -20,10 +20,10 @@ const SocialMenuIcons = observer(({ cookedId, onSharePress, onEditPress }) => {
 
   const likeCooked = useCallback(() => {
     profileStore.likeCooked(cookedId)
-    showInAppNotification(ActionToast, {
-      props: { message: 'You liked a Cooked', actionType: 'like' },
-      resetQueue: true,
-    })
+    // showInAppNotification(ActionToast, {
+    //   props: { message: 'You liked a Cooked', actionType: 'like' },
+    //   resetQueue: true,
+    // })
   }, [cookedId, profileStore, showInAppNotification])
 
   const unlikeCooked = useCallback(() => {

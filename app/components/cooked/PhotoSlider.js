@@ -81,7 +81,7 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
     if (isScrolling) return
 
     const now = Date.now()
-    if (lastTap && now - lastTap < 300) {
+    if (lastTap && now - lastTap < 600) {
       onDoubleTap && onDoubleTap(currentImageIndex)
       setLastTap(null)
       animateHeart()

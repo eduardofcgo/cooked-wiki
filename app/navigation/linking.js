@@ -92,13 +92,14 @@ export default {
 
   // https://reactnavigation.org/docs/deep-linking/#third-party-integrations
   async getInitialURL() {
+    // TODO: fix this
     // REQUIRED FOR ANDROID FIRST LAUNCH
-    const needRedirect = hasShareIntent(getShareExtensionKey())
-    console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
+    // const needRedirect = hasShareIntent(getShareExtensionKey())
+    // console.debug('react-navigation[getInitialURL] redirect to ShareIntent screen:', needRedirect)
 
-    if (needRedirect) {
-      return `${Constants.expoConfig?.scheme}://share-generate`
-    }
+    // if (needRedirect) {
+    //   return `${Constants.expoConfig?.scheme}://share-generate`
+    // }
     // As a fallback, do the default deep link handling
     const url = await Linking.getInitialURL()
     return url

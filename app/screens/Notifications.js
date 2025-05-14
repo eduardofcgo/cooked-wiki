@@ -30,15 +30,24 @@ const NotificationItem = observer(({ notification }) => {
     }
   }, [notification])
 
-  const onPress = useCallback(() => {
+  const notificationNavigate = useCallback(() => {
     switch (notification['notification-type']) {
       case 'follow':
         notificationsStore.markNotificationAsRead(notification.id)
         navigation.navigate('PublicProfile', { username: notification.username })
         break
+
       case 'like':
         notificationsStore.markNotificationAsRead(notification.id)
-        navigation.navigate('CookedRecipe', { cookedId: notification['cooked-id'] })
+
+        const id = notification['cooked-id']
+        const recipeId = notification['extract-id'] || notification['recipe-id']
+
+        if (recipeId) {
+          navigation.navigate('CookedRecipe', { cookedId: id })
+        } else {
+          navigation.navigate('FreestyleCook', { cookedId: id })
+        }
         break
     }
   }, [notification])
@@ -72,7 +81,7 @@ const NotificationItem = observer(({ notification }) => {
     if (!notification['is-read']) {
       notificationsStore.markNotificationAsRead(notification.id)
       showInAppNotification(ActionToast, {
-        props: { message: 'Notification marked as read', actionType: 'default' },
+        props: { message: 'Notification read', actionType: 'default' },
         resetQueue: true,
       })
     }
@@ -104,7 +113,7 @@ const NotificationItem = observer(({ notification }) => {
       <View style={styles.notificationItem}>
         <TouchableOpacity
           style={[styles.notificationItemContent, notification['is-read'] && { opacity: theme.opacity.disabled }]}
-          onPress={onPress}
+          onPress={notificationNavigate}
           activeOpacity={0.7}
         >
           <TouchableOpacity style={styles.profilePicContainer} onPress={navigateToUser}>
@@ -173,7 +182,7 @@ const Notifications = ({ navigation }) => {
             onPress={() => {
               notificationsStore.markAllNotificationsAsRead()
               showInAppNotification(ActionToast, {
-                props: { message: 'All notifications marked as read', actionType: 'default' },
+                props: { message: 'All notifications read', actionType: 'default' },
                 resetQueue: true,
               })
             }}

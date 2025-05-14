@@ -61,11 +61,22 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.738495561582-en2jurt5k698phvs1jrja9kqlb7i04nb"
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "cooked",
+          "project": "2",
+          "url": "https://glitch.cooked.wiki"
+        }
       ]
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "wiki.cooked"
+      "bundleIdentifier": "wiki.cooked",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

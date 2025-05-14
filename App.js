@@ -27,8 +27,8 @@ import { observer } from 'mobx-react-lite'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import * as Sentry from '@sentry/react-native'
 import { AuthProvider } from './app/context/AuthContext'
-
 import { NotificationProvider } from './app/context/NotificationContext'
 import linking from './app/navigation/linking'
 import Navigator from './app/screens/stacks/Navigator'
@@ -37,6 +37,13 @@ import paperTheme from './app/style/paper'
 import { theme } from './app/style/style'
 
 import env from './app/config/environment'
+
+if (env.sentryDSN) {
+  Sentry.init({
+    dsn: env.sentryDSN,
+    debug: false,
+  })
+}
 
 SplashScreen.preventAutoHideAsync()
 
@@ -91,4 +98,4 @@ function App() {
   )
 }
 
-export default observer(App)
+export default Sentry.wrap(observer(App))

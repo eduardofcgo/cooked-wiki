@@ -35,10 +35,6 @@ const Notifications = ({ navigation }) => {
     return () => clearInterval(interval)
   }, [currentPhotoIndex])
 
-  useEffect(() => {
-    StatusBar.setBackgroundColor(theme.colors.background, true)
-  }, [])
-
   const handleEnableNotifications = useCallback(
     ({ tryAgain = true } = {}) => {
       ;(async () => {
