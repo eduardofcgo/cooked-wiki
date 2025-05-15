@@ -239,6 +239,8 @@ PODS:
     - ExpoModulesCore
   - ExpoAsset (11.0.5):
     - ExpoModulesCore
+  - ExpoClipboard (7.0.1):
+    - ExpoModulesCore
   - ExpoContacts (14.0.5):
     - ExpoModulesCore
   - ExpoDevice (7.0.3):
@@ -2105,6 +2107,29 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSentry (6.10.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.10.14.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Sentry/HybridSDK (= 8.48.0)
+    - Yoga
   - RNSVG (15.8.0):
     - React-Core
   - RNVectorIcons (10.2.0):
@@ -2128,6 +2153,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - Sentry/HybridSDK (8.48.0)
   - SocketRocket (0.7.1)
   - VisionCamera (4.6.3):
     - VisionCamera/Core (= 4.6.3)
@@ -2155,6 +2181,7 @@ DEPENDENCIES:
   - "ExpoAdapterGoogleSignIn (from `../node_modules/@react-native-google-signin/google-signin/expo/ios`)"
   - ExpoAppleAuthentication (from `../node_modules/expo-apple-authentication/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoContacts (from `../node_modules/expo-contacts/ios`)
   - ExpoDevice (from `../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -2247,6 +2274,7 @@ DEPENDENCIES:
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
@@ -2259,6 +2287,7 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - lottie-ios
+    - Sentry
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2296,6 +2325,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-apple-authentication/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
+  ExpoClipboard:
+    :path: "../node_modules/expo-clipboard/ios"
   ExpoContacts:
     :path: "../node_modules/expo-contacts/ios"
   ExpoDevice:
@@ -2477,6 +2508,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -2505,6 +2538,7 @@ SPEC CHECKSUMS:
   ExpoAdapterGoogleSignIn: f5ca2b67502442629d99dbe202b6ae821d77c75d
   ExpoAppleAuthentication: 52631ed9dcb71c65712a447bbb9a5667bb8fcf0c
   ExpoAsset: 48386d40d53a8c1738929b3ed509bcad595b5516
+  ExpoClipboard: 44fd1c8959ee8f6175d059dc011b154c9709a969
   ExpoContacts: 98484e09e4caccd2daa6042f341dc2e62a29697e
   ExpoDevice: d36ab4186b6799a28fd449bb9a1c77455f23fd1a
   ExpoFileSystem: 42d363d3b96f9afab980dcef60d5657a4443c655
@@ -2599,8 +2633,10 @@ SPEC CHECKSUMS:
   RNGoogleSignin: b8760528f2a7cbe157ecfdcc13bdb7d2745c9389
   RNReanimated: 6d22a1aec06a9787b797bc0c40fc2779be0599a5
   RNScreens: 295d9c0aaeb7f680d03d7e9b476569a4959aae89
+  RNSentry: 41eab31e46a191a4f9296d64a318b2a6bf0f98c5
   RNSVG: 8542aa11770b27563714bbd8494a8436385fc85f
   RNVectorIcons: 4330d8f8f8f4184f436e0c08ae9950431ffe466e
+  Sentry: 1ca8405451040482877dcd344dfa3ef80b646631
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   VisionCamera: 030bcbf22791d698926e7c0e3b804126165e62e3
   Yoga: feb4910aba9742cfedc059e2b2902e22ffe9954a

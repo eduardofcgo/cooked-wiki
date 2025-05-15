@@ -1,0 +1,8 @@
+app_identifier("wiki.cooked") # The bundle identifier of your app
+apple_id("eduardofcbg@icloud.com") # Your Apple Developer Portal username
+
+itc_team_id("127115750") # App Store Connect Team ID
+team_id("YTLSTYY5Y8") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
