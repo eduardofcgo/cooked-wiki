@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import CookedWebView from '../../components/CookedWebView'

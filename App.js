@@ -38,14 +38,19 @@ import { theme } from './app/style/style'
 
 import env from './app/config/environment'
 
-if (env.sentryDSN) {
+if (env.SENTRY_DSN) {
   Sentry.init({
-    dsn: env.sentryDSN,
+    dsn: env.SENTRY_DSN,
     debug: false,
   })
 }
 
 SplashScreen.preventAutoHideAsync()
+
+SplashScreen.setOptions({
+  duration: 500,
+  fade: true,
+})
 
 function App() {
   const [loadedFonts] = useFonts({

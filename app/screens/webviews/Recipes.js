@@ -6,7 +6,6 @@ import { useAuth } from '../../context/AuthContext'
 import { theme } from '../../style/style'
 import { getProfileUrl, getCollectionUrl, getCollectionsUrl } from '../../urls'
 import handler from './router/handler'
-import Loading from '../../screens/Loading'
 
 const Recipes = observer(({ navigation, route, username }) => {
   const { credentials } = useAuth()
@@ -30,13 +29,7 @@ const Recipes = observer(({ navigation, route, username }) => {
 
   return (
     <View style={styles.container}>
-      <CookedWebView
-        startUrl={startUrl}
-        navigation={navigation}
-        onRequestPath={routeHandler}
-        loadingComponent={<Loading />}
-        route={route}
-      />
+      <CookedWebView startUrl={startUrl} navigation={navigation} onRequestPath={routeHandler} route={route} />
     </View>
   )
 })

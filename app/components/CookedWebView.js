@@ -18,7 +18,6 @@ const CookedWebView = forwardRef(
       dynamicHeight,
       onHeightChange,
       onWebViewReady,
-      disableScroll,
       style,
     },
     ref,
@@ -65,7 +64,9 @@ const CookedWebView = forwardRef(
     }, [route.params])
 
     const onWebViewRequest = request => {
-      const { url } = request
+      const { url, navigationType } = request
+
+      console.log('onWebViewRequest', url, navigationType)
 
       const initialUri = startUrl + `?token=${token}`
 
@@ -307,15 +308,13 @@ const CookedWebView = forwardRef(
 
       // Add a scroll event listener for testing
       window.addEventListener('scroll', function() {
-        // window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");
+        //window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");
       });
 
       window.externalScrollY = 0;
 
-      ${!disableScroll ? pullToRefreshJS : ''}
-
       ${
-        disableScroll
+        dynamicHeight
           ? `
         window.externalViewportHeight = ${windowHeight};
         
@@ -338,7 +337,6 @@ const CookedWebView = forwardRef(
           : `
         
           window.setExternalScrollY = function(scrollY) {
-            console.log('setExternalScrollY is not defined in WebView')
           }
         `
       }
@@ -379,7 +377,22 @@ const CookedWebView = forwardRef(
         setTimeout(postHeight, 100); // Small delay might be needed
         postHeight(); // Post immediately too
       `
-          : ''
+          : `
+
+        // Adjust modal position for the extra viewport height
+        const modals = document.querySelectorAll('.modal > .modal-content');
+        modals.forEach(modal => {
+          modal.style.transform = 'translate(-50%, -80%)';
+        })
+        
+        document.addEventListener('htmx:afterSettle', (event) => {
+          console.log('htmx:afterSettle', 'settled')
+          const modals = document.querySelectorAll('.modal > .modal-content');
+          modals.forEach(modal => {
+            modal.style.transform = 'translate(-50%, -80%)';
+          });
+        });
+        `
       }
 
       true; // Required for Android
@@ -394,7 +407,7 @@ const CookedWebView = forwardRef(
     })
 
     useEffect(() => {
-      if (webViewRef.current && disableScroll) {
+      if (webViewRef.current && dynamicHeight) {
         const windowHeight = Dimensions.get('window').height
         const script = `window.externalViewportHeight = ${windowHeight}; console.log('Injected viewportHeight:', window.externalViewportHeight); true;`
         webViewRef.current.injectJavaScript(script)
@@ -422,64 +435,64 @@ const CookedWebView = forwardRef(
       },
     }))
 
-    return (
-      <View style={{ flex: 1 }}>
-        {!credentials ? (
-          <LoadingScreen />
-        ) : (
-          <WebView
-            source={{
-              uri: currentURI,
-            }}
-            onShouldStartLoadWithRequest={onWebViewRequest}
-            setSupportMultipleWindows={false}
-            nativeConfig={{
-              props: {
-                webContentsDebuggingEnabled: true,
-              },
-            }}
-            userAgent={'app'}
-            allowsBackForwardNavigationGestures={false}
-            domStorageEnabled={true}
-            sharedCookiesEnabled={true}
-            thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
-            incognito={false}
-            cacheEnabled={true}
-            pullToRefreshEnabled={!disableScroll}
-            startInLoadingState={true}
-            renderLoading={() => {
-              return loadingComponent || <LoadingScreen />
-            }}
-            ref={webViewRef}
-            onLoadStart={syntheticEvent => {
-              const { nativeEvent } = syntheticEvent
-            }}
-            onLoad={syntheticEvent => {
-              const { nativeEvent } = syntheticEvent
-            }}
-            onLoadEnd={syntheticEvent => {
-              const { nativeEvent } = syntheticEvent
-            }}
-            onLoadProgress={({ nativeEvent }) => {}}
-            onError={syntheticEvent => {
-              const { nativeEvent } = syntheticEvent
-              console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
-            }}
-            style={[styles.baseWebViewStyle, style]}
-            injectedJavaScript={injectedJS}
-            onMessage={handleMessage}
-            javaScriptEnabled={true}
-            scrollEnabled={!disableScroll}
-            bounces={false}
-            contentInset={!disableScroll && !dynamicHeight ? { bottom: 300 } : undefined}
-          />
-        )}
-      </View>
+    console.log('rendering webview', currentURI)
+
+    return !credentials ? (
+      <LoadingScreen />
+    ) : (
+      <WebView
+        source={{
+          uri: currentURI,
+        }}
+        onShouldStartLoadWithRequest={onWebViewRequest}
+        setSupportMultipleWindows={false}
+        nativeConfig={{
+          props: {
+            webContentsDebuggingEnabled: true,
+          },
+        }}
+        userAgent={'app'}
+        allowsBackForwardNavigationGestures={false}
+        domStorageEnabled={true}
+        sharedCookiesEnabled={true}
+        thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
+        incognito={false}
+        cacheEnabled={true}
+        pullToRefreshEnabled={!dynamicHeight}
+        startInLoadingState={true}
+        onContentProcessDidTerminate={() => {
+          webViewRef.current.reload()
+        }}
+        renderLoading={() => {
+          return loadingComponent || <LoadingScreen />
+        }}
+        ref={webViewRef}
+        onLoadStart={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+        }}
+        onLoad={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+        }}
+        onLoadEnd={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+        }}
+        onLoadProgress={({ nativeEvent }) => {}}
+        onError={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+          console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
+        }}
+        style={[styles.baseWebViewStyle, style]}
+        injectedJavaScript={injectedJS}
+        onMessage={handleMessage}
+        javaScriptEnabled={true}
+        scrollEnabled={!dynamicHeight}
+        bounces={false}
+        contentInset={!dynamicHeight ? { bottom: 300 } : undefined}
+      />
     )
   },
 )
 
-// Add base styles for WebView
 const styles = StyleSheet.create({
   baseWebViewStyle: {
     backgroundColor: theme.colors.background,

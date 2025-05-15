@@ -45,7 +45,6 @@ const RecipeWebView = forwardRef(
           style={{ height: webViewHeight }}
           dynamicHeight={true}
           onHeightChange={setWebViewHeight}
-          disableScroll={true}
           navigation={navigation}
           onRequestPath={onRequestPath}
           route={route}
