@@ -32,6 +32,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
       closeOnOverlay={false}
       visible={visible}
       onClose={handleClose}
+      disableContentUpdateAnimation={true}
       titleComponent={
         <View style={{ flex: 1, gap: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
           <Text style={styles.modalTitle}>Edit notes</Text>

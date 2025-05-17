@@ -1,11 +1,13 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx'
 import { fromPromise } from 'mobx-utils'
+import { when } from 'mobx'
 
 export class RecipeMetadataStore {
   metadataMap = observable.map()
 
-  constructor(apiClient) {
+  constructor(apiClient, imagePreloader) {
     this.apiClient = apiClient
+    this.imagePreloader = imagePreloader
 
     makeAutoObservable(this)
   }
@@ -27,8 +29,17 @@ export class RecipeMetadataStore {
       runInAction(() => {
         this.metadataMap.set(
           recipeId,
+          fromPromise(this.apiClient.get(`/recipe/${recipeId}/metadata`))
+        )
 
-          fromPromise(this.apiClient.get(`/recipe/${recipeId}/metadata`)),
+        when(
+          () => this.getMetadataLoadState(recipeId) === 'fulfilled',
+          () => {
+            const metadata = this.getMetadata(recipeId)
+            if (metadata && metadata['thumbnail-url']) {
+              this.imagePreloader.preloadImageUrls([metadata['thumbnail-url']])
+            }
+          }
         )
       })
     }

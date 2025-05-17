@@ -1,20 +1,22 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { PrimaryButton } from '../components/core/Button'
 import { useAuth } from '../context/AuthContext'
 import { useStore } from '../context/StoreContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import { getProfileImageUrl } from '../urls'
-const UserItem = observer(({ username, isOwnProfile, navigation }) => {
-  const { findFriendsStore } = useStore()
+import useFollowing from '../hooks/services/useFollowing'
 
+const Image = FastImage
+
+const UserItem = observer(({ username, imageUrl, isOwnProfile, navigation }) => {
   return (
     <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('PublicProfile', { username })}>
       <View style={styles.userInfo}>
-        <Image source={{ uri: getProfileImageUrl(username) }} style={styles.avatarPlaceholder} />
+        <Image source={{ uri: imageUrl }} style={styles.avatarPlaceholder} />
         {/* <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />
         </View> */}
@@ -48,34 +50,44 @@ function Following({ route, navigation }) {
 
   const { profileStore } = useStore()
 
-  const [following, setFollowing] = useState(null)
+  // TODO: for now lets's have the loading state in th component
+  // soon we will use promises in the store which will allow to save the state in the store
+  const [loadingFollowingFromStore, setLoadingFollowingFromStore] = useState(false)
+
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
 
   const canSearch = true // For now
 
   useEffect(() => {
-    // TODO: separate into different components, for now let's keep it dumb.
-    ;(async () => {
-      if (!isOwnProfile) {
-        // Viewing someone else's profile, load following from the API.
-        const following = await profileStore.getFollowingUsernames(username)
-        setFollowing(following)
-        setIsLoading(false)
-      } else {
-        // Viewing your own profile, load following from the store.
+    // TODO: separate into different components, for now let's keep it very ugly.
+    ; (async () => {
+      if (isOwnProfile) {
+        setLoadingFollowingFromStore(true)
         await profileStore.loadFollowing()
-        setIsLoading(false)
+        setLoadingFollowingFromStore(false)
       }
     })()
   }, [])
 
-  const followingUsernames = !isOwnProfile ? following : Array.from(profileStore.followingUsernames)
+  // TODO: separate into different components, for now let's keep it very ugly.
+  let followingUsers
+  let isLoading = false
+
+  if (isOwnProfile) {
+    followingUsers = Array.from(profileStore.followingUsers.values())
+    isLoading = loadingFollowingFromStore
+  } else {
+    const followingResponseFromHook = useFollowing({ username })
+    followingUsers = followingResponseFromHook.following
+    isLoading = followingResponseFromHook.loading
+  }
 
   const filteredFollowing = useMemo(() => {
-    if (!searchQuery) return followingUsernames
-    return followingUsernames.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase()))
-  }, [followingUsernames, searchQuery])
+    if (!searchQuery) return followingUsers
+
+    return followingUsers?.filter(({ username }) => username.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  }, [followingUsers, searchQuery])
 
   if (isLoading) {
     return <LoadingScreen />
@@ -102,11 +114,11 @@ function Following({ route, navigation }) {
         </View>
       )}
 
-      {filteredFollowing.length > 0 ? (
+      {filteredFollowing?.length > 0 ? (
         <FlatList
           data={filteredFollowing}
-          renderItem={({ item }) => <UserItem username={item} isOwnProfile={isOwnProfile} navigation={navigation} />}
-          keyExtractor={item => item}
+          renderItem={({ item }) => <UserItem username={item.username} imageUrl={item['profile-image-url']} isOwnProfile={isOwnProfile} navigation={navigation} />}
+          keyExtractor={item => item.username}
           contentContainerStyle={styles.listContainer}
         />
       ) : (

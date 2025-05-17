@@ -28,6 +28,8 @@ import { requestPushNotificationsPermission } from '../notifications/push'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 
+const CHECK_NOTIFICATIONS_INTERVAL = 10000
+
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore, onboardingStore, notificationsStore } = useStore()
 
@@ -38,7 +40,6 @@ export default Community = observer(({ navigation, route }) => {
   const { hasNewNotifications } = notificationsStore
 
   const {
-    followingUsernames,
     communityFeed,
     isLoadingCommunityFeed,
     isLoadingCommunityFeedNextPage,
@@ -54,7 +55,7 @@ export default Community = observer(({ navigation, route }) => {
   const [isScreenFocused, setIsScreenFocused] = useState(false)
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         profileStore.loadCommunityFeed()
       } catch (e) {
@@ -64,7 +65,7 @@ export default Community = observer(({ navigation, route }) => {
   }, [])
 
   useFocusEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const notificationPermission = await Notifications.getPermissionsAsync()
       userStore.setNotificationPermissionStatus(notificationPermission.status)
 
@@ -161,7 +162,7 @@ export default Community = observer(({ navigation, route }) => {
       const intervalId = setInterval(() => {
         notificationsStore.loadNotifications()
         profileStore.checkNeedsRefreshCommunityFeed()
-      }, 5000)
+      }, CHECK_NOTIFICATIONS_INTERVAL)
 
       return () => {
         clearInterval(intervalId)

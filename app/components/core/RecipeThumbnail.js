@@ -1,8 +1,10 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect } from 'react'
-import { Image, StyleSheet, Text, View } from 'react-native'
-import { useStore } from '../../context/StoreContext'
+import { StyleSheet, Text, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
+
+const Image = FastImage
 
 const NoImagePlaceholder = () => <View style={[styles.thumbnail]}></View>
 

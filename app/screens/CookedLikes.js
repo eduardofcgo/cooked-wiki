@@ -1,18 +1,19 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { useStore } from '../context/StoreContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import { getProfileImageUrl } from '../urls'
 import useCookedLikes from '../hooks/services/useCookedLikes'
+import FastImage from 'react-native-fast-image'
 
-const UserItem = observer(({ username, navigation }) => {
+const Image = FastImage
+
+const UserItem = observer(({ username, profileImageUrl, navigation }) => {
   return (
     <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('PublicProfile', { username })}>
       <View style={styles.userInfo}>
-        <Image source={{ uri: getProfileImageUrl(username) }} style={styles.avatarPlaceholder} />
+        <Image source={{ uri: profileImageUrl }} style={styles.avatarPlaceholder} />
         <View>
           <Text style={styles.userName}>{username}</Text>
         </View>
@@ -34,6 +35,10 @@ function CookedLikes({ route, navigation }) {
 
     return likes.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase()))
   }, [likes, searchQuery])
+
+  if (loading) {
+    return <LoadingScreen />
+  }
 
   return (
     <View style={styles.container}>
@@ -57,8 +62,8 @@ function CookedLikes({ route, navigation }) {
       {filteredUsers?.length > 0 ? (
         <FlatList
           data={filteredUsers}
-          renderItem={({ item }) => <UserItem username={item} navigation={navigation} />}
-          keyExtractor={item => item}
+          renderItem={({ item }) => <UserItem username={item.username} profileImageUrl={item['profile-image-url']} navigation={navigation} />}
+          keyExtractor={item => item.username}
           contentContainerStyle={styles.listContainer}
         />
       ) : (

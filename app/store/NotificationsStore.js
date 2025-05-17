@@ -26,9 +26,9 @@ export class NotificationsStore {
     const notifications = this.getNotifications()
 
     if (notifications?.length > 0) {
-      notifications.slice(0, 5).forEach(notification => {
+      notifications.slice(0, 10).forEach(notification => {
         if (notification.username) {
-          this.profileStore.ensureLoaded(notification.username)
+          this.profileStore.preloadProfile(notification.username)
         }
       })
     }
@@ -38,9 +38,9 @@ export class NotificationsStore {
     const notifications = this.getNotifications()
 
     if (notifications?.length > 0) {
-      notifications.slice(0, 5).forEach(notification => {
+      notifications.slice(0, 10).forEach(notification => {
         if (notification['cooked-id']) {
-          this.cookedStore.ensureLoaded(notification['cooked-id'])
+          this.cookedStore.preloadCooked(notification['cooked-id'])
         }
       })
     }
@@ -81,6 +81,7 @@ export class NotificationsStore {
       })
 
       await this.apiClient.post(`/notifications/${notificationId}/read`)
+
     } catch (error) {
       console.error('Error marking notification as read:', error)
     }
@@ -98,6 +99,7 @@ export class NotificationsStore {
       })
 
       await this.apiClient.post('/notifications/read-all')
+
     } catch (error) {
       console.error('Error marking notifications as read:', error)
     }

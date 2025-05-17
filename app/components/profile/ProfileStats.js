@@ -23,18 +23,14 @@ const getTrophyColor = cookedCount => {
 function ProfileStats({ username }) {
   const { profileStore } = useStore()
   const stats = profileStore.getProfileStats(username)
-  const isLoading = profileStore.isLoadingProfileStats(username)
   const navigation = useNavigation()
   const [showAwards, setShowAwards] = useState(false)
 
   const trophyColor = getTrophyColor(stats?.['cooked-count'] || 0)
 
-  useEffect(() => {
-    profileStore.loadProfileStats(username)
-  }, [])
-
-  if (isLoading || !stats) {
-    return <Loading />
+  // Loading should be handled on the parent
+  if (!stats) {
+    return null
   }
 
   return (

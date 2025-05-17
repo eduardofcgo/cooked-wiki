@@ -8,10 +8,9 @@ const DoubleTapLike = ({ onDoubleTap, children, style }) => {
   const heartScale = useRef(new Animated.Value(0)).current
   const tapTimeout = useRef(null)
 
-  // Function to handle tap events
   const handleTap = () => {
     const now = Date.now()
-    const DOUBLE_TAP_DELAY = 500 // increased from 300ms to reduce accidental triggers
+    const DOUBLE_TAP_DELAY = 300
     const SINGLE_TAP_TIMEOUT = 700 // time to wait before resetting a single tap
 
     if (lastTap && now - lastTap < DOUBLE_TAP_DELAY) {

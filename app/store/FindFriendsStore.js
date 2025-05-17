@@ -12,10 +12,10 @@ export class FindFriendsStore {
     makeAutoObservable(this)
 
     reaction(
-      () => toJS(this.profileStore.followingUsernames),
-      followingUsernames => {
+      () => toJS(this.profileStore.followingUsers),
+      followingUsers => {
         for (const user of this.users) {
-          user['is-following'] = followingUsernames.has(user.username)
+          user['is-following'] = followingUsers.has(user.username)
         }
       },
     )

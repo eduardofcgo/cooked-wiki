@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   Dimensions,
   Modal,
@@ -34,6 +34,7 @@ export default function ModalCard({
   onShow,
   closeOnOverlay = true,
   children,
+  disableContentUpdateAnimation = false,
 }) {
   const screenHeight = Dimensions.get('screen').height
   const translateY = useSharedValue(screenHeight)
@@ -45,16 +46,28 @@ export default function ModalCard({
   const [prevChildren, setPrevChildren] = useState(null)
   const [prevTitle, setPrevTitle] = useState(null)
   const [prevTitleComponent, setPrevTitleComponent] = useState(null)
-
+  const [isInitialMount, setIsInitialMount] = useState(true)
   const [currentVisible, setCurrentVisible] = useState(visible)
 
+  // Handle children changes
   useEffect(() => {
-    if (currentVisible && children !== prevChildren) {
-      setPrevChildren(children)
-      setChildrenKey(prev => prev + 1)
+    if (currentVisible) {
+      if (isInitialMount) {
+        // First time the modal is visible, update children without incrementing key
+        setPrevChildren(children)
+        setIsInitialMount(false)
+      } else if (children !== prevChildren && !disableContentUpdateAnimation) {
+        // If content changes and animations are enabled, increment key to trigger animation
+        setPrevChildren(children)
+        setChildrenKey(prev => prev + 1)
+      } else if (children !== prevChildren) {
+        // If content changes but animations are disabled, just update reference
+        setPrevChildren(children)
+      }
     }
-  }, [children, currentVisible])
+  }, [children, currentVisible, disableContentUpdateAnimation, isInitialMount])
 
+  // Handle title changes (keep original behavior)
   useEffect(() => {
     if (currentVisible && (title !== prevTitle || titleComponent !== prevTitleComponent)) {
       setPrevTitle(title)
@@ -114,6 +127,8 @@ export default function ModalCard({
     opacity.value = withTiming(1, { duration: 200 })
 
     setCurrentVisible(true)
+    // Reset initial mount flag when modal opens again
+    setIsInitialMount(true)
   }
 
   const gestureHandler = useAnimatedGestureHandler({

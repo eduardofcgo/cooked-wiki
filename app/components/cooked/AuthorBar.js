@@ -2,8 +2,11 @@ import { useNavigation, useNavigationState } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import React, { useCallback, useMemo } from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
+
+const Image = FastImage
 
 const formatDate = dateString => {
   if (!dateString) return ''

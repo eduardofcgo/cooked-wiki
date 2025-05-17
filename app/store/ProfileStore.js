@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, runInAction } from 'mobx'
+import { makeAutoObservable, observable, runInAction, reaction } from 'mobx'
 
 class ProfileData {
   cookeds = observable.array()
@@ -8,7 +8,6 @@ class ProfileData {
   hasMore = true
 
   stats = undefined
-  isLoadingStats = false
 
   bio = undefined
 
@@ -18,7 +17,7 @@ class ProfileData {
 }
 
 export class ProfileStore {
-  followingUsernames = observable.set()
+  followingUsers = observable.map()
 
   communityFeed = observable.array()
 
@@ -33,11 +32,25 @@ export class ProfileStore {
 
   cookedStats = observable.map()
 
-  constructor(apiClient, cookedStore) {
+  constructor(apiClient, imagePreloader, cookedStore) {
     this.apiClient = apiClient
+    this.imagePreloader = imagePreloader
     this.cookedStore = cookedStore
 
+    reaction(
+      () => this.communityFeed.length,
+      () => {
+        for (const cooked of this.communityFeed) {
+          this.preloadProfile(cooked.username)
+        }
+      },
+    )
+
     makeAutoObservable(this)
+  }
+
+  getProfileImageUrl(username) {
+    return this.profileDataMap.get(username)?.imageUrl
   }
 
   getBio(username) {
@@ -62,10 +75,9 @@ export class ProfileStore {
       data: formData,
     })
 
-    const imagePath = response['image-path']
-
     runInAction(() => {
-      this.profileDataMap.get(username).imagePath = imagePath
+      this.profileDataMap.get(username).imagePath = response['image-path']
+      this.profileDataMap.get(username).imageUrl = response['image-url']
     })
   }
 
@@ -82,12 +94,13 @@ export class ProfileStore {
   }
 
   async follow(username) {
-    await this.apiClient.put('/following', { username })
+    const followingUser = await this.apiClient.put('/following', { username })
 
     runInAction(() => {
-      // Not the best, but this way we ensure that the followed username
-      // is added at the beginning of the set.
-      this.followingUsernames.replace(new Set([username, ...this.followingUsernames]))
+      this.followingUsers.replace(new Map([
+        [username, followingUser],
+        ...this.followingUsers,
+      ]))
 
       const followProfileData = this.profileDataMap.get(username)
       if (followProfileData) {
@@ -100,7 +113,7 @@ export class ProfileStore {
     await this.apiClient.delete('/following', { data: { username } })
 
     runInAction(() => {
-      this.followingUsernames.delete(username)
+      this.followingUsers.delete(username)
 
       const followProfileData = this.profileDataMap.get(username)
       if (followProfileData) {
@@ -111,10 +124,11 @@ export class ProfileStore {
 
   async loadFollowing() {
     const { users } = await this.apiClient.get('/following')
+    const usernameUserMap = new Map(users.map(user => [user.username, user]))
 
     runInAction(() => {
-      const usernames = users.map(user => user.username)
-      this.followingUsernames.replace(usernames)
+      this.followingUsersLoading = false
+      this.followingUsers.replace(usernameUserMap)
     })
   }
 
@@ -180,16 +194,9 @@ export class ProfileStore {
   }
 
   async loadProfileCooked(username) {
-    runInAction(() => {
-      this.profileDataMap.delete(username)
-
-      const profileData = new ProfileData()
-      this.profileDataMap.set(username, profileData)
-      profileData.isLoading = true
-    })
-
-    const [metadata, cookeds] = await Promise.all([
+    const [metadata, stats, cookeds] = await Promise.all([
       this.apiClient.get(`/user/${username}/metadata`),
+      this.apiClient.get(`/user/${username}/stats`),
       this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } }),
     ])
 
@@ -208,7 +215,23 @@ export class ProfileStore {
       profileData.bio = metadata.bio
       profileData.isPatron = metadata['is-patron?']
       profileData.imagePath = metadata['image-path']
+      profileData.imageUrl = metadata['image-url']
+      profileData.stats = makeAutoObservable(stats)
     })
+  }
+
+  async ensureLoadedFresh(username) {
+    if (!this.profileDataMap.has(username)) {
+      // If does not exist yet create it with loading state
+      runInAction(() => {
+        const profileData = new ProfileData()
+        this.profileDataMap.set(username, profileData)
+        profileData.isLoading = true
+      })
+    }
+
+    // Always make sure it's up to date, even if was already loaded
+    await this.loadProfileCooked(username)
   }
 
   async ensureLoaded(username) {
@@ -217,18 +240,16 @@ export class ProfileStore {
     }
   }
 
-  async getFollowingUsernames(username) {
-    // Since it's not edited by the logged in user, there is no need to react to changes.
-    // TODO: move to a hook
-    const { users } = await this.apiClient.get(`/user/${username}/following`)
-    return users.map(user => user.username)
-  }
+  async preloadProfile(username) {
+    await this.ensureLoadedFresh(username)
 
-  async getFollowersUsernames(username) {
-    // Since it's not edited by the logged in user, there is no need to react to changes.
-    // TODO: move to a hook
-    const { users } = await this.apiClient.get(`/user/${username}/followers`)
-    return users.map(user => user.username)
+    const profileData = this.profileDataMap.get(username)
+
+    this.imagePreloader.preloadImageUrls([profileData.imageUrl])
+
+    this.imagePreloader.preloadImageUrls(
+      profileData.cookeds.flatMap(cooked => cooked['cooked-photos-urls'])
+    )
   }
 
   async loadCookedStats(cookedId) {
@@ -265,8 +286,7 @@ export class ProfileStore {
 
   async reloadProfileCooked(username) {
     this.profileDataMap.delete(username)
-    this.cookedStats.clear()
-    await Promise.all([this.loadProfileCooked(username), this.loadProfileStats(username)])
+    await this.loadProfileCooked(username)
   }
 
   async loadNextProfileCookedsPage(username) {
@@ -296,31 +316,8 @@ export class ProfileStore {
     })
   }
 
-  async loadProfileStats(username) {
-    let profileData = this.profileDataMap.get(username)
-    if (!profileData) {
-      profileData = new ProfileData()
-      this.profileDataMap.set(username, profileData)
-    } else if (profileData.stats) {
-      return
-    }
-
-    profileData.isLoadingStats = true
-
-    const stats = await this.apiClient.get(`/user/${username}/stats`)
-
-    runInAction(() => {
-      profileData.stats = stats
-      profileData.isLoadingStats = false
-    })
-  }
-
   getProfileStats(username) {
     return this.profileDataMap.get(username)?.stats
-  }
-
-  isLoadingProfileStats(username) {
-    return this.profileDataMap.get(username)?.isLoadingStats
   }
 
   async updateProfileCooked(username, cookedId, newNotes, newCookedPhotosPath) {
@@ -375,7 +372,7 @@ export class ProfileStore {
   }
 
   isFollowing(username) {
-    return this.followingUsernames.has(username)
+    return this.followingUsers.has(username)
   }
 
   getProfileCookeds(username) {

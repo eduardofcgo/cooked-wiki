@@ -1,11 +1,12 @@
-import { makeAutoObservable, observable, runInAction, extendObservable } from 'mobx'
+import { makeAutoObservable, observable, runInAction, when, reaction } from 'mobx'
 import { fromPromise } from 'mobx-utils'
 
 export class CookedStore {
   cooked = observable.map()
 
-  constructor(apiClient) {
+  constructor(apiClient, imagePreloader) {
     this.apiClient = apiClient
+    this.imagePreloader = imagePreloader
 
     makeAutoObservable(this)
   }
@@ -32,6 +33,20 @@ export class CookedStore {
         )
       })
     }
+  }
+
+  preloadCooked(cookedId) {
+    this.ensureLoaded(cookedId)
+
+    when(
+      () => this.getCooked(cookedId) !== undefined,
+      () => {
+        const cooked = this.getCooked(cookedId)
+        if (cooked && cooked['cooked-photos-urls']) {
+          this.imagePreloader.preloadImageUrls(cooked['cooked-photos-urls'])
+        }
+      }
+    )
   }
 
   saveToStore(cookedId, newCooked) {

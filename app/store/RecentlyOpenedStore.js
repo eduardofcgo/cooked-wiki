@@ -95,7 +95,7 @@ export class RecentlyOpenedStore {
   addRecent(recipeId) {
     runInAction(() => {
       // Let's preload it here, so it's ready when the user opens
-      // a component that needs it (e.g. Recent recipes bar or Recipe picker)
+      // a component that needs it (e.g. Recent recipes bar or Recipe picker).
       this.recipeMetadataStore.ensureLoadedMetadata(recipeId)
 
       this.openDates.set(recipeId, new Date())

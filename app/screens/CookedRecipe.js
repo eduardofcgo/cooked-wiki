@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite'
 import React, { lazy, useCallback, useEffect, useRef, useState, useMemo, Suspense } from 'react'
-import { Dimensions, StyleSheet, View, Image, TouchableOpacity, Text, useWindowDimensions } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 import FullNotes from '../components/cooked/FullNotes'
-import { getCookedPhotoUrl, getProfileImageUrl } from '../urls'
 import AuthorBar from '../components/cooked/AuthorBar'
 import FeedItem from '../components/cooked/FeedItem'
 import SocialMenuIcons from '../components/cooked/SocialMenuIcons'
@@ -24,11 +24,13 @@ import HeaderText from '../components/core/HeaderText'
 import DragIndicator from '../components/core/DragIndicator'
 import { useAuth } from '../context/AuthContext'
 
+const Image = FastImage
+
 // Recipe which contains the webview can be slow to load
 const Recipe = lazy(() => import('./Recipe'))
 
 const BottomSheetHandle = observer(
-  ({ username, cookedDate, expandCard, toggleCollapse, animatedPosition, absoluteSnapPoints }) => {
+  ({ username, profileImageUrl, cookedDate, expandCard, toggleCollapse, animatedPosition, absoluteSnapPoints }) => {
     const iconRotationStyle = useAnimatedStyle(() => {
       const animatePoint = absoluteSnapPoints[0] + 300
       const rotation = interpolate(
@@ -59,7 +61,7 @@ const BottomSheetHandle = observer(
         </View>
         <AuthorBar
           onExpandPress={expandCard}
-          profileImage={getProfileImageUrl(username)}
+          profileImage={profileImageUrl}
           username={username}
           date={cookedDate}
           roundedBottom={false}
@@ -143,15 +145,12 @@ const CookedRecipe = observer(({ navigation, route }) => {
 
   const isCardCollapsed = sheetIndex === 0
 
-  const cookedPhotoPaths = cooked?.['cooked-photos-path']
+  const photoUrls = cooked?.['cooked-photos-urls']
   const recipeId = cooked?.['recipe-id']
   const extractId = cooked?.['extract-id']
 
   const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage, hasMoreSimilarCooks } =
     useTryGetSimilarCooks({ recipeId: recipeId || extractId })
-
-  // TODO: server should already return the urls
-  const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
 
   const snapPoints = useMemo(() => [105, '70%', '90%'], [])
 
@@ -275,6 +274,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
     <BottomSheetHandle
       key={cookedId}
       username={cooked?.['username']}
+      profileImageUrl={cooked?.['profile-image-url']}
       cookedDate={cooked?.['cooked-date']}
       isCardCollapsed={isCardCollapsed}
       expandCard={expandCard}

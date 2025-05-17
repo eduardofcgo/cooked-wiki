@@ -9,6 +9,7 @@ import { UserStore } from './UserStore'
 import { RecipeJournalStore } from './RecipeJournalStore'
 import { CookedStore } from './CookedStore'
 import { NotificationsStore } from './NotificationsStore'
+import { ImagePreloader } from './ImagePreloader'
 
 export default class RootStore {
   userStore
@@ -19,16 +20,18 @@ export default class RootStore {
   recipeMetadataStore
 
   constructor(apiClient) {
+    this.imagePreloader = new ImagePreloader(apiClient)
+
     this.onboardingStore = new OnboardingStore()
 
     this.userStore = new UserStore(apiClient)
 
-    this.cookedStore = new CookedStore(apiClient)
+    this.cookedStore = new CookedStore(apiClient, this.imagePreloader)
 
-    this.profileStore = new ProfileStore(apiClient, this.cookedStore)
+    this.profileStore = new ProfileStore(apiClient, this.imagePreloader, this.cookedStore)
     this.findFriendsStore = new FindFriendsStore(apiClient, this.profileStore)
 
-    this.recipeMetadataStore = new RecipeMetadataStore(apiClient)
+    this.recipeMetadataStore = new RecipeMetadataStore(apiClient, this.imagePreloader)
 
     this.recentlyOpenedStore = new RecentlyOpenedStore(this.recipeMetadataStore)
 

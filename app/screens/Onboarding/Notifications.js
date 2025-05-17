@@ -37,7 +37,7 @@ const Notifications = ({ navigation }) => {
 
   const handleEnableNotifications = useCallback(
     ({ tryAgain = true } = {}) => {
-      ;(async () => {
+      ; (async () => {
         const { status, canAskAgain } = await requestPushNotificationsPermission()
         if (status === 'denied' && canAskAgain && tryAgain) {
           setShowSkipModal(true)
@@ -55,7 +55,7 @@ const Notifications = ({ navigation }) => {
         <View style={styles.imagesContainer}>
           {previousPhotoIndex !== null && (
             <Animated.View style={styles.imageWrapper} exiting={SlideOutLeft.duration(500)}>
-              <Animated.Image
+              <FastImage
                 source={{ uri: unsplashPhotos[previousPhotoIndex] }}
                 style={[styles.floatingImage, styles.activeImage]}
                 resizeMode='cover'
@@ -63,7 +63,7 @@ const Notifications = ({ navigation }) => {
             </Animated.View>
           )}
           <Animated.View style={styles.imageWrapper} entering={SlideInRight.duration(500)}>
-            <Animated.Image
+            <FastImage
               source={{ uri: unsplashPhotos[currentPhotoIndex] }}
               style={[styles.floatingImage, styles.activeImage]}
               resizeMode='cover'

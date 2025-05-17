@@ -32,7 +32,7 @@ export default function LoggedInStack({ StackNavigator }) {
   useEffect(() => {
     try {
       if (credentials?.username) {
-        profileStore.ensureLoaded(credentials.username)
+        profileStore.preloadProfile(credentials.username)
       }
     } catch (error) {
       console.error('Error preloading profile', error)

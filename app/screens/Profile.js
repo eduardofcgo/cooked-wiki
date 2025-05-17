@@ -10,8 +10,6 @@ import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,6 +18,7 @@ import {
   Alert,
   Share,
 } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { IconButton, Menu } from 'react-native-paper'
 import Animated, {
   interpolate,
@@ -42,11 +41,13 @@ import CookedFeed from '../components/profile/CookedFeed'
 import EditBio from '../components/profile/EditBio'
 import FullScreenProfilePicture from '../components/profile/FullScreenProfilePicture'
 import { useAuth } from '../context/AuthContext'
-import { getProfileImageUrl, getThumbnailUrl, getShareableProfileUrl } from '../urls'
+import { getShareableProfileUrl } from '../urls'
 import Recipes from './webviews/Recipes'
 import Shopping from './webviews/Shopping'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import * as ImagePicker from 'expo-image-picker'
+
+const Image = FastImage
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -225,7 +226,7 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
   const { profileStore } = useStore()
   const bio = profileStore.getBio(username)
   const isPatron = profileStore.isPatron(username)
-  const profileImageThumbnail = getProfileImageUrl(username)
+  const profileImageThumbnail = profileStore.getProfileImageUrl(username)
 
   return (
     <View style={styles.header}>
@@ -455,19 +456,12 @@ const FollowButton = observer(({ username }) => {
 })
 
 export const PublicProfile = observer(({ route, navigation }) => {
-  const { profileStore } = useStore()
   const { credentials } = useAuth()
 
   const username = route.params.username
 
   // User can navigate to his own profile from other screens
   const showingOwnProfileAsPublic = credentials.username === username
-
-  useEffect(() => {
-    ;(async () => {
-      await profileStore.loadFollowing()
-    })()
-  }, [navigation])
 
   useLayoutEffect(() => {
     if (!showingOwnProfileAsPublic) {
@@ -511,7 +505,7 @@ const tabStyle = {
   tabBarStyle: {
     backgroundColor: theme.colors.secondary,
   },
-  swipeEnabled: false,
+  swipeEnabled: true,
 }
 
 const styles = StyleSheet.create({

@@ -1,19 +1,22 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { PrimaryButton } from '../components/core/Button'
 import { useAuth } from '../context/AuthContext'
 import { useStore } from '../context/StoreContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import { getProfileImageUrl } from '../urls'
+import useFollowers from '../hooks/services/useFollowers'
 
-const UserItem = observer(({ username, navigation }) => {
+const Image = FastImage
+
+const UserItem = observer(({ username, imageUrl, navigation }) => {
   return (
     <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('PublicProfile', { username })}>
       <View style={styles.userInfo}>
-        <Image source={{ uri: getProfileImageUrl(username) }} style={styles.avatarPlaceholder} />
+        <Image source={{ uri: imageUrl }} style={styles.avatarPlaceholder} />
         {/* <View style={styles.avatarPlaceholder}>
           <Icon name='account' size={20} color={theme.colors.softBlack} />
         </View> */}
@@ -32,25 +35,16 @@ function Followers({ route, navigation }) {
   const loggedInUsername = credentials?.username
   const isOwnProfile = username === loggedInUsername
 
-  const { profileStore } = useStore()
-
-  const [followers, setFollowers] = useState(null)
+  const { followers, loading: isLoading, failed } = useFollowers({ username })
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
 
   const canSearch = true
 
-  useEffect(() => {
-    ;(async () => {
-      const followers = await profileStore.getFollowersUsernames(username)
-      setFollowers(followers)
-      setIsLoading(false)
-    })()
-  }, [])
-
   const filteredFollowers = useMemo(() => {
     if (!searchQuery) return followers || []
+
     return followers?.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase())) || []
+
   }, [followers, searchQuery])
 
   if (isLoading) {
@@ -81,8 +75,8 @@ function Followers({ route, navigation }) {
       {filteredFollowers.length > 0 ? (
         <FlatList
           data={filteredFollowers}
-          renderItem={({ item }) => <UserItem username={item} navigation={navigation} />}
-          keyExtractor={item => item}
+          renderItem={({ item }) => <UserItem username={item.username} imageUrl={item['profile-image-url']} navigation={navigation} />}
+          keyExtractor={item => item.username}
           contentContainerStyle={styles.listContainer}
         />
       ) : (

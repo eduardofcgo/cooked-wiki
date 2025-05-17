@@ -29,7 +29,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   const hasMore = profileStore.hasMoreProfileCookeds(username)
 
   useEffect(() => {
-    profileStore.ensureLoaded(username)
+    profileStore.ensureLoadedFresh(username)
   }, [username])
 
   const onRefresh = useCallback(async () => {

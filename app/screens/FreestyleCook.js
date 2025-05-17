@@ -1,15 +1,17 @@
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
-import { StyleSheet, View, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, ScrollView, Text } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 import FullNotes from '../components/cooked/FullNotes'
-import { getCookedPhotoUrl, getProfileImageUrl } from '../urls'
 import AuthorBar from '../components/cooked/AuthorBar'
 import SocialMenuIcons from '../components/cooked/SocialMenuIcons'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '../context/AuthContext'
+
+const Image = FastImage
 
 const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
   <View style={styles.socialMenuContainer}>
@@ -54,9 +56,7 @@ const FreestyleCook = ({ navigation, route }) => {
 
   const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
 
-  const cookedPhotoPaths = cooked?.['cooked-photos-path']
-
-  const photoUrls = useMemo(() => cookedPhotoPaths?.map(path => getCookedPhotoUrl(path)), [cookedPhotoPaths])
+  const photoUrls = cooked?.['cooked-photos-urls']
 
   useEffect(() => {
     if (showShareModal) {
@@ -81,8 +81,12 @@ const FreestyleCook = ({ navigation, route }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Cooked without a recipe - freestyle</Text>
+        </View>
+
+        <View style={styles.headerContainer}>
           <AuthorBar
-            profileImage={getProfileImageUrl(cooked?.['username'])}
+            profileImage={cooked?.['profile-image-url']}
             username={cooked?.['username']}
             date={cooked?.['cooked-date']}
             roundedBottom={false}
@@ -115,6 +119,11 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingTop: 16,
   },
+  headerText: {
+    fontSize: theme.fontSizes.small,
+    color: theme.colors.disabledBackground,
+    textAlign: 'center',
+  },
   cardBodyStyle: {
     padding: 16,
     backgroundColor: theme.colors.background,
@@ -132,7 +141,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     width: '100%',
     aspectRatio: 1,
-    borderRadius: theme.borderRadius.default,
   },
 })
 

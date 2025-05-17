@@ -5,17 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Image,
-  Modal,
-  FlatList,
-  TextInput,
   ScrollView,
-  Animated,
   DeviceEventEmitter,
-  StatusBar,
-  Share,
 } from 'react-native'
-import moment from 'moment'
+import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
 import ImageUploadButton from '../ImageUploadButton'
@@ -37,6 +30,8 @@ import NotesModal from './NotesModal'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
 import WarningModal from './WarningModal'
+
+const Image = FastImage
 
 const EditableImage = ({ path, index, onExclude }) => {
   return (
@@ -158,7 +153,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   }, [notes, photos, setHasChanges, onSaved, selectedRecipe, photos])
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       if (editMode) {
         console.log('[RecordCook] Editing cooked...', route.params?.cookedId, loggedInUsername)
 

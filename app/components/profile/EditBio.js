@@ -55,6 +55,7 @@ function EditBio({ visible, onClose }) {
       closeOnOverlay={false}
       visible={visible}
       onClose={handleClose}
+      disableContentUpdateAnimation={true}
       titleComponent={
         <View style={styles.titleContainer}>
           <Text style={styles.modalTitle}>Update bio</Text>

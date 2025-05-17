@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
   withSpring,
 } from 'react-native-reanimated'
+import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
 import { FontAwesome } from '@expo/vector-icons'
 import { observer } from 'mobx-react-lite'
@@ -116,7 +117,13 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
       }
       return (
         <View style={{ width: sliderWidth, position: 'relative' }}>
-          <Animated.Image source={{ uri: item }} style={style} resizeMode='cover' onTouchEnd={handleImagePress} />
+          <Animated.View style={{ width: sliderWidth }} onTouchEnd={handleImagePress}>
+            <FastImage
+              source={{ uri: item }}
+              style={style}
+              resizeMode={FastImage.resizeMode.cover}
+            />
+          </Animated.View>
           {showHeart && (
             <Animated.View style={[styles.heartContainer, heartStyle]}>
               <FontAwesome name='heart' size={80} color={theme.colors.pink} />

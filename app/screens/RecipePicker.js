@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Image, DeviceEventEmitter } from 'react-native'
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, DeviceEventEmitter } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
 import FadeInStatusBar from '../components/FadeInStatusBar'
@@ -7,6 +8,8 @@ import { useStore } from '../context/StoreContext'
 import moment from 'moment'
 import useUserRecipesSearch from '../hooks/services/useUserRecipesSearch'
 import Loading from '../components/core/Loading'
+
+const Image = FastImage
 
 const RecipeItem = ({ thumbnailUrl, title, openedAt, onSelect }) => {
   const formattedTime = useMemo(() => (openedAt ? moment(openedAt).fromNow() : null), [openedAt])

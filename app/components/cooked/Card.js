@@ -1,9 +1,9 @@
 import { useNavigation } from '@react-navigation/native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Dimensions, Image, StyleSheet, Text, ScrollView, TouchableOpacity, View } from 'react-native'
+import { Dimensions, StyleSheet, Text, ScrollView, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
-import { getCookedPhotoUrl, getProfileImageUrl, getThumbnailUrl } from '../../urls'
 import FullNotes from './FullNotes'
 import Notes from './Notes'
 import PhotoSlider from './PhotoSlider'
@@ -11,6 +11,8 @@ import AuthorBar from './AuthorBar'
 import { observer } from 'mobx-react-lite'
 import SocialMenuIcons from './SocialMenuIcons'
 import { useAuth } from '../../context/AuthContext'
+
+const Image = FastImage
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -21,15 +23,12 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
   const canEdit = credentials?.username === cooked['username']
 
   const cookedId = cooked['id']
-  const cookedPhotoPaths = cooked['cooked-photos-path']
+  const photoUrls = cooked['cooked-photos-urls']
+  const recipePhotoUrl = cooked['recipe-photo-url']
   const recipeId = cooked['recipe-id']
   const extractId = cooked['extract-id']
 
   const hasRecipe = Boolean(recipeId || extractId)
-
-  // TODO: move to the store and server
-  const photoUrls = cookedPhotoPaths?.map(path => getCookedPhotoUrl(path))
-  const recipePhotoUrl = cooked['recipe-image-path'] ? getThumbnailUrl(cooked['recipe-image-path']) : null
 
   const { profileStore } = useStore()
 
@@ -95,7 +94,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
       <View style={[styles.contents]}>
         <View ref={socialMenuContainerRef}>
           <AuthorBar
-            profileImage={getProfileImageUrl(cooked['username'])}
+            profileImage={cooked['profile-image-url']}
             username={cooked['username']}
             date={cooked['cooked-date']}
             roundedTop={!cooked['notes']}

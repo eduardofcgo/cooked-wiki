@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import moment from 'moment'
 import { useNavigation } from '@react-navigation/native'
@@ -12,6 +13,8 @@ import { useInAppNotification } from '../context/NotificationContext'
 import ActionToast from '../components/notification/ActionToast'
 import { Swipeable } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+
+const Image = FastImage
 
 const NotificationItem = observer(({ notification }) => {
   const navigation = useNavigation()

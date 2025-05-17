@@ -1,7 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { FlatList, Image, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
@@ -11,7 +12,8 @@ import { Button, PrimaryButton, SecondaryButton } from '../components/core/Butto
 import Loading from '../components/core/Loading'
 import ActionToast from '../components/notification/ActionToast'
 import { theme } from '../style/style'
-import { getProfileImageUrl } from '../urls'
+
+const Image = FastImage
 
 function openSettings() {
   if (Platform.OS === 'ios') {
@@ -49,10 +51,7 @@ const UserItem = observer(({ user, navigation }) => {
       onPress={() => navigation.navigate('PublicProfile', { username: user.username })}
     >
       <View style={styles.userInfo}>
-        <Image source={{ uri: getProfileImageUrl(user.username) }} style={styles.avatarPlaceholder} />
-        {/* <View style={styles.avatarPlaceholder}>
-          <Icon name='account' size={20} color={theme.colors.softBlack} />
-        </View> */}
+        <Image source={{ uri: user['profile-image-url'] }} style={styles.avatarPlaceholder} />
         <View>
           <Text style={styles.userName} color={theme.colors.black}>
             {user.username}
@@ -75,7 +74,7 @@ function FindFriends({ navigation }) {
   const { contactsPermissionStatus, loadingFriendsProfiles, suggestedFriendsProfiles } = userStore
 
   useFocusEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const contactsPermission = await Contacts.getPermissionsAsync()
 
       if (contactsPermission.canAskAgain && contactsPermission.status === 'denied') {
@@ -88,7 +87,7 @@ function FindFriends({ navigation }) {
 
   useEffect(() => {
     if (contactsPermissionStatus === 'granted') {
-      ;(async () => {
+      ; (async () => {
         await userStore.trySyncContacts()
       })()
     }

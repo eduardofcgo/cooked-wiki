@@ -105,20 +105,22 @@ export class RecipeJournalStore {
     })
 
     try {
-      const { cooked } = await this.apiClient.get(`/journal/recipe/${recipeId}`, {
+      const cookeds = await this.apiClient.get(`/journal/recipe/${recipeId}`, {
         params: {
           page: recipeCooked.cookedsPage + 1,
         },
       })
 
       runInAction(() => {
-        recipeCooked.cooked.push(...cooked.results)
-        recipeCooked.hasMoreCookeds = cooked.results.length > 0
+        recipeCooked.cooked.push(...cookeds)
+        recipeCooked.hasMoreCookeds = cookeds.length > 0
         recipeCooked.isLoadingCookedsNextPage = false
         recipeCooked.cookedsPage++
       })
+
     } catch (error) {
       throw error
+
     } finally {
       runInAction(() => {
         recipeCooked.isLoadingCookedsNextPage = false
