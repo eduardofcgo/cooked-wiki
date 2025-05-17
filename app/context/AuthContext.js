@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import * as Sentry from '@sentry/react-native'
 
 import { ApiProvider } from './ApiContext'
 import { StoreProvider } from './StoreContext'
@@ -59,6 +60,14 @@ export const AuthProvider = ({ children, onLoadedCredentials, baseURL }) => {
 
     restoreCredentials()
   }, [])
+
+  useEffect(() => {
+    if (authContext.credentials && authContext.loggedIn) {
+      Sentry.setUser({ username: authContext.credentials.username })
+    } else {
+      Sentry.setUser(null)
+    }
+  }, [authContext.credentials, authContext.loggedIn])
 
   const loadedCredentials = authContext.credentials !== undefined
   const apiClient = loadedCredentials ? new ApiClient(baseURL, authContext.credentials) : null
