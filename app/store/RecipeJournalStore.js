@@ -64,14 +64,12 @@ export class RecipeJournalStore {
     try {
       const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
 
-      console.log('recipeJournalResponse', recipeJournalResponse, recipeId)
-
       runInAction(() => {
-        for (const cooked of recipeJournalResponse.cooked.results) {
+        for (const cooked of recipeJournalResponse.cooked) {
           this.cookedStore.saveToStore(cooked.id, cooked)
         }
 
-        const cookedObserved = recipeJournalResponse.cooked.results.map(cooked => this.cookedStore.getCooked(cooked.id))
+        const cookedObserved = recipeJournalResponse.cooked.map(cooked => this.cookedStore.getCooked(cooked.id))
 
         recipeCooked.cooked.replace(cookedObserved)
         recipeCooked.isLoadingCookeds = false
@@ -117,10 +115,8 @@ export class RecipeJournalStore {
         recipeCooked.isLoadingCookedsNextPage = false
         recipeCooked.cookedsPage++
       })
-
     } catch (error) {
       throw error
-
     } finally {
       runInAction(() => {
         recipeCooked.isLoadingCookedsNextPage = false

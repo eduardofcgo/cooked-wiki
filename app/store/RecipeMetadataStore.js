@@ -27,10 +27,7 @@ export class RecipeMetadataStore {
   ensureLoadedMetadata(recipeId) {
     if (!this.metadataMap.has(recipeId)) {
       runInAction(() => {
-        this.metadataMap.set(
-          recipeId,
-          fromPromise(this.apiClient.get(`/recipe/${recipeId}/metadata`))
-        )
+        this.metadataMap.set(recipeId, fromPromise(this.apiClient.get(`/recipe/${recipeId}/metadata`)))
 
         when(
           () => this.getMetadataLoadState(recipeId) === 'fulfilled',
@@ -39,7 +36,7 @@ export class RecipeMetadataStore {
             if (metadata && metadata['thumbnail-url']) {
               this.imagePreloader.preloadImageUrls([metadata['thumbnail-url']])
             }
-          }
+          },
         )
       })
     }

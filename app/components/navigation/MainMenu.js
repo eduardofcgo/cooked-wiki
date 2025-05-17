@@ -448,11 +448,11 @@ const tabScreenStyle = {
     ...(Platform.OS === 'android'
       ? {}
       : {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      }),
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        }),
   },
   tabBarStyle: {
     height: 64,
@@ -463,9 +463,9 @@ const tabScreenStyle = {
     backgroundColor: theme.colors.white,
     ...(Platform.OS === 'android'
       ? {
-        overflow: 'hidden',
-        elevation: 10,
-      }
+          overflow: 'hidden',
+          elevation: 10,
+        }
       : {}),
   },
 }

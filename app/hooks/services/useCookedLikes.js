@@ -9,7 +9,7 @@ export default function useCookedLikes({ cookedId }) {
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (!cookedId) return
 
       try {

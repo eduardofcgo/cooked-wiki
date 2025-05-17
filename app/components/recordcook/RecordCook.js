@@ -1,13 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext, useRef, useMemo } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  DeviceEventEmitter,
-} from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, DeviceEventEmitter } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../core/Button'
@@ -153,7 +145,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   }, [notes, photos, setHasChanges, onSaved, selectedRecipe, photos])
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (editMode) {
         console.log('[RecordCook] Editing cooked...', route.params?.cookedId, loggedInUsername)
 

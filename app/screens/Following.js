@@ -60,7 +60,7 @@ function Following({ route, navigation }) {
 
   useEffect(() => {
     // TODO: separate into different components, for now let's keep it very ugly.
-    ; (async () => {
+    ;(async () => {
       if (isOwnProfile) {
         setLoadingFollowingFromStore(true)
         await profileStore.loadFollowing()
@@ -86,7 +86,6 @@ function Following({ route, navigation }) {
     if (!searchQuery) return followingUsers
 
     return followingUsers?.filter(({ username }) => username.toLowerCase().includes(searchQuery.toLowerCase()))
-
   }, [followingUsers, searchQuery])
 
   if (isLoading) {
@@ -117,7 +116,14 @@ function Following({ route, navigation }) {
       {filteredFollowing?.length > 0 ? (
         <FlatList
           data={filteredFollowing}
-          renderItem={({ item }) => <UserItem username={item.username} imageUrl={item['profile-image-url']} isOwnProfile={isOwnProfile} navigation={navigation} />}
+          renderItem={({ item }) => (
+            <UserItem
+              username={item.username}
+              imageUrl={item['profile-image-url']}
+              isOwnProfile={isOwnProfile}
+              navigation={navigation}
+            />
+          )}
           keyExtractor={item => item.username}
           contentContainerStyle={styles.listContainer}
         />

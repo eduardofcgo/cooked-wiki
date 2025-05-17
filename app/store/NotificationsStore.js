@@ -81,7 +81,6 @@ export class NotificationsStore {
       })
 
       await this.apiClient.post(`/notifications/${notificationId}/read`)
-
     } catch (error) {
       console.error('Error marking notification as read:', error)
     }
@@ -99,7 +98,6 @@ export class NotificationsStore {
       })
 
       await this.apiClient.post('/notifications/read-all')
-
     } catch (error) {
       console.error('Error marking notifications as read:', error)
     }

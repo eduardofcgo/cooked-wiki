@@ -45,7 +45,7 @@ export class CookedStore {
         if (cooked && cooked['cooked-photos-urls']) {
           this.imagePreloader.preloadImageUrls(cooked['cooked-photos-urls'])
         }
-      }
+      },
     )
   }
 

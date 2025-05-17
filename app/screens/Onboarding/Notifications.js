@@ -37,7 +37,7 @@ const Notifications = ({ navigation }) => {
 
   const handleEnableNotifications = useCallback(
     ({ tryAgain = true } = {}) => {
-      ; (async () => {
+      ;(async () => {
         const { status, canAskAgain } = await requestPushNotificationsPermission()
         if (status === 'denied' && canAskAgain && tryAgain) {
           setShowSkipModal(true)

@@ -44,7 +44,6 @@ function Followers({ route, navigation }) {
     if (!searchQuery) return followers || []
 
     return followers?.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase())) || []
-
   }, [followers, searchQuery])
 
   if (isLoading) {
@@ -75,7 +74,9 @@ function Followers({ route, navigation }) {
       {filteredFollowers.length > 0 ? (
         <FlatList
           data={filteredFollowers}
-          renderItem={({ item }) => <UserItem username={item.username} imageUrl={item['profile-image-url']} navigation={navigation} />}
+          renderItem={({ item }) => (
+            <UserItem username={item.username} imageUrl={item['profile-image-url']} navigation={navigation} />
+          )}
           keyExtractor={item => item.username}
           contentContainerStyle={styles.listContainer}
         />

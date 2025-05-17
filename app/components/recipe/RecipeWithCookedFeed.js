@@ -74,10 +74,10 @@ const RecipeWithCookedFeed = observer(
     const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
 
     const [webViewHeight, setWebViewHeight] = useState(null)
-    const [webViewReady, setWebViewReady] = useState(false)
+    const [webViewReady, setWebViewReady] = useState(true)
 
     const onWebViewReady = useCallback(() => {
-      setWebViewReady(true)
+      // setWebViewReady(true)
     }, [])
 
     useEffect(() => {
@@ -129,7 +129,7 @@ const RecipeWithCookedFeed = observer(
         )
       }
 
-      if (!isLoadingRecipeCookeds && webViewReady && !hasMore) {
+      if (!isLoadingRecipeCookeds && !hasMore) {
         return (
           <View style={styles.footer}>
             <SimilarCookedFeed recipeId={recipeId || extractId} />
@@ -141,10 +141,6 @@ const RecipeWithCookedFeed = observer(
     }, [isLoadingRecipeCookedsNextPage, isLoadingRecipeCookeds, webViewReady, hasMore, recipeId])
 
     const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
-
-    if (isLoadingRecipeCookeds) {
-      return <LoadingScreen />
-    }
 
     return (
       <View style={styles.container}>

@@ -74,7 +74,7 @@ function FindFriends({ navigation }) {
   const { contactsPermissionStatus, loadingFriendsProfiles, suggestedFriendsProfiles } = userStore
 
   useFocusEffect(() => {
-    ; (async () => {
+    ;(async () => {
       const contactsPermission = await Contacts.getPermissionsAsync()
 
       if (contactsPermission.canAskAgain && contactsPermission.status === 'denied') {
@@ -87,7 +87,7 @@ function FindFriends({ navigation }) {
 
   useEffect(() => {
     if (contactsPermissionStatus === 'granted') {
-      ; (async () => {
+      ;(async () => {
         await userStore.trySyncContacts()
       })()
     }

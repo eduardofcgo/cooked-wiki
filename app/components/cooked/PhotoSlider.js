@@ -118,11 +118,7 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
       return (
         <View style={{ width: sliderWidth, position: 'relative' }}>
           <Animated.View style={{ width: sliderWidth }} onTouchEnd={handleImagePress}>
-            <FastImage
-              source={{ uri: item }}
-              style={style}
-              resizeMode={FastImage.resizeMode.cover}
-            />
+            <FastImage source={{ uri: item }} style={style} resizeMode={FastImage.resizeMode.cover} />
           </Animated.View>
           {showHeart && (
             <Animated.View style={[styles.heartContainer, heartStyle]}>

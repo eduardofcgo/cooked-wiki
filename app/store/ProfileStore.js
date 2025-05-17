@@ -97,10 +97,7 @@ export class ProfileStore {
     const followingUser = await this.apiClient.put('/following', { username })
 
     runInAction(() => {
-      this.followingUsers.replace(new Map([
-        [username, followingUser],
-        ...this.followingUsers,
-      ]))
+      this.followingUsers.replace(new Map([[username, followingUser], ...this.followingUsers]))
 
       const followProfileData = this.profileDataMap.get(username)
       if (followProfileData) {
@@ -247,9 +244,7 @@ export class ProfileStore {
 
     this.imagePreloader.preloadImageUrls([profileData.imageUrl])
 
-    this.imagePreloader.preloadImageUrls(
-      profileData.cookeds.flatMap(cooked => cooked['cooked-photos-urls'])
-    )
+    this.imagePreloader.preloadImageUrls(profileData.cookeds.flatMap(cooked => cooked['cooked-photos-urls']))
   }
 
   async loadCookedStats(cookedId) {
