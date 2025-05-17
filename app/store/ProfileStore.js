@@ -281,7 +281,7 @@ export class ProfileStore {
 
   async reloadProfileCooked(username) {
     this.profileDataMap.delete(username)
-    await this.loadProfileCooked(username)
+    await this.ensureLoadedFresh(username)
   }
 
   async loadNextProfileCookedsPage(username) {

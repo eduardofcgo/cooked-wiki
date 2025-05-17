@@ -311,9 +311,8 @@ const CookedWebView = forwardRef(
 
       window.externalScrollY = 0;
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         window.externalViewportHeight = ${windowHeight};
         
         window.setExternalScrollY = function(scrollY) {
@@ -332,16 +331,15 @@ const CookedWebView = forwardRef(
           
           document.dispatchEvent(scrollEvent);
         };`
-          : `
+        : `
         
           window.setExternalScrollY = function(scrollY) {
           }
         `
       }
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         let lastHeight = 0;
         const postHeight = () => {
           const currentHeight = document.body.scrollHeight;
@@ -375,7 +373,7 @@ const CookedWebView = forwardRef(
         setTimeout(postHeight, 100); // Small delay might be needed
         postHeight(); // Post immediately too
       `
-          : `
+        : `
 
         // Adjust modal position for the extra viewport height
         const modals = document.querySelectorAll('.modal > .modal-content');
@@ -453,15 +451,30 @@ const CookedWebView = forwardRef(
         thirdPartyCookiesEnabled={Platform.OS === 'android'} // Only needed for Android
         incognito={false}
         cacheEnabled={true}
+        cacheMode={'LOAD_CACHE_ELSE_NETWORK'}
+        androidLayerType={'hardware'}
         pullToRefreshEnabled={!dynamicHeight}
-        startInLoadingState={true}
+        startInLoadingState={false}
+        allowsLinkPreview={false}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        saveFormDataDisabled={true}
         onContentProcessDidTerminate={() => {
           webViewRef.current.reload()
         }}
         renderLoading={() => {
-          return loadingComponent || <LoadingScreen />
+          return null
+          // return loadingComponent || <LoadingScreen />
         }}
         ref={webViewRef}
+        onOpenWindow={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+          console.log('onOpenWindow', nativeEvent)
+        }}
+        onFileDownload={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+          console.log('onFileDownload', nativeEvent)
+        }}
         onLoadStart={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
@@ -471,7 +484,7 @@ const CookedWebView = forwardRef(
         onLoadEnd={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
-        onLoadProgress={({ nativeEvent }) => {}}
+        onLoadProgress={({ nativeEvent }) => { }}
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
@@ -482,7 +495,7 @@ const CookedWebView = forwardRef(
         javaScriptEnabled={true}
         scrollEnabled={!dynamicHeight}
         bounces={false}
-        contentInset={!dynamicHeight ? { bottom: 300 } : undefined}
+        contentInset={!dynamicHeight ? { bottom: 400 } : undefined}
       />
     )
   },

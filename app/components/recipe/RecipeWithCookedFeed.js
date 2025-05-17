@@ -68,10 +68,13 @@ const RecipeWebView = forwardRef(
 const RecipeWithCookedFeed = observer(
   ({ recipeId, extractId, justSaved, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
     const { recipeJournalStore } = useStore()
-    const recipeCookeds = recipeJournalStore.getRecipeCooked(recipeId)
-    const isLoadingRecipeCookeds = recipeJournalStore.isLoadingRecipeCooked(recipeId)
-    const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(recipeId)
-    const hasMore = recipeJournalStore.hasMoreRecipeCookeds(recipeId)
+
+    const id = recipeId || extractId
+
+    const recipeCookeds = recipeJournalStore.getRecipeCooked(id)
+    const isLoadingRecipeCookeds = recipeJournalStore.isLoadingRecipeCooked(id)
+    const isLoadingRecipeCookedsNextPage = recipeJournalStore.isLoadingRecipeCookedsNextPage(id)
+    const hasMore = recipeJournalStore.hasMoreRecipeCookeds(id)
 
     const [webViewHeight, setWebViewHeight] = useState(null)
     const [webViewReady, setWebViewReady] = useState(true)
@@ -81,8 +84,8 @@ const RecipeWithCookedFeed = observer(
     }, [])
 
     useEffect(() => {
-      recipeJournalStore.loadCookeds(recipeId || extractId)
-    }, [recipeId, recipeJournalStore])
+      recipeJournalStore.loadCookeds(id)
+    }, [id, recipeJournalStore])
 
     const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 1000), [])
 
@@ -108,19 +111,19 @@ const RecipeWithCookedFeed = observer(
 
     const handleLoadMore = useCallback(() => {
       if (!isLoadingRecipeCookedsNextPage && hasMore) {
-        recipeJournalStore.loadNextCookedsPage(recipeId)
+        recipeJournalStore.loadNextCookedsPage(id)
       }
-    }, [isLoadingRecipeCookedsNextPage, hasMore, recipeId, recipeJournalStore])
+    }, [isLoadingRecipeCookedsNextPage, hasMore, id, recipeJournalStore])
 
-    const renderItem = useCallback(({ item: cooked }) => {
+    const renderItem = ({ item: cooked }) => {
       return (
         <View style={{ paddingHorizontal: 16 }}>
           <FeedItem cooked={cooked} showRecipe={false} collapseNotes={false} />
         </View>
       )
-    }, [])
+    }
 
-    const ListFooter = useMemo(() => {
+    const ListFooter = observer(() => {
       if (isLoadingRecipeCookedsNextPage) {
         return (
           <View style={styles.footer}>
@@ -132,13 +135,13 @@ const RecipeWithCookedFeed = observer(
       if (!isLoadingRecipeCookeds && !hasMore) {
         return (
           <View style={styles.footer}>
-            <SimilarCookedFeed recipeId={recipeId || extractId} />
+            <SimilarCookedFeed recipeId={id} />
           </View>
         )
       }
 
       return null
-    }, [isLoadingRecipeCookedsNextPage, isLoadingRecipeCookeds, webViewReady, hasMore, recipeId])
+    })
 
     const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
 
@@ -147,7 +150,7 @@ const RecipeWithCookedFeed = observer(
         <FlatList
           data={webViewReady ? recipeCookeds : []}
           renderItem={renderItem}
-          keyExtractor={cooked => cooked.id.toString()}
+          keyExtractor={cooked => cooked.id}
           contentContainerStyle={styles.feedContent}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}

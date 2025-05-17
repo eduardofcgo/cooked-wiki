@@ -64,15 +64,17 @@ export class RecipeJournalStore {
     try {
       const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
 
+      console.log('recipeJournalResponse', recipeJournalResponse)
+
       runInAction(() => {
-        for (const cooked of recipeJournalResponse.cooked) {
+        // Make sure we use the same references as in the cookedStore, for reactivity
+        for (const cooked of recipeJournalResponse) {
           this.cookedStore.saveToStore(cooked.id, cooked)
         }
 
-        const cookedObserved = recipeJournalResponse.cooked.map(cooked => this.cookedStore.getCooked(cooked.id))
+        const cookedObserved = recipeJournalResponse.map(cooked => this.cookedStore.getCooked(cooked.id))
 
         recipeCooked.cooked.replace(cookedObserved)
-        recipeCooked.isLoadingCookeds = false
       })
     } catch (error) {
       console.error(error)
@@ -87,7 +89,7 @@ export class RecipeJournalStore {
     const recipeCooked = this.recipeCooked.get(recipeId)
 
     if (!recipeCooked) {
-      throw new Error('Recipe cooked not found')
+      throw new Error('Recipe cooked not found, load the first page first with loadCookeds')
     }
 
     if (recipeCooked.isLoadingCookedsNextPage) {
@@ -104,6 +106,7 @@ export class RecipeJournalStore {
 
     try {
       const cookeds = await this.apiClient.get(`/journal/recipe/${recipeId}`, {
+        timeout: 15000,
         params: {
           page: recipeCooked.cookedsPage + 1,
         },
