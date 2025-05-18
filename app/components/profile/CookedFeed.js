@@ -40,7 +40,9 @@ const ProfileCooked = observer(({ username, onScroll }) => {
 
   const renderItem = useCallback(
     ({ item: cooked }) => (
-      <FeedItem cooked={cooked} rounded={true} showRecipe={cooked['recipe-id'] || cooked['extract-id']} />
+      <View style={{ marginBottom: 16 }}>
+        <FeedItem cooked={cooked} rounded={true} showRecipe={cooked['recipe-id'] || cooked['extract-id']} />
+      </View>
     ),
     [],
   )

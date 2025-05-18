@@ -119,7 +119,7 @@ const RecipeWithCookedFeed = observer(
 
     const renderItem = ({ item: cooked }) => {
       return (
-        <View style={{ paddingHorizontal: 16 }}>
+        <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
           <FeedItem cooked={cooked} showRecipe={false} collapseNotes={false} />
         </View>
       )
