@@ -53,7 +53,7 @@ export default Community = observer(({ navigation, route }) => {
   const [isScreenFocused, setIsScreenFocused] = useState(false)
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       try {
         profileStore.loadCommunityFeed()
       } catch (e) {
@@ -63,7 +63,7 @@ export default Community = observer(({ navigation, route }) => {
   }, [])
 
   useFocusEffect(() => {
-    ; (async () => {
+    ;(async () => {
       const notificationPermission = await Notifications.getPermissionsAsync()
       userStore.setNotificationPermissionStatus(notificationPermission.status)
 
