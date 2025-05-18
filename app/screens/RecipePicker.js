@@ -3,10 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, DeviceEventEmitter
 import FastImage from 'react-native-fast-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
-import FadeInStatusBar from '../components/FadeInStatusBar'
 import { useStore } from '../context/StoreContext'
 import moment from 'moment'
-import useUserRecipesSearch from '../hooks/services/useUserRecipesSearch'
+import useUserRecipesSearch from '../hooks/api/useUserRecipesSearch'
 import Loading from '../components/core/Loading'
 import { FlashList } from '@shopify/flash-list'
 
@@ -71,7 +70,6 @@ export default function RecipePicker({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <FadeInStatusBar />
       <View style={styles.searchContainer}>
         <MaterialCommunityIcons name='magnify' size={20} color={theme.colors.softBlack} />
         <TextInput

@@ -62,8 +62,6 @@ const ProfileCooked = observer(({ username, onScroll }) => {
     return null
   }, [isLoadingProfileCookedsNextPage])
 
-  const ItemSeparatorComponent = useCallback(() => <View style={{ height: 16 }} />, [])
-
   if (isLoadingProfileCookeds) {
     return <LoadingScreen />
   }
@@ -81,7 +79,6 @@ const ProfileCooked = observer(({ username, onScroll }) => {
         onEndReached={handleLoadMore}
         ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
-        ItemSeparatorComponent={ItemSeparatorComponent}
         refreshControl={<RefreshControl refreshing={isLoadingProfileCookeds} onRefresh={onRefresh} />}
         onScroll={onScroll}
         scrollEventThrottle={16}

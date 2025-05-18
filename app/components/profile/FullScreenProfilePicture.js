@@ -15,7 +15,6 @@ import Animated, {
 } from 'react-native-reanimated'
 import { theme } from '../../style/style'
 import FastImage from 'react-native-fast-image'
-import FadeInStatusBar from '../FadeInStatusBar'
 import { observer } from 'mobx-react-lite'
 
 // Create a forwarded ref version of FontAwesomeIcon
@@ -155,21 +154,21 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
     // Conditional styles for patrons
     const patronStyles = isPatron
       ? {
-          borderWidth: borderWidth.value,
-          borderColor: theme.colors.primary,
-          elevation: 10,
-          shadowColor: theme.colors.primary,
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.5,
-          shadowRadius: 10,
-        }
+        borderWidth: borderWidth.value,
+        borderColor: theme.colors.primary,
+        elevation: 10,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+      }
       : {
-          // Explicitly set non-patron styles to avoid inheriting from StyleSheet
-          borderWidth: 0,
-          borderColor: 'transparent', // Ensure no border color shows
-          elevation: 0,
-          shadowOpacity: 0, // Ensure no shadow
-        }
+        // Explicitly set non-patron styles to avoid inheriting from StyleSheet
+        borderWidth: 0,
+        borderColor: 'transparent', // Ensure no border color shows
+        elevation: 0,
+        shadowOpacity: 0, // Ensure no shadow
+      }
 
     return {
       ...baseStyle,
@@ -187,56 +186,53 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
   })
 
   return (
-    <>
-      {visible && <FadeInStatusBar />}
-      <Modal visible={visible} transparent={true} animationType='fade' onRequestClose={onClose}>
-        <TouchableOpacity style={styles.fullScreenOverlay} activeOpacity={1} onPress={onClose}>
-          <View style={styles.fullScreenContent}>
-            {/* Decorative floating icons - only show if patron */}
-            {isPatron &&
-              iconPositions.map((pos, index) => (
-                <AnimatedFontAwesomeIcon
-                  key={index}
-                  icon={icons[index]}
-                  style={[
-                    styles.floatingIcon,
-                    iconAnimatedStyles[index], // Use pre-defined animated style
-                  ]}
-                  color={theme.colors.primary}
-                  size={24}
-                />
-              ))}
-
-            <Animated.View style={[styles.imageContainer, containerStyle]}>
-              <FastImage
-                source={{ uri: imageUrl }}
-                style={styles.fullScreenImage}
-                resizeMode={FastImage.resizeMode.cover}
+    <Modal visible={visible} transparent={true} animationType='fade' onRequestClose={onClose}>
+      <TouchableOpacity style={styles.fullScreenOverlay} activeOpacity={1} onPress={onClose}>
+        <View style={styles.fullScreenContent}>
+          {/* Decorative floating icons - only show if patron */}
+          {isPatron &&
+            iconPositions.map((pos, index) => (
+              <AnimatedFontAwesomeIcon
+                key={index}
+                icon={icons[index]}
+                style={[
+                  styles.floatingIcon,
+                  iconAnimatedStyles[index], // Use pre-defined animated style
+                ]}
+                color={theme.colors.primary}
+                size={24}
               />
+            ))}
 
-              {isPatron && (
-                <View style={styles.patronBadge}>
-                  <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={25} />
-                  <Text style={styles.patronText}>Patron</Text>
-                </View>
-              )}
-            </Animated.View>
+          <Animated.View style={[styles.imageContainer, containerStyle]}>
+            <FastImage
+              source={{ uri: imageUrl }}
+              style={styles.fullScreenImage}
+              resizeMode={FastImage.resizeMode.cover}
+            />
 
-            <Animated.Text
-              style={[
-                styles.fullScreenBio,
-                useAnimatedStyle(() => ({
-                  opacity: scale.value,
-                  transform: [{ scale: scale.value }],
-                })),
-              ]}
-            >
-              {bio || 'No bio yet.'}
-            </Animated.Text>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    </>
+            {isPatron && (
+              <View style={styles.patronBadge}>
+                <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={25} />
+                <Text style={styles.patronText}>Patron</Text>
+              </View>
+            )}
+          </Animated.View>
+
+          <Animated.Text
+            style={[
+              styles.fullScreenBio,
+              useAnimatedStyle(() => ({
+                opacity: scale.value,
+                transform: [{ scale: scale.value }],
+              })),
+            ]}
+          >
+            {bio || 'No bio yet.'}
+          </Animated.Text>
+        </View>
+      </TouchableOpacity>
+    </Modal>
   )
 }
 

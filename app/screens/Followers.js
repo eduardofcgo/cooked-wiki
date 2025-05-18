@@ -8,7 +8,7 @@ import { PrimaryButton } from '../components/core/Button'
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import useFollowers from '../hooks/services/useFollowers'
+import useFollowers from '../hooks/api/useFollowers'
 
 const Image = FastImage
 

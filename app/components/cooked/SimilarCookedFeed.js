@@ -5,7 +5,7 @@ import Loading from '../../components/core/Loading'
 import HeaderText from '../../components/core/HeaderText'
 import { theme } from '../../style/style'
 import FeedItem from './FeedItem'
-import useTryGetSimilarCooks from '../../hooks/services/useSimilarCooks'
+import useTryGetSimilarCooks from '../../hooks/api/useSimilarCooks'
 
 const FlatList = FlashList
 

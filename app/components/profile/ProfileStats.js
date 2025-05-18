@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { observer } from 'mobx-react-lite'
@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native'
 
 import { useStore } from '../../context/StoreContext'
 
-import Loading from '../core/Loading'
 import CookingAwards from './CookingAwards'
 
 import { theme } from '../../style/style'

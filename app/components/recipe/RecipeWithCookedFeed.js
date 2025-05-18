@@ -5,7 +5,6 @@ import { FlashList } from '@shopify/flash-list'
 import debounce from 'lodash.debounce'
 
 import { useStore } from '../../context/StoreContext'
-import LoadingScreen from '../../screens/Loading'
 import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
@@ -146,8 +145,6 @@ const RecipeWithCookedFeed = observer(
       return null
     })
 
-    const ItemSeparatorComponent = useMemo(() => () => <View style={styles.itemSpacing} />, [])
-
     return (
       <View style={styles.container}>
         <FlatList
@@ -180,7 +177,6 @@ const RecipeWithCookedFeed = observer(
             </>
           }
           ListFooterComponent={ListFooter}
-          ItemSeparatorComponent={ItemSeparatorComponent}
           nestedScrollEnabled={false}
         />
       </View>

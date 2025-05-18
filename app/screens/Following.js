@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { useStore } from '../context/StoreContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import useFollowing from '../hooks/services/useFollowing'
+import useFollowing from '../hooks/api/useFollowing'
 
 const Image = FastImage
 const FlatList = FlashList

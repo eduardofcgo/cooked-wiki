@@ -18,7 +18,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import BottomSheet, { BottomSheetFlatList, BottomSheetBackdrop } from '@gorhom/bottom-sheet'
-import useTryGetSimilarCooks from '../hooks/services/useSimilarCooks'
+import useTryGetSimilarCooks from '../hooks/api/useSimilarCooks'
 import Loading from '../components/core/Loading'
 import HeaderText from '../components/core/HeaderText'
 import DragIndicator from '../components/core/DragIndicator'

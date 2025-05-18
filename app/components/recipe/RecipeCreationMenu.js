@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 import { observer } from 'mobx-react-lite'
 
 function RecipeCreationMenu({ onLinkPress, onTextPress, onFilePress, onVoicePress }) {

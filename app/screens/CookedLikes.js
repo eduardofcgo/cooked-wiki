@@ -5,7 +5,7 @@ import { FlashList } from '@shopify/flash-list'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
-import useCookedLikes from '../hooks/services/useCookedLikes'
+import useCookedLikes from '../hooks/api/useCookedLikes'
 import FastImage from 'react-native-fast-image'
 
 const Image = FastImage
