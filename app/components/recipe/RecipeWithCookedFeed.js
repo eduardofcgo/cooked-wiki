@@ -146,7 +146,7 @@ const RecipeWithCookedFeed = observer(
       return null
     })
 
-    const ItemSeparatorComponent = useMemo(() => <View style={styles.itemSpacing} />, [])
+    const ItemSeparatorComponent = useMemo(() => () => <View style={styles.itemSpacing} />, [])
 
     return (
       <View style={styles.container}>
