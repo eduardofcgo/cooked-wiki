@@ -10,7 +10,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming, runOnJS } from 'react-native-reanimated'
 import Community from '../../screens/Community'
 import { LoggedInProfile } from '../../screens/Profile'
-import RecordCook from '../core/RecordCook'
+import RecordCookCTA from '../core/RecordCookCTA'
 import UnderDevelopment from '../UnderDevelopment'
 import ModalCard from '../core/ModalCard'
 import CreateRecipeFromLink from '../recipe/CreateRecipeFromLink'
@@ -299,7 +299,7 @@ function MainMenu({ route }) {
                 opacity: isAnimationComplete ? 1 : 0.7,
               }}
             >
-              <RecordCook />
+              <RecordCookCTA />
 
               <View
                 style={{
@@ -448,11 +448,11 @@ const tabScreenStyle = {
     ...(Platform.OS === 'android'
       ? {}
       : {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-        }),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      }),
   },
   tabBarStyle: {
     height: 64,
@@ -463,9 +463,9 @@ const tabScreenStyle = {
     backgroundColor: theme.colors.white,
     ...(Platform.OS === 'android'
       ? {
-          overflow: 'hidden',
-          elevation: 10,
-        }
+        overflow: 'hidden',
+        elevation: 10,
+      }
       : {}),
   },
 }

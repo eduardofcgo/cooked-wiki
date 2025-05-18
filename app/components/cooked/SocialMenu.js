@@ -7,9 +7,8 @@ import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useInAppNotification } from '../../context/NotificationContext'
-import ActionToast from '../../components/notification/ActionToast'
 
-const SocialMenuIcons = observer(({ cookedId, onSharePress, onEditPress }) => {
+const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => {
   const navigation = useNavigation()
   const { profileStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
@@ -93,4 +92,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default SocialMenuIcons
+export default SocialMenu

@@ -10,7 +10,7 @@ const loadingMessages = [
   'Will finish in the next 5 seconds.',
 ]
 
-export default function LoadingRecipe() {
+export default function NewExtractLoading() {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
 
   useEffect(() => {

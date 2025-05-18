@@ -9,7 +9,7 @@ import Notes from './Notes'
 import PhotoSlider from './PhotoSlider'
 import AuthorBar from './AuthorBar'
 import { observer } from 'mobx-react-lite'
-import SocialMenuIcons from './SocialMenuIcons'
+import SocialMenu from './SocialMenu'
 import { useAuth } from '../../context/AuthContext'
 
 const Image = FastImage
@@ -100,7 +100,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
             roundedTop={!cooked['notes']}
             roundedBottom={!cooked['notes']}
           >
-            <SocialMenuIcons
+            <SocialMenu
               cookedId={cookedId}
               onSharePress={undefined}
               onEditPress={canEdit ? navigateToEditCook : undefined}

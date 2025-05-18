@@ -1,23 +1,21 @@
 import { useApi } from '../context/ApiContext'
 import { useState, useCallback, useEffect } from 'react'
-import Loading from './Extract/Loading'
-import Error from './Extract/Error'
+import NewExtractLoading from './NewExtractLoading'
+import NewExtractError from './NewExtractError'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
-export default function Generate({ url }) {
+export default function NewExtract({ url }) {
   const apiClient = useApi()
   const route = useRoute()
   const navigation = useNavigation()
 
-  console.log('Generate', url, route.params)
-
-  const generateUrl = url || route.params?.url
+  const newExtractUrl = url || route.params?.url
 
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const handleExtractUrl = useCallback(async () => {
-    if (!generateUrl) return
+    if (!newExtractUrl) return
 
     setError(null)
     setIsLoading(true)
@@ -26,7 +24,7 @@ export default function Generate({ url }) {
       const response = await apiClient.post(
         '/new',
         {
-          url: generateUrl,
+          url: newExtractUrl,
         },
         {
           timeout: 25000,
@@ -50,26 +48,24 @@ export default function Generate({ url }) {
       setError(err)
       setIsLoading(false)
     }
-  }, [generateUrl, apiClient, navigation])
+  }, [newExtractUrl, apiClient, navigation])
 
-  // Call handleExtractUrl when the component mounts
   useEffect(() => {
-    if (generateUrl) {
-      console.log('URL to extract:', generateUrl)
+    if (newExtractUrl) {
       handleExtractUrl()
     }
-  }, [generateUrl, handleExtractUrl])
+  }, [newExtractUrl, handleExtractUrl])
 
-  if (!generateUrl) {
+  if (!newExtractUrl) {
     return null
   }
 
   if (error) {
-    return <Error errorMessage={error.message} onRetry={handleExtractUrl} />
+    return <NewExtractError errorMessage={error.message} onRetry={handleExtractUrl} />
   }
 
   if (isLoading) {
-    return <Loading />
+    return <NewExtractLoading />
   }
 
   return null

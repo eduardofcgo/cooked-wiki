@@ -155,21 +155,21 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
     // Conditional styles for patrons
     const patronStyles = isPatron
       ? {
-          borderWidth: borderWidth.value,
-          borderColor: theme.colors.primary,
-          elevation: 10,
-          shadowColor: theme.colors.primary,
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.5,
-          shadowRadius: 10,
-        }
+        borderWidth: borderWidth.value,
+        borderColor: theme.colors.primary,
+        elevation: 10,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+      }
       : {
-          // Explicitly set non-patron styles to avoid inheriting from StyleSheet
-          borderWidth: 0,
-          borderColor: 'transparent', // Ensure no border color shows
-          elevation: 0,
-          shadowOpacity: 0, // Ensure no shadow
-        }
+        // Explicitly set non-patron styles to avoid inheriting from StyleSheet
+        borderWidth: 0,
+        borderColor: 'transparent', // Ensure no border color shows
+        elevation: 0,
+        shadowOpacity: 0, // Ensure no shadow
+      }
 
     return {
       ...baseStyle,
@@ -181,7 +181,6 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
 
   // Define animated styles for icons unconditionally
   const iconAnimatedStyles = iconPositions.map(pos => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useAnimatedStyle(() => ({
       transform: [{ translateX: pos.x.value }, { translateY: pos.y.value }, { rotate: `${pos.rotation.value}deg` }],
     }))
@@ -234,21 +233,6 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
             >
               {bio || 'No bio yet.'}
             </Animated.Text>
-
-            {/* QR Code Placeholder */}
-            {/* <Animated.View
-                            style={[
-                                styles.qrContainer,
-                                useAnimatedStyle(() => ({
-                                    opacity: scale.value,
-                                    transform: [{ scale: scale.value }]
-                                }))
-                            ]}
-                        >
-                            <View style={styles.qrPlaceholder}>
-                                <Text style={styles.qrText}>QR</Text>
-                            </View>
-                        </Animated.View> */}
           </View>
         </TouchableOpacity>
       </Modal>
@@ -319,26 +303,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.uiBold,
     fontWeight: 'bold',
     fontSize: theme.fontSizes.small,
-  },
-  qrContainer: {
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 6,
-  },
-  qrPlaceholder: {
-    width: 50,
-    height: 50,
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  qrText: {
-    color: theme.colors.primary,
-    fontSize: 14,
-    fontFamily: theme.fonts.uiBold,
   },
 })
 

@@ -1,8 +1,8 @@
 import { useShareIntentContext } from 'expo-share-intent'
 import { useEffect, useState } from 'react'
-import Generate from './Generate'
+import NewExtract from './NewExtract'
 
-export default function ShareIntentGenerate() {
+export default function ShareIntentNewExtract() {
   const { hasShareIntent, shareIntent, resetShareIntent, error: shareError } = useShareIntentContext()
 
   const [url, setUrl] = useState(null)
@@ -25,5 +25,5 @@ export default function ShareIntentGenerate() {
     return null
   }
 
-  return <Generate url={url} />
+  return <NewExtract url={url} />
 }

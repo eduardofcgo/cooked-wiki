@@ -8,7 +8,7 @@ import LoadingScreen from './Loading'
 import FullNotes from '../components/cooked/FullNotes'
 import AuthorBar from '../components/cooked/AuthorBar'
 import FeedItem from '../components/cooked/FeedItem'
-import SocialMenuIcons from '../components/cooked/SocialMenuIcons'
+import SocialMenu from '../components/cooked/SocialMenu'
 import { MaterialIcons } from '@expo/vector-icons'
 import Animated, {
   Extrapolate,
@@ -83,7 +83,7 @@ const BottomSheetHandle = observer(
   },
 )
 
-const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
+const SocialMenuCooked = observer(({ cookedId, onSharePress, onEditPress }) => (
   <View style={styles.socialMenuContainer}>
     {onEditPress ? (
       <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
@@ -94,7 +94,7 @@ const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
         <View style={{ width: 18, height: 18 }} />
       </View>
     )}
-    <SocialMenuIcons cookedId={cookedId} onSharePress={onSharePress} />
+    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} />
   </View>
 ))
 
@@ -113,7 +113,7 @@ const PhotoGallery = observer(({ photoUrls }) => {
 const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare, onEditPress }) => (
   <View style={styles.cardBodyStyle}>
     <FullNotes notes={cooked?.['notes']} />
-    <SocialMenu cookedId={cookedId} onSharePress={handleShare} onEditPress={onEditPress} />
+    <SocialMenuCooked cookedId={cookedId} onSharePress={handleShare} onEditPress={onEditPress} />
     <PhotoGallery photoUrls={photoUrls} />
     <View style={styles.headerContainer}>
       <HeaderText>Similar Cooked</HeaderText>

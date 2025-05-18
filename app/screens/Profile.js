@@ -43,7 +43,7 @@ import FullScreenProfilePicture from '../components/profile/FullScreenProfilePic
 import { useAuth } from '../context/AuthContext'
 import { getShareableProfileUrl } from '../urls'
 import Recipes from './webviews/Recipes'
-import Shopping from './webviews/Shopping'
+import ShoppingList from './webviews/ShoppingList'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import * as ImagePicker from 'expo-image-picker'
 
@@ -393,7 +393,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
               tabBarLabel: ({ focused }) => <TabBarLabel icon={faCartShopping} label='Shopping' focused={focused} />,
             }}
           >
-            {() => <Shopping username={username} navigation={navigation} route={route} />}
+            {() => <ShoppingList username={username} navigation={navigation} route={route} />}
           </Tab.Screen>
         </Tab.Navigator>
       </Animated.View>

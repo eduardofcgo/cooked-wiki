@@ -1,10 +1,9 @@
 import Login from '../Login'
-import HowItWorks from '../Onboarding/HowItWorks'
-import Notifications from '../Onboarding/Notifications'
-import OnboardingScreen from '../Onboarding/Onboarding'
-import Start from '../Onboarding/Start'
-import Register from '../Register'
-import SetupUsername from '../Onboarding/SetupUsername'
+import HowItWorks from '../onboarding/HowItWorks'
+import Notifications from '../onboarding/Notifications'
+import OnboardingScreen from '../onboarding/Onboarding'
+import Start from '../onboarding/Start'
+import SetupUsername from '../onboarding/SetupUsername'
 
 import { screenStyle } from '../../style/style'
 
@@ -50,8 +49,6 @@ export default function OnboardingStack({ StackNavigator }) {
         component={Login}
         options={{ title: 'Login with password', ...screenStyle }}
       />
-
-      <StackNavigator.Screen name='Register' component={Register} options={{ title: 'Register', ...screenStyle }} />
     </>
   )
 }

@@ -10,7 +10,7 @@ import { theme } from '../style/style'
 import { FontAwesome } from '@expo/vector-icons'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
-import RecordCook from '../components/core/RecordCook'
+import RecordCookCTA from '../components/core/RecordCookCTA'
 import { useAuth } from '../context/AuthContext'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 
@@ -190,7 +190,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={recordCook}>
-            <RecordCook size={35} iconSize={16} />
+            <RecordCookCTA size={35} iconSize={16} />
           </TouchableOpacity>
         </View>
       ),

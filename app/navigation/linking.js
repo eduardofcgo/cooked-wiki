@@ -20,7 +20,7 @@ export default {
     initialRouteName: 'Main',
     screens: {
       Generate: 'generate',
-      ShareIntentGenerate: 'share-generate',
+      ShareIntentNewExtract: 'share-generate',
       Main: {
         screens: {
           Community: 'community',
@@ -40,7 +40,7 @@ export default {
       return {
         routes: [
           {
-            name: 'ShareIntentGenerate',
+            name: 'ShareIntentNewExtract',
           },
         ],
       }

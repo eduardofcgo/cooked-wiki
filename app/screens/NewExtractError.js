@@ -1,9 +1,9 @@
 import React from 'react'
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native'
-import { theme } from '../../style/style'
+import { theme } from '../style/style'
 import { MaterialIcons } from '@expo/vector-icons'
 
-export default function Error({ style, onRetry, errorMessage = 'Something went wrong.' }) {
+export default function NewExtractError({ style, onRetry, errorMessage = 'Something went wrong.' }) {
   return (
     <SafeAreaView
       style={{

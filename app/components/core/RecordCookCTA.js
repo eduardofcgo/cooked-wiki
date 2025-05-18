@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../../style/style'
 import { View, Text, StyleSheet } from 'react-native'
 
-export default function RecordCook({ showText = false, size = null, iconSize = null }) {
+export default function RecordCookCTA({ showText = false, size = null, iconSize = null }) {
   const containerStyle = showText ? styles.ctaContainer : styles.circleContainer
 
   return (

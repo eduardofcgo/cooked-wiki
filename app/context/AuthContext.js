@@ -72,12 +72,14 @@ export const AuthProvider = ({ children, onLoadedCredentials, baseURL }) => {
   const loadedCredentials = authContext.credentials !== undefined
   const apiClient = loadedCredentials ? new ApiClient(baseURL, authContext.credentials) : null
 
-  if (apiClient) {
-    // Server logs the user out (expired auth token for example)
-    apiClient.onUnauthorized(() => {
-      setAuthContext({ ...authContext, credentials: null, loggedIn: false })
-    })
-  }
+  useEffect(() => {
+    if (apiClient) {
+      // Server logs the user out (expired auth token for example)
+      apiClient.onUnauthorized(() => {
+        setAuthContext({ ...authContext, credentials: null, loggedIn: false })
+      })
+    }
+  }, [apiClient])
 
   useEffect(() => {
     if (loadedCredentials) {

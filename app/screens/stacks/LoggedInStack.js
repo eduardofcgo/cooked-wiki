@@ -1,10 +1,9 @@
-import { useEffect } from 'react'
+import React from 'react'
 
-import Contact from '../../screens/Contact'
 import CookedRecipe from '../../screens/CookedRecipe'
 import CookedLikes from '../../screens/CookedLikes'
-import Generate from '../../screens/Generate'
-import ShareIntentGenerate from '../../screens/ShareIntentGenerate'
+import NewExtract from '../NewExtract'
+import ShareIntentNewExtract from '../../screens/ShareIntentNewExtract'
 import FindFriends from '../../screens/FindFriends'
 import Followers from '../../screens/Followers'
 import Following from '../../screens/Following'
@@ -16,29 +15,13 @@ import RecordCook from '../../screens/RecordCook'
 import FreestyleCook from '../../screens/FreestyleCook'
 import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
-import Team from '../../screens/Team'
 import Recipe from '../Recipe'
 
 import { IconButton } from 'react-native-paper'
 
 import { screenStyle, theme } from '../../style/style'
-import { useStore } from '../../context/StoreContext'
-import { useAuth } from '../../context/AuthContext'
 
 export default function LoggedInStack({ StackNavigator }) {
-  const { profileStore } = useStore()
-  const { credentials } = useAuth()
-
-  useEffect(() => {
-    try {
-      if (credentials?.username) {
-        profileStore.preloadProfile(credentials.username)
-      }
-    } catch (error) {
-      console.error('Error preloading profile', error)
-    }
-  }, [credentials?.username])
-
   return (
     <>
       <StackNavigator.Screen name='Main' options={{ headerShown: false }} component={Main} />
@@ -54,8 +37,8 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='ShareIntentGenerate'
-        component={ShareIntentGenerate}
+        name='ShareIntentNewExtract'
+        component={ShareIntentNewExtract}
         options={{
           title: 'New Recipe',
           ...screenStyle,
@@ -64,7 +47,7 @@ export default function LoggedInStack({ StackNavigator }) {
 
       <StackNavigator.Screen
         name='Generate'
-        component={Generate}
+        component={NewExtract}
         options={{
           title: 'New Recipe',
           ...screenStyle,
@@ -82,8 +65,6 @@ export default function LoggedInStack({ StackNavigator }) {
         }}
       />
 
-      <StackNavigator.Screen name='Contact' component={Contact} options={{ title: 'Contact', ...screenStyle }} />
-
       <StackNavigator.Screen
         name='Settings'
         component={Settings}
@@ -94,10 +75,6 @@ export default function LoggedInStack({ StackNavigator }) {
           animation: 'slide_from_bottom',
         }}
       />
-
-      <StackNavigator.Screen name='Team' component={Team} options={{ title: 'Patron', ...screenStyle }} />
-
-      {/* <StackNavigator.Screen name='Cooked' component={Cooked} options={{ title: 'Cooked', ...screenStyle }} /> */}
 
       <StackNavigator.Screen
         name='RecordCook'

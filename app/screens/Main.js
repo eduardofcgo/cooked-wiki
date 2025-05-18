@@ -3,13 +3,24 @@ import React, { useCallback, useEffect } from 'react'
 import MainMenu from '../components/navigation/MainMenu'
 import { useInAppNotification } from '../context/NotificationContext'
 import { useStore } from '../context/StoreContext'
+import { useAuth } from '../context/AuthContext'
 import useNotification from '../hooks/useNotification'
-import { StatusBar } from 'react-native'
-import { theme } from '../style/style'
 
 function Main() {
-  const { userStore } = useStore()
+  const { userStore, profileStore } = useStore()
+  const { credentials } = useAuth()
   const { showInAppNotification } = useInAppNotification()
+
+  // Preload user profile
+  useEffect(() => {
+    try {
+      if (credentials?.username) {
+        profileStore.preloadProfile(credentials.username)
+      }
+    } catch (error) {
+      console.error('Error preloading profile', error)
+    }
+  }, [credentials?.username, profileStore])
 
   const setNotificationToken = useCallback(
     token => {
@@ -21,6 +32,7 @@ function Main() {
   const showNotification = useCallback(
     notification => {
       console.log('notification', notification)
+      // TODO: Show notification
       // showInAppNotification(notification)
     },
     [showInAppNotification],

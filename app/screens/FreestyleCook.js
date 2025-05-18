@@ -7,13 +7,13 @@ import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 import FullNotes from '../components/cooked/FullNotes'
 import AuthorBar from '../components/cooked/AuthorBar'
-import SocialMenuIcons from '../components/cooked/SocialMenuIcons'
+import SocialMenu from '../components/cooked/SocialMenu'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '../context/AuthContext'
 
 const Image = FastImage
 
-const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
+const FreestyleSocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
   <View style={styles.socialMenuContainer}>
     {onEditPress ? (
       <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
@@ -24,7 +24,7 @@ const SocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
         <View style={{ width: 18, height: 18 }} />
       </View>
     )}
-    <SocialMenuIcons cookedId={cookedId} onSharePress={onSharePress} />
+    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} />
   </View>
 ))
 
@@ -96,7 +96,7 @@ const FreestyleCook = ({ navigation, route }) => {
 
         <View style={styles.cardBodyStyle}>
           <FullNotes notes={cooked?.['notes']} />
-          <SocialMenu
+          <FreestyleSocialMenu
             cookedId={cookedId}
             onSharePress={handleShare}
             onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}

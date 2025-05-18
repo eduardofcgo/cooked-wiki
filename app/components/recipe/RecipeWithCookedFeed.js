@@ -10,7 +10,7 @@ import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
 import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
-import RecordCook from '../core/RecordCook'
+import RecordCookCTA from '../core/RecordCookCTA'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../../urls'
 
 const RecipeWebView = forwardRef(
@@ -54,7 +54,7 @@ const RecipeWebView = forwardRef(
         />
         <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
           <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
-            <RecordCook showText={true} description='Add your own notes and save to your journal.' />
+            <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
             <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
               Add your own notes and save to your journal.
             </Text>

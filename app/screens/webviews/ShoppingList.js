@@ -7,7 +7,7 @@ import { theme } from '../../style/style'
 import { getShoppingListUrl } from '../../urls'
 import handler from './router/handler'
 
-const Shopping = observer(({ navigation, route, username }) => {
+const ShoppingList = observer(({ navigation, route, username }) => {
   const routeHandler = useCallback(
     pathname => {
       return handler(pathname, { navigation })
@@ -34,4 +34,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Shopping
+export default ShoppingList
