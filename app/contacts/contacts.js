@@ -1,4 +1,5 @@
-import CryptoJS from 'crypto-js'
+import { stringMd5 } from 'react-native-quick-md5'
+
 import * as Contacts from 'expo-contacts'
 import { normalizeEmail, normalizePhoneNumber, normalizePhoneNumberNaive } from './normalize'
 
@@ -45,5 +46,5 @@ export async function getContactHashes() {
     }
   }
 
-  return Array.from(uniqueContacts).map(contact => CryptoJS.MD5(contact).toString())
+  return Array.from(uniqueContacts).map(contact => stringMd5(contact))
 }
