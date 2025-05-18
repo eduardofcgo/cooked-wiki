@@ -151,7 +151,7 @@ const RecipeWithCookedFeed = observer(
     return (
       <View style={styles.container}>
         <FlatList
-          data={webViewReady ? recipeCookeds : []}
+          data={webViewReady ? recipeCookeds?.slice() : []}
           estimatedItemSize={50}
           renderItem={renderItem}
           keyExtractor={cooked => cooked.id}

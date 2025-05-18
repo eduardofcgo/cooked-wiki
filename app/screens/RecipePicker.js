@@ -121,7 +121,7 @@ export default function RecipePicker({ navigation }) {
             <Loading />
           ) : (
             <FlatList
-              data={searchResults.slice()}
+              data={searchResults?.slice()}
               estimatedItemSize={100}
               renderItem={({ item }) => (
                 <RecipeItem
@@ -139,7 +139,7 @@ export default function RecipePicker({ navigation }) {
           <>
             {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
               <FlatList
-                data={recentlyOpenedStore.mostRecentRecipesMetadata.slice()}
+                data={recentlyOpenedStore.mostRecentRecipesMetadata?.slice()}
                 estimatedItemSize={100}
                 renderItem={({ item }) => (
                   <RecipeItem

@@ -71,7 +71,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={profileCookeds.slice()}
+        data={profileCookeds?.slice()}
         estimatedItemSize={50}
         onEndReachedThreshold={1}
         extraData={profileCookeds?.length}

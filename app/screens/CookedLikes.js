@@ -63,7 +63,7 @@ function CookedLikes({ route, navigation }) {
 
       {filteredUsers?.length > 0 ? (
         <FlatList
-          data={filteredUsers.slice()}
+          data={filteredUsers?.slice()}
           estimatedItemSize={100}
           renderItem={({ item }) => (
             <UserItem username={item.username} profileImageUrl={item['profile-image-url']} navigation={navigation} />

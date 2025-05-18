@@ -75,7 +75,7 @@ function Followers({ route, navigation }) {
 
       {filteredFollowers.length > 0 ? (
         <FlatList
-          data={filteredFollowers.slice()}
+          data={filteredFollowers?.slice()}
           estimatedItemSize={100}
           renderItem={({ item }) => (
             <UserItem username={item.username} imageUrl={item['profile-image-url']} navigation={navigation} />

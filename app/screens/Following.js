@@ -62,7 +62,7 @@ function Following({ route, navigation }) {
 
   useEffect(() => {
     // TODO: separate into different components, for now let's keep it very ugly.
-    ;(async () => {
+    ; (async () => {
       if (isOwnProfile) {
         setLoadingFollowingFromStore(true)
         await profileStore.loadFollowing()
@@ -117,7 +117,7 @@ function Following({ route, navigation }) {
 
       {filteredFollowing?.length > 0 ? (
         <FlatList
-          data={filteredFollowing.slice()}
+          data={filteredFollowing?.slice()}
           estimatedItemSize={100}
           renderItem={({ item }) => (
             <UserItem

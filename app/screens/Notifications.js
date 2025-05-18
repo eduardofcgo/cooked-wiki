@@ -209,7 +209,7 @@ const Notifications = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={notifications.slice()}
+        data={notifications?.slice()}
         estimatedItemSize={200}
         renderItem={({ item }) => <NotificationItem notification={item} />}
         keyExtractor={item => item.id}

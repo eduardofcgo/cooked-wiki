@@ -60,7 +60,7 @@ export default function SimilarCookedFeed({ recipeId }) {
             </View>
           )}
           <FlatList
-            data={similarCooks.slice()}
+            data={similarCooks?.slice()}
             estimatedItemSize={100}
             renderItem={renderCookedItem}
             keyExtractor={keyExtractor}

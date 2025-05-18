@@ -53,7 +53,7 @@ export default Community = observer(({ navigation, route }) => {
   const [isScreenFocused, setIsScreenFocused] = useState(false)
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         profileStore.loadCommunityFeed()
       } catch (e) {
@@ -63,7 +63,7 @@ export default Community = observer(({ navigation, route }) => {
   }, [])
 
   useFocusEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const notificationPermission = await Notifications.getPermissionsAsync()
       userStore.setNotificationPermissionStatus(notificationPermission.status)
 
@@ -292,7 +292,7 @@ export default Community = observer(({ navigation, route }) => {
         <View style={styles.emptyStateContainer}>
           <LoadingScreen />
         </View>
-      ) : communityFeed.length === 0 ? (
+      ) : communityFeed?.length === 0 ? (
         <View style={styles.emptyStateContainer}>
           <Text style={styles.emptyStateText}>No recent activity.</Text>
           <Text style={styles.emptySearchText}>Follow your friends to see what they're cooking.</Text>
@@ -300,7 +300,7 @@ export default Community = observer(({ navigation, route }) => {
       ) : (
         <FlatList
           ref={listRef}
-          data={communityFeed.slice()}
+          data={communityFeed?.slice()}
           estimatedItemSize={50}
           onEndReachedThreshold={1}
           renderItem={renderItem}

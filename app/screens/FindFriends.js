@@ -76,7 +76,7 @@ function FindFriends({ navigation }) {
   const { contactsPermissionStatus, loadingFriendsProfiles, suggestedFriendsProfiles } = userStore
 
   useFocusEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const contactsPermission = await Contacts.getPermissionsAsync()
 
       if (contactsPermission.canAskAgain && contactsPermission.status === 'denied') {
@@ -89,7 +89,7 @@ function FindFriends({ navigation }) {
 
   useEffect(() => {
     if (contactsPermissionStatus === 'granted') {
-      ;(async () => {
+      ; (async () => {
         await userStore.trySyncContacts()
       })()
     }
@@ -161,7 +161,7 @@ function FindFriends({ navigation }) {
             <Text style={styles.permissionTitle}>Suggested friends</Text>
             {suggestedFriendsProfiles?.length > 0 ? (
               <FlatList
-                data={suggestedFriendsProfiles.slice()}
+                data={suggestedFriendsProfiles?.slice()}
                 estimatedItemSize={100}
                 renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
                 keyExtractor={item => item.username}
@@ -183,7 +183,7 @@ function FindFriends({ navigation }) {
         <View style={styles.resultsContainer}>
           {users.length > 0 ? (
             <FlatList
-              data={users.slice()}
+              data={users?.slice()}
               estimatedItemSize={100}
               renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
               keyExtractor={item => item.username}
