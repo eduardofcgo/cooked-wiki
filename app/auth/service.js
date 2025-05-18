@@ -16,7 +16,7 @@ export default class AuthService {
 
     const token = trimBase64Padding(btoa(session))
 
-    console.log('Setting credentials', username, session, token)
+    console.log('Setting credentials', username)
 
     await AuthStore.setCredentials(username, token)
 
