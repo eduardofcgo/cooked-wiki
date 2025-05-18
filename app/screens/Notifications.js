@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import moment from 'moment'
@@ -15,6 +16,7 @@ import { Swipeable } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 
 const Image = FastImage
+const FlatList = FlashList
 
 const NotificationItem = observer(({ notification }) => {
   const navigation = useNavigation()
@@ -207,7 +209,8 @@ const Notifications = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={notifications}
+        data={notifications.slice()}
+        estimatedItemSize={200}
         renderItem={({ item }) => <NotificationItem notification={item} />}
         keyExtractor={item => item.id}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}

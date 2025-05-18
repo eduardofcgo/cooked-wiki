@@ -28,6 +28,7 @@
     "@react-navigation/native-stack": "^7.0.9",
     "@sentry/integrations": "^7.114.0",
     "@sentry/react-native": "~6.10.0",
+    "@shopify/flash-list": "1.7.3",
     "axios": "^1.7.9",
     "expo": "^52.0.46",
     "expo-apple-authentication": "~7.1.3",

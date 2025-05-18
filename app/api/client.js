@@ -11,8 +11,6 @@ export class ApiError extends Error {
 
 export class ApiClient {
   constructor(baseURL, credentials) {
-    console.log('initializing api client', baseURL, credentials?.username)
-
     this.client = axios.create({
       baseURL: baseURL,
       timeout: 6000,
@@ -57,6 +55,8 @@ export class ApiClient {
             error.response.data.code,
           )
         }
+
+        console.error(`Network error requesting: ${error.config.baseURL}${error.config.url}`, error)
 
         throw error
       },

@@ -3,7 +3,7 @@ import * as Contacts from 'expo-contacts'
 import * as Notifications from 'expo-notifications'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { FlatList, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import Reanimated, {
   useAnimatedStyle,
@@ -13,6 +13,7 @@ import Reanimated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated'
+import { FlashList } from '@shopify/flash-list'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { FindFriendsOnboardingModal } from '../components/community/FindFriendsOnboardingModal'
@@ -23,12 +24,13 @@ import Loading from '../components/core/Loading'
 import RefreshControl from '../components/core/RefreshControl'
 import AnimatedBell from '../components/notification/AnimatedBell'
 import { useStore } from '../context/StoreContext'
-import { useInterval } from '../hooks/useInterval'
 import { requestPushNotificationsPermission } from '../notifications/push'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 
 const CHECK_NOTIFICATIONS_INTERVAL = 10000
+
+const FlatList = FlashList
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore, onboardingStore, notificationsStore } = useStore()
@@ -131,7 +133,14 @@ export default Community = observer(({ navigation, route }) => {
     await profileStore.loadCommunityFeed()
   }, [])
 
-  const renderItem = useCallback(({ item: cooked }) => <FeedItem cooked={cooked} rounded={true} />, [])
+  const renderItem = useCallback(
+    ({ item: cooked }) => (
+      <View style={{ marginBottom: 16 }}>
+        <FeedItem cooked={cooked} rounded={true} />
+      </View>
+    ),
+    [],
+  )
 
   const handleLoadMore = () => {
     if (!isLoadingCommunityFeedNextPage) {
@@ -291,16 +300,16 @@ export default Community = observer(({ navigation, route }) => {
       ) : (
         <FlatList
           ref={listRef}
-          data={communityFeed}
+          data={communityFeed.slice()}
+          estimatedItemSize={50}
+          onEndReachedThreshold={1}
           renderItem={renderItem}
           keyExtractor={cooked => cooked.id}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}
           refreshControl={<RefreshControl refreshing={profileStore.isLoadingCommunityFeed} onRefresh={onRefresh} />}
           showsVerticalScrollIndicator={false}
-          style={{ paddingHorizontal: 16, paddingVertical: 16 }}
-          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
         />
       )}
 

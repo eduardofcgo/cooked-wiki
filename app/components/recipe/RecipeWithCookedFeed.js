@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import debounce from 'lodash.debounce'
 
 import { useStore } from '../../context/StoreContext'
@@ -12,6 +13,8 @@ import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
 import RecordCookCTA from '../core/RecordCookCTA'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../../urls'
+
+const FlatList = FlashList
 
 const RecipeWebView = forwardRef(
   (
@@ -149,6 +152,7 @@ const RecipeWithCookedFeed = observer(
       <View style={styles.container}>
         <FlatList
           data={webViewReady ? recipeCookeds : []}
+          estimatedItemSize={50}
           renderItem={renderItem}
           keyExtractor={cooked => cooked.id}
           contentContainerStyle={styles.feedContent}

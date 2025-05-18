@@ -1,7 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
-import React, { useCallback, useEffect } from 'react'
-import { FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useInAppNotification } from '../context/NotificationContext'
@@ -14,6 +15,7 @@ import ActionToast from '../components/notification/ActionToast'
 import { theme } from '../style/style'
 
 const Image = FastImage
+const FlatList = FlashList
 
 function openSettings() {
   if (Platform.OS === 'ios') {
@@ -159,7 +161,8 @@ function FindFriends({ navigation }) {
             <Text style={styles.permissionTitle}>Suggested friends</Text>
             {suggestedFriendsProfiles?.length > 0 ? (
               <FlatList
-                data={suggestedFriendsProfiles}
+                data={suggestedFriendsProfiles.slice()}
+                estimatedItemSize={100}
                 renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
                 keyExtractor={item => item.username}
                 contentContainerStyle={styles.listContainer}
@@ -180,7 +183,8 @@ function FindFriends({ navigation }) {
         <View style={styles.resultsContainer}>
           {users.length > 0 ? (
             <FlatList
-              data={users}
+              data={users.slice()}
+              estimatedItemSize={100}
               renderItem={({ item }) => <UserItem user={item} navigation={navigation} />}
               keyExtractor={item => item.username}
               contentContainerStyle={styles.listContainer}

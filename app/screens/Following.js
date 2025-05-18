@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { PrimaryButton } from '../components/core/Button'
@@ -11,6 +12,7 @@ import { theme } from '../style/style'
 import useFollowing from '../hooks/services/useFollowing'
 
 const Image = FastImage
+const FlatList = FlashList
 
 const UserItem = observer(({ username, imageUrl, isOwnProfile, navigation }) => {
   return (
@@ -115,7 +117,8 @@ function Following({ route, navigation }) {
 
       {filteredFollowing?.length > 0 ? (
         <FlatList
-          data={filteredFollowing}
+          data={filteredFollowing.slice()}
+          estimatedItemSize={100}
           renderItem={({ item }) => (
             <UserItem
               username={item.username}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,6 +12,8 @@ import FastImage from 'react-native-fast-image'
 import { theme } from '../../style/style'
 import { FontAwesome } from '@expo/vector-icons'
 import { observer } from 'mobx-react-lite'
+
+const FlatList = FlashList
 
 const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -137,17 +140,19 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
     <View style={styles.container} onLayout={handleLayout}>
       {sliderWidth > 0 &&
         (images.length > 1 ? (
-          <FlatList
-            data={images}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            style={{ width: sliderWidth }}
-          />
+          <View style={{ width: sliderWidth }}>
+            <FlatList
+              data={images.slice()}
+              estimatedItemSize={2}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={onScroll}
+              scrollEventThrottle={16}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+            />
+          </View>
         ) : (
           <View style={{ width: sliderWidth }}>{renderItem({ item: images[0] })}</View>
         ))}

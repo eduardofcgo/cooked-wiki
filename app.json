@@ -30,18 +30,11 @@
             "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
             "NSExtensionActivationSupportsImageWithMaxCount": 1
           },
-          "androidIntentFilters": [
-            "text/*",
-            "image/*"
-          ],
-          "androidMultiIntentFilters": [
-            "image/*"
-          ]
+          "androidIntentFilters": ["text/*", "image/*"],
+          "androidMultiIntentFilters": ["image/*"]
         }
       ],
-      [
-        "expo-font"
-      ],
+      ["expo-font"],
       [
         "expo-image-picker",
         {

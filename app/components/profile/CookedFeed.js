@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 
-import { useAuth } from '../../context/AuthContext'
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
 import { theme } from '../../style/style'
@@ -11,6 +11,8 @@ import Loading from '../core/Loading'
 import RefreshControl from '../core/RefreshControl'
 import ProfileStats from './ProfileStats'
 import HeaderText from '../core/HeaderText'
+
+const FlatList = FlashList
 
 const FeedHeader = observer(({ username }) => {
   return (
@@ -69,13 +71,14 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={profileCookeds}
+        data={profileCookeds.slice()}
+        estimatedItemSize={50}
+        onEndReachedThreshold={1}
         extraData={profileCookeds?.length}
         renderItem={renderItem}
         keyExtractor={post => post.id.toString()}
         contentContainerStyle={styles.feedContent}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
         ListHeaderComponent={<FeedHeader username={username} />}
         ListFooterComponent={ListFooter}
         ItemSeparatorComponent={ItemSeparatorComponent}
@@ -112,7 +115,6 @@ const styles = StyleSheet.create({
   },
   feedContent: {
     paddingBottom: 250,
-    flexGrow: 1,
   },
   footerLoader: {
     padding: 20,

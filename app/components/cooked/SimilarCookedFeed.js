@@ -1,10 +1,13 @@
 import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import Loading from '../../components/core/Loading'
 import HeaderText from '../../components/core/HeaderText'
 import { theme } from '../../style/style'
 import FeedItem from './FeedItem'
 import useTryGetSimilarCooks from '../../hooks/services/useSimilarCooks'
+
+const FlatList = FlashList
 
 export default function SimilarCookedFeed({ recipeId }) {
   const { similarCooks, loadingSimilarCooks, loadNextPage, loadingNextPage, hasMoreSimilarCooks } =
@@ -57,11 +60,12 @@ export default function SimilarCookedFeed({ recipeId }) {
             </View>
           )}
           <FlatList
-            data={similarCooks}
+            data={similarCooks.slice()}
+            estimatedItemSize={100}
             renderItem={renderCookedItem}
             keyExtractor={keyExtractor}
             onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={1}
             ListFooterComponent={ListFooter}
             scrollEnabled={false}
             nestedScrollEnabled={false}

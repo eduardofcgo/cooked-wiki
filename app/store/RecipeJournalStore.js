@@ -62,7 +62,9 @@ export class RecipeJournalStore {
     })
 
     try {
-      const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`)
+      const recipeJournalResponse = await this.apiClient.get(`/journal/recipe/${recipeId}`, {
+        timeout: 15000,
+      })
 
       console.log('recipeJournalResponse', recipeJournalResponse)
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, DeviceEventEmitter } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, DeviceEventEmitter } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../style/style'
@@ -8,8 +8,11 @@ import { useStore } from '../context/StoreContext'
 import moment from 'moment'
 import useUserRecipesSearch from '../hooks/services/useUserRecipesSearch'
 import Loading from '../components/core/Loading'
+import { FlashList } from '@shopify/flash-list'
 
 const Image = FastImage
+
+const FlatList = FlashList
 
 const RecipeItem = ({ thumbnailUrl, title, openedAt, onSelect }) => {
   const formattedTime = useMemo(() => (openedAt ? moment(openedAt).fromNow() : null), [openedAt])
@@ -118,7 +121,8 @@ export default function RecipePicker({ navigation }) {
             <Loading />
           ) : (
             <FlatList
-              data={searchResults}
+              data={searchResults.slice()}
+              estimatedItemSize={100}
               renderItem={({ item }) => (
                 <RecipeItem
                   thumbnailUrl={item?.['thumbnail-url']}
@@ -135,7 +139,8 @@ export default function RecipePicker({ navigation }) {
           <>
             {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
               <FlatList
-                data={recentlyOpenedStore.mostRecentRecipesMetadata}
+                data={recentlyOpenedStore.mostRecentRecipesMetadata.slice()}
+                estimatedItemSize={100}
                 renderItem={({ item }) => (
                   <RecipeItem
                     thumbnailUrl={item?.['thumbnail-url']}

@@ -314,11 +314,11 @@ const CookedRecipe = observer(({ navigation, route }) => {
       >
         <BottomSheetFlatList
           ref={flatListRef}
-          data={similarCooks}
+          data={similarCooks.slice()}
           renderItem={renderCookedItem}
           keyExtractor={keyExtractor}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={1}
           ListFooterComponent={ListFooter}
           ListHeaderComponent={listHeader}
           contentContainerStyle={styles.flatListContent}

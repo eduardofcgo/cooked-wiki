@@ -155,21 +155,21 @@ const FullScreenProfilePicture = ({ visible, imageUrl, onClose, bio, isPatron })
     // Conditional styles for patrons
     const patronStyles = isPatron
       ? {
-        borderWidth: borderWidth.value,
-        borderColor: theme.colors.primary,
-        elevation: 10,
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.5,
-        shadowRadius: 10,
-      }
+          borderWidth: borderWidth.value,
+          borderColor: theme.colors.primary,
+          elevation: 10,
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.5,
+          shadowRadius: 10,
+        }
       : {
-        // Explicitly set non-patron styles to avoid inheriting from StyleSheet
-        borderWidth: 0,
-        borderColor: 'transparent', // Ensure no border color shows
-        elevation: 0,
-        shadowOpacity: 0, // Ensure no shadow
-      }
+          // Explicitly set non-patron styles to avoid inheriting from StyleSheet
+          borderWidth: 0,
+          borderColor: 'transparent', // Ensure no border color shows
+          elevation: 0,
+          shadowOpacity: 0, // Ensure no shadow
+        }
 
     return {
       ...baseStyle,
