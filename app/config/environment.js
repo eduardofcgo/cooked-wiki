@@ -5,8 +5,8 @@ const extraConfig = Constants.expoConfig?.extra || {}
 
 const ENV = {
   development: {
-    BASE_URL: extraConfig.BASE_URL,
-    API_BASE_URL: extraConfig.API_BASE_URL,
+    BASE_URL: process.env.EXPO_PUBLIC_BASE_URL || extraConfig.BASE_URL,
+    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || extraConfig.API_BASE_URL,
   },
   production: {
     SENTRY_DSN: 'https://570c46d111c0446bb4632c2842c2374b@glitch.cooked.wiki/2',
