@@ -119,16 +119,6 @@ export class ProfileStore {
     })
   }
 
-  async loadFollowing() {
-    const { users } = await this.apiClient.get('/following')
-    const usernameUserMap = new Map(users.map(user => [user.username, user]))
-
-    runInAction(() => {
-      this.followingUsersLoading = false
-      this.followingUsers.replace(usernameUserMap)
-    })
-  }
-
   async loadCommunityFeed() {
     runInAction(() => {
       this.isLoadingCommunityFeed = true
@@ -191,13 +181,18 @@ export class ProfileStore {
   }
 
   async loadProfileCooked(username) {
-    const [metadata, stats, cookeds] = await Promise.all([
+    const [metadata, stats, cookeds, followingResponse] = await Promise.all([
       this.apiClient.get(`/user/${username}/metadata`),
       this.apiClient.get(`/user/${username}/stats`),
       this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } }),
+      this.apiClient.get('/following')
     ])
 
+    const usernameUserMap = new Map(followingResponse.users.map(user => [user.username, user]))
+
     runInAction(() => {
+      this.followingUsers.replace(usernameUserMap)
+
       for (const cooked of cookeds) {
         this.cookedStore.saveToStore(cooked.id, cooked)
       }

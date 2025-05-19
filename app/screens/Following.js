@@ -52,32 +52,16 @@ function Following({ route, navigation }) {
 
   const { profileStore } = useStore()
 
-  // TODO: for now lets's have the loading state in th component
-  // soon we will use promises in the store which will allow to save the state in the store
-  const [loadingFollowingFromStore, setLoadingFollowingFromStore] = useState(false)
-
   const [searchQuery, setSearchQuery] = useState('')
 
   const canSearch = true // For now
 
-  useEffect(() => {
-    // TODO: separate into different components, for now let's keep it very ugly.
-    ;(async () => {
-      if (isOwnProfile) {
-        setLoadingFollowingFromStore(true)
-        await profileStore.loadFollowing()
-        setLoadingFollowingFromStore(false)
-      }
-    })()
-  }, [])
-
-  // TODO: separate into different components, for now let's keep it very ugly.
   let followingUsers
   let isLoading = false
 
   if (isOwnProfile) {
     followingUsers = Array.from(profileStore.followingUsers.values())
-    isLoading = loadingFollowingFromStore
+    isLoading = false
   } else {
     const followingResponseFromHook = useFollowing({ username })
     followingUsers = followingResponseFromHook.following
