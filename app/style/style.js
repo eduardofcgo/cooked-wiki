@@ -1,7 +1,7 @@
 export const theme = {
   fontSizes: {
     small: 12,
-    default: 15,
+    default: 16,
     large: 25,
   },
   opacity: {

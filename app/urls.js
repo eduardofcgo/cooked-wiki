@@ -17,6 +17,7 @@ export const getExtractUrl = url => `${BASE_URL}/new?url=${url}`
 export const getRecentExtractUrl = extractId => `${BASE_URL}/new/recent/${extractId}`
 export const getSavedRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}`
 export const getCookedUrl = cookId => `${BASE_URL}/cook/${cookId}`
+export const getPublicCommunityJournalUrl = () => `${BASE_URL}/community/journal`
 export const getCommunityJournalUrl = () => `${BASE_URL}/community/journal?following=true`
 export const getProfileImageUrl = username => `${BASE_URL}/user/${username}/profile/image`
 export const getCookedPhotoUrl = imagePath => `${BASE_URL}/image/photo/${imagePath}`

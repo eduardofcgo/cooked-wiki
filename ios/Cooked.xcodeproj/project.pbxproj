@@ -7,30 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0353EF2C2F994075A72E3972 /* ShareExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 882F18E2D0A1404AA565EE18 /* ShareExtension.appex */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		3139808EA4194327AC735CBF /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2FEF3097764ED0BEFF1829 /* ShareViewController.swift */; };
+		1C82D45F268D4D30964350EF /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F456798BE6D40DCAC1555C3 /* noop-file.swift */; };
+		2106FD5734FA4B099507BEA4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 602B03497C3547E39294B15F /* MainInterface.storyboard */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		500162033A0A46F5AD6DB816 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522385D2DF3942C3B0CD7D2F /* noop-file.swift */; };
-		7A9C9ABA945944D7870EC566 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A432030C8834514829B888D /* PrivacyInfo.xcprivacy */; };
+		46D8CA1FAF4B4D85BF7079E7 /* ShareExtensionPreprocessor.js in Resources */ = {isa = PBXBuildFile; fileRef = 04932A8CF0CF46B0B83087C5 /* ShareExtensionPreprocessor.js */; };
+		7C33205357D0470C8F1F2B68 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 10FD8388AA34455FA4BD82C6 /* PrivacyInfo.xcprivacy */; };
 		96905EF65AED1B983A6B3ABC /* libPods-Cooked.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Cooked.a */; };
-		A99CF813A21B4A1C8A13A88C /* ShareExtensionPreprocessor.js in Resources */ = {isa = PBXBuildFile; fileRef = 94D16E631729429A99BE2946 /* ShareExtensionPreprocessor.js */; };
-		AB7BDCC88337238FC91BD23A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A432030C8834514829B888D /* PrivacyInfo.xcprivacy */; };
-		AD07DDBB55C44E5A906A0A17 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17EDC9354D0F4EDA94798E90 /* MainInterface.storyboard */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
+		BB1E52DED4E3416C957414A4 /* ShareExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 565F48B50B5B478EBD14DEF1 /* ShareExtension.appex */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C34DD2276D754799A3DB757E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93794866941B444A9F44175B /* ShareViewController.swift */; };
+		EF0CABA5CBB1F2060B02E81F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 10FD8388AA34455FA4BD82C6 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		5338A4858FA64379A8202A1B /* Copy Files */ = {
+		6BB80FF58A23441ABA8FEDCC /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				0353EF2C2F994075A72E3972 /* ShareExtension.appex in Copy Files */,
+				BB1E52DED4E3416C957414A4 /* ShareExtension.appex in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,22 +38,22 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		04932A8CF0CF46B0B83087C5 /* ShareExtensionPreprocessor.js */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ShareExtensionPreprocessor.js; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtensionPreprocessor.js"; sourceTree = "<group>"; };
+		10FD8388AA34455FA4BD82C6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/PrivacyInfo.xcprivacy"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Cooked.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooked.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Cooked/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Cooked/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Cooked/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Cooked/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Cooked/main.m; sourceTree = "<group>"; };
-		17EDC9354D0F4EDA94798E90 /* MainInterface.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = MainInterface.storyboard; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/MainInterface.storyboard"; sourceTree = "<group>"; };
-		2A2FEF3097764ED0BEFF1829 /* ShareViewController.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareViewController.swift"; sourceTree = "<group>"; };
-		522385D2DF3942C3B0CD7D2F /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Cooked/noop-file.swift"; sourceTree = "<group>"; };
+		565F48B50B5B478EBD14DEF1 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = ShareExtension.appex; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Cooked.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Cooked.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F456798BE6D40DCAC1555C3 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Cooked/noop-file.swift"; sourceTree = "<group>"; };
+		602B03497C3547E39294B15F /* MainInterface.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = MainInterface.storyboard; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/MainInterface.storyboard"; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-Cooked.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cooked.debug.xcconfig"; path = "Target Support Files/Pods-Cooked/Pods-Cooked.debug.xcconfig"; sourceTree = "<group>"; };
-		7A432030C8834514829B888D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/PrivacyInfo.xcprivacy"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-Cooked.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cooked.release.xcconfig"; path = "Target Support Files/Pods-Cooked/Pods-Cooked.release.xcconfig"; sourceTree = "<group>"; };
-		882F18E2D0A1404AA565EE18 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = ShareExtension.appex; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		8CBD5A42918847D181F9EA8D /* Cooked-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "Cooked-Bridging-Header.h"; path = "Cooked/Cooked-Bridging-Header.h"; sourceTree = "<group>"; };
-		94D16E631729429A99BE2946 /* ShareExtensionPreprocessor.js */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ShareExtensionPreprocessor.js; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtensionPreprocessor.js"; sourceTree = "<group>"; };
+		8245F7251EEA40578A884C5E /* Cooked-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "Cooked-Bridging-Header.h"; path = "Cooked/Cooked-Bridging-Header.h"; sourceTree = "<group>"; };
+		93794866941B444A9F44175B /* ShareViewController.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareViewController.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Cooked/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -82,8 +82,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				522385D2DF3942C3B0CD7D2F /* noop-file.swift */,
-				8CBD5A42918847D181F9EA8D /* Cooked-Bridging-Header.h */,
+				5F456798BE6D40DCAC1555C3 /* noop-file.swift */,
+				8245F7251EEA40578A884C5E /* Cooked-Bridging-Header.h */,
 			);
 			name = Cooked;
 			sourceTree = "<group>";
@@ -123,7 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Cooked.app */,
-				882F18E2D0A1404AA565EE18 /* ShareExtension.appex */,
+				565F48B50B5B478EBD14DEF1 /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -165,20 +165,36 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0C1D324B0FAF4910B801FE81 /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5EFD56FF8E61417CA7ED45B1 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				74D285284E5E45B4BF82F2F0 /* Sources */,
+				5C50A8E6A464474297B23919 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = 565F48B50B5B478EBD14DEF1 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		13B07F861A680F5B00A75B9A /* Cooked */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Cooked" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				CC6886E0A80FF3AFFD0245F9 /* [Expo] Configure project */,
+				173564A79AB6755A7DE216CA /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				3DB4CE8643A24CF1A5FFD722 /* Upload Debug Symbols to Sentry */,
-				5338A4858FA64379A8202A1B /* Copy Files */,
-				44A568F0F810D6892DC390EE /* [CP] Embed Pods Frameworks */,
+				BB78813F9B514173897735EA /* Upload Debug Symbols to Sentry */,
+				6BB80FF58A23441ABA8FEDCC /* Copy Files */,
+				97FF390BC33C6675A34588DD /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -188,22 +204,6 @@
 			productName = Cooked;
 			productReference = 13B07F961A680F5B00A75B9A /* Cooked.app */;
 			productType = "com.apple.product-type.application";
-		};
-		5E479BB2D08D4136B1122074 /* ShareExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 91DA8E03648442C0BD081E9C /* Build configuration list for PBXNativeTarget "ShareExtension" */;
-			buildPhases = (
-				828D29C272844C628032039E /* Sources */,
-				87CF58E91F394D918F8A4401 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ShareExtension;
-			productName = ShareExtension;
-			productReference = 882F18E2D0A1404AA565EE18 /* ShareExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -218,7 +218,7 @@
 						DevelopmentTeam = "YTLSTYY5Y8";
 						ProvisioningStyle = Automatic;
 					};
-					5E479BB2D08D4136B1122074 = {
+					0C1D324B0FAF4910B801FE81 = {
 						DevelopmentTeam = "YTLSTYY5Y8";
 						ProvisioningStyle = Automatic;
 					};
@@ -238,7 +238,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Cooked */,
-				5E479BB2D08D4136B1122074 /* ShareExtension */,
+				0C1D324B0FAF4910B801FE81 /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -251,17 +251,17 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				AB7BDCC88337238FC91BD23A /* PrivacyInfo.xcprivacy in Resources */,
+				EF0CABA5CBB1F2060B02E81F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87CF58E91F394D918F8A4401 /* Resources */ = {
+		5C50A8E6A464474297B23919 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A99CF813A21B4A1C8A13A88C /* ShareExtensionPreprocessor.js in Resources */,
-				AD07DDBB55C44E5A906A0A17 /* MainInterface.storyboard in Resources */,
-				7A9C9ABA945944D7870EC566 /* PrivacyInfo.xcprivacy in Resources */,
+				46D8CA1FAF4B4D85BF7079E7 /* ShareExtensionPreprocessor.js in Resources */,
+				2106FD5734FA4B099507BEA4 /* MainInterface.storyboard in Resources */,
+				7C33205357D0470C8F1F2B68 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,37 +305,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3DB4CE8643A24CF1A5FFD722 /* Upload Debug Symbols to Sentry */ = {
+		173564A79AB6755A7DE216CA /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputFileListPaths = (
+			);
 			inputPaths = (
 			);
-			name = "Upload Debug Symbols to Sentry";
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh `${NODE_BINARY:-node} --print \"require('path').dirname(require.resolve('@sentry/react-native/package.json')) + '/scripts/sentry-xcode-debug-files.sh'\"`";
-		};
-		44A568F0F810D6892DC390EE /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Cooked/Pods-Cooked-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Cooked/Pods-Cooked-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Cooked/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -437,24 +424,37 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Cooked/Pods-Cooked-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CC6886E0A80FF3AFFD0245F9 /* [Expo] Configure project */ = {
+		97FF390BC33C6675A34588DD /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Cooked/Pods-Cooked-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Cooked/Pods-Cooked-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BB78813F9B514173897735EA /* Upload Debug Symbols to Sentry */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			inputPaths = (
 			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
+			name = "Upload Debug Symbols to Sentry";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Cooked/expo-configure-project.sh\"\n";
+			shellScript = "/bin/sh `${NODE_BINARY:-node} --print \"require('path').dirname(require.resolve('@sentry/react-native/package.json')) + '/scripts/sentry-xcode-debug-files.sh'\"`";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -466,15 +466,15 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				500162033A0A46F5AD6DB816 /* noop-file.swift in Sources */,
+				1C82D45F268D4D30964350EF /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		828D29C272844C628032039E /* Sources */ = {
+		74D285284E5E45B4BF82F2F0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3139808EA4194327AC735CBF /* ShareViewController.swift in Sources */,
+				C34DD2276D754799A3DB757E /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +544,29 @@
 				DEVELOPMENT_TEAM = "YTLSTYY5Y8";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+			};
+			name = Release;
+		};
+		1B0A7BF64DDE44C8B5AC9960 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = "wiki.cooked.share-extension";
+				PRODUCT_NAME = ShareExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				DEVELOPMENT_TEAM = "YTLSTYY5Y8";
+				CODE_SIGN_IDENTITY = "Apple Development";
 			};
 			name = Release;
 		};
@@ -665,7 +688,7 @@
 			};
 			name = Release;
 		};
-		CF4AB4D16DB142328780070E /* Debug */ = {
+		BB57621EFD16463DBC41D7B8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
@@ -692,29 +715,6 @@
 			};
 			name = Debug;
 		};
-		D9E8BEDF2761487AAED19B46 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "/Users/eduardo/Documents/cooked-app/ios/ShareExtension/ShareExtension-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 1.0.0;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "wiki.cooked.share-extension";
-				PRODUCT_NAME = ShareExtension;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				DEVELOPMENT_TEAM = "YTLSTYY5Y8";
-				CODE_SIGN_IDENTITY = "Apple Development";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -727,20 +727,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		5EFD56FF8E61417CA7ED45B1 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB57621EFD16463DBC41D7B8 /* Debug */,
+				1B0A7BF64DDE44C8B5AC9960 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Cooked" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		91DA8E03648442C0BD081E9C /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CF4AB4D16DB142328780070E /* Debug */,
-				D9E8BEDF2761487AAED19B46 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

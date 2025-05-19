@@ -5,8 +5,6 @@ import { Image, StyleSheet, TouchableOpacity } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { theme } from '../../style/style'
 
-const SCREENSHOT_ASPECT_RATIO = 0.74
-
 const ShareIntentDemo = ({
   screenshots,
   animationSource = require('../../../assets/animations/click.json'),
@@ -78,6 +76,15 @@ const ShareIntentDemo = ({
         </Animated.Text>
       )}
 
+      {demoCompleted && (
+        <TouchableOpacity style={styles.restartButton} onPress={restartDemo}>
+          <Ionicons name='refresh-outline' size={18} color={theme.colors.softBlack} style={styles.restartIcon} />
+          <Animated.Text style={styles.restartButtonText} entering={FadeIn.duration(300)}>
+            Play again
+          </Animated.Text>
+        </TouchableOpacity>
+      )}
+
       <Animated.View
         key={`screenshot-${currentIndex}`}
         style={styles.screenshotContainer}
@@ -102,15 +109,6 @@ const ShareIntentDemo = ({
           />
         )}
       </Animated.View>
-
-      {demoCompleted && (
-        <TouchableOpacity style={styles.restartButton} onPress={restartDemo}>
-          <Ionicons name='refresh-outline' size={18} color={theme.colors.primary} style={styles.restartIcon} />
-          <Animated.Text style={styles.restartButtonText} entering={FadeIn.duration(300)}>
-            Play again
-          </Animated.Text>
-        </TouchableOpacity>
-      )}
     </Animated.View>
   )
 }
@@ -143,43 +141,56 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 200,
     height: 200,
-    transform: [{ translateX: -35 }, { translateY: -40 }],
+    transform: [{ translateX: -25 }, { translateY: -30 }],
     zIndex: 3,
   },
   labelText: {
+    minWidth: 170,
     fontSize: theme.fontSizes.default,
-    fontFamily: theme.fonts.ui,
-    color: theme.colors.white,
+    fontFamily: theme.fonts.uiBold,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
     textAlign: 'center',
     padding: 12,
     paddingHorizontal: 16,
     marginBottom: 10,
     zIndex: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.default,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
     maxWidth: '90%',
     elevation: 3,
     position: 'absolute',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   restartButton: {
+    minWidth: 170,
     paddingHorizontal: 20,
     paddingVertical: 12,
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.default,
     zIndex: 10,
-    position: 'absolute',
-    bottom: 40,
+    marginTop: 100,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   restartIcon: {
     marginRight: 8,
   },
   restartButtonText: {
-    color: theme.colors.primary,
-    fontFamily: theme.fonts.ui,
-    fontSize: theme.fontSizes.default,
+    color: theme.colors.softBlack,
+    fontFamily: theme.fonts.uiBold,
     fontWeight: 'bold',
+    fontSize: theme.fontSizes.default,
   },
 })
 

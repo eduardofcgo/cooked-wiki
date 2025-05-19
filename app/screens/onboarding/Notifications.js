@@ -2,38 +2,59 @@ import React, { useCallback, useEffect } from 'react'
 import { StatusBar, StyleSheet, Text, View } from 'react-native'
 import Animated, { FadeInDown, SlideInRight, SlideOutLeft } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import FastImage from 'react-native-fast-image'
+import moment from 'moment'
 
 import { requestPushNotificationsPermission } from '../../notifications/push'
 
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../../components/core/Button'
 import ModalCard from '../../components/core/ModalCard'
 import { theme } from '../../style/style'
+import { getPublicCommunityJournalUrl } from '../../urls'
 
 const Notifications = ({ navigation }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0)
   const [previousPhotoIndex, setPreviousPhotoIndex] = React.useState(null)
   const [showSkipModal, setShowSkipModal] = React.useState(false)
-
-  // List of Unsplash photos
-  const unsplashPhotos = [
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-    'https://images.unsplash.com/photo-1556911220-e15b29be8c8f',
-    'https://images.unsplash.com/photo-1547592180-85f173990554',
-    'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f',
-    'https://images.unsplash.com/photo-1495521821757-a1efb6729352',
-    'https://images.unsplash.com/photo-1482049016688-2d3e1b311543',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
-    'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-  ]
+  const [journalData, setJournalData] = React.useState([])
 
   useEffect(() => {
+    const fetchJournalData = async () => {
+      try {
+        const response = await fetch(getPublicCommunityJournalUrl(), {
+          headers: {
+            Accept: 'application/json',
+          },
+        })
+        const data = await response.json()
+        setJournalData(data.results || [])
+
+        const imagesToPreload = data.results
+          ?.map(entry => entry['cooked-photos-urls']?.[0])
+          .filter(Boolean)
+          .map(url => ({ uri: url }))
+
+        if (imagesToPreload.length > 0) {
+          FastImage.preload(imagesToPreload)
+        }
+      } catch (error) {
+        console.error('Error fetching journal data:', error)
+      }
+    }
+
+    fetchJournalData()
+  }, [])
+
+  useEffect(() => {
+    if (journalData.length === 0) return
+
     const interval = setInterval(() => {
       setPreviousPhotoIndex(currentPhotoIndex)
-      setCurrentPhotoIndex(prevIndex => (prevIndex + 1) % unsplashPhotos.length)
+      setCurrentPhotoIndex(prevIndex => (prevIndex + 1) % journalData.length)
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [currentPhotoIndex])
+  }, [currentPhotoIndex, journalData])
 
   const handleEnableNotifications = useCallback(
     ({ tryAgain = true } = {}) => {
@@ -56,7 +77,7 @@ const Notifications = ({ navigation }) => {
           {previousPhotoIndex !== null && (
             <Animated.View style={styles.imageWrapper} exiting={SlideOutLeft.duration(500)}>
               <FastImage
-                source={{ uri: unsplashPhotos[previousPhotoIndex] }}
+                source={{ uri: journalData[previousPhotoIndex]?.['cooked-photos-urls']?.[0] }}
                 style={[styles.floatingImage, styles.activeImage]}
                 resizeMode='cover'
               />
@@ -64,29 +85,24 @@ const Notifications = ({ navigation }) => {
           )}
           <Animated.View style={styles.imageWrapper} entering={SlideInRight.duration(500)}>
             <FastImage
-              source={{ uri: unsplashPhotos[currentPhotoIndex] }}
+              source={{ uri: journalData[currentPhotoIndex]?.['cooked-photos-urls']?.[0] }}
               style={[styles.floatingImage, styles.activeImage]}
               resizeMode='cover'
             />
           </Animated.View>
           <View style={styles.imageOverlayContainer}>
-            <Text style={styles.imageOverlayText}>
-              <Text style={styles.imageOverlayName}>eduardo</Text> <Text style={styles.imageOverlayTime}>• 1h ago</Text>
-            </Text>
+            <View style={styles.imageOverlayText}>
+              <Text style={styles.imageOverlayName}>{journalData[currentPhotoIndex]?.username}</Text>
+              <Text style={styles.imageOverlayTime}>
+                {moment(journalData[currentPhotoIndex]?.['cooked-date']).fromNow()}
+              </Text>
+            </View>
           </View>
         </View>
 
         <Text style={styles.title}>Share your cooking with friends.</Text>
 
         <View style={styles.descriptionContainer}>
-          <Text style={styles.description}>
-            When somebody asks for your pancake recipe, just say:
-            <Text style={[styles.description, { color: theme.colors.primary, fontWeight: 'bold' }]}>
-              {' '}
-              It's on my cooked!
-            </Text>
-          </Text>
-
           <Text style={styles.description}>Do you want to know when your friends cook your recipes?</Text>
         </View>
       </Animated.View>
@@ -105,6 +121,7 @@ const Notifications = ({ navigation }) => {
 
       <ModalCard
         visible={showSkipModal}
+        disableContentUpdateAnimation={true}
         onClose={() => setShowSkipModal(false)}
         titleComponent={
           <View style={{ flex: 1, gap: 16, flexDirection: 'row' }}>
@@ -169,7 +186,7 @@ const styles = StyleSheet.create({
   },
   imagesContainer: {
     width: '100%',
-    height: 220,
+    height: 300,
     position: 'relative',
     marginBottom: 32,
     marginTop: 64,
@@ -187,6 +204,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
+    backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -194,34 +212,38 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   activeImage: {
-    width: '80%',
-    height: 180,
-    top: 20,
-    left: '10%',
+    width: 250,
+    height: 250,
+    top: 25,
+    left: '50%',
+    marginLeft: -125,
     zIndex: 3,
     opacity: 1,
   },
   image1: {
-    width: '70%',
-    height: 160,
+    width: 220,
+    height: 220,
     top: 0,
-    left: '5%',
+    left: '50%',
+    marginLeft: -110,
     zIndex: 3,
     opacity: 1,
   },
   image2: {
-    width: '65%',
-    height: 150,
-    top: 40,
-    left: '15%',
+    width: 200,
+    height: 200,
+    top: 50,
+    left: '50%',
+    marginLeft: -100,
     zIndex: 2,
     opacity: 0.8,
   },
   image3: {
-    width: '60%',
-    height: 140,
-    top: 75,
-    left: '25%',
+    width: 180,
+    height: 180,
+    top: 100,
+    left: '50%',
+    marginLeft: -90,
     zIndex: 1,
     opacity: 0.6,
   },
@@ -243,6 +265,7 @@ const styles = StyleSheet.create({
     color: theme.colors.softBlack,
     lineHeight: 24,
     marginBottom: 32,
+    textAlign: 'center',
   },
   featureContainer: {
     flexDirection: 'row',
@@ -313,30 +336,32 @@ const styles = StyleSheet.create({
   },
   imageOverlayContainer: {
     position: 'absolute',
-    bottom: 40,
-    left: '15%',
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    bottom: 35,
+    left: 70,
+    backgroundColor: theme.colors.white,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     zIndex: 5,
   },
   imageOverlayText: {
-    color: 'white',
-    fontFamily: theme.fonts.ui,
-    fontSize: 14,
-    fontWeight: 'bold',
+    gap: 8,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageOverlayName: {
+    color: theme.colors.primary,
     fontSize: theme.fontSizes.default,
-    fontFamily: theme.fonts.ui,
+    fontFamily: theme.fonts.uiBold,
     fontWeight: 'bold',
   },
   imageOverlayTime: {
     fontSize: theme.fontSizes.small,
     fontFamily: theme.fonts.ui,
     fontWeight: 'normal',
-    color: 'rgba(255,255,255,0.8)',
+    color: theme.colors.softBlack,
   },
   imageWrapper: {
     position: 'absolute',

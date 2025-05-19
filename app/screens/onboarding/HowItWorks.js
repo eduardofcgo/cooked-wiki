@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import { PrimaryButton } from '../../components/core/Button'
 import ShareIntentDemo from '../../components/demo/ShareIntentDemo'
@@ -37,9 +38,15 @@ const screenshots = [
 const HowItWorks = ({ navigation }) => {
   return (
     <Animated.View style={styles.container} entering={SlideInRight.duration(1000)}>
-      <Animated.View style={styles.content}>
+      <View style={styles.content}>
         <ShareIntentDemo screenshots={screenshots} />
-      </Animated.View>
+        <LinearGradient
+          colors={[theme.colors.background, theme.colors.background, 'transparent']}
+          locations={[0, 0.01, 0.4]}
+          style={styles.topGradient}
+          pointerEvents='none'
+        />
+      </View>
 
       <View style={styles.bottomSection}>
         <Animated.View style={styles.buttonsContainer} entering={FadeInDown.delay(7000).duration(500)}>
@@ -81,7 +88,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-
   description: {
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,
@@ -130,6 +136,14 @@ const styles = StyleSheet.create({
   activeDot: {
     backgroundColor: theme.colors.primary,
     width: 24,
+  },
+  topGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '100%',
+    zIndex: 1,
   },
 })
 

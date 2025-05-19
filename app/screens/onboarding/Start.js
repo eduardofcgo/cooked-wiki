@@ -1,11 +1,12 @@
 import React, { useEffect, useCallback } from 'react'
-import { StatusBar } from 'react-native'
-
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Linking } from 'react-native'
 import Logo from '../../components/core/Logo'
 import { theme } from '../../style/style'
 import { getGoogleRegisteredUsername } from '../../urls'
 import { useAuth } from '../../context/AuthContext'
+import { getContactUrl } from '../../urls'
+import LottieView from 'lottie-react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import {
   GoogleSignin,
@@ -105,14 +106,42 @@ export default function Start({ navigation, route }) {
     navigation.navigate('Login')
   }
 
+  const handleContactPress = async () => {
+    try {
+      const url = getContactUrl()
+      const supported = await Linking.canOpenURL(url)
+
+      if (supported) {
+        await Linking.openURL(url)
+      } else {
+        console.error('Cannot open URL: ' + url)
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error)
+    }
+  }
+
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={[theme.colors.secondary, theme.colors.background]}
+        style={[styles.gradient]}
+        locations={[0, 0.25]}
+      />
       <View style={styles.topSection}>
         <Logo style={styles.logo} />
-        <Text style={styles.title}>Welcome!</Text>
+        <LottieView
+          source={require('../../../assets/animations/cooked_background.json')}
+          style={styles.backgroundAnimation}
+          autoPlay
+          loop
+          speed={2}
+        />
       </View>
 
       <View style={styles.buttonsContainer}>
+        <Text style={styles.title}>Welcome to Cooked.wiki</Text>
+
         <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
           {/* TODO: Add Google icon here */}
           <Text style={styles.googleButtonText}>Continue with Google</Text>
@@ -134,7 +163,13 @@ export default function Start({ navigation, route }) {
 
         <Text style={styles.helpText}>
           Need help?
-          <Text style={{ color: theme.colors.primary }}> Contact</Text>
+          <Text
+            onPress={handleContactPress}
+            style={{ color: theme.colors.primary, fontFamily: theme.fonts.uiBold, fontWeight: 'bold' }}
+          >
+            {' '}
+            Contact
+          </Text>
         </Text>
       </View>
     </View>
@@ -164,10 +199,10 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 64,
-    fontSize: theme.fontSizes.large,
-    fontFamily: theme.fonts.title,
+    marginBottom: 16,
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
     color: theme.colors.softBlack,
-    textAlign: 'center',
     textAlign: 'center',
   },
   input: {
@@ -183,9 +218,10 @@ const styles = StyleSheet.create({
   helpText: {
     marginTop: 30,
     marginBottom: 30,
-    color: '#706b57',
+    color: theme.colors.softBlack,
+    fontFamily: theme.fonts.ui,
+    fontSize: theme.fontSizes.default,
     textAlign: 'center',
-    fontSize: 16,
   },
   // Common button styles
   buttonBase: {
@@ -280,5 +316,21 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 16,
     fontWeight: '500',
+  },
+  backgroundAnimation: {
+    opacity: theme.opacity.disabled,
+    position: 'absolute',
+    width: '150%',
+    height: '150%',
+    zIndex: -1,
+    left: '-25%',
+    top: '-20%',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 0,
   },
 })

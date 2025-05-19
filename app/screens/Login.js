@@ -33,6 +33,7 @@ export default function Login({ navigation, route }) {
     try {
       await auth.loginPassword(username, password)
 
+      // Navigate to Main after successful login
       navigation.reset({
         index: 0,
         routes: [{ name: 'Main' }],
@@ -119,7 +120,10 @@ export default function Login({ navigation, route }) {
 
               <Text style={styles.helpText}>
                 Forgot your password?
-                <Text style={{ color: '#d97757' }} onPress={handleResetPassword}>
+                <Text
+                  style={{ color: theme.colors.primary, fontFamily: theme.fonts.uiBold, fontWeight: 'bold' }}
+                  onPress={handleResetPassword}
+                >
                   {' '}
                   Reset
                 </Text>
@@ -186,9 +190,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   helpText: {
+    fontFamily: theme.fonts.ui,
     marginTop: 30,
     marginBottom: 30,
-    color: '#706b57',
+    color: theme.colors.softBlack,
     textAlign: 'center',
     fontSize: 16,
   },
@@ -248,7 +253,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontFamily: theme.fonts.title,
-    fontSize: 40,
+    fontSize: theme.fontSizes.large,
     color: theme.colors.black,
     marginBottom: 8,
   },
