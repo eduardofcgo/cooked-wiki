@@ -156,83 +156,6 @@ const CookedWebView = forwardRef(
       }
     }
 
-    const pullToRefreshJS = `
-      let touchStartY = 0;
-      let touchEndY = 0;
-      const THRESHOLD = 150; // Minimum pull distance to trigger refresh
-      const MAX_PULL = 200; // Maximum pull distance for visual feedback
-
-      // Create or get the content wrapper
-      function getContentWrapper() {
-        let wrapper = document.getElementById('pull-to-refresh-wrapper');
-        if (!wrapper) {
-          wrapper = document.createElement('div');
-          wrapper.id = 'pull-to-refresh-wrapper';
-          wrapper.style.transition = 'transform 0.2s';
-          // Wrap the body contents
-          while (document.body.firstChild) {
-            wrapper.appendChild(document.body.firstChild);
-          }
-          document.body.appendChild(wrapper);
-        }
-        return wrapper;
-      }
-
-      document.addEventListener('touchstart', function(e) {
-        // Only track start if at the top and not already pulling
-        if (window.scrollY === 0) {
-            const wrapper = getContentWrapper();
-            // Ensure transition is off only during the drag
-            wrapper.style.transition = 'none'; 
-            touchStartY = e.touches[0].clientY;
-        } else {
-            touchStartY = 0; // Reset if not at top
-        }
-      }, { passive: true }); // Use passive: true where possible
-
-      document.addEventListener('touchmove', function(e) {
-        // Only process move if started at the top
-        if (touchStartY > 0 && window.scrollY === 0) {
-          touchEndY = e.touches[0].clientY;
-          const pullDistance = touchEndY - touchStartY;
-          
-          if (pullDistance > 0) {
-            // Prevent native scroll ONLY when actively pulling down
-            e.preventDefault(); 
-            const wrapper = getContentWrapper();
-            // Apply transform with damping effect
-            const damping = 0.4;
-            const movement = Math.min(pullDistance * damping, MAX_PULL);
-            wrapper.style.transform = \`translateY(\${movement}px)\`;
-          }
-        }
-      }, { passive: false }); // Need false here to preventDefault
-
-      document.addEventListener('touchend', function() {
-         // Only process touchend if we were potentially pulling
-         if (touchStartY > 0) {
-             const pullDistance = touchEndY - touchStartY;
-             const wrapper = getContentWrapper();
-             
-             // Smoothly animate back to original position regardless
-             wrapper.style.transition = 'transform 0.2s';
-             wrapper.style.transform = 'translateY(0)';
-             
-             // Trigger refresh only if threshold is met AND we were at scrollY 0
-             // (window.scrollY === 0 check might be redundant if touchstart handled it, but safer)
-             if (window.scrollY === 0 && pullDistance > THRESHOLD) {
-                 window.ReactNativeWebView.postMessage(JSON.stringify({
-                     type: 'refresh',
-                     pullDistance: pullDistance
-                 }));
-             }
-         }
-         // Reset values after touchend
-         touchStartY = 0;
-         touchEndY = 0;
-      }, { passive: true }); // Can be passive
-    `
-
     const loggingJS = `
       (function() { // Wrap in a function to avoid polluting global scope
         const originalConsole = window.console;
@@ -304,8 +227,6 @@ const CookedWebView = forwardRef(
       ${loggingJS}
 
       document.querySelector('body > .page').style.maxWidth = 'unset';
-      document.querySelector('body > .page').style.paddingLeft = '16px';
-      document.querySelector('body > .page').style.paddingRight = '16px';
      
       // Add a scroll event listener for testing
       window.addEventListener('scroll', function() {
@@ -314,9 +235,8 @@ const CookedWebView = forwardRef(
 
       window.externalScrollY = 0;
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         window.externalViewportHeight = ${windowHeight};
         
         window.setExternalScrollY = function(scrollY) {
@@ -327,7 +247,6 @@ const CookedWebView = forwardRef(
               const modalHeight = modal.offsetHeight;
               const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
               const top = window.externalScrollY + centerPosition
-              // const adjustedPosition = Math.min(window.externalViewportHeight, top);
               modal.style.top = top + 'px';
           })
 
@@ -335,16 +254,15 @@ const CookedWebView = forwardRef(
           
           document.dispatchEvent(scrollEvent);
         };`
-          : `
+        : `
         
           window.setExternalScrollY = function(scrollY) {
           }
         `
       }
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         let lastHeight = 0;
         const postHeight = () => {
           const currentHeight = document.body.scrollHeight;
@@ -358,8 +276,13 @@ const CookedWebView = forwardRef(
               const modalHeight = modal.offsetHeight;
               const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
               const top = window.externalScrollY + centerPosition
-              // const adjustedPosition = Math.min(window.externalViewportHeight, top);
               modal.style.top = top + 'px';
+
+              const bodyContents = modal.querySelector('.modal-body-contents')
+              if (bodyContents) {
+                // For fixing large modals like add to collection. TODO: Should set from externalViewportHeight?
+                bodyContents.style.maxHeight = '350px';
+              }
           })
         };
 
@@ -378,7 +301,7 @@ const CookedWebView = forwardRef(
         setTimeout(postHeight, 100); // Small delay might be needed
         postHeight(); // Post immediately too
       `
-          : `
+        : `
 
         // Adjust modal position for the extra viewport height
         const modals = document.querySelectorAll('.modal > .modal-content');
@@ -488,7 +411,7 @@ const CookedWebView = forwardRef(
         onLoadEnd={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
-        onLoadProgress={({ nativeEvent }) => {}}
+        onLoadProgress={({ nativeEvent }) => { }}
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
