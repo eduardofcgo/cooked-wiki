@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import LottieView from 'lottie-react-native'
 import React, { useEffect, useState } from 'react'
-import { Image, StyleSheet, TouchableOpacity } from 'react-native'
+import { Image, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { theme } from '../../style/style'
 
@@ -16,7 +16,92 @@ const ShareIntentDemo = ({
   const [currentIndex, setCurrentIndex] = useState(stickyIndex !== null ? stickyIndex : 0)
   const [demoCompleted, setDemoCompleted] = useState(false)
   const [isRunning, setIsRunning] = useState(true)
+  const [screenshotDimensions, setScreenshotDimensions] = useState({ width: 0, height: 0 })
   const currentScreenshot = screenshots[currentIndex]
+  const screenWidth = Dimensions.get('window').width
+  const maxWidth = Math.min(screenWidth * 0.9, 400) // Limit maximum width to 90% of screen width or 400px
+
+  const styles = StyleSheet.create({
+    demoContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+    },
+    screenshotContainer: {
+      width: '95%',
+      height: '95%',
+      position: 'absolute',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    screenshot: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 110,
+      overflow: 'hidden',
+    },
+    phoneFrame: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0,
+      zIndex: 2, // Ensure frame is above the screenshot
+    },
+    clickAnimation: {
+      position: 'absolute',
+      zIndex: 3,
+    },
+    labelText: {
+      minWidth: 170,
+      fontSize: theme.fontSizes.default,
+      fontFamily: theme.fonts.uiBold,
+      fontWeight: 'bold',
+      color: theme.colors.primary,
+      textAlign: 'center',
+      padding: 12,
+      paddingHorizontal: 16,
+      marginBottom: 10,
+      zIndex: 10,
+      backgroundColor: theme.colors.white,
+      borderRadius: theme.borderRadius.default,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+      maxWidth: '90%',
+      elevation: 3,
+      position: 'absolute',
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+    },
+    restartButton: {
+      minWidth: 170,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      backgroundColor: theme.colors.white,
+      borderRadius: theme.borderRadius.default,
+      zIndex: 10,
+      marginTop: 100,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    restartIcon: {
+      marginRight: 8,
+    },
+    restartButtonText: {
+      color: theme.colors.softBlack,
+      fontFamily: theme.fonts.uiBold,
+      fontWeight: 'bold',
+      fontSize: theme.fontSizes.default,
+    },
+  })
 
   const restartDemo = () => {
     setCurrentIndex(0)
@@ -61,10 +146,15 @@ const ShareIntentDemo = ({
     }
   }, [demoCompleted, onComplete])
 
+  const handleImageLoad = event => {
+    const { width, height } = event.nativeEvent.source
+    setScreenshotDimensions({ width, height })
+  }
+
   if (!currentScreenshot) return null
 
   return (
-    <Animated.View style={styles.demoContainer} entering={FadeIn.delay(initialDelay).duration(500)}>
+    <Animated.View style={[styles.demoContainer, { maxWidth }]} entering={FadeIn.delay(initialDelay).duration(500)}>
       {currentScreenshot.label && (
         <Animated.Text
           style={styles.labelText}
@@ -91,7 +181,12 @@ const ShareIntentDemo = ({
         entering={FadeIn.duration(300)}
         exiting={FadeOut.duration(300)}
       >
-        <Image source={currentScreenshot.source} style={styles.screenshot} resizeMode='contain' />
+        <Image
+          source={currentScreenshot.source}
+          style={styles.screenshot}
+          resizeMode='contain'
+          onLoad={handleImageLoad}
+        />
 
         <Image
           source={require('../../../assets/demo/iphone_xr_frame.png')}
@@ -102,7 +197,18 @@ const ShareIntentDemo = ({
         {currentScreenshot.animationPosition && (
           <LottieView
             source={animationSource}
-            style={[styles.clickAnimation, currentScreenshot.animationPosition]}
+            style={[
+              styles.clickAnimation,
+              {
+                width: maxWidth * 0.8,
+                height: maxWidth * 0.8,
+                transform: [
+                  { translateX: -maxWidth / 6 },
+                  { translateY: screenshotDimensions.height ? -(screenshotDimensions.height * 0.15) : -maxWidth / 5 },
+                ],
+              },
+              currentScreenshot.animationPosition,
+            ]}
             autoPlay
             loop
             key={`animation-${currentIndex}`}
@@ -112,86 +218,5 @@ const ShareIntentDemo = ({
     </Animated.View>
   )
 }
-
-const styles = StyleSheet.create({
-  demoContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  screenshotContainer: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-  },
-  screenshot: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 130,
-  },
-  phoneFrame: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    top: 0,
-    left: 0,
-  },
-  clickAnimation: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    transform: [{ translateX: -25 }, { translateY: -30 }],
-    zIndex: 3,
-  },
-  labelText: {
-    minWidth: 170,
-    fontSize: theme.fontSizes.default,
-    fontFamily: theme.fonts.uiBold,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    textAlign: 'center',
-    padding: 12,
-    paddingHorizontal: 16,
-    marginBottom: 10,
-    zIndex: 10,
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.default,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-    maxWidth: '90%',
-    elevation: 3,
-    position: 'absolute',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  restartButton: {
-    minWidth: 170,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.default,
-    zIndex: 10,
-    marginTop: 100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  restartIcon: {
-    marginRight: 8,
-  },
-  restartButtonText: {
-    color: theme.colors.softBlack,
-    fontFamily: theme.fonts.uiBold,
-    fontWeight: 'bold',
-    fontSize: theme.fontSizes.default,
-  },
-})
 
 export default ShareIntentDemo

@@ -185,7 +185,7 @@ export class ProfileStore {
       this.apiClient.get(`/user/${username}/metadata`),
       this.apiClient.get(`/user/${username}/stats`),
       this.apiClient.get(`/user/${username}/journal`, { params: { page: 1 } }),
-      this.apiClient.get('/following')
+      this.apiClient.get('/following'),
     ])
 
     const usernameUserMap = new Map(followingResponse.users.map(user => [user.username, user]))

@@ -52,28 +52,29 @@ const OnboardingScreen = ({ navigation }) => {
       </Animated.View>
 
       <Animated.View entering={FadeIn.delay(3000).duration(1000)}>
-        <View>
+        <View style={{ maxWidth: 400, alignSelf: 'center' }}>
           <Text
             style={{
-              color: theme.colors.black,
+              color: theme.colors.softBlack,
               fontFamily: theme.fonts.ui,
               fontSize: theme.fontSizes.default,
-              textAlign: 'left',
-              paddingHorizontal: 16,
+              textAlign: 'center',
+              paddingHorizontal: 32,
+              paddingVertical: 16,
             }}
           >
-            When somebody asks for your pancake recipe, just say:
+            From now on, when somebody asks for your cookie recipe, just say:
           </Text>
           <Text
             style={{
               color: theme.colors.black,
               fontFamily: theme.fonts.title,
               fontSize: theme.fontSizes.large,
-              textAlign: 'right',
+              textAlign: 'center',
               paddingHorizontal: 32,
             }}
           >
-            - It's on my <Text style={{ color: theme.colors.black, fontFamily: theme.fonts.title }}>Cooked</Text>!
+            It's on my <Text style={{ color: theme.colors.black, fontFamily: theme.fonts.title }}>Cooked</Text>!
           </Text>
         </View>
       </Animated.View>

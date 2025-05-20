@@ -303,6 +303,10 @@ const CookedWebView = forwardRef(
     const injectedJS = `
       ${loggingJS}
 
+      document.querySelector('body > .page').style.maxWidth = 'unset';
+      document.querySelector('body > .page').style.paddingLeft = '16px';
+      document.querySelector('body > .page').style.paddingRight = '16px';
+     
       // Add a scroll event listener for testing
       window.addEventListener('scroll', function() {
         //window.ReactNativeWebView.postMessage("Scroll event detected inside WebView!");

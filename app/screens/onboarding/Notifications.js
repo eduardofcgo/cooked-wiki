@@ -337,12 +337,14 @@ const styles = StyleSheet.create({
   imageOverlayContainer: {
     position: 'absolute',
     bottom: 35,
-    left: 70,
+    left: '50%',
+    transform: [{ translateX: -115 }],
     backgroundColor: theme.colors.white,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     zIndex: 5,
+    maxWidth: '80%',
   },
   imageOverlayText: {
     gap: 8,

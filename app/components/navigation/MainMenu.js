@@ -439,12 +439,12 @@ const tabScreenStyle = {
   },
   tabBarContainerStyle: {
     position: 'absolute',
-    marginHorizontal: 32,
-    left: 0,
-    right: 0,
     bottom: 16,
     height: 64,
     zIndex: 8,
+    width: '100%',
+    alignItems: 'center',
+    paddingHorizontal: 32,
     ...(Platform.OS === 'android'
       ? {}
       : {
@@ -455,6 +455,8 @@ const tabScreenStyle = {
         }),
   },
   tabBarStyle: {
+    maxWidth: 500,
+    width: '100%',
     height: 64,
     borderRadius: theme.borderRadius.default,
     borderWidth: 0,

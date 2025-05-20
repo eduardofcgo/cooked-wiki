@@ -193,9 +193,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonsContainer: {
+    maxWidth: 500,
+    width: '100%',
     flexDirection: 'column',
     justifyContent: 'flex-end',
     gap: 10,
+    alignSelf: 'center',
   },
   title: {
     marginTop: 64,

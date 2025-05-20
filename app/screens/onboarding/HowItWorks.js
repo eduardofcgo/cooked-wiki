@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Dimensions, Platform } from 'react-native'
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -21,7 +21,7 @@ const screenshots = [
   },
   {
     source: require('../../../assets/demo/ios_youtube_short_2.png'),
-    animationPosition: { top: '74%', left: '47%' },
+    animationPosition: { top: '70%', left: '47%' },
     label: 'Tap the share button',
   },
   {
@@ -36,20 +36,25 @@ const screenshots = [
 ]
 
 const HowItWorks = ({ navigation }) => {
+  const screenWidth = Dimensions.get('window').width
+  const isIPad = Platform.OS === 'ios' && (Platform.isPad || screenWidth >= 768)
+
   return (
     <Animated.View style={styles.container} entering={SlideInRight.duration(1000)}>
       <View style={styles.content}>
         <ShareIntentDemo screenshots={screenshots} />
-        <LinearGradient
-          colors={[theme.colors.background, theme.colors.background, 'transparent']}
-          locations={[0, 0.01, 0.4]}
-          style={styles.topGradient}
-          pointerEvents='none'
-        />
+        {!isIPad && (
+          <LinearGradient
+            colors={[theme.colors.background, theme.colors.background, 'transparent']}
+            locations={[0, 0.01, 0.4]}
+            style={styles.topGradient}
+            pointerEvents='none'
+          />
+        )}
       </View>
 
       <View style={styles.bottomSection}>
-        <Animated.View style={styles.buttonsContainer} entering={FadeInDown.delay(7000).duration(500)}>
+        <Animated.View style={styles.buttonsContainer} entering={FadeInDown.delay(10000).duration(500)}>
           <PrimaryButton
             title='Got it!'
             onPress={() => navigation.navigate('OnboardingNotifications')}
