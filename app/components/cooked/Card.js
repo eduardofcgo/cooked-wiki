@@ -71,7 +71,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
         },
       ]}
     >
-      {!photoUrls && showRecipe && recipePhotoUrl && (
+      {!photoUrls?.length && showRecipe && recipePhotoUrl && (
         <TouchableOpacity onPress={navigateToRecipe}>
           <Image source={{ uri: recipePhotoUrl }} style={styles.recipePhoto} />
         </TouchableOpacity>
@@ -155,7 +155,6 @@ const styles = StyleSheet.create({
   recipePhoto: {
     width: 110,
     height: 110,
-    marginTop: 16,
     marginLeft: 16,
     borderRadius: theme.borderRadius.default,
   },

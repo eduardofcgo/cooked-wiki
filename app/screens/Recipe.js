@@ -13,12 +13,15 @@ import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
 import RecordCookCTA from '../components/core/RecordCookCTA'
 import { useAuth } from '../context/AuthContext'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
+import { MaterialIcons } from '@expo/vector-icons'
+import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 function Recipe({ loadingComponent, navigation, route, ...props }) {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
+  const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
@@ -28,6 +31,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
   // Add a key to force re-render of the RecipeWithCookedFeed component
   const [componentKey, setComponentKey] = useState(Date.now())
+  const [cookingNotes, setCookingNotes] = useState('')
 
   const id = recipeId || extractId
 
@@ -60,6 +64,19 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   const rotationValue = useSharedValue(0)
 
   useKeepAwake()
+
+  const handleScroll = useCallback(
+    event => {
+      const currentScrollPosition = event.nativeEvent.contentOffset.y
+      setScrollPosition(currentScrollPosition)
+
+      // Close expanded section when scrolling
+      if (isExpanded) {
+        setIsExpanded(false)
+      }
+    },
+    [isExpanded],
+  )
 
   const handlePressOrDoublepress = () => {
     const currentTime = new Date().getTime()
@@ -146,8 +163,12 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
   })
 
   const recordCook = useCallback(() => {
-    navigation.navigate('RecordCook', { recipeId, extractId })
-  }, [navigation, recipeId, extractId])
+    navigation.navigate('RecordCook', {
+      recipeId,
+      extractId,
+      initialNotes: cookingNotes,
+    })
+  }, [navigation, recipeId, extractId, cookingNotes])
 
   useEffect(() => {
     navigation.setOptions({
@@ -189,13 +210,13 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
             <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={recordCook}>
-            <RecordCookCTA size={35} iconSize={16} />
+          <TouchableOpacity onPress={() => setIsNotesModalVisible(true)}>
+            <MaterialIcons name='edit-note' size={28} color={theme.colors.softBlack} />
           </TouchableOpacity>
         </View>
       ),
     })
-  }, [hasRecentlyOpenedRecipes, navigation, isExpanded, orientation])
+  }, [hasRecentlyOpenedRecipes, navigation, isExpanded, orientation, onShare])
 
   const routeHandler = useCallback(
     (pathname, queryParams) => {
@@ -263,8 +284,17 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
           route={route}
           disableRefresh={true}
           loadingComponent={loadingComponent}
+          onScroll={handleScroll}
         />
       </Animated.View>
+
+      <RecipeDraftNotesCard
+        isVisible={isNotesModalVisible}
+        initialNotes={cookingNotes}
+        onClose={() => {
+          setIsNotesModalVisible(false)
+        }}
+      />
     </View>
   )
 }

@@ -1,14 +1,51 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { View, Text, TextInput, StyleSheet, Keyboard, TouchableOpacity } from 'react-native'
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Keyboard,
+  TouchableOpacity,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
 
 export default function NotesModal({ visible, onClose, onSave, initialNotes, recipe }) {
   const [notes, setNotes] = useState(initialNotes || '')
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
   const inputRef = useRef(null)
 
   const placeholder = recipe === null ? 'What did you cook and how did it turn out?' : 'How did it turn out?'
+
+  useEffect(() => {
+    const keyboardWillShow = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', e => {
+      setKeyboardHeight(e.endCoordinates.height)
+    })
+    const keyboardWillHide = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0)
+      },
+    )
+
+    return () => {
+      keyboardWillShow.remove()
+      keyboardWillHide.remove()
+    }
+  }, [])
+
+  const calculateMaxHeight = () => {
+    const screenHeight = Dimensions.get('window').height
+    const modalHeaderHeight = 60 // Approximate height of modal header
+    const buttonHeight = 50 // Approximate height of buttons
+    const padding = 40 // Approximate padding/margins
+    const availableHeight = screenHeight - keyboardHeight - modalHeaderHeight - buttonHeight - padding
+    return Math.max(150, availableHeight * 0.8) // Ensure minimum height of 150
+  }
 
   const handleLayout = useCallback(() => {
     if (visible && inputRef.current) {
@@ -43,8 +80,9 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
       <TextInput
         ref={inputRef}
         cursorColor={theme.colors.primary}
-        style={styles.notesInput}
+        style={[styles.notesInput, { maxHeight: calculateMaxHeight() }]}
         multiline
+        scrollEnabled={true}
         placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
         placeholder={placeholder}
         value={notes}
@@ -78,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     padding: 15,
-    height: 150,
+    minHeight: 150,
     textAlignVertical: 'top',
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,

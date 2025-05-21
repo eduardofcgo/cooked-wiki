@@ -5,7 +5,7 @@ import { theme } from '../style/style'
 const loadingMessages = [
   'Thank you for your patience.',
   'Verifying results, please wait a few more seconds.',
-  'Summarizing recipe using AI.',
+  'Using AI to double check your recipe.',
   'Almost there! Performing a final review.',
   'Will finish in the next 5 seconds.',
 ]
@@ -45,7 +45,8 @@ export default function NewExtractLoading() {
             fontFamily: theme.fonts.ui,
             marginTop: 20,
             textAlign: 'center',
-            fontSize: 16,
+            fontSize: theme.fontSizes.default,
+            maxWidth: '80%',
           }}
         >
           {loadingMessages[currentMessageIndex]}

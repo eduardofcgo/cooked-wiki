@@ -3,13 +3,21 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../../style/style'
 import { View, Text, StyleSheet } from 'react-native'
 
-export default function RecordCookCTA({ showText = false, size = null, iconSize = null }) {
+export default function RecordCookCTA({
+  text = 'Record cook',
+  showIcon = true,
+  showText = false,
+  size = null,
+  iconSize = null,
+}) {
   const containerStyle = showText ? styles.ctaContainer : styles.circleContainer
 
   return (
     <View style={[containerStyle, size && { height: size, width: size }]}>
-      <MaterialCommunityIcons name='camera' color={theme.colors.white} size={iconSize || (showText ? 24 : 20)} />
-      {showText && <Text style={styles.ctaText}>Record cook</Text>}
+      {showIcon && (
+        <MaterialCommunityIcons name='camera' color={theme.colors.white} size={iconSize || (showText ? 24 : 20)} />
+      )}
+      {showText && <Text style={styles.ctaText}>{text}</Text>}
     </View>
   )
 }
@@ -34,7 +42,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: theme.colors.white,
-    fontSize: 14,
+    fontSize: theme.fontSizes.small,
     fontWeight: 'bold',
     marginLeft: 8,
   },

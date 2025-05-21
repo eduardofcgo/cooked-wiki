@@ -240,7 +240,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
         <FeedItem cooked={cooked} rounded={true} />
       </View>
     ),
-    [],
+    [cooked],
   )
 
   const keyExtractor = useCallback((item, index) => `${item.id}-${index}`, [])
@@ -260,14 +260,17 @@ const CookedRecipe = observer(({ navigation, route }) => {
     navigation.navigate('EditCook', { cookedId })
   }, [cookedId, navigation])
 
-  const listHeader = (
-    <ListHeader
-      cookedId={cookedId}
-      cooked={cooked}
-      photoUrls={photoUrls}
-      handleShare={handleShare}
-      onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
-    />
+  const listHeader = useMemo(
+    () => (
+      <ListHeader
+        cookedId={cookedId}
+        cooked={cooked}
+        photoUrls={photoUrls}
+        handleShare={handleShare}
+        onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
+      />
+    ),
+    [cookedId, cooked, photoUrls, handleShare, loggedInUsername, handleEdit],
   )
 
   const renderHandle = () => (
@@ -326,6 +329,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
           maxToRenderPerBatch={5}
           initialNumToRender={5}
           windowSize={7}
+          extraData={[cooked, cookedId]}
         />
       </BottomSheet>
     </View>

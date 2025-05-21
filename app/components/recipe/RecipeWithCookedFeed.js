@@ -68,7 +68,17 @@ const RecipeWebView = forwardRef(
 )
 
 const RecipeWithCookedFeed = observer(
-  ({ recipeId, extractId, justSaved, navigation, onRequestPath, route, disableRefresh, loadingComponent }) => {
+  ({
+    recipeId,
+    extractId,
+    justSaved,
+    navigation,
+    onRequestPath,
+    route,
+    disableRefresh,
+    loadingComponent,
+    onScroll,
+  }) => {
     const { recipeJournalStore } = useStore()
 
     const id = recipeId || extractId
@@ -107,8 +117,12 @@ const RecipeWithCookedFeed = observer(
       event => {
         const scrollY = event.nativeEvent.contentOffset.y
         injectScrollPosition(scrollY)
+
+        if (onScroll) {
+          onScroll(event)
+        }
       },
-      [injectScrollPosition],
+      [injectScrollPosition, onScroll],
     )
 
     const handleLoadMore = useCallback(() => {

@@ -103,6 +103,15 @@ export class NotificationsStore {
     }
   }
 
+  refreshNotifications() {
+    if (!this.getNotifications()) {
+      this.loadNotifications()
+    } else {
+      // TODO: should refresh only not reload
+      this.loadNotifications()
+    }
+  }
+
   loadNotifications() {
     runInAction(() => {
       this.notifications = fromPromise(

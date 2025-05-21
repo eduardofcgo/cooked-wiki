@@ -122,7 +122,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState([])
   const [selectedRecipe, setSelectedRecipe] = useState(preSelectedRecipe)
-  const [notes, setNotes] = useState(undefined)
+  const [notes, setNotes] = useState(route.params?.initialNotes || undefined)
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)

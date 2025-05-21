@@ -158,7 +158,7 @@ const Notifications = ({ navigation }) => {
   const isLoading = notificationsStore.getNotificationsLoadState() === 'pending'
 
   useEffect(() => {
-    notificationsStore.loadNotifications()
+    notificationsStore.refreshNotifications()
   }, [])
 
   useEffect(() => {
@@ -199,7 +199,7 @@ const Notifications = ({ navigation }) => {
   }, [navigation, notificationsStore.hasNewNotifications, showInAppNotification])
 
   const handleRefresh = useCallback(async () => {
-    notificationsStore.loadNotifications()
+    notificationsStore.refreshNotifications()
   }, [])
 
   if (isLoading && !notificationsStore.getNotifications()) {

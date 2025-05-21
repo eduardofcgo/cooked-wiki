@@ -17,6 +17,7 @@ import { FlashList } from '@shopify/flash-list'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { FindFriendsOnboardingModal } from '../components/community/FindFriendsOnboardingModal'
+import NewNotificationsCTA from '../components/community/NewNotificationsCTA'
 import FeedItem from '../components/cooked/FeedItem'
 import { Button, PrimaryButton } from '../components/core/Button'
 import HeaderTitleMenu from '../components/core/HeaderTitleMenu'
@@ -81,10 +82,14 @@ export default Community = observer(({ navigation, route }) => {
     navigation.setOptions({
       headerTitle: () => (
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-          <HeaderTitleMenu title='Community' reverse={true}>
-            {hasNewNotifications ? <AnimatedBell /> : <Icon name='bell' size={20} color={theme.colors.softBlack} />}
-          </HeaderTitleMenu>
+          <HeaderTitleMenu title='Community' reverse={true} />
         </TouchableOpacity>
+      ),
+      headerLeft: () => (
+        <NewNotificationsCTA
+          onPress={() => navigation.navigate('Notifications')}
+          hasNewNotifications={hasNewNotifications}
+        />
       ),
       headerRight: () => (
         <TouchableOpacity
@@ -136,7 +141,7 @@ export default Community = observer(({ navigation, route }) => {
   const renderItem = useCallback(
     ({ item: cooked }) => (
       <View style={{ marginBottom: 16 }}>
-        <FeedItem cooked={cooked} rounded={true} />
+        <FeedItem cooked={cooked} rounded={true} showRecipe={true} />
       </View>
     ),
     [],

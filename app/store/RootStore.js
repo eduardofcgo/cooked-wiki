@@ -9,6 +9,7 @@ import { UserStore } from './UserStore'
 import { RecipeJournalStore } from './RecipeJournalStore'
 import { CookedStore } from './CookedStore'
 import { NotificationsStore } from './NotificationsStore'
+import { RecipeCookedDraftStore } from './RecipeCookedDraftStore'
 import { ImagePreloader } from './ImagePreloader'
 
 export default class RootStore {
@@ -38,6 +39,8 @@ export default class RootStore {
     this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore, this.cookedStore)
 
     this.notificationsStore = new NotificationsStore(apiClient, this.profileStore, this.cookedStore)
+
+    this.recipeCookedDraftStore = new RecipeCookedDraftStore()
 
     makeAutoObservable(this)
   }
