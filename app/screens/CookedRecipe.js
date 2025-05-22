@@ -296,7 +296,13 @@ const CookedRecipe = observer(({ navigation, route }) => {
       <View style={{ zIndex: -10, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
         {shouldLoadRecipe ? (
           <Suspense fallback={<LoadingScreen />}>
-            <Recipe recipeId={recipeId} extractId={extractId} route={route} navigation={navigation} />
+            <Recipe
+              recipeId={recipeId}
+              extractId={extractId}
+              route={route}
+              navigation={navigation}
+              cookedCard={bottomSheetRef}
+            />
           </Suspense>
         ) : (
           <LoadingScreen />

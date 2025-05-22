@@ -14,7 +14,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from '@react-navigation/native'
 
-function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
+function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedCard, onClose }) {
   const navigation = useNavigation()
   const { showInAppNotification, clearInAppNotifications } = useInAppNotification()
 
@@ -45,15 +45,19 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
   }, [isVisible])
 
   useEffect(() => {
-    if (isVisible === false && draft?.notes?.length > 0) {
-      draftSavedToast()
+    if (isVisible === false) {
+      handleClose()
+
+      if (draft?.notes?.length > 0) {
+        draftSavedToast()
+      }
     }
   }, [isVisible])
 
   useFocusEffect(
     useCallback(() => {
       return () => {
-        if (draft?.notes?.length > 0) {
+        if (isVisible === false && draft?.notes?.length > 0) {
           draftSavedToast()
         }
       }
@@ -63,7 +67,8 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
   const bottomSheetRef = useRef(null)
   const textInputRef = useRef(null)
 
-  const snapPoints = useMemo(() => [230, '100%'], [])
+  const cookedCardOffset = isOnTopOfCookedCard ? 100 : 0
+  const snapPoints = useMemo(() => [230 + cookedCardOffset, '100%'], [])
   const closedIndex = -1
   const startPointIndex = 0
   const expandedIndex = snapPoints.length - 1
@@ -99,7 +104,7 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
   }, [sheetIndex])
 
   useEffect(() => {
-    draft.normalizeNotes()
+    draft?.normalizeNotes()
   }, [draft, sheetIndex])
 
   const expandedStyle = useAnimatedStyle(() => ({
@@ -145,7 +150,7 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
       ref={bottomSheetRef}
       snapPoints={snapPoints}
       index={showSheet ? startPointIndex : closedIndex}
-      enablePanDownToClose={true}
+      enablePanDownToClose={false}
       handleComponent={renderHandle}
       backgroundStyle={styles.bottomSheetBackground}
       style={styles.bottomSheetShadow}
@@ -162,7 +167,11 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
                 style={[styles.notesInput, sheetIndex >= expandedIndex ? { flex: 1 } : { flex: 0, maxHeight: 160 }]}
                 multiline
                 placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
-                placeholder='Take notes while cooking'
+                placeholder={
+                  isOnTopOfCookedCard
+                    ? 'Compare to the other Cooked bellow and create your new version.'
+                    : 'Take notes while cooking.'
+                }
                 value={draft.notes}
                 onChangeText={onChangeTextInput}
                 autoFocus={false}
@@ -171,7 +180,7 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, onClose }) {
               <Animated.View style={[styles.subtitleContainer, expandedStyle]}>
                 <MaterialIcons name='edit-note' size={28} color={theme.colors.softBlack} />
                 <Text style={styles.subtitle}>
-                  Taking notes while cooking.
+                  Take notes with your changes while cooking.
                   {'\n'}
                   When finished, record it to your journal.
                 </Text>

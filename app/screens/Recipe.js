@@ -18,10 +18,18 @@ import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-function Recipe({ loadingComponent, navigation, route, ...props }) {
+function Recipe({ loadingComponent, navigation, route, cookedCard, ...props }) {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
+
+  const hasCookedCard = Boolean(cookedCard)
+
+  const toggleNotesModal = useCallback(() => {
+    cookedCard?.current?.snapToIndex(0)
+
+    setIsNotesModalVisible(prev => !prev)
+  }, [])
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
@@ -200,7 +208,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
             <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setIsNotesModalVisible(true)}>
+          <TouchableOpacity onPress={toggleNotesModal}>
             <MaterialIcons name='edit-note' size={28} color={theme.colors.softBlack} />
           </TouchableOpacity>
         </View>
@@ -282,6 +290,7 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
         recipeId={recipeId}
         extractId={extractId}
         isVisible={isNotesModalVisible}
+        isOnTopOfCookedCard={hasCookedCard}
         onClose={() => {
           setIsNotesModalVisible(false)
         }}
