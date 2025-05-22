@@ -9,7 +9,7 @@ import ErrorScreen from './ErrorScreen'
 function RecordCookScreen() {
   const route = useRoute()
 
-  const { recipeId, extractId } = route.params || {}
+  const { recipeId, extractId, defaultNotes } = route.params || {}
   const id = recipeId || extractId
 
   const { recipeMetadataStore } = useStore()
@@ -32,7 +32,7 @@ function RecordCookScreen() {
       return <ErrorScreen />
     }
 
-    return <RecordCook editMode={false} preSelectedRecipe={recipeMetadata} />
+    return <RecordCook editMode={false} preSelectedRecipe={recipeMetadata} defaultNotes={defaultNotes} />
   }
 
   return <RecordCook editMode={false} />

@@ -29,7 +29,9 @@ export default class RootStore {
 
     this.cookedStore = new CookedStore(apiClient, this.imagePreloader)
 
-    this.profileStore = new ProfileStore(apiClient, this.imagePreloader, this.cookedStore)
+    this.recipeCookedDraftStore = new RecipeCookedDraftStore()
+
+    this.profileStore = new ProfileStore(apiClient, this.imagePreloader, this.cookedStore, this.recipeCookedDraftStore)
     this.findFriendsStore = new FindFriendsStore(apiClient, this.profileStore)
 
     this.recipeMetadataStore = new RecipeMetadataStore(apiClient, this.imagePreloader)
@@ -39,8 +41,6 @@ export default class RootStore {
     this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore, this.cookedStore)
 
     this.notificationsStore = new NotificationsStore(apiClient, this.profileStore, this.cookedStore)
-
-    this.recipeCookedDraftStore = new RecipeCookedDraftStore()
 
     makeAutoObservable(this)
   }

@@ -32,10 +32,11 @@ export class ProfileStore {
 
   cookedStats = observable.map()
 
-  constructor(apiClient, imagePreloader, cookedStore) {
+  constructor(apiClient, imagePreloader, cookedStore, recipeCookedDraftStore) {
     this.apiClient = apiClient
     this.imagePreloader = imagePreloader
     this.cookedStore = cookedStore
+    this.recipeCookedDraftStore = recipeCookedDraftStore
 
     reaction(
       () => this.communityFeed.length,
@@ -342,6 +343,12 @@ export class ProfileStore {
       const profileData = this.profileDataMap.get(username)
       if (profileData) {
         profileData.cookeds.unshift(observedCooked)
+      }
+
+      const draft = this.recipeCookedDraftStore.getDraft(recipeId)
+      if (draft) {
+        console.log('[recordCooked] clearing draft', recipeId)
+        draft.clearNotes()
       }
     })
 

@@ -1,21 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Keyboard,
-  TouchableOpacity,
-  Dimensions,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native'
+import { View, Text, TextInput, StyleSheet, Keyboard, TouchableOpacity, Dimensions, Platform } from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
 
-export default function NotesModal({ visible, onClose, onSave, initialNotes, recipe }) {
-  const [notes, setNotes] = useState(initialNotes || '')
+const normalizeNotes = notes => {
+  return notes
+    ?.replace(/\r/g, '\n')
+    .replace(/\n+/g, '\n')
+    .replace(/(^|\n)-\s*/g, '\n- ')
+    .trim()
+}
+
+export default function NotesModal({ visible, onClose, onSave, initialNotes, defaultNotes, recipe }) {
+  const [notes, setNotes] = useState(initialNotes || defaultNotes || '')
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const inputRef = useRef(null)
 
@@ -55,7 +53,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, rec
 
   const handleSave = () => {
     Keyboard.dismiss()
-    onSave(notes)
+    onSave(normalizeNotes(notes))
   }
 
   const handleClose = () => {

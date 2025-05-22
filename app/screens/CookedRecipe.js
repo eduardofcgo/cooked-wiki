@@ -17,7 +17,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import BottomSheet, { BottomSheetFlatList, BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import BottomSheet, { BottomSheetFlashList, BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import useTryGetSimilarCooks from '../hooks/api/useSimilarCooks'
 import Loading from '../components/core/Loading'
 import HeaderText from '../components/core/HeaderText'
@@ -315,7 +315,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
         backdropComponent={renderBackdrop}
         style={styles.bottomSheetShadow}
       >
-        <BottomSheetFlatList
+        <BottomSheetFlashList
           ref={flatListRef}
           data={similarCooks?.slice()}
           renderItem={renderCookedItem}

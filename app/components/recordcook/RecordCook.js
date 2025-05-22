@@ -95,7 +95,7 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
 
 // For now let's keep this component messy, we should refactor the edit mode and the preselected recipe out
 
-function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
+function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe, defaultNotes }) {
   const navigation = useNavigation()
   const route = useRoute()
   const apiClient = useApi()
@@ -122,7 +122,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState([])
   const [selectedRecipe, setSelectedRecipe] = useState(preSelectedRecipe)
-  const [notes, setNotes] = useState(route.params?.initialNotes || undefined)
+  const [notes, setNotes] = useState(undefined)
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
@@ -505,6 +505,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         onClose={handleNotesClose}
         onSave={handleNotesSave}
         initialNotes={notes}
+        defaultNotes={defaultNotes}
         recipe={selectedRecipe}
       />
     </View>

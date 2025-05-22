@@ -6,12 +6,31 @@ export class CookedDraft {
 
   constructor(notes) {
     this.notes = notes
+
     makeAutoObservable(this)
   }
 
   setNotes(notes) {
     runInAction(() => {
       this.notes = notes
+    })
+  }
+
+  clearNotes() {
+    runInAction(() => {
+      this.notes = null
+    })
+  }
+
+  normalizeNotes() {
+    const normalizedNotes = this.notes
+      ?.replace(/\r/g, '\n')
+      .replace(/\n+/g, '\n')
+      .replace(/(^|\n)-\s*/g, '\n- ')
+      .trim()
+
+    runInAction(() => {
+      this.notes = normalizedNotes?.length > 0 ? normalizedNotes : null
     })
   }
 }
@@ -48,6 +67,7 @@ export class RecipeCookedDraftStore {
     })
 
     try {
+      // For now lets save all the drafts on the same key
       await AsyncStorage.setItem('recipeCookedDrafts', JSON.stringify(serializedDrafts))
     } catch (error) {
       console.error('Error saving recipe cooked drafts to storage', error)
@@ -64,13 +84,13 @@ export class RecipeCookedDraftStore {
         this.loadingFromStorage = true
       })
 
-      const savedDrafts = await AsyncStorage.getItem('recipeCookDrafts')
+      const savedDrafts = await AsyncStorage.getItem('recipeCookedDrafts')
 
       runInAction(() => {
         if (savedDrafts) {
           const parsedDrafts = JSON.parse(savedDrafts)
           Object.entries(parsedDrafts).forEach(([recipeId, draftData]) => {
-            this.drafts.set(recipeId, new CookDraft(draftData.notes))
+            this.drafts.set(recipeId, new CookedDraft(draftData.notes))
           })
         }
 
@@ -87,7 +107,9 @@ export class RecipeCookedDraftStore {
 
   ensureDraft(recipeId) {
     if (!this.drafts.has(recipeId)) {
-      this.drafts.set(recipeId, new CookedDraft())
+      runInAction(() => {
+        this.drafts.set(recipeId, new CookedDraft(''))
+      })
     }
   }
 

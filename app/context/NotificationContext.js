@@ -21,8 +21,12 @@ export const NotificationProvider = ({ children }) => {
     return queue.length > MAX_NOTIFICATIONS_QUEUE ? queue.slice(-MAX_NOTIFICATIONS_QUEUE) : queue
   }, [])
 
+  const clearInAppNotifications = useCallback(() => {
+    setNotifications([])
+  }, [])
+
   const showInAppNotification = useCallback(
-    (component, { props, resetQueue = false } = {}) => {
+    (component, { props, resetQueue = true } = {}) => {
       const newNotification = {
         id: Date.now().toString(),
         component,
@@ -79,7 +83,7 @@ export const NotificationProvider = ({ children }) => {
   const { component, props, visible } = notification || {}
 
   return (
-    <NotificationContext.Provider value={{ showInAppNotification }}>
+    <NotificationContext.Provider value={{ showInAppNotification, clearInAppNotifications }}>
       {component &&
         React.createElement(component, {
           ...props,

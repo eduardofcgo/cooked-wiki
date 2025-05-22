@@ -21,7 +21,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 function Recipe({ loadingComponent, navigation, route, ...props }) {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
-  const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
+  const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
@@ -31,7 +31,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
   // Add a key to force re-render of the RecipeWithCookedFeed component
   const [componentKey, setComponentKey] = useState(Date.now())
-  const [cookingNotes, setCookingNotes] = useState('')
 
   const id = recipeId || extractId
 
@@ -67,13 +66,12 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
 
   const handleScroll = useCallback(
     event => {
-      const currentScrollPosition = event.nativeEvent.contentOffset.y
-      setScrollPosition(currentScrollPosition)
-
-      // Close expanded section when scrolling
-      if (isExpanded) {
-        setIsExpanded(false)
-      }
+      // const currentScrollPosition = event.nativeEvent.contentOffset.y
+      // setScrollPosition(currentScrollPosition)
+      // // Close expanded section when scrolling
+      // if (isExpanded) {
+      //   setIsExpanded(false)
+      // }
     },
     [isExpanded],
   )
@@ -161,14 +159,6 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
       top: isPortrait ? 0 : 30,
     }
   })
-
-  const recordCook = useCallback(() => {
-    navigation.navigate('RecordCook', {
-      recipeId,
-      extractId,
-      initialNotes: cookingNotes,
-    })
-  }, [navigation, recipeId, extractId, cookingNotes])
 
   useEffect(() => {
     navigation.setOptions({
@@ -289,8 +279,9 @@ function Recipe({ loadingComponent, navigation, route, ...props }) {
       </Animated.View>
 
       <RecipeDraftNotesCard
+        recipeId={recipeId}
+        extractId={extractId}
         isVisible={isNotesModalVisible}
-        initialNotes={cookingNotes}
         onClose={() => {
           setIsNotesModalVisible(false)
         }}
