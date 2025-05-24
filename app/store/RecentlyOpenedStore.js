@@ -24,6 +24,22 @@ export class RecentlyOpenedStore {
       },
     )
 
+    reaction(
+      () => toJS(this.recipeMetadataStore.erroredMetadatas),
+      erroredMetadatas => {
+        Array.from(erroredMetadatas.entries()).forEach(([recipeId, error]) => {
+          console.log('Errored getting metadata: ', error.status, recipeId)
+
+          if (error.status === 404) {
+            runInAction(() => {
+              this.recipeIds.remove(recipeId)
+              this.openDates.delete(recipeId)
+            })
+          }
+        })
+      },
+    )
+
     this.loadFromLocalStorage()
   }
 

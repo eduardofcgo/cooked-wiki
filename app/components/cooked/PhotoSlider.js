@@ -22,6 +22,7 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
   const [showHeart, setShowHeart] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
   const scrollTimeout = useRef(null)
+  const lastScrollTime = useRef(0)
 
   const scale = useSharedValue(0)
   const opacity = useSharedValue(0)
@@ -39,6 +40,9 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
 
   const onScroll = useCallback(
     event => {
+      // Track when scroll events occur
+      lastScrollTime.current = Date.now()
+
       // Set scrolling flag
       setIsScrolling(true)
 
@@ -56,10 +60,10 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
         setCurrentImageIndex(newIndex)
       }
 
-      // Set a timeout to mark scrolling as finished
+      // Set a longer timeout to mark scrolling as finished to account for momentum
       scrollTimeout.current = setTimeout(() => {
         setIsScrolling(false)
-      }, 150)
+      }, 500) // Increased from 150ms to 500ms
     },
     [currentImageIndex, sliderWidth],
   )
@@ -85,7 +89,21 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
     if (isScrolling) return
 
     const now = Date.now()
-    if (lastTap && now - lastTap < 600) {
+
+    // Additional check: ignore taps that occur too soon after scrolling
+    if (now - lastScrollTime.current < 300) {
+      return
+    }
+
+    // Additional check: if there was a recent scroll, ignore the tap
+    // This helps catch cases where scroll momentum just ended
+    if (lastTap && now - lastTap < 200) {
+      // Too quick after last tap, likely accidental during scroll
+      setLastTap(null)
+      return
+    }
+
+    if (lastTap && now - lastTap < 300) {
       onDoubleTap && onDoubleTap(currentImageIndex)
       setLastTap(null)
       animateHeart()

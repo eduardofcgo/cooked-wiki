@@ -252,6 +252,10 @@ export class ProfileStore {
   }
 
   async likeCooked(cookedId) {
+    if (this.isLiked(cookedId)) {
+      return
+    }
+
     runInAction(() => {
       const stats = this.cookedStats.get(cookedId)
       if (!stats?.liked) {
@@ -273,6 +277,11 @@ export class ProfileStore {
     })
 
     await this.apiClient.delete(`/journal/${cookedId}/stats/like`)
+  }
+
+  isLiked(cookedId) {
+    const stats = this.cookedStats.get(cookedId)
+    return stats?.liked
   }
 
   async reloadProfileCooked(username) {

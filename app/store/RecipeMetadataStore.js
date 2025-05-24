@@ -12,6 +12,14 @@ export class RecipeMetadataStore {
     makeAutoObservable(this)
   }
 
+  get erroredMetadatas() {
+    return new Map(
+      Array.from(this.metadataMap.entries())
+        .filter(([recipeId, metadata]) => metadata.state === 'rejected')
+        .map(([recipeId, metadata]) => [recipeId, metadata.value]),
+    )
+  }
+
   getMetadataLoadState(recipeId) {
     return this.metadataMap.get(recipeId)?.state
   }
