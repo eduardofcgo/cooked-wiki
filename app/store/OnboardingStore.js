@@ -61,4 +61,10 @@ export class OnboardingStore {
   markFindFriendsHintAsShown() {
     this.onboardingState.set('shownFindFriendsHint', true)
   }
+
+  reset() {
+    runInAction(() => {
+      this.onboardingState.clear()
+    })
+  }
 }

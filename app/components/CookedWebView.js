@@ -398,10 +398,10 @@ const CookedWebView = forwardRef(
           return null
         }}
         ref={webViewRef}
-        onOpenWindow={syntheticEvent => {
-          const { nativeEvent } = syntheticEvent
-          console.log('onOpenWindow', nativeEvent)
-        }}
+        // onOpenWindow={syntheticEvent => {
+        //   const { nativeEvent } = syntheticEvent
+        //   console.log('onOpenWindow', nativeEvent)
+        // }}
         onFileDownload={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.log('onFileDownload', nativeEvent)

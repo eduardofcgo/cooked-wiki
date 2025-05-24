@@ -34,10 +34,11 @@ export default class AuthService {
 
     if (response.status === 200) {
       return AuthService.login(username, response.headers)
-    } else if (response.status !== 401) {
+    } else if (response.status === 401 || response.status === 403) {
       throw {
         code: 'AUTH_INVALID_CREDENTIALS',
         message: 'Invalid username or password',
+        status: response.status,
       }
     } else {
       throw {

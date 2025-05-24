@@ -35,6 +35,7 @@ export default Settings = observer(({ navigation }) => {
         onPress: async () => {
           setIsLoading(true)
           try {
+            await userStore.clearStores()
             await logout()
           } catch (error) {
             setIsLoading(false)

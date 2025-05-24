@@ -60,6 +60,24 @@ export default routes = [
     },
   },
   {
+    path: '/saved/:id/print',
+    handler: ({ navigation, params }) => {
+      navigation.navigate('RecipePrint', { recipeId: params.id })
+    },
+  },
+  {
+    path: '/new/recent/:id/print',
+    handler: ({ navigation, params }) => {
+      navigation.navigate('RecipePrint', { extractId: params.id })
+    },
+  },
+  {
+    path: '/team',
+    handler: () => {
+      Linking.openURL('https://cooked.wiki/team')
+    },
+  },
+  {
     path: '/contact',
     handler: () => {
       Linking.openURL('https://cooked.wiki/contact')

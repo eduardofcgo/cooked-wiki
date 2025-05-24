@@ -25,8 +25,6 @@ export default class RootStore {
 
     this.onboardingStore = new OnboardingStore()
 
-    this.userStore = new UserStore(apiClient)
-
     this.cookedStore = new CookedStore(apiClient, this.imagePreloader)
 
     this.recipeCookedDraftStore = new RecipeCookedDraftStore()
@@ -41,6 +39,13 @@ export default class RootStore {
     this.recipeJournalStore = new RecipeJournalStore(apiClient, this.profileStore, this.cookedStore)
 
     this.notificationsStore = new NotificationsStore(apiClient, this.profileStore, this.cookedStore)
+
+    this.userStore = new UserStore(
+      apiClient,
+      this.onboardingStore,
+      this.recentlyOpenedStore,
+      this.recipeCookedDraftStore,
+    )
 
     makeAutoObservable(this)
   }

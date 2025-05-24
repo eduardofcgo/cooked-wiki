@@ -17,8 +17,8 @@ export class RecentlyOpenedStore {
 
     reaction(
       () => toJS(this.openDates),
-      openDates => {
-        if (this.loaded && openDates.size > 1) {
+      () => {
+        if (this.loaded) {
           this.saveToLocalStorage()
         }
       },
@@ -132,7 +132,9 @@ export class RecentlyOpenedStore {
     })
   }
 
-  clear() {
+  async clear() {
+    console.log('Clearing recently opened recipes')
+
     runInAction(() => {
       this.recipeIds.clear()
       this.openDates.clear()

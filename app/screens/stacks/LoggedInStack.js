@@ -17,6 +17,7 @@ import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
 import Recipe from '../Recipe'
 import EditDraftNotes from '../recipe/EditDraftNotes'
+import RecipePrint from '../recipe/RecipePrint'
 
 import { IconButton } from 'react-native-paper'
 
@@ -194,6 +195,17 @@ export default function LoggedInStack({ StackNavigator }) {
         component={RecipePicker}
         options={{
           title: 'Select recipe',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='RecipePrint'
+        component={RecipePrint}
+        options={{
+          title: 'Print Recipe',
+          ...screenStyle,
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }}

@@ -106,4 +106,10 @@ export class RecipeCookedDraftStore {
   getDraft(recipeId) {
     return this.drafts.get(recipeId)
   }
+
+  clear() {
+    runInAction(() => {
+      this.drafts.clear()
+    })
+  }
 }

@@ -14,8 +14,11 @@ export class UserStore {
   syncedContactsHashedDate = observable.box(null)
   suggestedFriendsProfiles = null
 
-  constructor(apiClient) {
+  constructor(apiClient, onboardingStore, recentlyOpenedStore, recipeCookedDraftStore) {
     this.apiClient = apiClient
+    this.recentlyOpenedStore = recentlyOpenedStore
+    this.recipeCookedDraftStore = recipeCookedDraftStore
+    this.onboardingStore = onboardingStore
 
     makeAutoObservable(this)
 
@@ -107,5 +110,11 @@ export class UserStore {
 
   setLoadingFriendsProfiles() {
     this.loadingFriendsProfiles = true
+  }
+
+  async clearStores() {
+    this.onboardingStore.reset()
+    this.recentlyOpenedStore.clear()
+    this.recipeCookedDraftStore.clear()
   }
 }
