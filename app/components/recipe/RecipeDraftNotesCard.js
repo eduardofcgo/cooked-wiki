@@ -57,7 +57,9 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
 
   useFocusEffect(
     useCallback(() => {
-      bottomSheetRef?.current?.snapToIndex(0)
+      if (isVisible) {
+        bottomSheetRef?.current?.snapToIndex(0)
+      }
 
       return () => {
         if (isVisible && draft?.notes?.length > 0) {

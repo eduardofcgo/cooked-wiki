@@ -108,7 +108,6 @@ const NotificationItem = observer(({ notification }) => {
     <Swipeable
       ref={swipeableRef}
       renderRightActions={renderSwipeAction}
-      renderLeftActions={renderSwipeAction}
       onSwipeableOpen={handleSwipeableOpen}
       friction={2}
       rightThreshold={40}

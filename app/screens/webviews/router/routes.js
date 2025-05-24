@@ -62,13 +62,19 @@ export default routes = [
   {
     path: '/saved/:id/print',
     handler: ({ navigation, params }) => {
-      navigation.navigate('RecipePrint', { recipeId: params.id })
+      navigation.push('RecipePrint', { recipeId: params.id })
     },
   },
   {
     path: '/new/recent/:id/print',
     handler: ({ navigation, params }) => {
-      navigation.navigate('RecipePrint', { extractId: params.id })
+      navigation.push('RecipePrint', { extractId: params.id })
+    },
+  },
+  {
+    path: '/limits',
+    handler: ({ navigation, queryParams }) => {
+      navigation.push('ProfileLimits', { queryParams })
     },
   },
   {

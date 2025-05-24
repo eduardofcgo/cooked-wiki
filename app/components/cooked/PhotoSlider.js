@@ -91,19 +91,19 @@ const PhotoSlider = observer(({ images, onImageSlide, imageStyle, onDoubleTap })
     const now = Date.now()
 
     // Additional check: ignore taps that occur too soon after scrolling
-    if (now - lastScrollTime.current < 300) {
-      return
-    }
+    // if (now - lastScrollTime.current < 300) {
+    //   return
+    // }
 
     // Additional check: if there was a recent scroll, ignore the tap
     // This helps catch cases where scroll momentum just ended
-    if (lastTap && now - lastTap < 200) {
-      // Too quick after last tap, likely accidental during scroll
-      setLastTap(null)
-      return
-    }
+    // if (lastTap && now - lastTap < 200) {
+    //   // Too quick after last tap, likely accidental during scroll
+    //   setLastTap(null)
+    //   return
+    // }
 
-    if (lastTap && now - lastTap < 300) {
+    if (lastTap && now - lastTap < 250) {
       onDoubleTap && onDoubleTap(currentImageIndex)
       setLastTap(null)
       animateHeart()

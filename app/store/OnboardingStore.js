@@ -2,8 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mobx'
 
 export class OnboardingStore {
-  // Let's make this dynamic because new versions of the app will have
-  // new onboarding UI - we don't want to have to clear the local storage.
   onboardingState = observable.map({
     shownRecentRecipesHint: false,
     shownFindFriendsHint: false,

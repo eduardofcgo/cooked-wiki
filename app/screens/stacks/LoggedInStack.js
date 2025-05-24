@@ -10,6 +10,7 @@ import Following from '../../screens/Following'
 import Main from '../../screens/Main'
 import Notifications from '../../screens/Notifications'
 import { PublicProfile } from '../../screens/Profile'
+import ProfileLimits from '../../screens/ProfileLimits'
 import RecipePicker from '../../screens/RecipePicker'
 import RecordCook from '../../screens/RecordCook'
 import FreestyleCook from '../../screens/FreestyleCook'
@@ -205,6 +206,17 @@ export default function LoggedInStack({ StackNavigator }) {
         component={RecipePrint}
         options={{
           title: 'Print Recipe',
+          ...screenStyle,
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='ProfileLimits'
+        component={ProfileLimits}
+        options={{
+          title: 'Profile Limits',
           ...screenStyle,
           presentation: 'modal',
           animation: 'slide_from_bottom',

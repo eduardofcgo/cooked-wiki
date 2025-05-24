@@ -27,7 +27,7 @@ export default function NewExtract({ url }) {
           url: newExtractUrl,
         },
         {
-          timeout: 25000,
+          timeout: 60000,
         },
       )
 

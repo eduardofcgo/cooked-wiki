@@ -1,10 +1,14 @@
 import { Dimensions, Platform, SafeAreaView, Text, StyleSheet, View } from 'react-native'
 import { WebView } from 'react-native-webview'
+import { Linking } from 'react-native'
 
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
+import env from '../config/environment'
+
+const { BASE_URL } = env
 
 const CookedWebView = forwardRef(
   (
@@ -72,9 +76,20 @@ const CookedWebView = forwardRef(
         return true
       }
 
+      const baseUrl = new URL(BASE_URL)
+      const requestUrl = new URL(url)
+
+      if (requestUrl.hostname !== baseUrl.hostname) {
+        console.log('[WebView] Blocking navigation to external domain:', requestUrl.hostname)
+        Linking.openURL(url)
+
+        // Block the navigation inside webview
+        return false
+      }
+
       if (onRequestPath) {
-        const pathname = new URL(url).pathname
-        const searchParams = new URL(url).searchParams
+        const pathname = requestUrl.pathname
+        const searchParams = requestUrl.searchParams
         const queryParams = Object.fromEntries(searchParams.entries())
 
         const handlePath = onRequestPath(pathname, queryParams)
