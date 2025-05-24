@@ -39,6 +39,8 @@ export class RecipeCookedDraftStore {
           this.saveToLocalStorage()
         }
       },
+      // Debounce saving to storage
+      { delay: 500 },
     )
 
     this.loadFromLocalStorage()
