@@ -341,17 +341,30 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         resetQueue: true,
       })
 
-      if (selectedRecipe) {
-        navigation.replace('CookedRecipe', {
-          showShareModal: true,
-          cookedId: newCookedId,
-        })
-      } else {
-        navigation.replace('FreestyleCook', {
-          showShareModal: true,
-          cookedId: newCookedId,
-        })
+      // Remove all Recipe screens from stack
+      const state = navigation.getState()
+      const filteredRoutes = state.routes.filter(route => {
+        return !(route.name === 'Recipe' || route.name === 'CookedRecipe')
+      })
+
+      if (filteredRoutes.length !== state.routes.length) {
+        const newState = { ...state, routes: filteredRoutes, index: filteredRoutes.length - 1 }
+        navigation.reset(newState)
       }
+
+      setTimeout(() => {
+        if (selectedRecipe) {
+          navigation.replace('CookedRecipe', {
+            showShareModal: true,
+            cookedId: newCookedId,
+          })
+        } else {
+          navigation.replace('FreestyleCook', {
+            showShareModal: true,
+            cookedId: newCookedId,
+          })
+        }
+      }, 1)
     } catch (error) {
       console.error('Error saving cooked:', error)
       Alert.alert('Error', 'Failed to save your cooking. Please try again.')

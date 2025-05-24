@@ -21,18 +21,6 @@ export class CookedDraft {
       this.notes = null
     })
   }
-
-  normalizeNotes() {
-    const normalizedNotes = this.notes
-      ?.replace(/\r/g, '\n')
-      .replace(/\n+/g, '\n')
-      .replace(/(^|\n)-\s*/g, '\n- ')
-      .trim()
-
-    runInAction(() => {
-      this.notes = normalizedNotes?.length > 0 ? normalizedNotes : null
-    })
-  }
 }
 
 export class RecipeCookedDraftStore {

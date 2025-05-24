@@ -12,6 +12,7 @@ import { useInAppNotification } from '../../context/NotificationContext'
 import ActionToast from '../notification/ActionToast'
 import { useFocusEffect } from '@react-navigation/native'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 
 function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedCard, onClose }) {
@@ -56,69 +57,51 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
 
   useFocusEffect(
     useCallback(() => {
+      bottomSheetRef?.current?.snapToIndex(0)
+
       return () => {
-        if (isVisible === false && draft?.notes?.length > 0) {
+        if (isVisible && draft?.notes?.length > 0) {
           draftSavedToast()
         }
       }
-    }, [draftSavedToast, draft?.notes]),
+    }, [draftSavedToast, draft?.notes, isVisible]),
   )
 
   const bottomSheetRef = useRef(null)
-  const textInputRef = useRef(null)
 
   const cookedCardOffset = isOnTopOfCookedCard ? 100 : 0
-  const snapPoints = useMemo(() => [230 + cookedCardOffset, '100%'], [])
+
+  // Create granular snap points for smooth positioning (every 25px from min to max)
+  const snapPoints = useMemo(() => {
+    const minHeight = 150 + cookedCardOffset
+    const maxHeight = 800 // Adjust this based on your needs
+    const increment = 25 // Every 25px
+
+    const points = []
+    for (let height = minHeight; height <= maxHeight; height += increment) {
+      points.push(height)
+    }
+    // Add percentage-based points for larger screens
+    points.push('60%', '75%', '90%', '100%')
+
+    return points
+  }, [cookedCardOffset])
+
   const closedIndex = -1
   const startPointIndex = 0
   const expandedIndex = snapPoints.length - 1
 
-  const expandedOpacity = useSharedValue(0)
-
   const handleClose = useCallback(() => {
-    Keyboard.dismiss()
     bottomSheetRef.current?.close()
 
     onClose()
   }, [onClose])
 
-  const minimizeSheet = useCallback(() => {
-    bottomSheetRef.current?.snapToIndex(startPointIndex)
-  }, [])
-
   useEffect(() => {
-    if (sheetIndex >= expandedIndex) {
-      textInputRef.current?.focus()
-    } else {
-      textInputRef.current?.blur()
+    if (!isVisible) {
+      bottomSheetRef.current?.close()
     }
-
-    if (sheetIndex === closedIndex) {
-      // Pan gesture closed the sheet
-      handleClose()
-    }
-  }, [sheetIndex])
-
-  useEffect(() => {
-    expandedOpacity.value = withTiming(sheetIndex >= expandedIndex ? 1 : 0, { duration: 500 })
-  }, [sheetIndex])
-
-  useEffect(() => {
-    draft?.normalizeNotes()
-  }, [draft, sheetIndex])
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    opacity: expandedOpacity.value,
-  }))
-
-  const onChangeTextInput = useCallback(
-    text => {
-      if (text) {
-        draft.setNotes(text)
-      }
-    },
-    [draft],
-  )
+  }, [isVisible])
 
   const renderHandle = useCallback(
     () => (
@@ -131,20 +114,6 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
     [],
   )
 
-  const navigateToRecordCook = useCallback(() => {
-    handleClose()
-
-    draft.normalizeNotes()
-
-    setTimeout(() => {
-      navigation.navigate('RecordCook', {
-        recipeId,
-        extractId,
-        defaultNotes: draft?.notes,
-      })
-    }, 1)
-  }, [handleClose, navigation, recipeId, extractId, draft?.notes])
-
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -155,45 +124,39 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
       backgroundStyle={styles.bottomSheetBackground}
       style={styles.bottomSheetShadow}
       onChange={setSheetIndex}
-      enableBlurKeyboardOnGesture={true}
+      enableBlurKeyboardOnGesture={false}
+      enableDynamicSizing={false}
+      enableOverDrag={false}
+      animateOnMount={false}
     >
       <BottomSheetView style={styles.contentContainer}>
         <View style={[styles.inputContainer]}>
           {isDraftLoaded && (
-            <View style={{ flex: 1 }}>
-              <BottomSheetTextInput
-                ref={textInputRef}
-                cursorColor={theme.colors.primary}
-                style={[styles.notesInput, sheetIndex >= expandedIndex ? { flex: 1 } : { flex: 0, maxHeight: 160 }]}
-                multiline
-                placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
-                placeholder={
-                  isOnTopOfCookedCard
-                    ? 'Compare to the other Cooked bellow and create your new version.'
-                    : 'Take notes while cooking.'
-                }
-                value={draft.notes}
-                onChangeText={onChangeTextInput}
-                autoFocus={false}
-                keyboardType='default'
+            <TouchableOpacity
+              style={[styles.notes]}
+              onPress={() => {
+                navigation.navigate('EditDraftNotes', {
+                  recipeId,
+                  extractId,
+                })
+              }}
+            >
+              <MaterialCommunityIcons
+                name='pencil'
+                size={15}
+                color={theme.colors.softBlack}
+                backgroundColor={theme.colors.secondary}
+                style={styles.pencilIcon}
               />
-              <Animated.View style={[styles.subtitleContainer, expandedStyle]}>
-                <MaterialIcons name='edit-note' size={28} color={theme.colors.softBlack} />
-                <Text style={styles.subtitle}>
-                  Take notes with your changes while cooking.
-                  {'\n'}
-                  When finished, record it to your journal.
-                </Text>
-              </Animated.View>
-            </View>
-          )}
-
-          <Animated.View style={[styles.modalButtons, expandedStyle]}>
-            <TransparentButton title='Save draft' onPress={minimizeSheet} />
-            <TouchableOpacity onPress={navigateToRecordCook}>
-              <RecordCookCTA showIcon={false} showText={true} />
+              {draft.notes?.length > 0 ? (
+                <Text style={styles.notesText}>{draft.notes}</Text>
+              ) : isOnTopOfCookedCard ? (
+                <Text style={[styles.notesText, { color: theme.colors.softBlack }]}>Take notes while cooking.</Text>
+              ) : (
+                <Text style={[styles.notesText, { color: theme.colors.softBlack }]}>Take notes while cooking.</Text>
+              )}
             </TouchableOpacity>
-          </Animated.View>
+          )}
         </View>
       </BottomSheetView>
     </BottomSheet>
@@ -252,19 +215,35 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 12,
   },
-  notesInput: {
+  notes: {
+    flex: 1,
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     padding: 15,
-    minHeight: 160,
+    height: 'auto',
     textAlignVertical: 'top',
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,
+    position: 'relative',
+  },
+  notesText: {
+    color: theme.colors.black,
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
+    paddingRight: 32,
+  },
+  pencilIcon: {
+    position: 'absolute',
+    paddingLeft: 16,
+    top: 16,
+    right: 16,
+    zIndex: 1,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 'auto',
+    paddingTop: 16,
   },
 })
 

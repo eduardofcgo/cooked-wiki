@@ -302,6 +302,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
               route={route}
               navigation={navigation}
               cookedCard={bottomSheetRef}
+              cookedCardSheetIndex={sheetIndex}
             />
           </Suspense>
         ) : (

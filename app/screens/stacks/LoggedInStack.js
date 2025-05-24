@@ -16,6 +16,7 @@ import FreestyleCook from '../../screens/FreestyleCook'
 import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
 import Recipe from '../Recipe'
+import EditDraftNotes from '../recipe/EditDraftNotes'
 
 import { IconButton } from 'react-native-paper'
 
@@ -81,6 +82,17 @@ export default function LoggedInStack({ StackNavigator }) {
         component={RecordCook}
         options={{
           title: 'Record cook',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='EditDraftNotes'
+        component={EditDraftNotes}
+        options={{
+          title: 'Edit notes',
+          ...screenStyle,
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }}

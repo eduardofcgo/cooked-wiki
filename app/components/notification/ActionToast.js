@@ -6,7 +6,6 @@ import { faUserPlus, faCheck, faTimes, faHeart, faComment, faSave, faShare } fro
 import { theme } from '../../style/style'
 import { Toast } from './Toast'
 
-// Map of action types to their respective icons
 const ACTION_ICONS = {
   follow: faUserPlus,
   like: faHeart,
@@ -22,9 +21,10 @@ export default ActionToast = ({ onPress, onClose, message, visible, actionType =
 
   useEffect(() => {
     Animated.sequence([
+      Animated.delay(100),
       Animated.timing(iconScale, {
-        toValue: 1.2,
-        duration: 200,
+        toValue: 1.5,
+        duration: 300,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
@@ -41,7 +41,6 @@ export default ActionToast = ({ onPress, onClose, message, visible, actionType =
     }
   }, [])
 
-  // Get the appropriate icon based on action type and success state
   const getIcon = () => {
     if (!success) return ACTION_ICONS.error
     return ACTION_ICONS[actionType] || ACTION_ICONS.default

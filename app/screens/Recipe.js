@@ -10,7 +10,6 @@ import { theme } from '../style/style'
 import { FontAwesome } from '@expo/vector-icons'
 import handler from './webviews/router/handler'
 import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
-import RecordCookCTA from '../components/core/RecordCookCTA'
 import { useAuth } from '../context/AuthContext'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -18,18 +17,24 @@ import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
-function Recipe({ loadingComponent, navigation, route, cookedCard, ...props }) {
+function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardSheetIndex, ...props }) {
   const { credentials } = useAuth()
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
 
   const hasCookedCard = Boolean(cookedCard)
 
+  // Coordenate both cards
   const toggleNotesModal = useCallback(() => {
-    cookedCard?.current?.snapToIndex(0)
+    const wasCookedCardCollapsed = cookedCardSheetIndex === 0
 
-    setIsNotesModalVisible(prev => !prev)
-  }, [])
+    if (!hasCookedCard || wasCookedCardCollapsed) {
+      setIsNotesModalVisible(prev => !prev)
+    } else {
+      cookedCard?.current?.snapToIndex(0)
+      setIsNotesModalVisible(true)
+    }
+  }, [cookedCard, cookedCardSheetIndex, setIsNotesModalVisible])
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
@@ -65,7 +70,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, ...props }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const scrollViewRef = useRef(null)
   const headerHeight = useSharedValue(0)
-  const [scrollPosition, setScrollPosition] = useState(0)
   const lastPress = useRef(0)
   const [orientation, setOrientation] = useState(0) // 0, 90, 180, 270 degrees
   const rotationValue = useSharedValue(0)
@@ -134,6 +138,8 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, ...props }) {
           extractId: recipe.type == 'extracted' && recipe.id,
           recentRecipesExpanded: false,
         })
+
+        setIsNotesModalVisible(false)
 
         // Force component to re-render with a new key
         setComponentKey(Date.now())
@@ -208,13 +214,37 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, ...props }) {
             <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={toggleNotesModal}>
-            <MaterialIcons name='edit-note' size={28} color={theme.colors.softBlack} />
+          <TouchableOpacity
+            onPress={toggleNotesModal}
+            hitSlop={{ top: 20, bottom: 20, left: 10, right: 20 }}
+            style={{
+              backgroundColor: isNotesModalVisible ? theme.colors.softBlack : 'transparent',
+              borderRadius: 100,
+              paddingRight: 6,
+              paddingLeft: 6,
+              paddingTop: 6,
+              paddingBottom: 6,
+            }}
+          >
+            <MaterialIcons
+              name='edit-note'
+              size={28}
+              color={isNotesModalVisible ? theme.colors.secondary : theme.colors.softBlack}
+            />
           </TouchableOpacity>
         </View>
       ),
     })
-  }, [hasRecentlyOpenedRecipes, navigation, isExpanded, orientation, onShare])
+  }, [
+    hasRecentlyOpenedRecipes,
+    navigation,
+    isExpanded,
+    orientation,
+    onShare,
+    cookedCardSheetIndex,
+    cookedCard,
+    isNotesModalVisible,
+  ])
 
   const routeHandler = useCallback(
     (pathname, queryParams) => {

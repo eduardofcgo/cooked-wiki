@@ -78,9 +78,10 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, def
       <TextInput
         ref={inputRef}
         cursorColor={theme.colors.primary}
-        style={[styles.notesInput, { maxHeight: calculateMaxHeight() }]}
+        style={[styles.notesInput, { height: calculateMaxHeight() }]}
         multiline
         scrollEnabled={true}
+        spellCheck={true}
         placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
         placeholder={placeholder}
         value={notes}

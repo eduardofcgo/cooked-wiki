@@ -34,11 +34,11 @@ const styles = StyleSheet.create({
   ctaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: theme.colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: theme.borderRadius.small,
-    justifyContent: 'center',
   },
   ctaText: {
     color: theme.colors.white,
