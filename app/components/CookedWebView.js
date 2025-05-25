@@ -21,6 +21,7 @@ const CookedWebView = forwardRef(
       dynamicHeight,
       onHeightChange,
       onWebViewReady,
+      onHttpError,
       style,
     },
     ref,
@@ -413,14 +414,11 @@ const CookedWebView = forwardRef(
           return null
         }}
         ref={webViewRef}
+        // Lauched on target _blank for example
         // onOpenWindow={syntheticEvent => {
         //   const { nativeEvent } = syntheticEvent
         //   console.log('onOpenWindow', nativeEvent)
         // }}
-        onFileDownload={syntheticEvent => {
-          const { nativeEvent } = syntheticEvent
-          console.log('onFileDownload', nativeEvent)
-        }}
         onLoadStart={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
@@ -434,6 +432,11 @@ const CookedWebView = forwardRef(
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
+        }}
+        onHttpError={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent
+          console.warn('WebView HTTP Error', nativeEvent)
+          onHttpError && onHttpError(nativeEvent)
         }}
         style={[styles.baseWebViewStyle, style]}
         injectedJavaScript={injectedJS}

@@ -33,11 +33,27 @@ const RecipeWebView = forwardRef(
     },
     ref,
   ) => {
+    const { recentlyOpenedStore } = useStore()
+
     const startUrl = extractId
       ? getRecentExtractUrl(extractId)
       : getSavedRecipeUrl(recipeId) + (justSaved ? '?saved=true' : '')
 
     console.log('Openning recipe with url', startUrl)
+
+    const [error, setError] = useState(null)
+
+    const handleHttpError = useCallback(
+      e => {
+        if (e.statusCode == 404) {
+          console.log('Not found recipe, removing from recently opened')
+          recentlyOpenedStore.remove(recipeId)
+        }
+
+        setError(e)
+      },
+      [navigation, recipeId, extractId],
+    )
 
     return (
       <View style={[styles.webViewContainer, { opacity: webViewReady ? 1 : 0 }]}>
@@ -53,15 +69,18 @@ const RecipeWebView = forwardRef(
           disableRefresh={disableRefresh}
           loadingComponent={loadingComponent}
           onWebViewReady={onWebViewReady}
+          onHttpError={handleHttpError}
         />
-        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
-            <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
+        {!error && (
+          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
+              <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
+            </TouchableOpacity>
             <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
               Add your own notes and save to your journal.
             </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
       </View>
     )
   },
@@ -78,6 +97,7 @@ const RecipeWithCookedFeed = observer(
     disableRefresh,
     loadingComponent,
     onScroll,
+    onHttpError,
   }) => {
     const { recipeJournalStore } = useStore()
 
@@ -187,6 +207,7 @@ const RecipeWithCookedFeed = observer(
                 loadingComponent={loadingComponent}
                 onWebViewReady={onWebViewReady}
                 webViewReady={webViewReady}
+                onHttpError={onHttpError}
               />
             </>
           }

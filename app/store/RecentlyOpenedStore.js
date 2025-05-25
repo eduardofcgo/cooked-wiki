@@ -132,6 +132,13 @@ export class RecentlyOpenedStore {
     })
   }
 
+  remove(recipeId) {
+    runInAction(() => {
+      this.recipeIds.remove(recipeId)
+      this.openDates.delete(recipeId)
+    })
+  }
+
   async clear() {
     console.log('Clearing recently opened recipes')
 
