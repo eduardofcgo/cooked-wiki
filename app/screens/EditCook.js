@@ -60,7 +60,7 @@ function EditCook({ navigation, route }) {
     setPendingNavigationEvent(null)
 
     showInAppNotification(ActionToast, {
-      props: { message: 'Cook deleted' },
+      props: { message: 'Cooked deleted' },
       resetQueue: true,
     })
 

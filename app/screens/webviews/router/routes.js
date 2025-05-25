@@ -9,8 +9,8 @@ export default routes = [
   },
   {
     path: '/new/recent/:id',
-    handler: ({ navigation, params }) => {
-      navigation.navigate('Recipe', { extractId: params.id })
+    handler: ({ navigation, params, queryParams }) => {
+      navigation.navigate('Recipe', { extractId: params.id, queryParams })
     },
   },
   {

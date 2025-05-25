@@ -50,6 +50,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   // Webview can pass url query params here
   const justSaved = route.params?.queryParams?.saved === 'true'
+  const redirectedFrom = route.params?.queryParams?.redirectedFrom
 
   // Add a key to force re-render of the RecipeWithCookedFeed component
   const [componentKey, setComponentKey] = useState(Date.now())
@@ -65,7 +66,14 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     if (recipeId || extractId) {
       recentlyOpenedStore.addRecent(recipeId || extractId)
     }
-  }, [recentlyOpenedStore, recipeId, extractId])
+
+    // A extracted recipe can redirect to a newer version of the same recipe,
+    // so we need to remove the older version from the recently opened store.
+    if (redirectedFrom) {
+      console.log('Removing recipe from recently opened store', redirectedFrom)
+      recentlyOpenedStore.remove(redirectedFrom)
+    }
+  }, [recentlyOpenedStore, recipeId, extractId, redirectedFrom])
 
   // Update the key whenever recipe/extract ID changes to force re-render
   useEffect(() => {

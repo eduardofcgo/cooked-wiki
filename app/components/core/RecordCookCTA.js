@@ -14,9 +14,7 @@ export default function RecordCookCTA({
 
   return (
     <View style={[containerStyle, size && { height: size, width: size }]}>
-      {showIcon && (
-        <MaterialCommunityIcons name='camera' color={theme.colors.white} size={iconSize || (showText ? 24 : 20)} />
-      )}
+      {showIcon && <MaterialCommunityIcons name='camera' color={theme.colors.white} size={iconSize || 20} />}
       {showText && <Text style={styles.ctaText}>{text}</Text>}
     </View>
   )
