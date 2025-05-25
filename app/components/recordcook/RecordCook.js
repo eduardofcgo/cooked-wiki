@@ -95,7 +95,7 @@ const NotesPreview = observer(({ notes, onPress, editMode }) => (
 
 // For now let's keep this component messy, we should refactor the edit mode and the preselected recipe out
 
-function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe, defaultNotes }) {
+function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, preSelectedRecipe }) {
   const navigation = useNavigation()
   const route = useRoute()
   const apiClient = useApi()
@@ -104,10 +104,8 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
 
   const { credentials } = useAuth()
   const loggedInUsername = credentials?.username
-  const { profileStore, recentlyOpenedStore, cookedStore, recipeJournalStore } = useStore()
+  const { profileStore, recentlyOpenedStore, cookedStore, recipeCookedDraftStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
-
-  console.log('[RecordCook] Preselected recipe:', preSelectedRecipe)
 
   useEffect(() => {
     recentlyOpenedStore.ensureLoadedMetadata()
@@ -128,6 +126,11 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
   const [isWarningModalVisible, setIsWarningModalVisible] = useState(false)
   const [isSavingCooked, setIsSavingCooked] = useState(false)
+
+  // Tries to find a existing draft for the recipe , if not found we can save the notes there
+  const draft = selectedRecipe && recipeCookedDraftStore.getDraft(selectedRecipe?.id)
+  const defaultNotes = draft?.notes
+  const canSaveNotesToDraft = draft && !defaultNotes
 
   const stepTwoActive = editMode || photos.length > 0
   const stepThreeActive = editMode || (stepTwoActive && selectedRecipe !== undefined) || preSelectedRecipe
@@ -319,8 +322,12 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       if (setHasChanges) {
         setHasChanges(true)
       }
+
+      if (canSaveNotesToDraft) {
+        draft.setNotes(newNotes)
+      }
     },
-    [setHasChanges],
+    [setHasChanges, draft?.notes, canSaveNotesToDraft, setIsNotesModalVisible, setNotes],
   )
 
   const handleNotesClose = useCallback(newNotes => {
@@ -517,8 +524,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         visible={isNotesModalVisible}
         onClose={handleNotesClose}
         onSave={handleNotesSave}
-        initialNotes={notes}
-        defaultNotes={defaultNotes}
+        defaultNotes={notes || defaultNotes}
         recipe={selectedRecipe}
       />
     </View>

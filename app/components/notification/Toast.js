@@ -7,7 +7,7 @@ const NOTIFICATION_HEIGHT = 80
 const ANIMATION_DURATION = 300
 const SWIPE_THRESHOLD = 50 // minimum distance to trigger swipe dismiss
 
-export const Toast = ({ onPress, onClose, duration, visible, children }) => {
+export const Toast = ({ onPress, onClose, duration, visible, topOffset = 0, children }) => {
   const [isVisible, setIsVisible] = useState(visible)
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
@@ -190,7 +190,9 @@ export const Toast = ({ onPress, onClose, duration, visible, children }) => {
     <Animated.View
       style={[
         styles.container,
-        isKeyboardVisible ? { bottom: NOTIFICATION_TOP_OFFSET + keyboardHeight } : { bottom: NOTIFICATION_TOP_OFFSET },
+        isKeyboardVisible
+          ? { bottom: NOTIFICATION_TOP_OFFSET + keyboardHeight + topOffset }
+          : { bottom: NOTIFICATION_TOP_OFFSET + topOffset },
         {
           transform: [{ translateY }, { translateX }],
           opacity,
@@ -233,11 +235,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: theme.borderRadius.default,
     marginBottom: 16,
-  },
-  containerBottom: {},
-  containerTop: {
-    top: 50,
-    marginTop: 16,
   },
   content: {
     flex: 1,

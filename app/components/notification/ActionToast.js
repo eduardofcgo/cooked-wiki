@@ -16,7 +16,15 @@ const ACTION_ICONS = {
   error: faTimes,
 }
 
-export default ActionToast = ({ onPress, onClose, message, visible, actionType = 'default', success = true }) => {
+export default ActionToast = ({
+  onPress,
+  onClose,
+  message,
+  visible,
+  actionType = 'default',
+  success = true,
+  topOffset = 0,
+}) => {
   const iconScale = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -47,7 +55,7 @@ export default ActionToast = ({ onPress, onClose, message, visible, actionType =
   }
 
   return (
-    <Toast onPress={onPress} onClose={onClose} visible={visible}>
+    <Toast onPress={onPress} onClose={onClose} visible={visible} topOffset={topOffset}>
       <View style={styles.iconContainer}>
         <Animated.View style={{ transform: [{ scale: iconScale }] }}>
           <FontAwesomeIcon icon={getIcon()} size={20} color={success ? theme.colors.primary : theme.colors.error} />

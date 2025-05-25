@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Keyboard, TouchableOpacity, Dimensio
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
+import { observer } from 'mobx-react-lite'
 
 const normalizeNotes = notes => {
   return notes
@@ -12,8 +13,8 @@ const normalizeNotes = notes => {
     .trim()
 }
 
-export default function NotesModal({ visible, onClose, onSave, initialNotes, defaultNotes, recipe }) {
-  const [notes, setNotes] = useState(initialNotes || defaultNotes || '')
+function NotesModal({ visible, onClose, onSave, defaultNotes, recipe }) {
+  const [notes, setNotes] = useState(undefined)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const inputRef = useRef(null)
 
@@ -59,7 +60,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, def
   const handleClose = () => {
     Keyboard.dismiss()
     onClose(notes)
-    setNotes(initialNotes || '')
+    setNotes(defaultNotes)
   }
 
   return (
@@ -84,7 +85,7 @@ export default function NotesModal({ visible, onClose, onSave, initialNotes, def
         spellCheck={true}
         placeholderStyle={{ color: theme.colors.softBlack, opacity: 1 }}
         placeholder={placeholder}
-        value={notes}
+        defaultValue={defaultNotes}
         onChangeText={setNotes}
         autoFocus={false}
         onLayout={handleLayout}
@@ -126,3 +127,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 })
+
+export default observer(NotesModal)

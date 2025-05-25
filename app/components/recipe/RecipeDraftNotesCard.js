@@ -39,29 +39,15 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
     recipeCookedDraftStore.ensureDraft(id)
   }, [id])
 
-  useEffect(() => {
-    if (isVisible === true) {
-      clearInAppNotifications()
-    }
-  }, [isVisible])
-
-  useEffect(() => {
-    if (isVisible === false) {
-      handleClose()
-
-      if (draft?.notes?.length > 0) {
-        draftSavedToast()
-      }
-    }
-  }, [isVisible])
-
   useFocusEffect(
     useCallback(() => {
+      // When going back to the screen, set the default card position again
       if (isVisible) {
         bottomSheetRef?.current?.snapToIndex(0)
       }
 
       return () => {
+        // When leaving the screen, show the toast
         if (isVisible && draft?.notes?.length > 0) {
           draftSavedToast()
         }
@@ -91,15 +77,18 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
 
   const closedIndex = -1
   const startPointIndex = 0
-  const expandedIndex = snapPoints.length - 1
 
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close()
+
+    // Sometimes sheets does not seem to update index on pan gesture down
+    setSheetIndex(closedIndex)
 
     onClose()
   }, [onClose])
 
   useEffect(() => {
+    // Let the parent comoponent control the sheet via isVisible prop
     if (!isVisible) {
       bottomSheetRef.current?.close()
     }
@@ -121,18 +110,19 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
       ref={bottomSheetRef}
       snapPoints={snapPoints}
       index={showSheet ? startPointIndex : closedIndex}
-      enablePanDownToClose={false}
+      enablePanDownToClose={true}
       handleComponent={renderHandle}
       backgroundStyle={styles.bottomSheetBackground}
       style={styles.bottomSheetShadow}
       onChange={setSheetIndex}
+      onClose={handleClose}
       enableBlurKeyboardOnGesture={false}
       enableDynamicSizing={false}
       enableOverDrag={false}
       animateOnMount={false}
     >
       <BottomSheetView style={styles.contentContainer}>
-        <View style={[styles.inputContainer]}>
+        <View style={[styles.notesContainer]}>
           {isDraftLoaded && (
             <TouchableOpacity
               style={[styles.notes]}
@@ -140,6 +130,7 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
                 navigation.navigate('EditDraftNotes', {
                   recipeId,
                   extractId,
+                  cookedCardOffset,
                 })
               }}
             >
@@ -191,7 +182,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginRight: 32,
   },
-  inputContainer: {
+  notesContainer: {
     marginBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
@@ -218,11 +209,11 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   notes: {
-    flex: 1,
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.default,
     padding: 15,
     height: 'auto',
+    minHeight: 85,
     textAlignVertical: 'top',
     fontSize: theme.fontSizes.default,
     fontFamily: theme.fonts.ui,

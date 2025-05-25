@@ -6,8 +6,8 @@ import { useStore } from '../../context/StoreContext'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { TransparentButton } from '../../components/core/Button'
 import RecordCookCTA from '../../components/core/RecordCookCTA'
-import { useInAppNotification } from '../../context/NotificationContext'
 import ActionToast from '../../components/notification/ActionToast'
+import { useInAppNotification } from '../../context/NotificationContext'
 
 const normalizeNotes = notes => {
   return notes
@@ -17,12 +17,12 @@ const normalizeNotes = notes => {
     .trim()
 }
 
-const EditDraftNotes = ({}) => {
+const EditDraftNotes = () => {
   const navigation = useNavigation()
   const { showInAppNotification } = useInAppNotification()
 
   const route = useRoute()
-  const { recipeId, extractId } = route.params
+  const { recipeId, extractId, cookedCardOffset } = route.params
 
   const { recipeCookedDraftStore } = useStore()
   const draft = recipeCookedDraftStore.getDraft(recipeId || extractId)
@@ -31,8 +31,17 @@ const EditDraftNotes = ({}) => {
     const normalizedNotes = normalizeNotes(draft.notes)
     draft.setNotes(normalizedNotes)
 
+    const draftCardOffset = 50
+
+    showInAppNotification(ActionToast, {
+      props: {
+        message: 'Draft saved',
+        topOffset: draftCardOffset + (cookedCardOffset || 0),
+      },
+    })
+
     navigation.goBack()
-  }, [draft.notes, draft, navigation, showInAppNotification])
+  }, [draft.notes, draft, navigation, cookedCardOffset, showInAppNotification])
 
   const navigateToRecordCook = useCallback(() => {
     console.log('navigateToRecordCook', draft.notes)
@@ -43,7 +52,6 @@ const EditDraftNotes = ({}) => {
     navigation.replace('RecordCook', {
       recipeId,
       extractId,
-      defaultNotes: draft?.notes,
     })
   }, [draft?.notes, draft, navigation, recipeId, extractId])
 
@@ -70,7 +78,7 @@ const EditDraftNotes = ({}) => {
         <View style={styles.buttonContainer}>
           <TransparentButton title='Save notes draft' onPress={handleSave} />
           <TouchableOpacity onPress={navigateToRecordCook}>
-            <RecordCookCTA showIcon={false} showText={true} />
+            <RecordCookCTA showIcon={true} showText={true} iconSize={16} />
           </TouchableOpacity>
         </View>
       </View>

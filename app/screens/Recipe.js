@@ -14,27 +14,36 @@ import { useAuth } from '../context/AuthContext'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 import { MaterialIcons } from '@expo/vector-icons'
 import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
+import { useInAppNotification } from '../context/NotificationContext'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
 function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardSheetIndex, ...props }) {
   const { credentials } = useAuth()
+  const { clearInAppNotifications } = useInAppNotification()
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
 
   const hasCookedCard = Boolean(cookedCard)
 
-  // Coordenate both cards
+  // Coordenate both cards, TODO: refactor this logic to a UI Store.
   const toggleNotesModal = useCallback(() => {
     const wasCookedCardCollapsed = cookedCardSheetIndex === 0
 
     if (!hasCookedCard || wasCookedCardCollapsed) {
-      setIsNotesModalVisible(prev => !prev)
+      setIsNotesModalVisible(prev => {
+        const showNotesModal = !prev
+        if (showNotesModal) {
+          clearInAppNotifications()
+        }
+        return showNotesModal
+      })
     } else {
       cookedCard?.current?.snapToIndex(0)
       setIsNotesModalVisible(true)
+      clearInAppNotifications()
     }
-  }, [cookedCard, cookedCardSheetIndex, setIsNotesModalVisible])
+  }, [cookedCard, cookedCardSheetIndex, setIsNotesModalVisible, clearInAppNotifications])
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
