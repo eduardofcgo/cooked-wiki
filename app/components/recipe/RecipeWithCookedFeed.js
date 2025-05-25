@@ -21,6 +21,7 @@ const RecipeWebView = forwardRef(
       recipeId,
       extractId,
       justSaved,
+      cloned,
       webViewHeight,
       setWebViewHeight,
       navigation,
@@ -35,9 +36,15 @@ const RecipeWebView = forwardRef(
   ) => {
     const { recentlyOpenedStore } = useStore()
 
-    const startUrl = extractId
-      ? getRecentExtractUrl(extractId)
-      : getSavedRecipeUrl(recipeId) + (justSaved ? '?saved=true' : '')
+    const startUrl = useMemo(() => {
+      const baseUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+      const params = {
+        ...(justSaved && { saved: 'true' }),
+        ...(cloned && { cloned: 'true' }),
+      }
+      const queryString = new URLSearchParams(params).toString()
+      return baseUrl + (queryString ? `?${queryString}` : '')
+    }, [recipeId, extractId, justSaved, cloned])
 
     console.log('Openning recipe with url', startUrl)
 
@@ -91,6 +98,7 @@ const RecipeWithCookedFeed = observer(
     recipeId,
     extractId,
     justSaved,
+    cloned,
     navigation,
     onRequestPath,
     route,
@@ -197,6 +205,7 @@ const RecipeWithCookedFeed = observer(
                 recipeId={recipeId}
                 extractId={extractId}
                 justSaved={justSaved}
+                cloned={cloned}
                 onScroll={handleScroll}
                 webViewHeight={webViewHeight}
                 setWebViewHeight={debouncedSetWebViewHeight}

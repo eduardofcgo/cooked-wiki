@@ -50,6 +50,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   // Webview can pass url query params here
   const justSaved = route.params?.queryParams?.saved === 'true'
+  const cloned = route.params?.queryParams?.cloned === 'true'
   const redirectedFrom = route.params?.queryParams?.redirectedFrom
 
   // Add a key to force re-render of the RecipeWithCookedFeed component
@@ -324,6 +325,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           recipeId={recipeId}
           extractId={extractId}
           justSaved={justSaved}
+          cloned={cloned}
           navigation={navigation}
           onRequestPath={routeHandler}
           route={route}
