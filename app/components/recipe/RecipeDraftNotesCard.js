@@ -19,15 +19,15 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
   const navigation = useNavigation()
   const { showInAppNotification, clearInAppNotifications } = useInAppNotification()
 
+  const id = recipeId || extractId
+
   const { recipeCookedDraftStore } = useStore()
-  const draft = recipeCookedDraftStore.getDraft(recipeId)
+  const draft = recipeCookedDraftStore.getDraft(id)
 
   const isDraftLoaded = draft !== undefined
   const showSheet = isVisible && isDraftLoaded
 
   const [sheetIndex, setSheetIndex] = useState(undefined)
-
-  const id = recipeId || extractId
 
   const draftSavedToast = useCallback(() => {
     showInAppNotification(ActionToast, {

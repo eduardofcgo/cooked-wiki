@@ -14,7 +14,7 @@ const normalizeNotes = notes => {
 }
 
 function NotesModal({ visible, onClose, onSave, defaultNotes, recipe }) {
-  const [notes, setNotes] = useState(undefined)
+  const [notes, setNotes] = useState(defaultNotes)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const inputRef = useRef(null)
 
