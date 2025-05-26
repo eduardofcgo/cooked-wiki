@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.title,
   },
   label: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.medium,
+    fontFamily: theme.fonts.ui,
     color: '#666',
   },
   numberContainer: {

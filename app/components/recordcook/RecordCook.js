@@ -423,27 +423,38 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
           )}
 
           {!editMode && !preSelectedRecipe && (
-            <Step number='2' text='What did you make?' isActive={stepTwoActive} isFilled={stepThreeActive}>
-              <View style={styles.buttonContainer}>
-                {selectedRecipe !== undefined ? (
+            <Step
+              number='2'
+              text='What did you make?'
+              isActive={stepTwoActive}
+              isFilled={stepThreeActive}
+              style={
+                selectedRecipe !== undefined
+                  ? undefined
+                  : [{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }]
+              }
+            >
+              {selectedRecipe !== undefined ? (
+                <View style={styles.buttonContainer}>
                   <SelectedRecipe
                     recipe={selectedRecipe}
                     onClear={() => setSelectedRecipe(undefined)}
                     onPress={() => navigation.navigate('RecipePicker')}
                   />
-                ) : (
-                  <PrimaryButton
-                    title={photoOptional ? 'Select recipe' : 'Add recipe'}
-                    onPress={() => navigation.navigate('RecipePicker')}
-                    style={[
-                      styles.shareButton,
-                      !stepTwoActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
-                      styles.selectRecipeButton,
-                    ]}
-                    disabled={!stepTwoActive}
-                  />
-                )}
-              </View>
+                </View>
+              ) : (
+                <PrimaryButton
+                  title={photoOptional ? 'Select recipe' : 'Add recipe'}
+                  onPress={() => navigation.navigate('RecipePicker')}
+                  style={[
+                    { marginTop: 20 }, // TODO: improve this styling organization
+                    styles.shareButton,
+                    !stepTwoActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
+                    styles.selectRecipeButton,
+                  ]}
+                  disabled={!stepTwoActive}
+                />
+              )}
             </Step>
           )}
 
@@ -453,24 +464,30 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
             isActive={stepThreeActive}
             isFilled={stepFourActive}
             editMode={editMode}
+            style={
+              notes !== undefined
+                ? undefined
+                : [{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }]
+            }
           >
-            <View style={styles.buttonContainer}>
-              {notes !== undefined ? (
+            {notes !== undefined ? (
+              <View style={styles.buttonContainer}>
                 <NotesPreview notes={notes} onPress={() => setIsNotesModalVisible(true)} editMode={editMode} />
-              ) : (
-                <PrimaryButton
-                  title='Add notes'
-                  onPress={() => setIsNotesModalVisible(true)}
-                  style={[
-                    styles.shareButton,
-                    !stepThreeActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
-                    styles.addNotesButton,
-                  ]}
-                  disabled={!stepThreeActive}
-                  icon={<MaterialCommunityIcons name='pencil' size={16} color={theme.colors.white} />}
-                />
-              )}
-            </View>
+              </View>
+            ) : (
+              <PrimaryButton
+                title='Add notes'
+                onPress={() => setIsNotesModalVisible(true)}
+                style={[
+                  { marginTop: 9 }, // TODO: improve this styling organization
+                  styles.shareButton,
+                  !stepThreeActive && { backgroundColor: theme.colors.softBlack, opacity: 0.33 },
+                  styles.addNotesButton,
+                ]}
+                disabled={!stepThreeActive}
+                icon={<MaterialCommunityIcons name='pencil' size={16} color={theme.colors.white} />}
+              />
+            )}
           </Step>
 
           {!editMode ? (
@@ -595,16 +612,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  buttonContainer: {},
-  shareButton: {
+  buttonContainer: {
+    alignItems: 'flex-start',
     width: '100%',
-    height: 40,
   },
+  shareButton: {},
   selectRecipeButton: {
     marginBottom: 24,
   },
   addNotesButton: {
     marginBottom: 10,
+    alignSelf: 'flex-start',
   },
   notesPreview: {
     fontFamily: theme.fonts.ui,

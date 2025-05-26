@@ -11,7 +11,7 @@ export default function useUserRecipesSearch({ query, debounceMs = 300 }) {
   const debounceTimerRef = useRef(null)
 
   useEffect(() => {
-    if (query === null) return
+    if (query?.trim().length === 0) return
 
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current)

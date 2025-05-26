@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
+import GenericError from '../../screens/GenericError'
 import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
@@ -30,12 +31,30 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   const isLoadingProfileCookedsNextPage = profileStore.isLoadingProfileCookedsNextPage(username)
   const hasMore = profileStore.hasMoreProfileCookeds(username)
 
+  const [error, setError] = useState(null)
+
   useEffect(() => {
-    profileStore.ensureLoadedFresh(username)
+    ;(async () => {
+      try {
+        await profileStore.ensureLoadedFresh(username)
+      } catch (e) {
+        console.error(e)
+
+        setError(e)
+      }
+    })()
   }, [username])
 
   const onRefresh = useCallback(async () => {
-    await profileStore.reloadProfileCooked(username)
+    ;(async () => {
+      try {
+        await profileStore.reloadProfileCooked(username)
+      } catch (e) {
+        console.error(e)
+
+        setError(e)
+      }
+    })()
   }, [username])
 
   const renderItem = useCallback(
@@ -48,10 +67,10 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   )
 
   const handleLoadMore = useCallback(() => {
-    if (!isLoadingProfileCookedsNextPage && hasMore) {
+    if (!isLoadingProfileCookedsNextPage && hasMore && !error) {
       profileStore.loadNextProfileCookedsPage(username)
     }
-  }, [isLoadingProfileCookedsNextPage, hasMore, username, profileStore])
+  }, [isLoadingProfileCookedsNextPage, hasMore, username, profileStore, error])
 
   const ListFooter = useCallback(() => {
     if (isLoadingProfileCookedsNextPage) {
@@ -63,6 +82,16 @@ const ProfileCooked = observer(({ username, onScroll }) => {
     }
     return null
   }, [isLoadingProfileCookedsNextPage])
+
+  if (error) {
+    return (
+      <GenericError
+        status={error.status}
+        customMessage={error.status === 401 && 'This user is private.'}
+        onRetry={error.status !== 401 && error.status !== 404 && onRefresh}
+      />
+    )
+  }
 
   if (isLoadingProfileCookeds) {
     return <LoadingScreen />
