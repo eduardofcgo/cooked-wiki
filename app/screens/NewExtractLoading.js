@@ -3,6 +3,7 @@ import { ActivityIndicator, View, Text } from 'react-native'
 import { theme } from '../style/style'
 
 const loadingMessages = [
+  'Generating recipe...',
   'Thank you for your patience.',
   'Verifying results, please wait a few more seconds.',
   'Using AI to double check your recipe.',

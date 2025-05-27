@@ -40,6 +40,9 @@ export default {
       return {
         routes: [
           {
+            name: 'Main',
+          },
+          {
             name: 'ShareIntentNewExtract',
           },
         ],
