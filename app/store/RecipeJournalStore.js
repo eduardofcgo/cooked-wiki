@@ -66,8 +66,6 @@ export class RecipeJournalStore {
         timeout: 15000,
       })
 
-      console.log('recipeJournalResponse', recipeJournalResponse)
-
       runInAction(() => {
         // Make sure we use the same references as in the cookedStore, for reactivity
         for (const cooked of recipeJournalResponse) {

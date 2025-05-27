@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite'
 import RecordCook from '../components/recordcook/RecordCook'
 import { useStore } from '../context/StoreContext'
 import LoadingScreen from './Loading'
-import ErrorScreen from './ErrorScreen'
+import GenericError from '../components/core/GenericError'
 
 function RecordCookScreen() {
   const route = useRoute()
@@ -29,7 +29,7 @@ function RecordCookScreen() {
     }
 
     if (metadataLoadState === 'error') {
-      return <ErrorScreen />
+      return <GenericError />
     }
 
     return <RecordCook editMode={false} preSelectedRecipe={recipeMetadata} />

@@ -46,7 +46,7 @@ const CookedWebView = forwardRef(
         webViewRef.current.injectJavaScript(`window.location.href = "${startUrl}";`)
         webViewRef.current.clearHistory()
 
-        // For now, we are not waiting for the load event.
+        // TODO: For now, we are not waiting for the load event.
         setTimeout(() => {
           setRefreshing(false)
         }, 1000)
@@ -82,7 +82,11 @@ const CookedWebView = forwardRef(
 
       if (requestUrl.hostname !== baseUrl.hostname) {
         console.log('[WebView] Blocking navigation to external domain:', requestUrl.hostname)
-        Linking.openURL(url)
+
+        // When the user clicks a url with an external domain, open it in the browser.
+        setTimeout(() => {
+          Linking.openURL(url)
+        }, 1)
 
         // Block the navigation inside webview
         return false

@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView, Text, TouchableOpacity, StyleSheet, View } from 'react-native'
-import { theme } from '../style/style'
+import { theme } from '../../style/style'
 
 const errorMessages = {
   400: 'Bad request.',

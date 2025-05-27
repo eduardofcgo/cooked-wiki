@@ -12,6 +12,7 @@ import CookedWebView from '../CookedWebView'
 import SimilarCookedFeed from '../cooked/SimilarCookedFeed'
 import RecordCookCTA from '../core/RecordCookCTA'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../../urls'
+import GenericError from '../core/GenericError'
 
 const FlatList = FlashList
 
@@ -21,6 +22,7 @@ const RecipeWebView = forwardRef(
       recipeId,
       extractId,
       justSaved,
+      savedExtractionId,
       cloned,
       webViewHeight,
       setWebViewHeight,
@@ -30,40 +32,25 @@ const RecipeWebView = forwardRef(
       disableRefresh,
       loadingComponent,
       onWebViewReady,
-      webViewReady,
+      onHttpError,
     },
     ref,
   ) => {
-    const { recentlyOpenedStore } = useStore()
-
     const startUrl = useMemo(() => {
       const baseUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
       const params = {
         ...(justSaved && { saved: 'true' }),
         ...(cloned && { cloned: 'true' }),
+        ...(savedExtractionId && { savedExtractionId }),
       }
       const queryString = new URLSearchParams(params).toString()
       return baseUrl + (queryString ? `?${queryString}` : '')
-    }, [recipeId, extractId, justSaved, cloned])
+    }, [recipeId, extractId, justSaved, cloned, savedExtractionId])
 
     console.log('Openning recipe with url', startUrl)
 
-    const [error, setError] = useState(null)
-
-    const handleHttpError = useCallback(
-      e => {
-        if (e.statusCode == 404) {
-          console.log('Not found recipe, removing from recently opened')
-          recentlyOpenedStore.remove(recipeId)
-        }
-
-        setError(e)
-      },
-      [navigation, recipeId, extractId],
-    )
-
     return (
-      <View style={[styles.webViewContainer, { opacity: webViewReady ? 1 : 0 }]}>
+      <View style={[styles.webViewContainer]}>
         <CookedWebView
           ref={ref}
           startUrl={startUrl}
@@ -76,18 +63,16 @@ const RecipeWebView = forwardRef(
           disableRefresh={disableRefresh}
           loadingComponent={loadingComponent}
           onWebViewReady={onWebViewReady}
-          onHttpError={handleHttpError}
+          onHttpError={onHttpError}
         />
-        {!error && (
-          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
-            <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
-              <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
-            </TouchableOpacity>
-            <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
-              Add your own notes and save to your journal.
-            </Text>
-          </View>
-        )}
+        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
+            <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
+          </TouchableOpacity>
+          <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
+            Add your own notes and save to your journal.
+          </Text>
+        </View>
       </View>
     )
   },
@@ -98,6 +83,7 @@ const RecipeWithCookedFeed = observer(
     recipeId,
     extractId,
     justSaved,
+    savedExtractionId,
     cloned,
     navigation,
     onRequestPath,
@@ -105,9 +91,8 @@ const RecipeWithCookedFeed = observer(
     disableRefresh,
     loadingComponent,
     onScroll,
-    onHttpError,
   }) => {
-    const { recipeJournalStore } = useStore()
+    const { recipeJournalStore, recentlyOpenedStore } = useStore()
 
     const id = recipeId || extractId
 
@@ -117,17 +102,29 @@ const RecipeWithCookedFeed = observer(
     const hasMore = recipeJournalStore.hasMoreRecipeCookeds(id)
 
     const [webViewHeight, setWebViewHeight] = useState(null)
-    const [webViewReady, setWebViewReady] = useState(true)
+    const [error, setError] = useState(null)
 
     const onWebViewReady = useCallback(() => {
-      // setWebViewReady(true)
+      // For now let's display the webview right away, no loading state.
     }, [])
+
+    const handleHttpError = useCallback(
+      e => {
+        if (e.statusCode == 404) {
+          console.log('Not found recipe, removing from recently opened')
+          recentlyOpenedStore.remove(recipeId)
+        }
+
+        setError(e)
+      },
+      [recipeId, recentlyOpenedStore],
+    )
 
     useEffect(() => {
       recipeJournalStore.loadCookeds(id)
     }, [id, recipeJournalStore])
 
-    const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 1000), [])
+    // const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 100), [])
 
     const webViewRef = useRef(null)
 
@@ -187,10 +184,14 @@ const RecipeWithCookedFeed = observer(
       return null
     })
 
+    if (error) {
+      return <GenericError status={error.statusCode} />
+    }
+
     return (
       <View style={styles.container}>
         <FlatList
-          data={webViewReady ? recipeCookeds?.slice() : []}
+          data={recipeCookeds?.slice()}
           estimatedItemSize={50}
           renderItem={renderItem}
           keyExtractor={cooked => cooked.id}
@@ -199,26 +200,25 @@ const RecipeWithCookedFeed = observer(
           onEndReachedThreshold={1}
           onScroll={handleScroll}
           ListHeaderComponent={
-            <>
-              <RecipeWebView
-                ref={webViewRef}
-                recipeId={recipeId}
-                extractId={extractId}
-                justSaved={justSaved}
-                cloned={cloned}
-                onScroll={handleScroll}
-                webViewHeight={webViewHeight}
-                setWebViewHeight={debouncedSetWebViewHeight}
-                navigation={navigation}
-                onRequestPath={onRequestPath}
-                route={route}
-                disableRefresh={disableRefresh}
-                loadingComponent={loadingComponent}
-                onWebViewReady={onWebViewReady}
-                webViewReady={webViewReady}
-                onHttpError={onHttpError}
-              />
-            </>
+            <RecipeWebView
+              ref={webViewRef}
+              recipeId={recipeId}
+              extractId={extractId}
+              savedExtractionId={savedExtractionId}
+              justSaved={justSaved}
+              cloned={cloned}
+              onScroll={handleScroll}
+              webViewHeight={webViewHeight}
+              // setWebViewHeight={debouncedSetWebViewHeight}
+              setWebViewHeight={setWebViewHeight}
+              navigation={navigation}
+              onRequestPath={onRequestPath}
+              route={route}
+              disableRefresh={disableRefresh}
+              loadingComponent={loadingComponent}
+              onWebViewReady={onWebViewReady}
+              onHttpError={handleHttpError}
+            />
           }
           ListFooterComponent={ListFooter}
           nestedScrollEnabled={false}

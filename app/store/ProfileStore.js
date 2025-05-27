@@ -104,6 +104,8 @@ export class ProfileStore {
       if (followProfileData) {
         followProfileData.stats['followers-count']++
       }
+
+      this.checkNeedsRefreshCommunityFeed()
     })
   }
 

@@ -196,7 +196,7 @@ export default Community = observer(({ navigation, route }) => {
   })
 
   useEffect(() => {
-    if (profileStore.needsRefreshCommunityFeed) {
+    if (needsRefreshCommunityFeed) {
       refreshPromptHeight.value = withSpring(40, {
         damping: 15,
         stiffness: 120,
@@ -207,7 +207,7 @@ export default Community = observer(({ navigation, route }) => {
         stiffness: 120,
       })
     }
-  }, [profileStore.needsRefreshCommunityFeed])
+  }, [needsRefreshCommunityFeed])
 
   const handleRefreshPromptPress = () => {
     listRef.current?.scrollToOffset({ offset: 0, animated: true })

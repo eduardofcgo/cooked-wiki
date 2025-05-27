@@ -168,6 +168,20 @@ const CookedRecipe = observer(({ navigation, route }) => {
     [snapPoints, windowHeight],
   )
 
+  // The Recipe screen uses the navigation params to choose a recipe to open.
+  // TODO: refactor out the recipe view from the Recipe screen into a seperate component
+  // that can be used on both Recipe and CookedRecipe screens, this way the recipe
+  // can be changed via props without needing to do this every time.
+  useEffect(() => {
+    if (recipeId || extractId) {
+      navigation.setParams({
+        recipeId: recipeId,
+        extractId: extractId,
+        queryParams: {},
+      })
+    }
+  }, [recipeId, extractId, navigation])
+
   // Delay the loading of the recipe webview to avoid lag
   // on the bottom sheet open animation
   useEffect(() => {
@@ -297,8 +311,6 @@ const CookedRecipe = observer(({ navigation, route }) => {
         {shouldLoadRecipe ? (
           <Suspense fallback={<LoadingScreen />}>
             <Recipe
-              recipeId={recipeId}
-              extractId={extractId}
               route={route}
               navigation={navigation}
               cookedCard={bottomSheetRef}

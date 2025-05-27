@@ -20,9 +20,7 @@ import Recipe from '../Recipe'
 import EditDraftNotes from '../recipe/EditDraftNotes'
 import RecipePrint from '../recipe/RecipePrint'
 
-import { IconButton } from 'react-native-paper'
-
-import { screenStyle, theme } from '../../style/style'
+import { screenStyle } from '../../style/style'
 
 export default function LoggedInStack({ StackNavigator }) {
   return (
@@ -106,22 +104,6 @@ export default function LoggedInStack({ StackNavigator }) {
         options={({ navigation, route }) => ({
           title: 'Recipe',
           animation: 'slide_from_right',
-          headerRight: () => (
-            <IconButton
-              icon='send'
-              size={20}
-              style={{ margin: 0, marginRight: -10 }}
-              backgroundColor={theme.colors.secondary}
-              color={theme.colors.black}
-              onPress={() => {
-                // const shareUrl = `http://192.168.1.96:3000/recipe`
-                // Share.share({
-                //     message: shareUrl,
-                //     url: shareUrl,
-                // })
-              }}
-            />
-          ),
         })}
       />
 
@@ -131,7 +113,6 @@ export default function LoggedInStack({ StackNavigator }) {
         options={{
           title: 'Recipe',
           ...screenStyle,
-          // animation: 'none',
         }}
       />
 
@@ -139,9 +120,8 @@ export default function LoggedInStack({ StackNavigator }) {
         name='FreestyleCook'
         component={FreestyleCook}
         options={{
-          title: 'Cook',
+          title: 'Cooked',
           ...screenStyle,
-          // animation: 'none',
         }}
       />
 

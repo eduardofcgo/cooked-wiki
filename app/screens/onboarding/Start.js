@@ -142,33 +142,30 @@ export default function Start({ navigation, route }) {
       <View style={styles.buttonsContainer}>
         <Text style={styles.title}>Welcome to Cooked.wiki</Text>
 
-        <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
-          {/* TODO: Add Google icon here */}
+        {/* <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleFacebookLogin} style={styles.facebookButton}>
-          {/* TODO: Add Facebook icon here */}
           <Text style={styles.facebookButtonText}>Continue with Facebook</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleAppleLogin} style={styles.appleButton}>
-          {/* TODO: Add Apple icon here */}
           <Text style={styles.appleButtonText}>Continue with Apple</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity onPress={handlePasswordLogin} style={styles.passwordButton}>
           <Text style={styles.passwordButtonText}>Continue with Password</Text>
         </TouchableOpacity>
 
         <Text style={styles.helpText}>
-          Need help?
+          Help and delete account:
           <Text
             onPress={handleContactPress}
             style={{ color: theme.colors.primary, fontFamily: theme.fonts.uiBold, fontWeight: 'bold' }}
           >
             {' '}
-            Contact
+            contact us
           </Text>
         </Text>
       </View>

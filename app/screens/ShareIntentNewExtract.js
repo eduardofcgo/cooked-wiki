@@ -1,29 +1,40 @@
 import { useShareIntentContext } from 'expo-share-intent'
 import { useEffect, useState } from 'react'
 import NewExtract from './NewExtract'
+import GenericError from '../components/core/GenericError'
+import { observer } from 'mobx-react-lite'
+import Loading from './Loading'
 
-export default function ShareIntentNewExtract() {
+function ShareIntentNewExtract() {
   const { hasShareIntent, shareIntent, resetShareIntent, error: shareError } = useShareIntentContext()
 
-  const [url, setUrl] = useState(null)
+  const [url, setUrl] = useState(undefined)
 
   const sharedUrl = hasShareIntent && shareIntent.type === 'weburl' && shareIntent.webUrl
 
-  console.log('hasShareIntent', shareIntent, url)
-
   useEffect(() => {
-    if (sharedUrl) {
-      console.log('sharedUrl', sharedUrl)
+    if (hasShareIntent && sharedUrl) {
+      console.log('Shared URL using share intent', sharedUrl)
+
       setUrl(sharedUrl)
 
-      // Reset the share intent after processing
       resetShareIntent()
-    }
-  }, [sharedUrl, resetShareIntent])
+    } else if (hasShareIntent) {
+      console.log('No shared URL using share intent', shareIntent)
 
-  if (!url) {
-    return null
+      setUrl(null)
+    }
+  }, [hasShareIntent, sharedUrl, resetShareIntent])
+
+  if (url === undefined) {
+    return <Loading />
+  }
+
+  if (shareError || url === null) {
+    return <GenericError customMessage={'To create a recipe, please share a link to a recipe from the web.'} />
   }
 
   return <NewExtract url={url} />
 }
+
+export default observer(ShareIntentNewExtract)

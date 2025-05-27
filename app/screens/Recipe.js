@@ -50,6 +50,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   // Webview can pass url query params here
   const justSaved = route.params?.queryParams?.saved === 'true'
+  const savedExtractionId = route.params?.queryParams?.savedExtractionId
   const cloned = route.params?.queryParams?.cloned === 'true'
   const redirectedFrom = route.params?.queryParams?.redirectedFrom
 
@@ -74,7 +75,13 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       console.log('Removing recipe from recently opened store', redirectedFrom)
       recentlyOpenedStore.remove(redirectedFrom)
     }
-  }, [recentlyOpenedStore, recipeId, extractId, redirectedFrom])
+
+    // After saving an extraction, we need to remove it from the recently opened store.
+    if (savedExtractionId) {
+      console.log('Removing extraction from recently opened store', savedExtractionId)
+      recentlyOpenedStore.remove(savedExtractionId)
+    }
+  }, [recentlyOpenedStore, recipeId, extractId, redirectedFrom, savedExtractionId])
 
   // Update the key whenever recipe/extract ID changes to force re-render
   useEffect(() => {
@@ -145,16 +152,11 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       console.log('openRecipe', recipe)
 
       if (recipe.id !== id) {
-        console.log('[Recipe] Opening recipe:', {
-          recipeId: recipe.type == 'saved' && recipe.id,
-          extractId: recipe.type == 'extracted' && recipe.id,
-          recentRecipesExpanded: false,
-        })
-
         navigation.setParams({
           recipeId: recipe.type == 'saved' && recipe.id,
           extractId: recipe.type == 'extracted' && recipe.id,
           recentRecipesExpanded: false,
+          queryParams: {},
         })
 
         setIsNotesModalVisible(false)
@@ -325,6 +327,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           recipeId={recipeId}
           extractId={extractId}
           justSaved={justSaved}
+          savedExtractionId={savedExtractionId}
           cloned={cloned}
           navigation={navigation}
           onRequestPath={routeHandler}

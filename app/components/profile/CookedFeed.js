@@ -5,7 +5,7 @@ import { FlashList } from '@shopify/flash-list'
 
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
-import GenericError from '../../screens/GenericError'
+import GenericError from '../core/GenericError'
 import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
