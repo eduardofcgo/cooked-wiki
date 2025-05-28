@@ -21,6 +21,18 @@
         }
       ],
       "expo-apple-authentication",
+      "expo-notifications",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
       [
         "expo-share-intent",
         {
@@ -30,11 +42,18 @@
             "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
             "NSExtensionActivationSupportsImageWithMaxCount": 1
           },
-          "androidIntentFilters": ["text/*", "image/*"],
-          "androidMultiIntentFilters": ["image/*"]
+          "androidIntentFilters": [
+            "text/*",
+            "image/*"
+          ],
+          "androidMultiIntentFilters": [
+            "image/*"
+          ]
         }
       ],
-      ["expo-font"],
+      [
+        "expo-font"
+      ],
       [
         "expo-image-picker",
         {
@@ -67,8 +86,16 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "usesAppleSignIn": false,
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "production"
+      },
       "bundleIdentifier": "wiki.cooked",
       "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
