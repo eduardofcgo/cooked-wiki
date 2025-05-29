@@ -95,7 +95,11 @@ const CookedWebView = forwardRef(
       if (onRequestPath) {
         const pathname = requestUrl.pathname
         const searchParams = requestUrl.searchParams
-        const queryParams = Object.fromEntries(searchParams.entries())
+        const queryParams = Object.fromEntries(
+          Array.from(searchParams.entries())
+            .map(([key, value]) => [key, value.trim()])
+            .filter(([key, value]) => value !== ''),
+        )
 
         const handlePath = onRequestPath(pathname, queryParams)
 

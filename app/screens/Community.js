@@ -1,18 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native'
 import * as Contacts from 'expo-contacts'
-import * as Notifications from 'expo-notifications'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
-import Reanimated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated'
+import Reanimated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { FlashList } from '@shopify/flash-list'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -23,21 +15,18 @@ import { Button, PrimaryButton } from '../components/core/Button'
 import HeaderTitleMenu from '../components/core/HeaderTitleMenu'
 import Loading from '../components/core/Loading'
 import RefreshControl from '../components/core/RefreshControl'
-import AnimatedBell from '../components/notification/AnimatedBell'
 import { useStore } from '../context/StoreContext'
-import { requestPushNotificationsPermission } from '../notifications/push'
+import { usePushNotification } from '../context/PushNotificationContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 
-const CHECK_NOTIFICATIONS_INTERVAL = 10000
+const REFRESH_INTERVAL = 10000
 
 const FlatList = FlashList
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore, onboardingStore, notificationsStore } = useStore()
-
-  const notificationPermissionStatus = userStore.notificationPermissionStatus
-  const contactsPermissionStatus = userStore.contactsPermissionStatus
+  const { hasPermission, requestPermission } = usePushNotification()
 
   const { hiddenNotificationsCard } = userStore
   const { hasNewNotifications } = notificationsStore
@@ -51,8 +40,6 @@ export default Community = observer(({ navigation, route }) => {
   const refreshPromptHeight = useSharedValue(0)
   const listRef = useRef(null)
 
-  const [isScreenFocused, setIsScreenFocused] = useState(false)
-
   useEffect(() => {
     ;(async () => {
       try {
@@ -65,8 +52,7 @@ export default Community = observer(({ navigation, route }) => {
 
   useFocusEffect(() => {
     ;(async () => {
-      const notificationPermission = await Notifications.getPermissionsAsync()
-      userStore.setNotificationPermissionStatus(notificationPermission.status)
+      await requestPermission()
 
       const contactsPermission = await Contacts.getPermissionsAsync()
       userStore.setContactsPermissionStatus(contactsPermission.status)
@@ -113,25 +99,22 @@ export default Community = observer(({ navigation, route }) => {
   }, [navigation])
 
   const handleEnableNotifications = async () => {
-    const permission = await requestPushNotificationsPermission()
+    const allowed = await requestPermission()
 
-    if (permission.status === 'denied' && permission.canAskAgain) {
-      userStore.setNotificationPermissionStatus(null)
-    } else {
-      userStore.setNotificationPermissionStatus(permission.status)
+    if (!allowed) {
+      openSettings()
     }
   }
 
   const openSettings = () => {
     if (Platform.OS === 'ios') {
-      Notifications.openSettings()
+      Linking.openURL('app-settings:')
     } else {
       Linking.openSettings()
     }
   }
 
-  const showNotificationsCard =
-    notificationPermissionStatus !== 'granted' && userStore.enabledNotifications && !hiddenNotificationsCard
+  const showNotificationsCard = !hasPermission && !hiddenNotificationsCard
   const showFindFriendsCard = onboardingStore.showFindFriendsHint()
 
   const onRefresh = useCallback(async () => {
@@ -172,7 +155,7 @@ export default Community = observer(({ navigation, route }) => {
       const intervalId = setInterval(() => {
         notificationsStore.loadNotifications()
         profileStore.checkNeedsRefreshCommunityFeed()
-      }, CHECK_NOTIFICATIONS_INTERVAL)
+      }, REFRESH_INTERVAL)
 
       return () => {
         clearInterval(intervalId)
@@ -250,7 +233,7 @@ export default Community = observer(({ navigation, route }) => {
                       <View style={styles.textContainer}>
                         <Text style={styles.description}>Get notified when your friends cook something new.</Text>
                       </View>
-                      {notificationPermissionStatus === 'denied' ? (
+                      {!hasPermission ? (
                         <Button onPress={openSettings} style={styles.cardButton} title='Settings' />
                       ) : (
                         <PrimaryButton onPress={handleEnableNotifications} style={styles.cardButton} title='Turn on' />

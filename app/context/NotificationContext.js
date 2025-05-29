@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { observer } from 'mobx-react-lite'
 
 const NotificationContext = createContext()
 
@@ -13,7 +14,7 @@ export const useInAppNotification = () => {
 
 const MAX_NOTIFICATIONS_QUEUE = 5
 
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider = observer(function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
   const notification = notifications[0]
 
@@ -100,4 +101,4 @@ export const NotificationProvider = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   )
-}
+})

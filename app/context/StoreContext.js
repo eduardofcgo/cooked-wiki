@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo } from 'react'
+import { observer } from 'mobx-react-lite'
 
 import RootStore from '../store/RootStore'
 import { useApi } from './ApiContext'
@@ -14,9 +15,9 @@ export function useStore() {
   return context
 }
 
-export function StoreProvider({ children }) {
+export const StoreProvider = observer(function StoreProvider({ children }) {
   const apiClient = useApi()
   const rootStore = useMemo(() => new RootStore(apiClient), [apiClient])
 
   return <StoreContext.Provider value={rootStore}>{children}</StoreContext.Provider>
-}
+})

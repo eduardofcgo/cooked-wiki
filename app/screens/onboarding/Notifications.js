@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FastImage from 'react-native-fast-image'
 import moment from 'moment'
 
-import { requestPushNotificationsPermission } from '../../notifications/push'
+import { usePushNotification } from '../../context/PushNotificationContext'
 
 import { PrimaryButton, SecondaryButton, TransparentButton } from '../../components/core/Button'
 import ModalCard from '../../components/core/ModalCard'
@@ -13,6 +13,9 @@ import { theme } from '../../style/style'
 import { getPublicCommunityJournalUrl } from '../../urls'
 
 const Notifications = ({ navigation }) => {
+  // TODO: for now even if already has permission, will show this screen anyway
+  const { hasPermission, requestPermission } = usePushNotification()
+
   const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0)
   const [previousPhotoIndex, setPreviousPhotoIndex] = React.useState(null)
   const [showSkipModal, setShowSkipModal] = React.useState(false)
@@ -56,19 +59,30 @@ const Notifications = ({ navigation }) => {
     return () => clearInterval(interval)
   }, [currentPhotoIndex, journalData])
 
-  const handleEnableNotifications = useCallback(
-    ({ tryAgain = true } = {}) => {
-      ;(async () => {
-        const { status, canAskAgain } = await requestPushNotificationsPermission()
-        if (status === 'denied' && canAskAgain && tryAgain) {
-          setShowSkipModal(true)
-        } else {
-          navigation.navigate('Start')
-        }
-      })()
-    },
-    [navigation],
-  )
+  const handleEnableNotifications = useCallback(async () => {
+    const allowed = await requestPermission()
+    if (!allowed) {
+      setShowSkipModal(true)
+    } else {
+      navigation.navigate('Start')
+    }
+  }, [navigation, requestPermission])
+
+  const handleSkip = useCallback(async () => {
+    setShowSkipModal(false)
+    navigation.navigate('Start')
+  }, [navigation])
+
+  const handleEnableNotificationsSkipModal = useCallback(async () => {
+    await requestPermission()
+    setShowSkipModal(false)
+    navigation.navigate('Start')
+  }, [navigation, requestPermission])
+
+  const handleDisableNotificationsSkipModal = useCallback(async () => {
+    setShowSkipModal(false)
+    navigation.navigate('Start')
+  }, [navigation])
 
   return (
     <Animated.View style={styles.container} entering={SlideInRight.duration(1000)}>
@@ -115,7 +129,7 @@ const Notifications = ({ navigation }) => {
             style={styles.nextButton}
             icon={<Icon name='arrow-right' size={20} color='white' />}
           />
-          <TransparentButton title='Skip' onPress={() => setShowSkipModal(true)} />
+          <TransparentButton title='Skip' onPress={handleSkip} />
         </Animated.View>
       </View>
 
@@ -143,19 +157,10 @@ const Notifications = ({ navigation }) => {
             </Animated.Text>
           </View>
           <View style={styles.modalButtons}>
-            <PrimaryButton
-              title='Enable notifications'
-              onPress={() => {
-                setShowSkipModal(false)
-                handleEnableNotifications({ tryAgain: false })
-              }}
-            />
+            <PrimaryButton title='Enable notifications' onPress={handleEnableNotificationsSkipModal} />
             <SecondaryButton
               title='Skip anyway'
-              onPress={() => {
-                setShowSkipModal(false)
-                navigation.navigate('Start')
-              }}
+              onPress={handleDisableNotificationsSkipModal}
               style={styles.skipButton}
             />
           </View>

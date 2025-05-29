@@ -31,6 +31,7 @@ import * as Sentry from '@sentry/react-native'
 import { CaptureConsole } from '@sentry/integrations'
 import { AuthProvider } from './app/context/AuthContext'
 import { NotificationProvider } from './app/context/NotificationContext'
+import { PushNotificationProvider } from './app/context/PushNotificationContext'
 import linking from './app/navigation/linking'
 import Navigator from './app/screens/stacks/Navigator'
 import navigationTheme from './app/style/navigation'
@@ -53,10 +54,11 @@ if (env.SENTRY_DSN) {
 
 SplashScreen.preventAutoHideAsync()
 
-SplashScreen.setOptions({
+const splashScreenAnimationOptions = {
   duration: 500,
   fade: true,
-})
+}
+SplashScreen.setOptions(splashScreenAnimationOptions)
 
 function App() {
   const [loadedFonts] = useFonts({
@@ -98,7 +100,9 @@ function App() {
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NavigationContainer linking={linking} theme={navigationTheme}>
                 <NotificationProvider>
-                  <Navigator />
+                  <PushNotificationProvider>
+                    <Navigator />
+                  </PushNotificationProvider>
                 </NotificationProvider>
               </NavigationContainer>
             </GestureHandlerRootView>

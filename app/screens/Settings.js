@@ -1,28 +1,21 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Linking, Platform, Alert } from 'react-native'
-import { useFocusEffect } from '@react-navigation/native'
-import { List, Button, Switch } from 'react-native-paper'
+import { List, Switch } from 'react-native-paper'
 import { theme } from '../style/style'
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../context/StoreContext'
-import * as Notifications from 'expo-notifications'
+import { usePushNotification } from '../context/PushNotificationContext'
 
 export default Settings = observer(({ navigation }) => {
+  const { hasPermission, requestPermission } = usePushNotification()
   const { userStore } = useStore()
   const { logout } = useAuth()
+
   const [isLoading, setIsLoading] = useState(false)
 
-  const enabledNotifications = userStore.enabledNotifications
-  const notificationPermissionStatus = userStore.notificationPermissionStatus
-
-  useFocusEffect(() => {
-    ;(async () => {
-      const permission = await Notifications.getPermissionsAsync()
-      userStore.setNotificationPermissionStatus(permission.status)
-    })()
-  })
+  const enabledNotifications = userStore.settings.getEnabledNotifications()
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -53,18 +46,16 @@ export default Settings = observer(({ navigation }) => {
     ])
   }
 
-  const handleNotificationToggle = async value => {
-    if (notificationPermissionStatus === 'denied') {
+  const handleNotificationToggle = value => {
+    userStore.settings.setEnabledNotifications(value)
+
+    if (!hasPermission) {
       if (Platform.OS === 'ios') {
-        Notifications.openSettings()
+        Linking.openURL('app-settings:')
       } else {
         Linking.openSettings()
       }
       return
-    }
-
-    if (notificationPermissionStatus === 'granted') {
-      userStore.setEnabledNotifications(value)
     }
   }
 
@@ -77,27 +68,43 @@ export default Settings = observer(({ navigation }) => {
       )}
       <ScrollView style={styles.scrollView}>
         <List.Section>
-          <List.Subheader>Device Settings</List.Subheader>
+          <List.Subheader
+            style={{ color: theme.colors.softBlack, fontSize: theme.fontSizes.small, fontFamily: theme.fonts.ui }}
+          >
+            Device Settings
+          </List.Subheader>
           <List.Item
             title='Enable Notifications'
-            description={
-              notificationPermissionStatus === 'denied' ? 'Notifications are blocked in system settings' : null
-            }
-            left={props => <List.Icon {...props} icon='bell' />}
-            right={() => <Switch value={enabledNotifications} onValueChange={handleNotificationToggle} />}
+            description={!hasPermission ? 'Notifications are blocked in system settings' : null}
+            descriptionStyle={{
+              color: theme.colors.softBlack,
+              fontSize: theme.fontSizes.small,
+              fontFamily: theme.fonts.ui,
+            }}
+            titleStyle={{ color: theme.colors.black, fontSize: theme.fontSizes.default, fontFamily: theme.fonts.ui }}
+            left={props => <List.Icon {...props} color={theme.colors.softBlack} icon='bell' />}
+            right={() => (
+              <Switch value={enabledNotifications && hasPermission} onValueChange={handleNotificationToggle} />
+            )}
           />
         </List.Section>
 
         <List.Section>
-          <List.Subheader>App</List.Subheader>
+          <List.Subheader
+            style={{ color: theme.colors.softBlack, fontSize: theme.fontSizes.small, fontFamily: theme.fonts.ui }}
+          >
+            App
+          </List.Subheader>
           <List.Item
             title='About'
-            left={props => <List.Icon {...props} icon='information' />}
+            titleStyle={{ color: theme.colors.black, fontSize: theme.fontSizes.default, fontFamily: theme.fonts.ui }}
+            left={props => <List.Icon {...props} color={theme.colors.softBlack} icon='information' />}
             onPress={() => Linking.openURL('https://cooked.wiki/team')}
           />
           <List.Item
             title='Contact'
-            left={props => <List.Icon {...props} icon='help-circle' />}
+            titleStyle={{ color: theme.colors.black, fontSize: theme.fontSizes.default, fontFamily: theme.fonts.ui }}
+            left={props => <List.Icon {...props} color={theme.colors.softBlack} icon='help-circle' />}
             onPress={() => Linking.openURL('https://cooked.wiki/contact')}
           />
         </List.Section>

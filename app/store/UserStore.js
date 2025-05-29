@@ -1,11 +1,80 @@
-import { makeAutoObservable, observable, reaction, runInAction } from 'mobx'
+import { makeAutoObservable, observable, reaction, runInAction, toJS } from 'mobx'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { getContactHashes } from '../contacts/contacts'
+
+const defaultSettings = {
+  enabledNotifications: true,
+}
+
+class UserSettings {
+  settingsMap = observable.map(defaultSettings)
+
+  loaded = false
+  loading = false
+
+  constructor() {
+    makeAutoObservable(this)
+
+    reaction(
+      () => toJS(this.settingsMap),
+      () => {
+        if (this.loaded) {
+          AsyncStorage.setItem('userSettings', JSON.stringify(this.settingsMap))
+        }
+      },
+    )
+
+    this.loadFromLocalStorage()
+  }
+
+  async loadFromLocalStorage() {
+    runInAction(() => {
+      this.loading = true
+    })
+
+    try {
+      const savedSettings = await AsyncStorage.getItem('userSettings')
+      runInAction(() => {
+        if (savedSettings) {
+          this.settingsMap.replace(JSON.parse(savedSettings))
+        }
+        this.loaded = true
+        this.loading = false
+      })
+    } catch (error) {
+      console.error('Error loading user settings', error)
+
+      runInAction(() => {
+        this.loaded = true
+        this.loading = false
+      })
+    }
+  }
+
+  setEnabledNotifications(enabled) {
+    this.settingsMap.set('enabledNotifications', enabled)
+  }
+
+  getEnabledNotifications() {
+    if (!this.loaded) {
+      return undefined
+    }
+
+    return this.settingsMap.get('enabledNotifications')
+  }
+
+  reset() {
+    runInAction(() => {
+      this.settingsMap.replace(defaultSettings)
+    })
+    AsyncStorage.removeItem('userSettings')
+  }
+}
 
 export class UserStore {
   notificationToken = null
   notificationPermissionStatus = null
-  enabledNotifications = true
 
   contactsPermissionStatus = null
 
@@ -19,6 +88,8 @@ export class UserStore {
     this.recentlyOpenedStore = recentlyOpenedStore
     this.recipeCookedDraftStore = recipeCookedDraftStore
     this.onboardingStore = onboardingStore
+
+    this.settings = new UserSettings()
 
     makeAutoObservable(this)
 
@@ -104,10 +175,6 @@ export class UserStore {
     this.contactsPermissionStatus = status
   }
 
-  setEnabledNotifications(enabled) {
-    this.enabledNotifications = enabled
-  }
-
   setLoadingFriendsProfiles() {
     this.loadingFriendsProfiles = true
   }
@@ -116,5 +183,6 @@ export class UserStore {
     this.onboardingStore.reset()
     this.recentlyOpenedStore.clear()
     this.recipeCookedDraftStore.clear()
+    this.settings.reset()
   }
 }

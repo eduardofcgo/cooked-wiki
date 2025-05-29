@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { observer } from 'mobx-react-lite'
 
 import { useAuth } from '../../context/AuthContext'
 import LoggedInStack from './LoggedInStack'
@@ -22,7 +23,7 @@ const defaultScreenOptions = ({ navigation }) => ({
   ),
 })
 
-export default function Navigator() {
+export default observer(function Navigator() {
   const { loggedIn } = useAuth()
 
   const loggedInStack = LoggedInStack({ StackNavigator })
@@ -33,4 +34,4 @@ export default function Navigator() {
       {loggedIn ? loggedInStack : onboardingStack}
     </StackNavigator.Navigator>
   )
-}
+})
