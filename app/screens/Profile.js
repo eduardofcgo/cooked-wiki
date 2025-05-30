@@ -335,7 +335,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
                 <TouchableOpacity
                   onPress={() => {
                     Share.share({
-                      message: `Check out my profile on Cooked!`,
+                      message: `Check out my profile on Cooked.wiki!`,
                       url: getShareableProfileUrl(username),
                     })
                   }}
@@ -349,7 +349,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
                 style={{ padding: 16 }}
                 onPress={() => {
                   Share.share({
-                    message: `Check out ${username}'s profile on Cooked!`,
+                    message: `Check out ${username}'s profile on Cooked.wiki!`,
                     url: getShareableProfileUrl(username),
                   })
                 }}

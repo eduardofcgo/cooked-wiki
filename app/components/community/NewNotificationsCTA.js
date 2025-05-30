@@ -18,7 +18,7 @@ const NewNotificationsCTA = ({ onPress, hasNewNotifications }) => {
   useEffect(() => {
     const setBadgeCount = async () => {
       try {
-        await Notifications.setBadgeCountAsync(notificationsUnreadCount)
+        await Notifications.setBadgeCountAsync(notificationsUnreadCount || 0)
       } catch (error) {
         console.warn('Failed to set badge count:', error)
       }

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   subtitle: {
-    fontSize: theme.fontSizes.default,
+    fontSize: theme.fontSizes.small,
     fontFamily: theme.fonts.ui,
     color: theme.colors.softBlack,
     textAlign: 'center',

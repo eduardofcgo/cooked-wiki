@@ -1,56 +1,46 @@
 import React from 'react'
-import { StyleSheet, View, Dimensions, Platform } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { LinearGradient } from 'expo-linear-gradient'
 
 import { PrimaryButton } from '../../components/core/Button'
 import ShareIntentDemo from '../../components/demo/ShareIntentDemo'
 import { theme } from '../../style/style'
 
+const clickAnimation = require('../../../assets/animations/click.json')
+
 const screenshots = [
   {
-    source: require('../../../assets/demo/ios_youtube_short_1.png'),
+    source: require('../../../assets/demo/frame1.png'),
     label: 'Got to any webpage or video',
     overlay: true,
   },
   {
-    source: require('../../../assets/demo/ios_youtube_short_1.png'),
-    animationPosition: { top: '60%', left: '65%' },
+    source: require('../../../assets/demo/frame2.png'),
+    animationPosition: { top: '74%', left: '90%' },
     label: 'Tap the share button',
   },
   {
-    source: require('../../../assets/demo/ios_youtube_short_2.png'),
-    animationPosition: { top: '70%', left: '47%' },
+    source: require('../../../assets/demo/frame3.png'),
+    animationPosition: { top: '87%', left: '68%' },
     label: 'Tap the share button',
   },
   {
-    source: require('../../../assets/demo/ios_youtube_short_3.png'),
-    animationPosition: { top: '59%', left: '39%' },
+    source: require('../../../assets/demo/frame4.png'),
+    animationPosition: { top: '72%', left: '58%' },
     label: 'Share to the Cooked.wiki app',
   },
   {
-    source: require('../../../assets/demo/ios_youtube_short_4.png'),
+    source: require('../../../assets/demo/frame5.png'),
     label: 'And start cooking!',
   },
 ]
 
 const HowItWorks = ({ navigation }) => {
-  const screenWidth = Dimensions.get('window').width
-  const isIPad = Platform.OS === 'ios' && (Platform.isPad || screenWidth >= 768)
-
   return (
     <Animated.View style={styles.container} entering={SlideInRight.duration(1000)}>
-      <View style={styles.content}>
-        <ShareIntentDemo screenshots={screenshots} />
-        {!isIPad && (
-          <LinearGradient
-            colors={[theme.colors.background, theme.colors.background, 'transparent']}
-            locations={[0, 0.01, 0.4]}
-            style={styles.topGradient}
-            pointerEvents='none'
-          />
-        )}
+      <View style={styles.demoContent}>
+        <ShareIntentDemo screenshots={screenshots} animationSource={clickAnimation} />
       </View>
 
       <View style={styles.bottomSection}>
@@ -59,7 +49,7 @@ const HowItWorks = ({ navigation }) => {
             title='Got it!'
             onPress={() => navigation.navigate('OnboardingNotifications')}
             style={styles.nextButton}
-            icon={<Icon name='arrow-right' size={20} color='white' />}
+            icon={<Icon name='arrow-right' size={20} color='white' style={{ width: 20, height: 20 }} />}
           />
         </Animated.View>
       </View>
@@ -80,11 +70,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  content: {
+  demoContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 32,
+    paddingTop: 32,
   },
   title: {
     fontSize: 28,
