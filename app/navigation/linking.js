@@ -1,10 +1,22 @@
 import Constants from 'expo-constants'
 import * as Linking from 'expo-linking'
+import * as Notifications from 'expo-notifications'
 import { ShareIntentModule, getScheme, getShareExtensionKey } from 'expo-share-intent'
 import { getStateFromPath } from '@react-navigation/native'
 
 const PREFIX = Linking.createURL('/')
 const PACKAGE_NAME = Constants.expoConfig?.android?.package || Constants.expoConfig?.ios?.bundleIdentifier
+
+const formatNotificationUrl = url => {
+  if (!url) return null
+
+  if (url.includes('://')) {
+    return url
+  }
+
+  const cleanPath = url.startsWith('/') ? url.slice(1) : url
+  return `${Constants.expoConfig?.scheme}://${cleanPath}`
+}
 
 export default ({ getInitialNotification, onNotificationOpenedApp }) => ({
   prefixes: [`${Constants.expoConfig?.scheme}://`, `${PACKAGE_NAME}://`, PREFIX],
@@ -73,7 +85,21 @@ export default ({ getInitialNotification, onNotificationOpenedApp }) => ({
     // User clicks notification when app is in the background
     const notificationOpenedUnsubscribe = onNotificationOpenedApp(message => {
       if (message?.data?.url) {
-        listener(message.data.url)
+        const formattedUrl = formatNotificationUrl(message.data.url)
+        if (formattedUrl) {
+          listener(formattedUrl)
+        }
+      }
+    })
+
+    // Expo notifications - User clicks local notification when app is in the foreground
+    const expoNotificationResponseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const notificationData = response.notification.request.content.data
+      if (notificationData?.foreground && notificationData?.url) {
+        const formattedUrl = formatNotificationUrl(notificationData.url)
+        if (formattedUrl) {
+          listener(formattedUrl)
+        }
       }
     })
 
@@ -82,6 +108,7 @@ export default ({ getInitialNotification, onNotificationOpenedApp }) => ({
       shareIntentValueSubscription?.remove()
       urlEventSubscription.remove()
       notificationOpenedUnsubscribe()
+      expoNotificationResponseSubscription.remove()
     }
   },
 
@@ -96,7 +123,10 @@ export default ({ getInitialNotification, onNotificationOpenedApp }) => ({
     // User clicks notification when app is in the foreground
     const message = await getInitialNotification()
     if (message?.data?.url) {
-      return message.data.url
+      const formattedUrl = formatNotificationUrl(message.data.url)
+      if (formattedUrl) {
+        return formattedUrl
+      }
     }
 
     return url

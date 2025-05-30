@@ -49,7 +49,17 @@ export default function useFirebasePushNotifications({
   }, [checkPermissionStatus])
 
   useEffect(() => {
-    if (hasPermission !== true || !userEnabledNotifications) {
+    if (!hasPermission || !userEnabledNotifications) {
+      const cleanupNotifications = async () => {
+        try {
+          await messaging().deleteToken()
+          setNotificationToken(null)
+        } catch (error) {
+          console.error('Error deleting FCM token:', error)
+        }
+      }
+
+      cleanupNotifications()
       return
     }
 
@@ -69,7 +79,10 @@ export default function useFirebasePushNotifications({
             showInAppNotification({
               title: remoteMessage.notification.title,
               body: remoteMessage.notification.body,
-              data: remoteMessage.data,
+              data: {
+                ...remoteMessage.data,
+                foreground: true,
+              },
             })
           }
         })
@@ -101,6 +114,7 @@ export default function useFirebasePushNotifications({
         carPlay: true,
         provisional: true,
         announcement: true,
+        criticalAlert: true,
       })
       const allowed =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -120,7 +134,9 @@ export default function useFirebasePushNotifications({
     return message
   }, [])
 
-  const onNotificationOpenedApp = useCallback(messaging().onNotificationOpenedApp, [])
+  const onNotificationOpenedApp = useCallback(callback => {
+    return messaging().onNotificationOpenedApp(callback)
+  }, [])
 
   return {
     hasPermission,

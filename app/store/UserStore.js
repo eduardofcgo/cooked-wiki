@@ -74,7 +74,6 @@ class UserSettings {
 
 export class UserStore {
   notificationToken = null
-  notificationPermissionStatus = null
 
   contactsPermissionStatus = null
 
@@ -96,7 +95,11 @@ export class UserStore {
     reaction(
       () => this.notificationToken,
       async (newToken, previousToken) => {
-        if (newToken && newToken != previousToken) {
+        if (newToken === null && previousToken) {
+          console.log('Deleting token from server', previousToken)
+
+          await this.apiClient.delete(`/tokens/${previousToken}`)
+        } else if (newToken && newToken != previousToken) {
           console.log('Sending new token to server', newToken)
 
           await this.apiClient.put('/tokens', { token: newToken })
@@ -165,10 +168,6 @@ export class UserStore {
 
   setNotificationToken(notificationToken) {
     this.notificationToken = notificationToken
-  }
-
-  setNotificationPermissionStatus(status) {
-    this.notificationPermissionStatus = status
   }
 
   setContactsPermissionStatus(status) {

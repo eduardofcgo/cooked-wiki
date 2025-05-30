@@ -372,7 +372,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           }}
         >
           <Tab.Screen
-            name='Cooked'
+            name='CookedFeed'
             options={{
               tabBarLabel: ({ focused }) => <TabBarLabel icon={faBook} label='Cooked' focused={focused} />,
             }}

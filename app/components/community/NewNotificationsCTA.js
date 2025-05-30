@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { TouchableOpacity, StyleSheet, Animated, View, Text } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import * as Notifications from 'expo-notifications'
 import AnimatedBell from '../notification/AnimatedBell'
 import { theme } from '../../style/style'
 import { observer } from 'mobx-react-lite'
@@ -13,6 +14,18 @@ const NewNotificationsCTA = ({ onPress, hasNewNotifications }) => {
   const [bounceTrigger, setBounceTrigger] = useState(0)
 
   const { notificationsUnreadCount } = notificationsStore
+
+  useEffect(() => {
+    const setBadgeCount = async () => {
+      try {
+        await Notifications.setBadgeCountAsync(notificationsUnreadCount)
+      } catch (error) {
+        console.warn('Failed to set badge count:', error)
+      }
+    }
+
+    setBadgeCount()
+  }, [notificationsUnreadCount])
 
   useEffect(() => {
     if (hasNewNotifications) {
