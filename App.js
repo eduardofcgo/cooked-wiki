@@ -21,7 +21,6 @@ import {
   EBGaramond_800ExtraBold,
   EBGaramond_800ExtraBold_Italic,
 } from '@expo-google-fonts/eb-garamond'
-import { NavigationContainer } from '@react-navigation/native'
 import { ShareIntentProvider } from 'expo-share-intent'
 import { observer } from 'mobx-react-lite'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -32,9 +31,8 @@ import { CaptureConsole } from '@sentry/integrations'
 import { AuthProvider } from './app/context/AuthContext'
 import { NotificationProvider } from './app/context/NotificationContext'
 import { PushNotificationProvider } from './app/context/PushNotificationContext'
-import linking from './app/navigation/linking'
+import NavigationContainer from './app/navigation/NavigationContainer'
 import Navigator from './app/screens/stacks/Navigator'
-import navigationTheme from './app/style/navigation'
 import paperTheme from './app/style/paper'
 import { theme } from './app/style/style'
 
@@ -98,13 +96,13 @@ function App() {
           <AuthProvider onLoadedCredentials={onLoadedCredentials} baseURL={env.API_BASE_URL}>
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <NavigationContainer linking={linking} theme={navigationTheme}>
-                <NotificationProvider>
-                  <PushNotificationProvider>
+              <NotificationProvider>
+                <PushNotificationProvider>
+                  <NavigationContainer>
                     <Navigator />
-                  </PushNotificationProvider>
-                </NotificationProvider>
-              </NavigationContainer>
+                  </NavigationContainer>
+                </PushNotificationProvider>
+              </NotificationProvider>
             </GestureHandlerRootView>
           </AuthProvider>
         </PaperProvider>

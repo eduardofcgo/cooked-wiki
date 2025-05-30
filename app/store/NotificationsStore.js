@@ -47,19 +47,19 @@ export class NotificationsStore {
   }
 
   getNotifications() {
-    if (this.getNotificationsLoadState() === 'fulfilled') {
-      return this.notifications?.value
-    } else {
-      return undefined
-    }
+    return this.notifications?.value
   }
 
   get hasNewNotifications() {
-    if (this.getNotificationsLoadState() !== 'fulfilled') {
-      return false
+    return this.notificationsUnreadCount > 0
+  }
+
+  get notificationsUnreadCount() {
+    if (this.getNotificationsLoadState() === 'rejected') {
+      return undefined
     }
 
-    return this.getNotifications()?.some(notification => !notification['is-read'])
+    return this.getNotifications()?.filter(notification => !notification['is-read']).length
   }
 
   getNotificationsLoadState() {
@@ -73,7 +73,6 @@ export class NotificationsStore {
         if (this.getNotifications()) {
           for (const notification of this.getNotifications()) {
             if (notification.id === notificationId) {
-              console.log('setting notification as read', notification.id, notificationId)
               notification['is-read'] = true
             }
           }
@@ -104,12 +103,7 @@ export class NotificationsStore {
   }
 
   refreshNotifications() {
-    if (!this.getNotifications()) {
-      this.loadNotifications()
-    } else {
-      // TODO: should refresh only not reload
-      this.loadNotifications()
-    }
+    this.loadNotifications()
   }
 
   loadNotifications() {
@@ -118,7 +112,10 @@ export class NotificationsStore {
         this.apiClient
           .get('/notifications')
           .then(response => response.notifications)
+          .then(notifications => notifications.map(notification => makeAutoObservable(notification)))
           .then(observable.array),
+
+        this.notifications,
       )
     })
   }

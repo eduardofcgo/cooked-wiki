@@ -115,9 +115,18 @@ export default function useFirebasePushNotifications({
     }
   }, [])
 
+  const getInitialNotification = useCallback(async () => {
+    const message = await messaging().getInitialNotification()
+    return message
+  }, [])
+
+  const onNotificationOpenedApp = useCallback(messaging().onNotificationOpenedApp, [])
+
   return {
     hasPermission,
     requestPermission,
     checkPermissionStatus,
+    getInitialNotification,
+    onNotificationOpenedApp,
   }
 }

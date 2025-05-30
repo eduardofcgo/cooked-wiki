@@ -11,6 +11,7 @@ import RefreshControl from '../components/core/RefreshControl'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
 import { useInAppNotification } from '../context/NotificationContext'
+import { usePushNotification } from '../context/PushNotificationContext'
 import ActionToast from '../components/notification/ActionToast'
 import { Swipeable } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
@@ -151,6 +152,7 @@ const NotificationItem = observer(({ notification }) => {
 const Notifications = ({ navigation }) => {
   const { notificationsStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
+  const { testNotificationBanner } = usePushNotification()
   const headerHeight = useSharedValue(0)
 
   const notifications = notificationsStore.getNotifications()
@@ -178,24 +180,36 @@ const Notifications = ({ navigation }) => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () =>
-        notificationsStore.hasNewNotifications && (
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {/* Test notification button for debugging */}
           <TouchableOpacity
             style={{ marginRight: 16 }}
             hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
-            onPress={() => {
-              notificationsStore.markAllNotificationsAsRead()
-              showInAppNotification(ActionToast, {
-                props: { message: 'All notifications read', actionType: 'default' },
-                resetQueue: true,
-              })
-            }}
+            onPress={testNotificationBanner}
           >
-            <Icon name='check-all' size={20} color={theme.colors.softBlack} />
+            <Icon name='bell-ring' size={20} color={theme.colors.primary} />
           </TouchableOpacity>
-        ),
+
+          {notificationsStore.hasNewNotifications && (
+            <TouchableOpacity
+              style={{ marginRight: 16 }}
+              hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
+              onPress={() => {
+                notificationsStore.markAllNotificationsAsRead()
+                showInAppNotification(ActionToast, {
+                  props: { message: 'All notifications read', actionType: 'default' },
+                  resetQueue: true,
+                })
+              }}
+            >
+              <Icon name='check-all' size={20} color={theme.colors.softBlack} />
+            </TouchableOpacity>
+          )}
+        </View>
+      ),
     })
-  }, [navigation, notificationsStore.hasNewNotifications, showInAppNotification])
+  }, [navigation, notificationsStore.hasNewNotifications, showInAppNotification, testNotificationBanner])
 
   const handleRefresh = useCallback(async () => {
     notificationsStore.refreshNotifications()

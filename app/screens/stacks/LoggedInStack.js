@@ -13,6 +13,7 @@ import { PublicProfile } from '../../screens/Profile'
 import ProfileLimits from '../../screens/ProfileLimits'
 import RecipePicker from '../../screens/RecipePicker'
 import RecordCook from '../../screens/RecordCook'
+import Cooked from '../../screens/Cooked'
 import FreestyleCook from '../../screens/FreestyleCook'
 import EditCook from '../../screens/EditCook'
 import Settings from '../../screens/Settings'
@@ -105,6 +106,15 @@ export default function LoggedInStack({ StackNavigator }) {
           title: 'Recipe',
           animation: 'slide_from_right',
         })}
+      />
+
+      <StackNavigator.Screen
+        name='Cooked'
+        component={Cooked}
+        options={{
+          title: 'Cooked',
+          ...screenStyle,
+        }}
       />
 
       <StackNavigator.Screen
