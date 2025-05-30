@@ -54,27 +54,11 @@ export const PushNotificationProvider = observer(function ({ children }) {
     [notificationsStore],
   )
 
-  // Test function to trigger a local notification banner
-  const testNotificationBanner = useCallback(async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Test Notification',
-        body: 'This should appear as a banner at the top',
-        data: { test: true },
-      },
-      trigger: null,
-    })
-  }, [])
-
   const value = useFirebasePushNotifications({
     setNotificationToken,
     showInAppNotification,
     userEnabledNotifications: enabledNotifications,
   })
 
-  return (
-    <PushNotificationContext.Provider value={{ ...value, testNotificationBanner }}>
-      {children}
-    </PushNotificationContext.Provider>
-  )
+  return <PushNotificationContext.Provider value={value}>{children}</PushNotificationContext.Provider>
 })
