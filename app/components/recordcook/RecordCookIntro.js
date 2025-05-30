@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   titleContainer: {
+    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'center',
   },

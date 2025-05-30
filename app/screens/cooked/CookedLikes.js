@@ -3,9 +3,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import LoadingScreen from '../screens/Loading'
-import { theme } from '../style/style'
-import useCookedLikes from '../hooks/api/useCookedLikes'
+import LoadingScreen from '../Loading'
+import { theme } from '../../style/style'
+import useCookedLikes from '../../hooks/api/useCookedLikes'
 import FastImage from 'react-native-fast-image'
 
 const Image = FastImage

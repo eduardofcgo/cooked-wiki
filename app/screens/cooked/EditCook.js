@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Alert, StyleSheet, View, Text, Animated } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import Bounce from '../components/core/Bounce'
+import Bounce from '../../components/core/Bounce'
 
-import RecordCook from '../components/recordcook/RecordCook'
-import ModalCard from '../components/core/ModalCard'
-import { PrimaryButton, TransparentButton } from '../components/core/Button'
-import { theme } from '../style/style'
-import { useInAppNotification } from '../context/NotificationContext'
-import { useStore } from '../context/StoreContext'
-import { useAuth } from '../context/AuthContext'
+import RecordCook from '../../components/recordcook/RecordCook'
+import ModalCard from '../../components/core/ModalCard'
+import { PrimaryButton, TransparentButton } from '../../components/core/Button'
+import { theme } from '../../style/style'
+import { useInAppNotification } from '../../context/NotificationContext'
+import { useStore } from '../../context/StoreContext'
+import { useAuth } from '../../context/AuthContext'
 
 import { observer } from 'mobx-react-lite'
 

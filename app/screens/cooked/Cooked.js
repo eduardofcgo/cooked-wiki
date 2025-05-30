@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite'
 import React, { useEffect } from 'react'
-import { useStore } from '../context/StoreContext'
-import LoadingScreen from './Loading'
+import { useStore } from '../../context/StoreContext'
+import LoadingScreen from '../Loading'
 import FreestyleCook from './FreestyleCook'
-import CookedRecipe from './CookedRecipe'
+import CookedRecipe from '../CookedRecipe'
 
 const Cooked = observer(({ navigation, route }) => {
   const { cookedId } = route.params
