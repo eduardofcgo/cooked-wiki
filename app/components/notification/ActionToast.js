@@ -62,7 +62,7 @@ export default ActionToast = ({
         </Animated.View>
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.message} numberOfLines={2}>
+        <Text allowFontScaling={false} style={styles.message} numberOfLines={2}>
           {message}
         </Text>
       </View>

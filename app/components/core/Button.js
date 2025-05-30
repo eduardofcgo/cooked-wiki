@@ -9,7 +9,9 @@ export function PrimaryButton({ onPress, title, style, icon }) {
       style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}
     >
       {icon}
-      <Text style={[styles.buttonText, styles.primaryButtonText]}>{title}</Text>
+      <Text style={[styles.buttonText, styles.primaryButtonText]} numberOfLines={1}>
+        {title}
+      </Text>
     </Button>
   )
 }
@@ -18,7 +20,9 @@ export function SecondaryButton({ onPress, title, style, icon, ...props }) {
   return (
     <Button onPress={onPress} style={[styles.button, styles.secondaryButton, style]} {...props}>
       {icon}
-      <Text style={[styles.buttonText, styles.secondaryButtonText]}>{title}</Text>
+      <Text style={[styles.buttonText, styles.secondaryButtonText]} numberOfLines={1}>
+        {title}
+      </Text>
     </Button>
   )
 }
@@ -41,7 +45,13 @@ export function Button({ onPress, title, style, loading, children }) {
       onPress={onPress}
       disabled={loading}
     >
-      {children ? children : title ? <Text style={[styles.buttonText]}>{title}</Text> : null}
+      {children ? (
+        children
+      ) : title ? (
+        <Text style={[styles.buttonText]} numberOfLines={1}>
+          {title}
+        </Text>
+      ) : null}
     </TouchableOpacity>
   )
 }

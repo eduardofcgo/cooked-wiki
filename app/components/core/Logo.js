@@ -6,8 +6,12 @@ import { theme } from '../../style/style'
 const Logo = () => {
   return (
     <View style={styles.logoContainer}>
-      <Text style={[styles.logo, styles.firstWordColor]}>Cook</Text>
-      <Text style={[styles.logo, styles.lastWord]}>ed</Text>
+      <Text allowFontScaling={false} style={[styles.logo, styles.firstWordColor]}>
+        Cook
+      </Text>
+      <Text allowFontScaling={false} style={[styles.logo, styles.lastWord]}>
+        ed
+      </Text>
     </View>
   )
 }

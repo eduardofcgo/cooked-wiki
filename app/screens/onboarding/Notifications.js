@@ -106,8 +106,10 @@ const Notifications = ({ navigation }) => {
           </Animated.View>
           <View style={styles.imageOverlayContainer}>
             <View style={styles.imageOverlayText}>
-              <Text style={styles.imageOverlayName}>{journalData[currentPhotoIndex]?.username}</Text>
-              <Text style={styles.imageOverlayTime}>
+              <Text allowFontScaling={false} style={styles.imageOverlayName}>
+                {journalData[currentPhotoIndex]?.username}
+              </Text>
+              <Text allowFontScaling={false} style={styles.imageOverlayTime}>
                 {moment(journalData[currentPhotoIndex]?.['cooked-date']).fromNow()}
               </Text>
             </View>
@@ -315,6 +317,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     paddingTop: 32,
     paddingHorizontal: 32,
+    backgroundColor: theme.colors.background,
   },
   footer: {
     paddingBottom: 16,

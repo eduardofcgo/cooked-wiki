@@ -40,15 +40,21 @@ function ProfileStats({ username }) {
             <FontAwesomeIcon icon={faTrophy} size={16} color={trophyColor} />
             <Text style={styles.number}>{stats['cooked-count']}</Text>
           </View>
-          <Text style={styles.label}>Cooked</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.label}>
+            Cooked
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.statItem} onPress={() => navigation.navigate('Followers', { username })}>
           <Text style={styles.number}>{stats['followers-count']}</Text>
-          <Text style={styles.label}>Followers</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.label}>
+            Followers
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.statItem} onPress={() => navigation.navigate('Following', { username })}>
           <Text style={styles.number}>{stats['following-count']}</Text>
-          <Text style={styles.label}>Following</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.label}>
+            Following
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -67,6 +73,7 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'center',
+    flex: 1,
   },
   number: {
     fontSize: theme.fontSizes.large,
@@ -76,6 +83,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.medium,
     fontFamily: theme.fonts.ui,
     color: '#666',
+    textAlign: 'center',
   },
   numberContainer: {
     flexDirection: 'row',

@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: theme.borderRadius.default,
     marginBottom: 10,
-    height: 70,
+    minHeight: 70,
   },
   recipeItemContent: {
     flexDirection: 'row',
@@ -217,12 +217,14 @@ const styles = StyleSheet.create({
   recipeInfo: {
     flex: 1,
     justifyContent: 'center',
+    paddingVertical: 4,
   },
   recipeName: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
     color: theme.colors.black,
     marginBottom: 4,
+    flexWrap: 'wrap',
   },
   recipeDate: {
     fontFamily: theme.fonts.ui,
@@ -255,7 +257,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: theme.borderRadius.default,
     marginBottom: 16,
-    height: 70,
+    minHeight: 70,
   },
   freestyleContent: {
     flexDirection: 'row',

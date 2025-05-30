@@ -62,8 +62,12 @@ const AuthorBar = observer(
         <TouchableOpacity style={styles.profile} onPress={onUserPress} activeOpacity={0.7}>
           <Image source={{ uri: profileImage }} style={styles.profilePicture} />
           <View style={styles.profileInfo}>
-            <Text style={styles.username}>{username}</Text>
-            <Text style={styles.date}>{formattedDate}</Text>
+            <Text maxFontSizeMultiplier={1.5} numberOfLines={1} style={styles.username}>
+              {username}
+            </Text>
+            <Text maxFontSizeMultiplier={1.5} style={styles.date}>
+              {formattedDate}
+            </Text>
           </View>
         </TouchableOpacity>
 

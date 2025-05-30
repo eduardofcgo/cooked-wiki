@@ -69,7 +69,15 @@ const RecipeWebView = forwardRef(
           <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
             <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
           </TouchableOpacity>
-          <Text style={{ color: theme.colors.softBlack, fontSize: 12, marginTop: 8 }}>
+          <Text
+            style={{
+              color: theme.colors.softBlack,
+              fontSize: 12,
+              marginTop: 8,
+              textAlign: 'center',
+              paddingHorizontal: 16,
+            }}
+          >
             Add your own notes and save to your journal.
           </Text>
         </View>

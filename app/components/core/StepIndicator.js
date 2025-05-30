@@ -12,6 +12,7 @@ export const StepIndicator = ({ number, text, isActive, isFilled }) => (
       ]}
     >
       <Text
+        allowFontScaling={false}
         style={[
           styles.stepNumberText,
           !isActive && !isFilled && styles.stepNumberTextInactive,

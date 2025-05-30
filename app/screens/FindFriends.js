@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     color: theme.colors.gray,
   },
   toggleFollowButton: {
-    width: 90,
+    width: 105,
   },
   followingButton: {
     backgroundColor: theme.colors.secondary,

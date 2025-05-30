@@ -45,7 +45,7 @@ function Followers({ route, navigation }) {
   const filteredFollowers = useMemo(() => {
     if (!searchQuery) return followers || []
 
-    return followers?.filter(username => username.toLowerCase().includes(searchQuery.toLowerCase())) || []
+    return followers?.filter(({ username }) => username?.toLowerCase().includes(searchQuery?.toLowerCase())) || []
   }, [followers, searchQuery])
 
   if (isLoading) {

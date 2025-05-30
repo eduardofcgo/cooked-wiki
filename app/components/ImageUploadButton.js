@@ -11,7 +11,9 @@ const ImageUploadButton = ({ onPress, isUploading }) => (
       ) : (
         <>
           <MaterialCommunityIcons name='camera' size={24} color={theme.colors.softBlack} />
-          <Text style={styles.text}>Add photo</Text>
+          <Text maxFontSizeMultiplier={1.5} style={styles.text}>
+            Add photo
+          </Text>
         </>
       )}
     </View>

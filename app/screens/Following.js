@@ -71,7 +71,7 @@ function Following({ route, navigation }) {
   const filteredFollowing = useMemo(() => {
     if (!searchQuery) return followingUsers
 
-    return followingUsers?.filter(({ username }) => username.toLowerCase().includes(searchQuery.toLowerCase()))
+    return followingUsers?.filter(({ username }) => username?.toLowerCase().includes(searchQuery?.toLowerCase()))
   }, [followingUsers, searchQuery])
 
   if (isLoading) {

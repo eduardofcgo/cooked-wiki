@@ -23,7 +23,7 @@ const RecipeThumbnail = observer(({ thumbnailUrl, title, type }) => {
           </View>
         )}
       </View>
-      <Text style={[styles.title]} numberOfLines={2}>
+      <Text allowFontScaling={false} style={[styles.title]} numberOfLines={2}>
         {title}
       </Text>
     </View>

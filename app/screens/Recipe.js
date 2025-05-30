@@ -209,6 +209,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
             }}
           />
           <Text
+            allowFontScaling={false}
             style={{
               marginBottom: 16,
               fontSize: theme.fontSizes.large,

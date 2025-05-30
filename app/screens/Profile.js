@@ -63,6 +63,7 @@ const TabBarLabel = ({ icon, label, focused }) => (
   <View style={tabBarLabelStyle}>
     <FontAwesomeIcon icon={icon} color={focused ? theme.colors.black : theme.colors.softBlack} />
     <Text
+      allowFontScaling={false}
       style={{
         ...tabLabelTextStyle,
         color: focused ? theme.colors.black : theme.colors.softBlack,
@@ -260,7 +261,9 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
           <Icon name='account' size={64} color={theme.colors.softBlack} style={styles.avatarPlaceholder} />
         )}
         <View style={styles.profileText}>
-          <Text style={styles.username}>{username}</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.username}>
+            {username}
+          </Text>
           <Text style={styles.bio}>{bio}</Text>
         </View>
       </View>
@@ -447,9 +450,9 @@ const FollowButton = observer(({ username }) => {
     >
       {isLoading && <ActivityIndicator size='small' color={theme.colors.primary} style={{ marginRight: 5 }} />}
       {isFollowing ? (
-        <SecondaryButton title='Following' onPress={handleUnfollowPress} loading={isLoading} style={{ width: 100 }} />
+        <SecondaryButton title='Following' onPress={handleUnfollowPress} loading={isLoading} style={{ width: 105 }} />
       ) : (
-        <Button title='Follow' onPress={handleFollowPress} loading={isLoading} style={{ width: 100 }} />
+        <Button title='Follow' onPress={handleFollowPress} loading={isLoading} style={{ width: 105 }} />
       )}
     </View>
   )

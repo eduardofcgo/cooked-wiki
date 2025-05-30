@@ -2,7 +2,11 @@ import React from 'react'
 import { StyleSheet, Text } from 'react-native'
 import { theme } from '../../style/style'
 
-const HeaderText = ({ children }) => <Text style={styles.headerText}>{children}</Text>
+const HeaderText = ({ children }) => (
+  <Text maxFontSizeMultiplier={2} style={styles.headerText}>
+    {children}
+  </Text>
+)
 
 const styles = StyleSheet.create({
   headerText: {

@@ -69,6 +69,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
               >
                 {options.tabBarIcon && options.tabBarIcon({ focused: isFocused })}
                 <Text
+                  allowFontScaling={false}
                   style={{
                     color: isFocused ? 'black' : theme.colors.softBlack,
                     fontSize: theme.fontSizes.small,
@@ -309,6 +310,7 @@ function MainMenu({ route }) {
                 }}
               >
                 <Text
+                  allowFontScaling={false}
                   style={{
                     color: theme.colors.white,
                     fontFamily: theme.fonts.ui,
@@ -369,6 +371,7 @@ function MainMenu({ route }) {
                 }}
               >
                 <Text
+                  allowFontScaling={false}
                   style={{
                     color: theme.colors.white,
                     fontFamily: theme.fonts.ui,

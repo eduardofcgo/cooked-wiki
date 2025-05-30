@@ -35,7 +35,7 @@ const BottomSheetHandle = observer(
       const animatePoint = absoluteSnapPoints[0] + 300
       const rotation = interpolate(
         animatedPosition.value,
-        [animatePoint, animatePoint + 100],
+        [animatePoint, animatePoint + 50],
         [180, 0],
         Extrapolate.CLAMP,
       )
@@ -47,7 +47,7 @@ const BottomSheetHandle = observer(
 
     const textOpacityStyle = useAnimatedStyle(() => {
       const animatePoint = absoluteSnapPoints[0] + 300
-      const opacity = interpolate(animatedPosition.value, [animatePoint, animatePoint + 100], [1, 0], Extrapolate.CLAMP)
+      const opacity = interpolate(animatedPosition.value, [animatePoint, animatePoint + 50], [1, 0], Extrapolate.CLAMP)
 
       return {
         opacity,
@@ -75,7 +75,9 @@ const BottomSheetHandle = observer(
             <Animated.View style={iconRotationStyle}>
               <MaterialIcons name='keyboard-arrow-up' size={25} color={theme.colors.primary} />
             </Animated.View>
-            <Animated.Text style={[styles.showRecipeText, textOpacityStyle]}>Show Recipe</Animated.Text>
+            <Animated.Text maxFontSizeMultiplier={1.5} style={[styles.showRecipeText, textOpacityStyle]}>
+              Show Recipe
+            </Animated.Text>
           </TouchableOpacity>
         </AuthorBar>
       </View>

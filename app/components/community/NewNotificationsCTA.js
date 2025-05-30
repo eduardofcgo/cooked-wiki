@@ -101,7 +101,9 @@ const NewNotificationsCTA = ({ onPress, hasNewNotifications }) => {
       </Bounce>
       {notificationsUnreadCount > 0 && (
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{notificationsUnreadCount > 99 ? '99+' : notificationsUnreadCount}</Text>
+          <Text allowFontScaling={false} style={styles.badgeText}>
+            {notificationsUnreadCount > 99 ? '99+' : notificationsUnreadCount}
+          </Text>
         </View>
       )}
     </TouchableOpacity>

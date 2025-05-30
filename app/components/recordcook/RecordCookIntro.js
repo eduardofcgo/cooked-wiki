@@ -6,8 +6,12 @@ export default function Header() {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.titleContainer}>
-        <Text style={[styles.title, styles.titleHighlight]}>Cook</Text>
-        <Text style={styles.title}>ed something new?</Text>
+        <Text allowFontScaling={false} style={[styles.title, styles.titleHighlight]}>
+          Cook
+        </Text>
+        <Text allowFontScaling={false} style={styles.title}>
+          ed something new?
+        </Text>
       </View>
     </View>
   )

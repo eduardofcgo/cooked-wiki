@@ -168,10 +168,12 @@ const ShareIntentDemo = ({
           )}
 
           {demoCompleted && (
-            <TouchableOpacity style={styles.restartButton} onPress={restartDemo}>
-              <MaterialIcons name='refresh' size={20} color={theme.colors.softBlack} style={styles.restartIcon} />
-              <Animated.Text style={styles.restartButtonText}>Play again</Animated.Text>
-            </TouchableOpacity>
+            <Animated.View entering={FadeIn.duration(300)}>
+              <TouchableOpacity style={styles.restartButton} onPress={restartDemo}>
+                <MaterialIcons name='refresh' size={20} color={theme.colors.softBlack} style={styles.restartIcon} />
+                <Animated.Text style={styles.restartButtonText}>Play again</Animated.Text>
+              </TouchableOpacity>
+            </Animated.View>
           )}
 
           <Animated.View
@@ -256,7 +258,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.default,
     borderWidth: 2,
     borderColor: theme.colors.primary,
-    maxWidth: '90%',
     elevation: 3,
     position: 'absolute',
     overflow: 'hidden',
