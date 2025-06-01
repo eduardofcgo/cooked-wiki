@@ -384,6 +384,11 @@ const CookedWebView = forwardRef(
           webViewRef.current.injectJavaScript(setExternalScrollJS)
         }
       },
+      injectJavaScript: script => {
+        if (webViewRef.current) {
+          webViewRef.current.injectJavaScript(script)
+        }
+      },
     }))
 
     return !credentials ? (

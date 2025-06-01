@@ -61,6 +61,10 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
     navigation.navigate('EditCook', { cookedId })
   }, [cookedId])
 
+  const onSharePress = useCallback(() => {
+    navigation.navigate('ShareCooked', { cookedId })
+  }, [cookedId])
+
   return (
     <View
       style={[
@@ -102,7 +106,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
           >
             <SocialMenu
               cookedId={cookedId}
-              onSharePress={undefined}
+              onSharePress={onSharePress}
               onEditPress={canEdit ? navigateToEditCook : undefined}
             />
           </AuthorBar>

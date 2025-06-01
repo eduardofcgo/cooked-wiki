@@ -1,10 +1,10 @@
 {
-  "ios.deploymentTarget": "15.1",
   "expo.jsEngine": "hermes",
   "EX_DEV_CLIENT_NETWORK_INSPECTOR": "true",
   "newArchEnabled": "false",
-  "ios.useFrameworks": "static",
   "apple.extraPods": "[]",
   "apple.ccacheEnabled": "false",
-  "apple.privacyManifestAggregationEnabled": "true"
+  "apple.privacyManifestAggregationEnabled": "true",
+  "ios.deploymentTarget": "15.1",
+  "ios.useFrameworks": "static"
 }

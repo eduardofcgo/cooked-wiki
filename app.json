@@ -75,7 +75,16 @@
           "project": "2",
           "url": "https://glitch.cooked.wiki"
         }
-      ]
+      ],
+      [
+        "react-native-share",
+        {
+          "ios": ["instagram"],
+          "android": ["com.instagram.android"],
+          "enableBase64ShareAndroid": true
+        }
+      ],
+      "./plugins/android-queries"
     ],
     "ios": {
       "supportsTablet": true,

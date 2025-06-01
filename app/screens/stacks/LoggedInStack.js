@@ -20,6 +20,7 @@ import Settings from '../../screens/Settings'
 import Recipe from '../Recipe'
 import EditDraftNotes from '../recipe/EditDraftNotes'
 import RecipePrint from '../recipe/RecipePrint'
+import ShareCooked from '../../screens/cooked/share/ShareCooked'
 
 import { screenStyle } from '../../style/style'
 
@@ -132,6 +133,17 @@ export default function LoggedInStack({ StackNavigator }) {
         options={{
           title: 'Cooked',
           ...screenStyle,
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='ShareCooked'
+        component={ShareCooked}
+        options={{
+          title: 'Share Cooked',
+          ...screenStyle,
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
         }}
       />
 

@@ -105,7 +105,7 @@ const ProfileCooked = observer(({ username, onScroll }) => {
         onEndReachedThreshold={1}
         extraData={profileCookeds?.length}
         renderItem={renderItem}
-        keyExtractor={post => post.id.toString()}
+        keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.feedContent}
         onEndReached={handleLoadMore}
         ListHeaderComponent={<FeedHeader username={username} />}

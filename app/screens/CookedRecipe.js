@@ -242,6 +242,10 @@ const CookedRecipe = observer(({ navigation, route }) => {
   const handleShare = useCallback(() => {
     console.log('Sharing cooked item:', cooked)
     setShouldShowShareCook(false)
+
+    setTimeout(() => {
+      navigation.navigate('ShareCooked', { cookedId })
+    }, 1)
   }, [cooked])
 
   const handleLoadMore = useCallback(() => {
