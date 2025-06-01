@@ -27,7 +27,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import * as Sentry from '@sentry/react-native'
-import { CaptureConsole } from '@sentry/integrations'
+import { captureConsoleIntegration } from '@sentry/core'
 import { AuthProvider } from './app/context/AuthContext'
 import { NotificationProvider } from './app/context/NotificationContext'
 import { PushNotificationProvider } from './app/context/PushNotificationContext'
@@ -43,7 +43,7 @@ if (env.SENTRY_DSN) {
     dsn: env.SENTRY_DSN,
     debug: false,
     integrations: [
-      new CaptureConsole({
+      captureConsoleIntegration({
         levels: ['error'],
       }),
     ],

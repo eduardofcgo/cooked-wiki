@@ -27,6 +27,7 @@ import Animated, {
   useAnimatedReaction,
   runOnJS,
 } from 'react-native-reanimated'
+import { Linking } from 'react-native'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -205,7 +206,7 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
         <Menu.Item
           onPress={() => {
             setMenuVisible(false)
-            navigation.navigate('Help')
+            Linking.openURL('https://cooked.wiki/contact')
           }}
           title='Help'
         />

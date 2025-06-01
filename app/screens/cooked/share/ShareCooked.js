@@ -94,11 +94,11 @@ const ShareCooked = observer(() => {
 
       await Share.shareSingle(shareOptions)
     } catch (error) {
-      console.error('Error sharing to Instagram Stories:', error)
       if (error.message === 'User did not share' || error.message.includes('User cancelled')) {
         // User cancelled, don't show error
         return
       }
+      console.error('Error sharing to Instagram Stories:', error)
       Alert.alert('Error', 'Failed to share to Instagram Stories. Please make sure Instagram is installed.')
     } finally {
       setIsCapturing(false)
@@ -127,11 +127,11 @@ const ShareCooked = observer(() => {
 
       await Share.shareSingle(shareOptions)
     } catch (error) {
-      console.error('Error sharing to Instagram:', error)
       if (error.message === 'User did not share' || error.message.includes('User cancelled')) {
         // User cancelled, don't show error
         return
       }
+      console.error('Error sharing to Instagram:', error)
       Alert.alert('Error', 'Failed to share to Instagram. Please make sure Instagram is installed.')
     } finally {
       setIsCapturing(false)
@@ -161,11 +161,11 @@ const ShareCooked = observer(() => {
 
       await Share.open(shareOptions)
     } catch (error) {
-      console.error('Error sharing:', error)
       if (error.message === 'User did not share' || error.message.includes('User cancelled')) {
         // User cancelled, don't show error
         return
       }
+      console.error('Error sharing:', error)
       Alert.alert('Error', 'Failed to share. Please try again.')
     } finally {
       setIsCapturing(false)
