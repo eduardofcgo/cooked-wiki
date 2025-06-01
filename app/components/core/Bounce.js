@@ -3,13 +3,14 @@ import { Animated } from 'react-native'
 
 const Bounce = ({
   children,
-  trigger,
+  trigger = true,
   delay = 1000,
   initialScale = 1,
   bounceScale = 1.5,
   duration = 200,
   friction = 2,
   tension = 45,
+  loop = false,
 }) => {
   const bounceAnim = useRef(new Animated.Value(initialScale)).current
 
@@ -18,7 +19,7 @@ const Bounce = ({
       bounceAnim.setValue(initialScale)
 
       setTimeout(() => {
-        Animated.sequence([
+        const bounceSequence = Animated.sequence([
           Animated.timing(bounceAnim, {
             toValue: bounceScale,
             duration: duration,
@@ -30,10 +31,16 @@ const Bounce = ({
             tension: tension,
             useNativeDriver: true,
           }),
-        ]).start()
+        ])
+
+        if (loop) {
+          Animated.loop(bounceSequence).start()
+        } else {
+          bounceSequence.start()
+        }
       }, delay)
     }
-  }, [trigger])
+  }, [trigger, loop])
 
   return (
     <Animated.View

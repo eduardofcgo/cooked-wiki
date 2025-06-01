@@ -21,7 +21,7 @@ import ActionToast from '../notification/ActionToast'
 import NotesModal from './NotesModal'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { observer } from 'mobx-react-lite'
-import WarningModal from './WarningModal'
+import FreestylePhotosErrorModal from './FreestylePhotosErrorModal'
 
 const Image = FastImage
 
@@ -124,7 +124,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false)
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false)
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
-  const [isWarningModalVisible, setIsWarningModalVisible] = useState(false)
+  const [isFreestylePhotosErrorModalVisible, setFreestylePhotosErrorModalVisible] = useState(false)
   const [isSavingCooked, setIsSavingCooked] = useState(false)
 
   // Tries to find a existing draft for the recipe , if not found we can save the notes there
@@ -139,7 +139,7 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   const saveChanges = useCallback(() => {
     // For freestyle cooks (no recipe selected), photos are required
     if (!selectedRecipe && photos.length === 0) {
-      setIsWarningModalVisible(true)
+      setFreestylePhotosErrorModalVisible(true)
       return
     }
 
@@ -343,10 +343,11 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       console.log('[handleSaveCooked] Saving cooked...', selectedRecipe)
       const newCookedId = await profileStore.recordCooked(loggedInUsername, selectedRecipe?.id, notes, photos)
 
-      showInAppNotification(ActionToast, {
-        props: { message: 'Cook added to your journal' },
-        resetQueue: true,
-      })
+      // For now let's not use the toast,
+      // showInAppNotification(ActionToast, {
+      //   props: { message: 'Cook added to your journal' },
+      //   resetQueue: true,
+      // })
 
       // Remove all Recipe screens from stack
       const state = navigation.getState()
@@ -362,12 +363,12 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
       setTimeout(() => {
         if (selectedRecipe) {
           navigation.replace('CookedRecipe', {
-            showShareModal: true,
+            showShareCTA: true,
             cookedId: newCookedId,
           })
         } else {
           navigation.replace('FreestyleCook', {
-            showShareModal: true,
+            showShareCTA: true,
             cookedId: newCookedId,
           })
         }
@@ -535,7 +536,10 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
         }}
       />
 
-      <WarningModal visible={isWarningModalVisible} onClose={() => setIsWarningModalVisible(false)} />
+      <FreestylePhotosErrorModal
+        visible={isFreestylePhotosErrorModalVisible}
+        onClose={() => setFreestylePhotosErrorModalVisible(false)}
+      />
 
       <NotesModal
         visible={isNotesModalVisible}

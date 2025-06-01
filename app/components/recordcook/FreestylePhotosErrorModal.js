@@ -6,7 +6,7 @@ import ModalCard from '../core/ModalCard'
 import { theme } from '../../style/style'
 import Bounce from '../core/Bounce'
 
-export default function WarningModal({ visible, onClose }) {
+export default function FreestylePhotosErrorModal({ visible, onClose }) {
   return (
     <ModalCard
       visible={visible}

@@ -10,6 +10,7 @@ import AuthorBar from '../../components/cooked/AuthorBar'
 import SocialMenu from '../../components/cooked/SocialMenu'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '../../context/AuthContext'
+import ShareNewCookCTA from '../../components/recordcook/ShareCookCTA'
 
 const Image = FastImage
 
@@ -41,7 +42,7 @@ const PhotoGallery = observer(({ photoUrls }) => {
 })
 
 const FreestyleCook = ({ navigation, route }) => {
-  const { cookedId, showShareModal } = route.params
+  const { cookedId, showShareCTA } = route.params
   const { cookedStore } = useStore()
 
   const { credentials } = useAuth()
@@ -54,24 +55,21 @@ const FreestyleCook = ({ navigation, route }) => {
   const cooked = cookedStore.getCooked(cookedId)
   const cookedLoadState = cookedStore.getCookedLoadState(cookedId)
 
-  const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
+  const [shouldShowShareCook, setShouldShowShareCook] = useState(showShareCTA)
 
   const photoUrls = cooked?.['cooked-photos-urls']
 
-  useEffect(() => {
-    if (showShareModal) {
-      setShouldShowShareCook(true)
-    }
-  }, [showShareModal])
-
   const handleShare = useCallback(() => {
-    console.log('Sharing cooked item:', cooked)
     setShouldShowShareCook(false)
 
     setTimeout(() => {
       navigation.navigate('ShareCooked', { cookedId })
     }, 1)
   }, [cooked])
+
+  const handleDismissShareCTA = useCallback(() => {
+    setShouldShowShareCook(false)
+  }, [])
 
   const handleEdit = useCallback(() => {
     navigation.navigate('EditCook', { cookedId })
@@ -105,6 +103,9 @@ const FreestyleCook = ({ navigation, route }) => {
             onSharePress={handleShare}
             onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
           />
+
+          {shouldShowShareCook && <ShareNewCookCTA onSharePress={handleShare} onDismissPress={handleDismissShareCTA} />}
+
           <PhotoGallery photoUrls={photoUrls} />
         </View>
       </ScrollView>

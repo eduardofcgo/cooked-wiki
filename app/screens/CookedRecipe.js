@@ -9,6 +9,7 @@ import FullNotes from '../components/cooked/FullNotes'
 import AuthorBar from '../components/cooked/AuthorBar'
 import FeedItem from '../components/cooked/FeedItem'
 import SocialMenu from '../components/cooked/SocialMenu'
+import ShareNewCookCTA from '../components/recordcook/ShareCookCTA'
 import { MaterialIcons } from '@expo/vector-icons'
 import Animated, {
   Extrapolate,
@@ -112,19 +113,22 @@ const PhotoGallery = observer(({ photoUrls }) => {
   )
 })
 
-const ListHeader = observer(({ cookedId, cooked, photoUrls, handleShare, onEditPress }) => (
-  <View style={styles.cardBodyStyle}>
-    <FullNotes notes={cooked?.['notes']} />
-    <SocialMenuCooked cookedId={cookedId} onSharePress={handleShare} onEditPress={onEditPress} />
-    <PhotoGallery photoUrls={photoUrls} />
-    <View style={styles.headerContainer}>
-      <HeaderText>Similar Cooked</HeaderText>
+const ListHeader = observer(
+  ({ cookedId, cooked, photoUrls, onShare, shouldShowShareCook, onDismissShareCTA, onEditPress }) => (
+    <View style={styles.cardBodyStyle}>
+      <FullNotes notes={cooked?.['notes']} />
+      <SocialMenuCooked cookedId={cookedId} onSharePress={onShare} onEditPress={onEditPress} />
+      {shouldShowShareCook && <ShareNewCookCTA onSharePress={onShare} onDismissPress={onDismissShareCTA} />}
+      <PhotoGallery photoUrls={photoUrls} />
+      <View style={styles.headerContainer}>
+        <HeaderText>Similar Cooked</HeaderText>
+      </View>
     </View>
-  </View>
-))
+  ),
+)
 
 const CookedRecipe = observer(({ navigation, route }) => {
-  const { cookedId, showShareModal } = route.params
+  const { cookedId, showShareCTA } = route.params
   const { cookedStore } = useStore()
 
   const { credentials } = useAuth()
@@ -141,7 +145,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
   const cooked = cookedStore.getCooked(cookedId)
   const cookedLoadState = cookedStore.getCookedLoadState(cookedId)
 
-  const [shouldShowShareCook, setShouldShowShareCook] = useState(false)
+  const [shouldShowShareCook, setShouldShowShareCook] = useState(showShareCTA)
   const [sheetIndex, setSheetIndex] = useState(1)
   const [shouldLoadRecipe, setShouldLoadRecipe] = useState(false)
 
@@ -194,12 +198,6 @@ const CookedRecipe = observer(({ navigation, route }) => {
     return () => clearTimeout(timer)
   }, [])
 
-  useEffect(() => {
-    if (showShareModal) {
-      setShouldShowShareCook(true)
-    }
-  }, [showShareModal])
-
   const toggleCollapse = useCallback(() => {
     if (isCardCollapsed) {
       bottomSheetRef.current?.snapToIndex(1)
@@ -239,14 +237,16 @@ const CookedRecipe = observer(({ navigation, route }) => {
     }
   }, [])
 
-  const handleShare = useCallback(() => {
-    console.log('Sharing cooked item:', cooked)
+  const handleShareNavigate = useCallback(() => {
     setShouldShowShareCook(false)
-
     setTimeout(() => {
       navigation.navigate('ShareCooked', { cookedId })
     }, 1)
-  }, [cooked])
+  }, [cookedId, navigation])
+
+  const handleDismissShareCookCTA = useCallback(() => {
+    setShouldShowShareCook(false)
+  }, [])
 
   const handleLoadMore = useCallback(() => {
     if (!loadingNextPage && hasMoreSimilarCooks) {
@@ -286,11 +286,13 @@ const CookedRecipe = observer(({ navigation, route }) => {
         cookedId={cookedId}
         cooked={cooked}
         photoUrls={photoUrls}
-        handleShare={handleShare}
+        onShare={handleShareNavigate}
+        shouldShowShareCook={shouldShowShareCook}
+        onDismissShareCTA={handleDismissShareCookCTA}
         onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
       />
     ),
-    [cookedId, cooked, photoUrls, handleShare, loggedInUsername, handleEdit],
+    [cookedId, cooked, photoUrls, handleShareNavigate, loggedInUsername, handleEdit, shouldShowShareCook],
   )
 
   const renderHandle = () => (

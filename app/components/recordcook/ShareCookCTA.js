@@ -5,47 +5,35 @@ import { PrimaryButton, TransparentButton } from '../core/Button'
 import Bounce from '../core/Bounce'
 import { theme } from '../../style/style'
 
-const ShareCook = ({ onShare, onClose }) => {
+const ShareNewCookCTA = ({ onSharePress, onDismissPress }) => {
   return (
-    <View style={styles.container}>
+    <View style={styles.content}>
       <View style={styles.titleContainer}>
-        <Bounce trigger={true}>
+        <Bounce delay={2000} loop={true}>
           <Text style={styles.emoji}>🎉</Text>
         </Bounce>
         <Text style={styles.title}>Saved successfully!</Text>
       </View>
-
-      <View style={styles.content}>
-        <Text style={styles.message}>Let your friends know about this cook.</Text>
-        <View style={styles.buttonGroup}>
-          <PrimaryButton
-            title='Share'
-            onPress={onShare}
-            icon={
-              <MaterialCommunityIcons name='send' size={16} color={theme.colors.white} style={{ marginRight: 8 }} />
-            }
-          />
-          <TransparentButton title='Dismiss' onPress={onClose} />
-        </View>
+      <Text style={styles.message}>Share to let your friends know about this cook.</Text>
+      <View style={styles.buttonGroup}>
+        <PrimaryButton
+          title='Share'
+          onPress={onSharePress}
+          icon={<MaterialCommunityIcons name='send' size={16} color={theme.colors.white} style={{ marginRight: 8 }} />}
+        />
+        <TransparentButton title='Dismiss' onPress={onDismissPress} />
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.default,
-    marginVertical: 16,
-    alignItems: 'center',
-  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+    justifyContent: 'flex-start',
     gap: 8,
+    flex: 1,
   },
   emoji: {
     fontSize: 28,
@@ -54,11 +42,11 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.title,
     fontSize: theme.fontSizes.large,
     color: theme.colors.black,
-    textAlign: 'center',
   },
   content: {
     alignItems: 'center',
     width: '100%',
+    paddingVertical: 16,
   },
   message: {
     fontFamily: theme.fonts.ui,
@@ -70,9 +58,10 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     width: '100%',
+    gap: 12,
   },
 })
 
-export default ShareCook
+export default ShareNewCookCTA
