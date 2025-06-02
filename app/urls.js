@@ -2,6 +2,8 @@ import env from './config/environment'
 
 const { BASE_URL, API_BASE_URL } = env
 
+// TODO: improve this
+
 export const absoluteUrl = path => `${BASE_URL}${path}`
 export const getAppLoginUrl = () => `${BASE_URL}/app/login`
 

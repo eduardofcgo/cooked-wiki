@@ -7,60 +7,70 @@ import { theme } from '../style/style'
 import LoadingScreen from './Loading'
 import { observer } from 'mobx-react-lite'
 import GenericError from '../components/core/GenericError'
+import { useApi } from '../context/ApiContext'
+import { ApiError } from '../api/client'
 
 // TODO: clean this up and move to a seperate hook
 
 function PrintPDF({ navigation, route }) {
-  const { pdfUrl } = route.params
+  const { path } = route.params
+
+  const apiClient = useApi()
+
   const [pdfSource, setPdfSource] = useState(undefined)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(undefined)
   const [retryableError, setRetryableError] = useState(undefined)
 
   const downloadPdf = useCallback(async () => {
-    if (!pdfUrl) {
-      setError('No URL provided')
+    if (!path) {
+      setError('No path provided')
       setLoading(false)
       return
     }
 
     setLoading(true)
     setError(null)
+    setRetryableError(false)
 
-    const response = await fetch(pdfUrl)
+    try {
+      const blob = await apiClient.downloadPdf(path)
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        setError('Recipe not found')
-      } else if (response.status === 403 || response.status === 401) {
-        setError('You are not authorized to view this recipe')
-      } else if (response.status === 423) {
-        setError('PDF generation already in progress. Please try again.')
-        setRetryableError(true)
+      // Convert blob to data URL
+      const reader = new FileReader()
+
+      reader.onload = () => {
+        setPdfSource({ uri: reader.result })
+        setLoading(false)
+      }
+
+      reader.onerror = () => {
+        setError('Failed to read PDF data')
+        setLoading(false)
+      }
+
+      reader.readAsDataURL(blob)
+    } catch (error) {
+      if (error instanceof ApiError) {
+        // Handle specific PDF-related status codes
+        if (error.status === 404) {
+          setError('Recipe not found')
+        } else if (error.status === 403 || error.status === 401) {
+          setError('You are not authorized to view this recipe')
+        } else if (error.status === 423) {
+          setError('PDF generation already in progress. Please try again.')
+          setRetryableError(true)
+        } else {
+          setError('Network error')
+          setRetryableError(true)
+        }
       } else {
         setError('Unexpected error')
         setRetryableError(true)
       }
-      setRetryableError(false)
-      setLoading(false)
-      return
-    }
-
-    const blob = await response.blob()
-    const reader = new FileReader()
-
-    reader.onload = () => {
-      setPdfSource({ uri: reader.result })
       setLoading(false)
     }
-
-    reader.onerror = () => {
-      setError('Failed to read PDF data')
-      setLoading(false)
-    }
-
-    reader.readAsDataURL(blob)
-  }, [pdfUrl])
+  }, [path, apiClient])
 
   useEffect(() => {
     downloadPdf()
@@ -106,7 +116,7 @@ function PrintPDF({ navigation, route }) {
     })
   }, [navigation, onPrint, loading, error])
 
-  if (!pdfUrl) {
+  if (!path) {
     return null
   }
 

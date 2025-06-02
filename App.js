@@ -93,7 +93,7 @@ function App() {
     <ShareIntentProvider>
       <SafeAreaProvider>
         <PaperProvider theme={paperTheme}>
-          <AuthProvider onLoadedCredentials={onLoadedCredentials} baseURL={env.API_BASE_URL}>
+          <AuthProvider onLoadedCredentials={onLoadedCredentials} baseURL={env.BASE_URL} apiBaseURL={env.API_BASE_URL}>
             <StatusBar backgroundColor={theme.colors.secondary}></StatusBar>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NotificationProvider>

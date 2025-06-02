@@ -10,9 +10,11 @@ export class ApiError extends Error {
 }
 
 export class ApiClient {
-  constructor(baseURL, credentials) {
+  constructor(baseURL, apiBaseURL, credentials) {
+    this.baseURL = baseURL
+
     this.client = axios.create({
-      baseURL: baseURL,
+      baseURL: apiBaseURL,
       timeout: 6000,
       headers: {
         'Content-Type': 'application/json',
@@ -131,6 +133,17 @@ export class ApiClient {
       transformRequest: (data, headers) => formData,
       uploadProgress: progressEvent => {},
       data: formData,
+    })
+  }
+
+  async downloadPdf(url) {
+    return this.client.get(url, {
+      baseURL: this.baseURL, // TODO: just for now while we don't have API endpoints for pdfs
+      timeout: 25000,
+      responseType: 'blob',
+      headers: {
+        Accept: 'application/pdf',
+      },
     })
   }
 }
