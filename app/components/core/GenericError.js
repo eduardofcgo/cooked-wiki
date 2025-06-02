@@ -1,6 +1,8 @@
 import React from 'react'
 import { SafeAreaView, Text, TouchableOpacity, StyleSheet, View } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme } from '../../style/style'
+import { PrimaryButton } from './Button'
 
 const errorMessages = {
   400: 'Bad request.',
@@ -32,9 +34,11 @@ export default function GenericError({ status, onRetry, style, customMessage }) 
       <View style={styles.content}>
         <Text style={styles.errorMessage}>{errorMessage}</Text>
         {onRetry && (
-          <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
+          <PrimaryButton
+            icon={<MaterialCommunityIcons name='refresh' size={16} color={theme.colors.background} />}
+            onPress={onRetry}
+            title={'Try Again'}
+          />
         )}
       </View>
     </SafeAreaView>

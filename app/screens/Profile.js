@@ -75,10 +75,9 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
+const ProfileMenu = observer(({ navigation, onEditBio, username, isUploading, setIsUploading }) => {
   const [menuVisible, setMenuVisible] = useState(false)
   const [photoSelectionModalVisible, setPhotoSelectionModalVisible] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
   const { profileStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
 
@@ -211,7 +210,7 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
   )
 })
 
-const ProfileHeader = observer(({ username, navigation, menu }) => {
+const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => {
   const showImage = true
   const [isImageFullScreen, setIsImageFullScreen] = useState(false)
 
@@ -236,6 +235,11 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
                 {isPatron && (
                   <View style={styles.patronBadge}>
                     <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={12} />
+                  </View>
+                )}
+                {isUploading && (
+                  <View style={styles.uploadingOverlay}>
+                    <ActivityIndicator size='small' color={theme.colors.primary} />
                   </View>
                 )}
               </View>
@@ -266,6 +270,7 @@ const ProfileHeader = observer(({ username, navigation, menu }) => {
 
 const Profile = observer(({ route, navigation, username, publicView }) => {
   const [editBioVisible, setEditBioVisible] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Use both a shared value (for animations) and state (for UI updates)
   const scrollY = useSharedValue(0)
@@ -323,6 +328,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
         <ProfileHeader
           username={username}
           navigation={navigation}
+          isUploading={isUploading}
           menu={
             !publicView ? (
               <>
@@ -336,7 +342,13 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
                 >
                   <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
                 </TouchableOpacity>
-                <ProfileMenu navigation={navigation} onEditBio={() => setEditBioVisible(true)} username={username} />
+                <ProfileMenu
+                  navigation={navigation}
+                  onEditBio={() => setEditBioVisible(true)}
+                  username={username}
+                  isUploading={isUploading}
+                  setIsUploading={setIsUploading}
+                />
               </>
             ) : (
               <TouchableOpacity
@@ -597,5 +609,16 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.uiBold,
     fontWeight: 'bold',
     fontSize: theme.fontSizes.extraSmall,
+  },
+  uploadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 32,
   },
 })

@@ -19,6 +19,7 @@ import { useStore } from '../context/StoreContext'
 import { usePushNotification } from '../context/PushNotificationContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
+import GenericError from '../components/core/GenericError'
 
 const REFRESH_INTERVAL = 10000
 
@@ -31,8 +32,13 @@ export default Community = observer(({ navigation, route }) => {
   const { hiddenNotificationsCard } = userStore
   const { hasNewNotifications } = notificationsStore
 
-  const { communityFeed, isLoadingCommunityFeed, isLoadingCommunityFeedNextPage, needsRefreshCommunityFeed } =
-    profileStore
+  const {
+    communityFeed,
+    isLoadingCommunityFeed,
+    isRejectedCommunityFeed,
+    isLoadingCommunityFeedNextPage,
+    needsRefreshCommunityFeed,
+  } = profileStore
 
   const [clickedAddFriendsCard, setClickedAddFriendsCard] = useState(false)
 
@@ -279,6 +285,10 @@ export default Community = observer(({ navigation, route }) => {
       {isLoadingCommunityFeed ? (
         <View style={styles.emptyStateContainer}>
           <LoadingScreen />
+        </View>
+      ) : isRejectedCommunityFeed ? (
+        <View style={styles.emptyStateContainer}>
+          <GenericError onRetry={onRefresh} />
         </View>
       ) : communityFeed?.length === 0 ? (
         <View style={styles.emptyStateContainer}>

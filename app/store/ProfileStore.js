@@ -137,24 +137,34 @@ export class ProfileStore {
       this.isLoadingCommunityFeed = true
     })
 
-    const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
+    try {
+      const cookeds = await this.apiClient.get('/community/feed', { params: { page: 1 } })
 
-    runInAction(() => {
-      for (const cooked of cookeds) {
-        this.cookedStore.saveToStore(cooked.id, cooked)
-      }
+      runInAction(() => {
+        for (const cooked of cookeds) {
+          this.cookedStore.saveToStore(cooked.id, cooked)
+        }
 
-      const cookedObserved = cookeds.map(cooked => {
-        const observedCooked = this.cookedStore.getCooked(cooked.id)
-        return observedCooked
+        const cookedObserved = cookeds.map(cooked => {
+          const observedCooked = this.cookedStore.getCooked(cooked.id)
+          return observedCooked
+        })
+
+        this.communityFeed.replace(cookedObserved)
+        this.hasMoreCommunityFeed = cookeds.length > 0
+        this.communityFeedPage = 1
+        this.needsRefreshCommunityFeed = false
+        this.isRejectedCommunityFeed = false
       })
-
-      this.communityFeed.replace(cookedObserved)
-      this.isLoadingCommunityFeed = false
-      this.hasMoreCommunityFeed = cookeds.length > 0
-      this.communityFeedPage = 1
-      this.needsRefreshCommunityFeed = false
-    })
+    } catch {
+      runInAction(() => {
+        this.isRejectedCommunityFeed = true
+      })
+    } finally {
+      runInAction(() => {
+        this.isLoadingCommunityFeed = false
+      })
+    }
   }
 
   async checkNeedsRefreshCommunityFeed() {

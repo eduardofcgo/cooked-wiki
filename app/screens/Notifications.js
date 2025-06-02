@@ -14,6 +14,7 @@ import { useInAppNotification } from '../context/NotificationContext'
 import ActionToast from '../components/notification/ActionToast'
 import { Swipeable } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import GenericError from '../components/core/GenericError'
 
 const Image = FastImage
 const FlatList = FlashList
@@ -203,6 +204,10 @@ const Notifications = ({ navigation }) => {
 
   if (isLoading && !notificationsStore.getNotifications()) {
     return <Loading />
+  }
+
+  if (notificationsStore.getNotificationsLoadState() === 'rejected') {
+    return <GenericError onRetry={handleRefresh} />
   }
 
   return (
