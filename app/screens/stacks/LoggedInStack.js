@@ -19,7 +19,7 @@ import EditCook from '../../screens/cooked/EditCook'
 import Settings from '../../screens/Settings'
 import Recipe from '../Recipe'
 import EditDraftNotes from '../recipe/EditDraftNotes'
-import RecipePrint from '../recipe/RecipePrint'
+import PrintPDF from '../PrintPDF'
 import ShareCooked from '../../screens/cooked/share/ShareCooked'
 
 import { screenStyle } from '../../style/style'
@@ -204,10 +204,10 @@ export default function LoggedInStack({ StackNavigator }) {
       />
 
       <StackNavigator.Screen
-        name='RecipePrint'
-        component={RecipePrint}
+        name='PrintPDF'
+        component={PrintPDF}
         options={{
-          title: 'Print Recipe',
+          title: 'Print PDF',
           ...screenStyle,
           presentation: 'modal',
           animation: 'slide_from_bottom',

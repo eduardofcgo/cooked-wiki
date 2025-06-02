@@ -31,6 +31,7 @@ export const getShareableProfileUrl = username => `${BASE_URL}/user/${username}`
 export const getCollectionsUrl = username => `${BASE_URL}/user/${username}/collections`
 export const getCollectionUrl = (username, collectionId) => `${BASE_URL}/user/${username}/collections/${collectionId}`
 export const getShoppingListUrl = username => `${BASE_URL}/user/${username}/shopping-list`
+export const getShoppingListPrintUrl = username => `${BASE_URL}/user/${username}/shopping-list/print`
 export const getLimitsUrl = (queryParams = {}) => {
   const url = new URL(`${BASE_URL}/limits`)
   Object.entries(queryParams).forEach(([key, value]) => {

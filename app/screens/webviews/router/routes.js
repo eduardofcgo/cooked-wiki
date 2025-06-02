@@ -1,4 +1,5 @@
 import { Linking } from 'react-native'
+import { getShoppingListPrintUrl, getPrintRecipeUrl, getPrintExtractUrl } from '../../../urls'
 
 export default routes = [
   {
@@ -60,15 +61,21 @@ export default routes = [
     },
   },
   {
+    path: '/user/:username/shopping-list/print',
+    handler: ({ navigation, params }) => {
+      navigation.push('PrintPDF', { pdfUrl: getShoppingListPrintUrl(params.username) })
+    },
+  },
+  {
     path: '/saved/:id/print',
     handler: ({ navigation, params }) => {
-      navigation.push('RecipePrint', { recipeId: params.id })
+      navigation.push('PrintPDF', { pdfUrl: getPrintRecipeUrl(params.id) })
     },
   },
   {
     path: '/new/recent/:id/print',
     handler: ({ navigation, params }) => {
-      navigation.push('RecipePrint', { extractId: params.id })
+      navigation.push('PrintPDF', { pdfUrl: getPrintExtractUrl(params.id) })
     },
   },
   {
