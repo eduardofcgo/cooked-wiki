@@ -83,12 +83,6 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
   const { showInAppNotification } = useInAppNotification()
 
   const handleCameraPress = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Sorry, we need camera permissions to make this work!')
-      return
-    }
-
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -102,12 +96,13 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
 
       const file = {
         uri: result.assets[0].uri,
-        name: result.assets[0].fileName || `profile_${Date.now()}.jpg`,
-        type: result.assets[0].mimeType || 'image/jpeg',
+        // In production build, the fileName is null
+        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
+        type: result.assets[0].mimeType,
       }
 
       try {
-        await updateProfileImage(file)
+        await profileStore.updateProfileImage(username, file)
         showInAppNotification(ActionToast, {
           props: { message: 'Profile photo updated' },
           resetQueue: true,
@@ -122,12 +117,6 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
   }
 
   const handleGalleryPress = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Sorry, we need gallery permissions to make this work!')
-      return
-    }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -141,8 +130,9 @@ const ProfileMenu = observer(({ navigation, onEditBio, username }) => {
 
       const file = {
         uri: result.assets[0].uri,
-        name: result.assets[0].fileName || `profile_${Date.now()}.jpg`,
-        type: result.assets[0].mimeType || 'image/jpeg',
+        // In production build, the fileName is null
+        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
+        type: result.assets[0].mimeType,
       }
 
       try {

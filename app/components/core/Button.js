@@ -9,7 +9,7 @@ export function PrimaryButton({ onPress, title, style, icon }) {
       style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }, style]}
     >
       {icon}
-      <Text style={[styles.buttonText, styles.primaryButtonText]} numberOfLines={1}>
+      <Text style={[styles.buttonText, styles.primaryButtonText, icon && { marginLeft: 6 }]} numberOfLines={1}>
         {title}
       </Text>
     </Button>

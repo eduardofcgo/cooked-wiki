@@ -8,8 +8,10 @@ class ProfileData {
   hasMore = true
 
   stats = undefined
-
   bio = undefined
+  imageUrl = undefined
+  imagePath = undefined
+  isPatron = false
 
   constructor() {
     makeAutoObservable(this)
@@ -63,23 +65,31 @@ export class ProfileStore {
   }
 
   async updateProfileImage(username, file) {
-    const formData = new FormData()
-    formData.append('profile-image', file)
-
-    const response = await this.apiClient.request({
+    const response = await this.apiClient.uploadFormData({
       url: `/user/profile/image`,
       method: 'post',
-      headers: {
-        'Content-Type': 'multipart/form-data',
+      data: {
+        'profile-image': file,
       },
-      transformRequest: (data, headers) => formData,
-      data: formData,
     })
 
+    console.log('response.data', response)
+
     runInAction(() => {
-      this.profileDataMap.get(username).imagePath = response['image-path']
-      this.profileDataMap.get(username).imageUrl = response['image-url']
+      // Update the profile data with new image information
+      const profileData = this.profileDataMap.get(username)
+      profileData.imagePath = response.imagePath
+
+      // Add cache-busting timestamp to ensure image reloads
+      const baseImageUrl = response['image-url']
+      const separator = baseImageUrl.includes('?') ? '&' : '?'
+      profileData.imageUrl = `${baseImageUrl}${separator}t=${Date.now()}`
     })
+
+    // Clear FastImage cache to ensure the new image is loaded
+    if (this.imagePreloader) {
+      this.imagePreloader.clearCache()
+    }
   }
 
   async updateBio(username, bio) {

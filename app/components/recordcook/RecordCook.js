@@ -206,12 +206,6 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   }, [])
 
   const handleCameraPress = useCallback(async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Sorry, we need camera permissions to make this work!')
-      return
-    }
-
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -260,12 +254,6 @@ function RecordCook({ editMode, hasChanges, setHasChanges, onSaved, onDelete, pr
   }, [apiClient, setIsUploading, setPhotos, setHasChanges])
 
   const handleGalleryPress = useCallback(async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Sorry, we need gallery permissions to make this work!')
-      return
-    }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
