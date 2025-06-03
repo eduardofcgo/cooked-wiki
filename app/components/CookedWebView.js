@@ -270,10 +270,21 @@ const CookedWebView = forwardRef(
           const modals = document.querySelectorAll('.modal > .modal-content');
           modals.forEach(modal => {
               const modalHeight = modal.offsetHeight;
-              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
-              const additionalOffset = 50
-              const top = window.externalScrollY + centerPosition + additionalOffset
-              modal.style.top = top + 'px'
+              const additionalOffset = 300;
+              
+              // Calculate the maximum scroll position to prevent modal from going off-screen
+              const maxScrollY = Math.max(0, document.body.scrollHeight - window.externalViewportHeight);
+              const clampedScrollY = Math.min(scrollY, maxScrollY);
+              
+              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight + additionalOffset) / 2);
+              const top = clampedScrollY + centerPosition;
+              modal.style.top = top + 'px';
+
+              const bodyContents = modal.querySelector('.modal-body-contents')
+              if (bodyContents) {
+                // For fixing large modals like add to collection. TODO: Should set from externalViewportHeight?
+                bodyContents.style.maxHeight = '350px';
+              }
           })
 
           const scrollEvent = new Event('scroll', { bubbles: true });
@@ -301,9 +312,14 @@ const CookedWebView = forwardRef(
           const modals = document.querySelectorAll('.modal > .modal-content');
           modals.forEach(modal => {
               const modalHeight = modal.offsetHeight;
-              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight) / 2);
-              const additionalOffset = 50
-              const top = window.externalScrollY + centerPosition + additionalOffset
+              const additionalOffset = 300;
+              
+              // Calculate the maximum scroll position to prevent modal from going off-screen
+              const maxScrollY = Math.max(0, document.body.scrollHeight - window.externalViewportHeight);
+              const clampedScrollY = Math.min(window.externalScrollY, maxScrollY);
+              
+              const centerPosition = Math.max(0, (window.externalViewportHeight - modalHeight + additionalOffset) / 2);
+              const top = clampedScrollY + centerPosition;
               modal.style.top = top + 'px';
 
               const bodyContents = modal.querySelector('.modal-body-contents')

@@ -99,6 +99,8 @@ const RecipeWithCookedFeed = observer(
     disableRefresh,
     loadingComponent,
     onScroll,
+    contentInsetTop,
+    onTouchStart,
   }) => {
     const { recipeJournalStore, recentlyOpenedStore } = useStore()
 
@@ -197,7 +199,7 @@ const RecipeWithCookedFeed = observer(
     }
 
     return (
-      <View style={styles.container}>
+      <View style={styles.container} onTouchStart={onTouchStart}>
         <FlatList
           data={recipeCookeds?.slice()}
           estimatedItemSize={50}
@@ -207,26 +209,30 @@ const RecipeWithCookedFeed = observer(
           onEndReached={handleLoadMore}
           onEndReachedThreshold={1}
           onScroll={handleScroll}
+          scrollEventThrottle={16}
           ListHeaderComponent={
-            <RecipeWebView
-              ref={webViewRef}
-              recipeId={recipeId}
-              extractId={extractId}
-              savedExtractionId={savedExtractionId}
-              justSaved={justSaved}
-              cloned={cloned}
-              onScroll={handleScroll}
-              webViewHeight={webViewHeight}
-              // setWebViewHeight={debouncedSetWebViewHeight}
-              setWebViewHeight={setWebViewHeight}
-              navigation={navigation}
-              onRequestPath={onRequestPath}
-              route={route}
-              disableRefresh={disableRefresh}
-              loadingComponent={loadingComponent}
-              onWebViewReady={onWebViewReady}
-              onHttpError={handleHttpError}
-            />
+            <View>
+              <View style={{ height: contentInsetTop }} />
+              <RecipeWebView
+                ref={webViewRef}
+                recipeId={recipeId}
+                extractId={extractId}
+                savedExtractionId={savedExtractionId}
+                justSaved={justSaved}
+                cloned={cloned}
+                onScroll={handleScroll}
+                webViewHeight={webViewHeight}
+                // setWebViewHeight={debouncedSetWebViewHeight}
+                setWebViewHeight={setWebViewHeight}
+                navigation={navigation}
+                onRequestPath={onRequestPath}
+                route={route}
+                disableRefresh={disableRefresh}
+                loadingComponent={loadingComponent}
+                onWebViewReady={onWebViewReady}
+                onHttpError={handleHttpError}
+              />
+            </View>
           }
           ListFooterComponent={ListFooter}
           nestedScrollEnabled={false}

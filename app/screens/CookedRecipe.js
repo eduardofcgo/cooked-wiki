@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { lazy, useCallback, useEffect, useRef, useState, useMemo, Suspense } from 'react'
-import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, useWindowDimensions, SafeAreaView, StatusBar } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
@@ -24,6 +24,7 @@ import Loading from '../components/core/Loading'
 import HeaderText from '../components/core/HeaderText'
 import DragIndicator from '../components/core/DragIndicator'
 import { useAuth } from '../context/AuthContext'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const Image = FastImage
 
@@ -138,6 +139,8 @@ const CookedRecipe = observer(({ navigation, route }) => {
   const flatListRef = useRef(null)
   const animatedPosition = useSharedValue(0)
 
+  const insets = useSafeAreaInsets()
+
   useEffect(() => {
     cookedStore.ensureLoaded(cookedId)
   }, [cookedId, cookedStore])
@@ -231,6 +234,8 @@ const CookedRecipe = observer(({ navigation, route }) => {
 
   const handleSheetChanges = useCallback(index => {
     setSheetIndex(index)
+
+    StatusBar.setHidden(index >= 3, 'fade')
 
     if (index === 0 && flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true })
@@ -335,7 +340,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
         snapPoints={snapPoints}
         index={1}
         onChange={handleSheetChanges}
-        enablePanDownToClose={false}
+        enablePanDownToClose={true}
         handleComponent={renderHandle}
         backgroundStyle={styles.bottomSheetBackground}
         animatedPosition={animatedPosition}

@@ -8,6 +8,12 @@ export default routes = [
     },
   },
   {
+    path: '/saved/:id/edit',
+    handler: ({ navigation, params }) => {
+      navigation.navigate('EditRecipePreview', { recipeId: params.id })
+    },
+  },
+  {
     path: '/new/recent/:id',
     handler: ({ navigation, params, queryParams }) => {
       navigation.navigate('Recipe', { extractId: params.id, queryParams })

@@ -2,6 +2,7 @@ import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import React, { useCallback, useEffect, useState } from 'react'
+import { enableScreens } from 'react-native-screens'
 
 import {
   AtkinsonHyperlegible_400Regular,
@@ -49,6 +50,8 @@ if (env.SENTRY_DSN) {
     ],
   })
 }
+
+enableScreens()
 
 SplashScreen.preventAutoHideAsync()
 

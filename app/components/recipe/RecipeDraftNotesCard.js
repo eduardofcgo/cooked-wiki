@@ -113,7 +113,7 @@ function RecipeDraftNotesCard({ recipeId, extractId, isVisible, isOnTopOfCookedC
       enablePanDownToClose={true}
       handleComponent={renderHandle}
       backgroundStyle={styles.bottomSheetBackground}
-      style={styles.bottomSheetShadow}
+      style={[styles.bottomSheetShadow, { zIndex: 1000 }]}
       onChange={setSheetIndex}
       onClose={handleClose}
       enableBlurKeyboardOnGesture={false}
@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 16,
+    zIndex: 800,
   },
   title: {
     fontFamily: theme.fonts.title,
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 5,
     elevation: 12,
+    zIndex: 1000,
   },
   notes: {
     backgroundColor: theme.colors.secondary,

@@ -21,6 +21,8 @@ import Recipe from '../Recipe'
 import EditDraftNotes from '../recipe/EditDraftNotes'
 import PrintPDF from '../PrintPDF'
 import ShareCooked from '../../screens/cooked/share/ShareCooked'
+import EditRecipePreview from '../../screens/recipe/edit/EditRecipePreview'
+import EditRecipeText from '../../screens/recipe/edit/EditRecipeText'
 
 import { screenStyle } from '../../style/style'
 
@@ -106,7 +108,28 @@ export default function LoggedInStack({ StackNavigator }) {
         options={({ navigation, route }) => ({
           title: 'Recipe',
           animation: 'slide_from_right',
+          headerShown: false,
         })}
+      />
+
+      <StackNavigator.Screen
+        name='EditRecipePreview'
+        component={EditRecipePreview}
+        options={{
+          title: 'Edit Recipe',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+
+      <StackNavigator.Screen
+        name='EditRecipeText'
+        component={EditRecipeText}
+        options={{
+          title: 'Edit Recipe',
+          animation: 'slide_from_right',
+          headerShown: false,
+        }}
       />
 
       <StackNavigator.Screen
@@ -123,6 +146,7 @@ export default function LoggedInStack({ StackNavigator }) {
         component={CookedRecipe}
         options={{
           title: 'Recipe',
+          headerShown: false,
           ...screenStyle,
         }}
       />

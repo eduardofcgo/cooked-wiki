@@ -1,9 +1,25 @@
 import { useKeepAwake } from 'expo-keep-awake'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, Share } from 'react-native'
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Share,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native'
 import { IconButton } from 'react-native-paper'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated'
 import RecipeThumbnail from '../components/core/RecipeThumbnail'
 import { useStore } from '../context/StoreContext'
 import { theme } from '../style/style'
@@ -15,6 +31,8 @@ import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 import { MaterialIcons } from '@expo/vector-icons'
 import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 import { useInAppNotification } from '../context/NotificationContext'
+import RecentlyOpenedCard from '../components/recipe/RecentlyOpenedCard'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -24,11 +42,59 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
 
+  const insets = useSafeAreaInsets()
+
+  const scrollY = useSharedValue(0)
+  const lastScrollY = useRef(0)
+  const isScrollingDown = useRef(false)
+  const headerVisible = useSharedValue(true)
+
+  const handleScroll = useCallback(event => {
+    const currentScrollY = event.nativeEvent.contentOffset.y
+    const isScrollingDownNow = currentScrollY > lastScrollY.current
+
+    if (currentScrollY < 50) {
+      headerVisible.value = withTiming(1, { duration: 500 })
+    }
+
+    // Only update header visibility if we've scrolled more than the threshold
+    else if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
+      if (isScrollingDownNow && headerVisible.value) {
+        // Scrolling down and header is visible - hide it
+        headerVisible.value = withTiming(0, { duration: 500 })
+      } else if (!isScrollingDownNow && !headerVisible.value) {
+        // Scrolling up and header is hidden - require more intentional scroll
+        const scrollDelta = lastScrollY.current - currentScrollY
+        if (scrollDelta > 20) {
+          // Require 20px of upward scroll to show header
+          headerVisible.value = withTiming(1, { duration: 250 })
+        }
+      }
+    }
+
+    isScrollingDown.current = isScrollingDownNow
+    lastScrollY.current = currentScrollY
+    scrollY.value = currentScrollY
+
+    StatusBar.setHidden(currentScrollY > 100, 'fade')
+  }, [])
+
+  const menuBarAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(headerVisible.value, [0, 1], [-100, 0], Extrapolate.CLAMP),
+        },
+      ],
+      opacity: headerVisible.value,
+    }
+  })
+
   const hasCookedCard = Boolean(cookedCard)
 
   // Coordenate both cards, TODO: refactor this logic to a UI Store.
   const toggleNotesModal = useCallback(() => {
-    const wasCookedCardCollapsed = cookedCardSheetIndex === 0
+    const wasCookedCardCollapsed = cookedCardSheetIndex <= 0
 
     if (!hasCookedCard || wasCookedCardCollapsed) {
       setIsNotesModalVisible(prev => {
@@ -39,7 +105,10 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
         return showNotesModal
       })
     } else {
-      cookedCard?.current?.snapToIndex(0)
+      if (cookedCardSheetIndex !== -1) {
+        cookedCard?.current?.snapToIndex(0)
+      }
+
       setIsNotesModalVisible(true)
       clearInAppNotifications()
     }
@@ -93,25 +162,15 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   }, [])
 
   const [isExpanded, setIsExpanded] = useState(false)
-  const scrollViewRef = useRef(null)
-  const headerHeight = useSharedValue(0)
   const lastPress = useRef(0)
   const [orientation, setOrientation] = useState(0) // 0, 90, 180, 270 degrees
   const rotationValue = useSharedValue(0)
 
   useKeepAwake()
 
-  const handleScroll = useCallback(
-    event => {
-      // const currentScrollPosition = event.nativeEvent.contentOffset.y
-      // setScrollPosition(currentScrollPosition)
-      // // Close expanded section when scrolling
-      // if (isExpanded) {
-      //   setIsExpanded(false)
-      // }
-    },
-    [isExpanded],
-  )
+  const onClickRecipe = useCallback(() => {
+    setIsExpanded(false)
+  }, [isExpanded])
 
   const handlePressOrDoublepress = () => {
     const currentTime = new Date().getTime()
@@ -133,12 +192,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       openRecipe(nextMostRecentRecipe)
     }
   }
-
-  useEffect(() => {
-    headerHeight.value = withTiming(!isExpanded ? 0 : 170 + 8, {
-      duration: 300,
-    })
-  }, [isExpanded, setIsExpanded])
 
   const onShare = useCallback(() => {
     Share.share({
@@ -170,12 +223,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     [recipeId, id],
   )
 
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      height: headerHeight.value,
-    }
-  })
-
   const rotateScreen = useCallback(() => {
     const newOrientation = orientation === 0 ? 90 : 0
     setOrientation(newOrientation)
@@ -190,82 +237,9 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       width: isPortrait ? '100%' : SCREEN_HEIGHT,
       height: isPortrait ? '100%' : SCREEN_HEIGHT,
       right: isPortrait ? 0 : 370,
-      top: isPortrait ? 0 : 30,
+      top: isPortrait ? 0 : 300,
     }
   })
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <TouchableOpacity onPress={handlePressOrDoublepress} style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <IconButton
-            icon='history'
-            size={20}
-            color={theme.colors.softBlack}
-            style={{
-              marginLeft: -8,
-              marginRight: 4,
-              marginBottom: 16,
-            }}
-          />
-          <Text
-            allowFontScaling={false}
-            style={{
-              marginBottom: 16,
-              fontSize: theme.fontSizes.large,
-              fontFamily: theme.fonts.title,
-              color: theme.colors.black,
-            }}
-          >
-            Recipe
-          </Text>
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 10 }}>
-          {/* <IconButton
-            icon='rotate-right'
-            size={24}
-            color={theme.colors.softBlack}
-            style={{ marginRight: -8 }}
-            onPress={rotateScreen}
-          /> */}
-
-          <TouchableOpacity onPress={onShare}>
-            <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={toggleNotesModal}
-            hitSlop={{ top: 20, bottom: 20, left: 10, right: 20 }}
-            style={{
-              backgroundColor: isNotesModalVisible ? theme.colors.softBlack : 'transparent',
-              borderRadius: 100,
-              paddingRight: 6,
-              paddingLeft: 6,
-              paddingTop: 6,
-              paddingBottom: 6,
-            }}
-          >
-            <MaterialIcons
-              name='edit-note'
-              size={28}
-              color={isNotesModalVisible ? theme.colors.secondary : theme.colors.softBlack}
-            />
-          </TouchableOpacity>
-        </View>
-      ),
-    })
-  }, [
-    hasRecentlyOpenedRecipes,
-    navigation,
-    isExpanded,
-    orientation,
-    onShare,
-    cookedCardSheetIndex,
-    cookedCard,
-    isNotesModalVisible,
-  ])
 
   const routeHandler = useCallback(
     (pathname, queryParams) => {
@@ -276,52 +250,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.recentContainer, animatedStyles]}>
-        <View style={styles.scrollContainer}>
-          <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} scrollEventThrottle={16}>
-            {recentlyOpenedStore.mostRecentRecipesMetadata.map((recipe, index) => (
-              <TouchableOpacity
-                key={recipe.id}
-                style={[styles.recipeCard, index === 0 && { marginLeft: 16 }]}
-                onPress={() => openRecipe(recipe)}
-              >
-                <RecipeThumbnail thumbnailUrl={recipe?.['thumbnail-url']} title={recipe.title} type={recipe.type} />
-              </TouchableOpacity>
-            ))}
-            {recentlyOpenedStore.mostRecentRecipesMetadata.length > 0 ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setIsExpanded(false)
-                  recentlyOpenedStore.clear()
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 32,
-                  marginRight: 32,
-                }}
-              >
-                <Text style={{ color: theme.colors.softBlack }}>Clear</Text>
-              </TouchableOpacity>
-            ) : (
-              <View
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 32,
-                  marginRight: 32,
-                  marginLeft: 16,
-                }}
-              >
-                <Text style={{ color: theme.colors.softBlack }}>No recent recipes</Text>
-              </View>
-            )}
-          </ScrollView>
-        </View>
-      </Animated.View>
-
       <Animated.View style={[animatedContentStyle, { flex: 1 }]}>
         <RecipeWithCookedFeed
           key={componentKey}
@@ -335,19 +263,103 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           route={route}
           disableRefresh={true}
           loadingComponent={loadingComponent}
+          contentInsetTop={130}
+          onTouchStart={onClickRecipe}
           onScroll={handleScroll}
         />
       </Animated.View>
 
-      <RecipeDraftNotesCard
-        recipeId={recipeId}
-        extractId={extractId}
-        isVisible={isNotesModalVisible}
-        isOnTopOfCookedCard={hasCookedCard}
-        onClose={() => {
-          setIsNotesModalVisible(false)
+      <RecentlyOpenedCard
+        isExpanded={isExpanded}
+        onRecipeSelect={openRecipe}
+        onClear={() => {
+          setIsExpanded(false)
+          recentlyOpenedStore.clear()
         }}
       />
+
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <Animated.View style={[styles.menuBarContainer, menuBarAnimatedStyle]}>
+          <View style={styles.menuBar}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
+              <MaterialIcons name='arrow-back' size={22} color={theme.colors.softBlack} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handlePressOrDoublepress}
+              style={[
+                styles.titleContainer,
+                {
+                  backgroundColor: isExpanded ? theme.colors.softBlack : 'transparent',
+                  borderRadius: 0,
+                },
+              ]}
+            >
+              <IconButton
+                icon='history'
+                size={22}
+                iconColor={isExpanded ? theme.colors.secondary : theme.colors.softBlack}
+                style={styles.historyIcon}
+              />
+              <Text
+                allowFontScaling={false}
+                style={[styles.menuTitle, { color: isExpanded ? theme.colors.secondary : theme.colors.softBlack }]}
+              >
+                Recent
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.menuActions}>
+              <TouchableOpacity onPress={onShare} style={styles.menuButton}>
+                <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => navigation.navigate('EditRecipePreview')} style={styles.menuButton}>
+                <MaterialIcons name='edit' size={19} color={theme.colors.softBlack} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            onPress={toggleNotesModal}
+            hitSlop={{ top: 20, bottom: 20, left: 10, right: 20 }}
+            style={[
+              styles.menuBarNavigateButton,
+              {
+                backgroundColor: isNotesModalVisible ? theme.colors.softBlack : theme.colors.secondary,
+              },
+            ]}
+          >
+            <MaterialIcons
+              name='edit-note'
+              size={28}
+              color={isNotesModalVisible ? theme.colors.secondary : theme.colors.softBlack}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+      </SafeAreaView>
+
+      <SafeAreaView
+        style={{
+          position: 'absolute',
+          top: insets.top,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 600,
+          pointerEvents: 'box-none',
+        }}
+      >
+        <RecipeDraftNotesCard
+          recipeId={recipeId}
+          extractId={extractId}
+          isVisible={isNotesModalVisible}
+          isOnTopOfCookedCard={hasCookedCard}
+          onClose={() => {
+            setIsNotesModalVisible(false)
+          }}
+        />
+      </SafeAreaView>
     </View>
   )
 }
@@ -356,27 +368,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContainer: {
-    position: 'relative',
-    flex: 1,
+  safeAreaContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 500,
   },
-  recentContainer: {
+  menuBarContainer: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  menuBar: {
     backgroundColor: theme.colors.secondary,
-    overflow: 'hidden',
+    height: 64,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 1,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+    flex: 1,
   },
-  recipeCard: {
-    marginTop: 16,
-    width: 110,
-    marginRight: 16,
+  menuButton: {
+    padding: 8,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    paddingRight: 16,
+  },
+  historyIcon: {
+    marginRight: -4,
+    marginLeft: -4,
+  },
+  menuTitle: {
+    fontSize: theme.fontSizes.small,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
+  },
+  menuBarNavigateButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   thumbnail: {
     width: 110,
@@ -394,6 +456,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: '100%',
     position: 'relative',
+  },
+  menuActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 })
 
