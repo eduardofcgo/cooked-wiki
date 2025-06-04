@@ -70,7 +70,7 @@
     <key>NSCameraUsageDescription</key>
     <string>This app needs access to your camera to let you take photos for your profile picture and cooking journal entries. For example, you can take a new photo to set as your profile image or capture photos of dishes you've cooked to add to your cooking journal.</string>
     <key>NSContactsUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your contacts.</string>
+    <string>This app needs access to your contacts to help you connect with your family and friends. This allows you to easily follow them and see what they're cooking.</string>
     <key>NSFaceIDUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
     <key>NSMicrophoneUsageDescription</key>
