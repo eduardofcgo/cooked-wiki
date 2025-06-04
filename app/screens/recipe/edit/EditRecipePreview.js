@@ -3,17 +3,20 @@ import { observer } from 'mobx-react-lite'
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { theme, titleStyle } from '../../../style/style'
+import { useNavigation } from '@react-navigation/native'
 
 function EditRecipePreview() {
+  const navigation = useNavigation()
+
   return (
     <View style={{ flex: 1 }}>
       <SafeAreaView style={styles.menuBarContainer}>
         <View style={styles.menuBar}>
-          <TouchableOpacity style={styles.menuButton}>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.goBack()}>
             <MaterialCommunityIcons name='close' size={22} color={theme.colors.softBlack} />
           </TouchableOpacity>
 
-          <Text style={styles.menuTitle}>Edit Recipe</Text>
+          <Text style={styles.menuTitle}>Unsaved Changes</Text>
 
           <TouchableOpacity style={styles.menuButton}>
             <MaterialCommunityIcons
@@ -97,9 +100,11 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   menuTitle: {
-    ...titleStyle,
     textAlign: 'center',
     flex: 1,
+    fontSize: theme.fontSizes.small,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
   },
   content: {
     flex: 1,

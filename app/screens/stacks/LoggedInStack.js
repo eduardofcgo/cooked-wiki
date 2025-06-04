@@ -137,6 +137,7 @@ export default function LoggedInStack({ StackNavigator }) {
         component={Cooked}
         options={{
           title: 'Cooked',
+          headerShown: false,
           ...screenStyle,
         }}
       />

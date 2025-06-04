@@ -310,9 +310,13 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
             </TouchableOpacity>
 
             <View style={styles.menuActions}>
-              <TouchableOpacity onPress={onShare} style={styles.menuButton}>
-                <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
+              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
+                <MaterialIcons name='bookmark' size={20} color={theme.colors.softBlack} />
               </TouchableOpacity>
+
+              {/* <TouchableOpacity onPress={onShare} style={styles.menuButton}>
+                <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
+              </TouchableOpacity> */}
 
               <TouchableOpacity onPress={() => navigation.navigate('EditRecipePreview')} style={styles.menuButton}>
                 <MaterialIcons name='edit' size={19} color={theme.colors.softBlack} />
