@@ -27,7 +27,8 @@ const FlatList = FlashList
 
 export default Community = observer(({ navigation, route }) => {
   const { userStore, profileStore, onboardingStore, notificationsStore } = useStore()
-  const { hasPermission, requestPermission } = usePushNotification()
+  const { hasPermission: hasNotificationPermission, requestPermission: requestPushNotificationPermission } =
+    usePushNotification()
 
   const { hiddenNotificationsCard } = userStore
   const { hasNewNotifications } = notificationsStore
@@ -58,7 +59,7 @@ export default Community = observer(({ navigation, route }) => {
 
   useFocusEffect(() => {
     ;(async () => {
-      await requestPermission()
+      await requestPushNotificationPermission()
 
       const contactsPermission = await Contacts.getPermissionsAsync()
       userStore.setContactsPermissionStatus(contactsPermission.status)
@@ -105,7 +106,7 @@ export default Community = observer(({ navigation, route }) => {
   }, [navigation])
 
   const handleEnableNotifications = async () => {
-    const allowed = await requestPermission()
+    const allowed = await requestPushNotificationPermission()
 
     if (!allowed) {
       openSettings()
@@ -120,7 +121,7 @@ export default Community = observer(({ navigation, route }) => {
     }
   }
 
-  const showNotificationsCard = !hasPermission && !hiddenNotificationsCard
+  const showNotificationsCard = !hasNotificationPermission && !hiddenNotificationsCard
   const showFindFriendsCard = onboardingStore.showFindFriendsHint()
 
   const onRefresh = useCallback(async () => {
@@ -239,7 +240,7 @@ export default Community = observer(({ navigation, route }) => {
                       <View style={styles.textContainer}>
                         <Text style={styles.description}>Get notified when your friends cook something new.</Text>
                       </View>
-                      {!hasPermission ? (
+                      {!hasNotificationPermission ? (
                         <Button onPress={openSettings} style={styles.cardButton} title='Settings' />
                       ) : (
                         <PrimaryButton onPress={handleEnableNotifications} style={styles.cardButton} title='Turn on' />

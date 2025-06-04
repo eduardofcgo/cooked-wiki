@@ -61,11 +61,12 @@ const Notifications = ({ navigation }) => {
 
   const handleEnableNotifications = useCallback(async () => {
     const allowed = await requestPermission()
-    if (!allowed) {
-      setShowSkipModal(true)
-    } else {
-      navigation.navigate('Start')
-    }
+    // Apple seems to not want this modal
+    // if (!allowed) {
+    //   setShowSkipModal(true)
+    // } else {
+    navigation.navigate('Start')
+    // }
   }, [navigation, requestPermission])
 
   const handleSkip = useCallback(async () => {

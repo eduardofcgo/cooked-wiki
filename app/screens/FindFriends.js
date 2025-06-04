@@ -17,14 +17,6 @@ import { theme } from '../style/style'
 const Image = FastImage
 const FlatList = FlashList
 
-function openSettings() {
-  if (Platform.OS === 'ios') {
-    Notifications.openSettings()
-  } else {
-    Linking.openSettings()
-  }
-}
-
 const UserItem = observer(({ user, navigation }) => {
   const { findFriendsStore } = useStore()
   const { showInAppNotification } = useInAppNotification()
@@ -105,8 +97,14 @@ function FindFriends({ navigation }) {
 
   const requestContactsPermission = async () => {
     const contactsPermission = await Contacts.requestPermissionsAsync()
+    // TODO: we should not use the store, move this logic into a provider,
+    // so that we can easelly check current permissions from any component.
     userStore.setContactsPermissionStatus(contactsPermission.status)
   }
+
+  const openSettings = useCallback(() => {
+    Linking.openSettings()
+  }, [])
 
   const ContactsPermissionCard = () => (
     <View style={styles.permissionCard}>
@@ -125,7 +123,7 @@ function FindFriends({ navigation }) {
       {contactsPermissionStatus === 'denied' ? (
         <Button title='Settings' onPress={openSettings} />
       ) : (
-        <PrimaryButton title='Allow access' onPress={requestContactsPermission} />
+        <PrimaryButton title='Continue' onPress={requestContactsPermission} />
       )}
     </View>
   )
