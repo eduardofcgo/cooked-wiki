@@ -192,13 +192,13 @@ const ProfileMenu = observer(({ navigation, onEditBio, username, isUploading, se
           }}
           title='Update photo'
         />
-        <Menu.Item
+        {/* <Menu.Item
           onPress={() => {
             setMenuVisible(false)
             Linking.openURL('https://cooked.wiki/contact')
           }}
           title='Help'
-        />
+        /> */}
       </Menu>
       <PhotoSelectionModal
         visible={photoSelectionModalVisible}
@@ -230,13 +230,13 @@ const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => 
                   source={{
                     uri: profileImageThumbnail,
                   }}
-                  style={[styles.profileImage, isPatron && styles.patronImage]}
+                  style={[styles.profileImage, false && styles.patronImage]}
                 />
-                {isPatron && (
+                {/* {isPatron && (
                   <View style={styles.patronBadge}>
                     <FontAwesomeIcon icon={faStar} color={theme.colors.primary} size={12} />
                   </View>
-                )}
+                )} */}
                 {isUploading && (
                   <View style={styles.uploadingOverlay}>
                     <ActivityIndicator size='small' color={theme.colors.primary} />
@@ -249,7 +249,8 @@ const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => 
               imageUrl={profileImageThumbnail}
               onClose={() => setIsImageFullScreen(false)}
               bio={bio}
-              isPatron={isPatron}
+              isPatron={false}
+            // isPatron={isPatron}
             />
           </>
         ) : (
