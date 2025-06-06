@@ -57,7 +57,7 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+          "contactsPermission": "This app needs access to your contacts to help you connect with your family and friends. This allows you to easily follow them and see what they're cooking."
         }
       ],
       "expo-secure-store",

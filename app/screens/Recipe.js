@@ -281,45 +281,44 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       <SafeAreaView style={styles.safeAreaContainer}>
         <Animated.View style={[styles.menuBarContainer, menuBarAnimatedStyle]}>
           <View style={styles.menuBar}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
-              <MaterialIcons name='arrow-back' size={22} color={theme.colors.softBlack} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handlePressOrDoublepress}
-              style={[
-                styles.titleContainer,
-                {
-                  backgroundColor: isExpanded ? theme.colors.softBlack : 'transparent',
-                  borderRadius: 0,
-                },
-              ]}
-            >
-              <IconButton
-                icon='history'
-                size={22}
-                iconColor={isExpanded ? theme.colors.secondary : theme.colors.softBlack}
-                style={styles.historyIcon}
-              />
-              <Text
-                allowFontScaling={false}
-                style={[styles.menuTitle, { color: isExpanded ? theme.colors.secondary : theme.colors.softBlack }]}
-              >
-                Recent
-              </Text>
-            </TouchableOpacity>
-
-            <View style={styles.menuActions}>
-              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
-                <MaterialIcons name='bookmark' size={20} color={theme.colors.softBlack} />
+            <View style={[styles.menuBarLeft, styles.menuActions]}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
+                <MaterialIcons name='arrow-back' size={20} color={theme.colors.softBlack} />
               </TouchableOpacity>
 
+              <TouchableOpacity
+                onPress={handlePressOrDoublepress}
+                style={[
+                  styles.menuButton,
+                  {
+                    // marginLeft: -12,
+                    backgroundColor: isExpanded ? theme.colors.softBlack : 'transparent',
+                  },
+                ]}
+              >
+                <IconButton
+                  icon='history'
+                  size={22}
+                  iconColor={isExpanded ? theme.colors.secondary : theme.colors.softBlack}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={[styles.menuBarRight, styles.menuActions]}>
               {/* <TouchableOpacity onPress={onShare} style={styles.menuButton}>
                 <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
               </TouchableOpacity> */}
 
-              <TouchableOpacity onPress={() => navigation.navigate('EditRecipePreview')} style={styles.menuButton}>
+              <TouchableOpacity onPress={() => navigation.navigate('EditRecipeText')} style={styles.menuButton}>
                 <MaterialIcons name='edit' size={19} color={theme.colors.softBlack} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
+                <MaterialIcons name='bookmark' size={20} color={theme.colors.softBlack} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
+                <MaterialIcons name='timer' size={20} color={theme.colors.softBlack} />
               </TouchableOpacity>
             </View>
           </View>
@@ -408,19 +407,8 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 8,
-    borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    paddingRight: 16,
-  },
-  historyIcon: {
-    marginRight: -4,
-    marginLeft: -4,
   },
   menuTitle: {
     fontSize: theme.fontSizes.small,
@@ -464,6 +452,7 @@ const styles = StyleSheet.create({
   menuActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: '100%',
     gap: 8,
   },
 })
