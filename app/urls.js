@@ -18,6 +18,8 @@ export const getTeamUrl = () => `${BASE_URL}/team`
 export const getExtractUrl = url => `${BASE_URL}/new?url=${url}`
 export const getRecentExtractUrl = extractId => `${BASE_URL}/new/recent/${extractId}`
 export const getSavedRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}`
+export const getEditRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}/edit`
+export const getEditPreviewRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}/edit/preview`
 export const getPrintRecipeUrl = recipeId => `${BASE_URL}/saved/${recipeId}/print`
 export const getPrintExtractUrl = extractId => `${BASE_URL}/new/recent/${extractId}/print`
 export const getCookedUrl = cookId => `${BASE_URL}/cook/${cookId}`

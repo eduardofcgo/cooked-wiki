@@ -40,6 +40,7 @@ function AnimatedMenuContainer({
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: 'transparent',
         position: 'absolute',
         top: 0,
         left: 0,

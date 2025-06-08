@@ -23,6 +23,7 @@ const CookedWebView = forwardRef(
       onWebViewReady,
       onHttpError,
       style,
+      contentInset,
     },
     ref,
   ) => {
@@ -259,9 +260,8 @@ const CookedWebView = forwardRef(
 
       window.externalScrollY = 0;
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         window.externalViewportHeight = ${windowHeight};
         
         window.setExternalScrollY = function(scrollY) {
@@ -291,16 +291,15 @@ const CookedWebView = forwardRef(
           
           document.dispatchEvent(scrollEvent);
         };`
-          : `
+        : `
         
           window.setExternalScrollY = function(scrollY) {
           }
         `
       }
 
-      ${
-        dynamicHeight
-          ? `
+      ${dynamicHeight
+        ? `
         let lastHeight = 0;
         const postHeight = () => {
           const currentHeight = document.body.scrollHeight;
@@ -345,7 +344,7 @@ const CookedWebView = forwardRef(
         setTimeout(postHeight, 100); // Small delay might be needed
         postHeight(); // Post immediately too
       `
-          : `
+        : `
 
         // Adjust modal position for the extra viewport height
         const modals = document.querySelectorAll('.modal > .modal-content');
@@ -457,7 +456,7 @@ const CookedWebView = forwardRef(
         onLoadEnd={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
-        onLoadProgress={({ nativeEvent }) => {}}
+        onLoadProgress={({ nativeEvent }) => { }}
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
@@ -473,7 +472,7 @@ const CookedWebView = forwardRef(
         javaScriptEnabled={true}
         scrollEnabled={!dynamicHeight}
         bounces={false}
-        contentInset={!dynamicHeight ? { bottom: 400 } : undefined}
+        contentInset={contentInset || (!dynamicHeight ? { bottom: 400 } : undefined)}
       />
     )
   },

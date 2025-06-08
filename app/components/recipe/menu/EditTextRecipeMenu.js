@@ -10,23 +10,36 @@ function EditTextRecipeMenu() {
     return (
         <View style={styles.menuBarContainer}>
             <View style={styles.menuBar}>
-                <TouchableOpacity style={styles.menuButton} onPress={() => navigation.goBack()}>
-                    <MaterialCommunityIcons name='close' size={22} color={theme.colors.softBlack} />
-                </TouchableOpacity>
+                <View style={styles.leftButtons}>
+                    <TouchableOpacity style={[styles.menuButton, { minWidth: 60 }]} onPress={() => navigation.goBack()}>
+                        <MaterialCommunityIcons name='close' size={22} color={theme.colors.softBlack} />
+                    </TouchableOpacity>
 
-                <View style={styles.middleButtons}>
+                    <TouchableOpacity style={styles.menuButton}>
+                        <MaterialCommunityIcons name='undo' size={15} color={theme.colors.softBlack} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.menuButton}>
+                        <MaterialCommunityIcons name='redo' size={15} color={theme.colors.softBlack} />
+                    </TouchableOpacity>
+
+                </View>
+
+                <View style={styles.rightButtons}>
                     <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.actionButtonText}>Header</Text>
+                        <MaterialCommunityIcons name='format-list-bulleted' size={16} color={theme.colors.softBlack} />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.actionButtonText}>Ingredient</Text>
+                        <MaterialCommunityIcons name='format-list-numbered' size={16} color={theme.colors.softBlack} />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.actionButtonText}>Step</Text>
+                        <MaterialCommunityIcons name='dots-horizontal' size={16} color={theme.colors.softBlack} />
                     </TouchableOpacity>
                 </View>
+
+                <View style={styles.rightSpacer} />
             </View>
         </View>
     )
@@ -54,6 +67,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     menuBarContainer: {
+        backgroundColor: 'transparent',
         marginHorizontal: 16,
         marginRight: 96, // Leave space for the toggle button (64px button + 16px margin + 16px padding)
         flexDirection: 'row',
@@ -62,10 +76,15 @@ const styles = StyleSheet.create({
     },
     menuButton: {
         padding: 8,
-        minWidth: 60,
         alignItems: 'center',
     },
-    middleButtons: {
+    leftButtons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flex: 1,
+    },
+    rightButtons: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',

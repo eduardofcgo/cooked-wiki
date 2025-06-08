@@ -127,7 +127,7 @@ export default function LoggedInStack({ StackNavigator }) {
         component={EditRecipeText}
         options={{
           title: 'Edit Recipe',
-          animation: 'slide_from_right',
+          animation: 'slide_from_bottom',
           headerShown: false,
         }}
       />

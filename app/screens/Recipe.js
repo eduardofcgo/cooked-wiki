@@ -309,7 +309,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
                 <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
               </TouchableOpacity> */}
 
-              <TouchableOpacity onPress={() => navigation.navigate('EditRecipeText')} style={styles.menuButton}>
+              <TouchableOpacity onPress={() => navigation.navigate('EditRecipeText', { recipeId })} style={styles.menuButton}>
                 <MaterialIcons name='edit' size={19} color={theme.colors.softBlack} />
               </TouchableOpacity>
 

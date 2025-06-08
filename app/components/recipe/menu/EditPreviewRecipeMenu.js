@@ -14,7 +14,7 @@ function EditPreviewRecipeMenu() {
                     <MaterialCommunityIcons name='close' size={22} color={theme.colors.softBlack} />
                 </TouchableOpacity>
 
-                <Text style={styles.menuTitle}>Unsaved Changes</Text>
+                <Text style={styles.menuTitle}>Previewing Recipe</Text>
 
                 <TouchableOpacity style={styles.menuButton}>
                     <MaterialCommunityIcons
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     menuBarContainer: {
+        backgroundColor: 'transparent',
         marginHorizontal: 16,
         marginRight: 96, // Leave space for the toggle button (64px button + 16px margin + 16px padding)
         flexDirection: 'row',
@@ -58,7 +59,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     menuButton: {
-        padding: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
         minWidth: 60,
         alignItems: 'center',
     },
