@@ -2,7 +2,7 @@ import { useKeepAwake } from 'expo-keep-awake'
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, Share } from 'react-native'
-import { IconButton } from 'react-native-paper'
+import { IconButton, Menu } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import RecipeThumbnail from '../components/core/RecipeThumbnail'
 import { useStore } from '../context/StoreContext'
@@ -15,6 +15,7 @@ import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 import { MaterialIcons } from '@expo/vector-icons'
 import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 import { useInAppNotification } from '../context/NotificationContext'
+import ReportRecipeModal from '../components/recipe/ReportRecipeModal'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -23,6 +24,8 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   const { clearInAppNotifications } = useInAppNotification()
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
+  const [menuVisible, setMenuVisible] = useState(false)
+  const [reportModalVisible, setReportModalVisible] = useState(false)
 
   const hasCookedCard = Boolean(cookedCard)
 
@@ -223,13 +226,33 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
       ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 10 }}>
-          {/* <IconButton
-            icon='rotate-right'
-            size={24}
-            color={theme.colors.softBlack}
-            style={{ marginRight: -8 }}
-            onPress={rotateScreen}
-          /> */}
+          {/* Three dots menu */}
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <TouchableOpacity
+                onPress={() => setMenuVisible(true)}
+                hitSlop={{ top: 20, bottom: 20, left: 20, right: 10 }}
+              >
+                <IconButton
+                  icon='dots-vertical'
+                  iconColor={theme.colors.softBlack}
+                  size={16}
+                  style={{ marginRight: -8 }}
+                />
+              </TouchableOpacity>
+            }
+            anchorPosition='bottom'
+          >
+            <Menu.Item
+              onPress={() => {
+                setMenuVisible(false)
+                setReportModalVisible(true)
+              }}
+              title='Report'
+            />
+          </Menu>
 
           <TouchableOpacity onPress={onShare}>
             <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
@@ -265,6 +288,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     cookedCardSheetIndex,
     cookedCard,
     isNotesModalVisible,
+    menuVisible,
   ])
 
   const routeHandler = useCallback(
@@ -347,6 +371,13 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
         onClose={() => {
           setIsNotesModalVisible(false)
         }}
+      />
+
+      <ReportRecipeModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        recipeId={recipeId}
+        recipeName={'Recipe name'}
       />
     </View>
   )

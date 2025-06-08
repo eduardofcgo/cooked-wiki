@@ -14,18 +14,9 @@ import ShareNewCookCTA from '../../components/recordcook/ShareCookCTA'
 
 const Image = FastImage
 
-const FreestyleSocialMenu = observer(({ cookedId, onSharePress, onEditPress }) => (
+const FreestyleSocialMenu = observer(({ cookedId, onSharePress, onEditPress, username }) => (
   <View style={styles.socialMenuContainer}>
-    {onEditPress ? (
-      <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
-        <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
-      </TouchableOpacity>
-    ) : (
-      <View style={styles.iconContainer}>
-        <View style={{ width: 18, height: 18 }} />
-      </View>
-    )}
-    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} />
+    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} onEditPress={onEditPress} username={username} />
   </View>
 ))
 
@@ -102,6 +93,7 @@ const FreestyleCook = ({ navigation, route }) => {
             cookedId={cookedId}
             onSharePress={handleShare}
             onEditPress={cooked?.['username'] === loggedInUsername ? handleEdit : null}
+            username={cooked?.['username']}
           />
 
           {shouldShowShareCook && <ShareNewCookCTA onSharePress={handleShare} onDismissPress={handleDismissShareCTA} />}
@@ -136,7 +128,7 @@ const styles = StyleSheet.create({
   socialMenuContainer: {
     paddingVertical: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end', // While we do not have icons at the left
   },
   iconContainer: {},
   photoContainer: {

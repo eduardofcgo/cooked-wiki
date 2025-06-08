@@ -46,6 +46,8 @@ import { getShareableProfileUrl } from '../urls'
 import Recipes from './webviews/Recipes'
 import ShoppingList from './webviews/ShoppingList'
 import PhotoSelectionModal from '../components/PhotoSelectionModal'
+import BlockUser from '../components/core/BlockUser'
+import ReportUserModal from '../components/core/ReportUserModal'
 import * as ImagePicker from 'expo-image-picker'
 
 const Image = FastImage
@@ -75,140 +77,176 @@ const TabBarLabel = ({ icon, label, focused }) => (
   </View>
 )
 
-const ProfileMenu = observer(({ navigation, onEditBio, username, isUploading, setIsUploading }) => {
-  const [menuVisible, setMenuVisible] = useState(false)
-  const [photoSelectionModalVisible, setPhotoSelectionModalVisible] = useState(false)
-  const { profileStore } = useStore()
-  const { showInAppNotification } = useInAppNotification()
+const ProfileMenu = observer(
+  ({ navigation, onEditBio, username, isUploading, setIsUploading, publicView, onBlockUser, onReportUser }) => {
+    const [menuVisible, setMenuVisible] = useState(false)
+    const [photoSelectionModalVisible, setPhotoSelectionModalVisible] = useState(false)
+    const { profileStore } = useStore()
+    const { showInAppNotification } = useInAppNotification()
 
-  const handleCameraPress = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    })
+    const handleCameraPress = async () => {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      })
 
-    if (!result.canceled) {
-      setPhotoSelectionModalVisible(false)
-      setIsUploading(true)
+      if (!result.canceled) {
+        setPhotoSelectionModalVisible(false)
+        setIsUploading(true)
 
-      const file = {
-        uri: result.assets[0].uri,
-        // In production build, the fileName is null
-        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
-        type: result.assets[0].mimeType,
-      }
-
-      try {
-        await profileStore.updateProfileImage(username, file)
-        showInAppNotification(ActionToast, {
-          props: { message: 'Profile photo updated' },
-          resetQueue: true,
-        })
-      } catch (error) {
-        console.error('Error updating profile photo:', error)
-        Alert.alert('Error', 'Failed to update profile photo. Please try again.')
-      } finally {
-        setIsUploading(false)
-      }
-    }
-  }
-
-  const handleGalleryPress = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    })
-
-    if (!result.canceled) {
-      setPhotoSelectionModalVisible(false)
-      setIsUploading(true)
-
-      const file = {
-        uri: result.assets[0].uri,
-        // In production build, the fileName is null
-        name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
-        type: result.assets[0].mimeType,
-      }
-
-      try {
-        await profileStore.updateProfileImage(username, file)
-        showInAppNotification(ActionToast, {
-          props: { message: 'Profile photo updated' },
-          resetQueue: true,
-        })
-      } catch (error) {
-        console.error('Error updating profile photo:', error)
-        Alert.alert('Error', 'Failed to update profile photo. Please try again.')
-      } finally {
-        setIsUploading(false)
-      }
-    }
-  }
-
-  return (
-    <>
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
-          <IconButton
-            icon='dots-vertical'
-            iconColor={theme.colors.softBlack}
-            size={23}
-            onPress={() => setMenuVisible(true)}
-          />
+        const file = {
+          uri: result.assets[0].uri,
+          // In production build, the fileName is null
+          name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
+          type: result.assets[0].mimeType,
         }
-        anchorPosition='bottom'
-      >
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Settings')
-          }}
-          title='Share'
+
+        try {
+          await profileStore.updateProfileImage(username, file)
+          showInAppNotification(ActionToast, {
+            props: { message: 'Profile photo updated' },
+            resetQueue: true,
+          })
+        } catch (error) {
+          console.error('Error updating profile photo:', error)
+          Alert.alert('Error', 'Failed to update profile photo. Please try again.')
+        } finally {
+          setIsUploading(false)
+        }
+      }
+    }
+
+    const handleGalleryPress = async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      })
+
+      if (!result.canceled) {
+        setPhotoSelectionModalVisible(false)
+        setIsUploading(true)
+
+        const file = {
+          uri: result.assets[0].uri,
+          // In production build, the fileName is null
+          name: result.assets[0].fileName || result.assets[0].uri.split('/').pop(),
+          type: result.assets[0].mimeType,
+        }
+
+        try {
+          await profileStore.updateProfileImage(username, file)
+          showInAppNotification(ActionToast, {
+            props: { message: 'Profile photo updated' },
+            resetQueue: true,
+          })
+        } catch (error) {
+          console.error('Error updating profile photo:', error)
+          Alert.alert('Error', 'Failed to update profile photo. Please try again.')
+        } finally {
+          setIsUploading(false)
+        }
+      }
+    }
+
+    return (
+      <>
+        <Menu
+          visible={menuVisible}
+          onDismiss={() => setMenuVisible(false)}
+          anchor={
+            <IconButton
+              icon='dots-vertical'
+              iconColor={theme.colors.softBlack}
+              size={18}
+              onPress={() => setMenuVisible(true)}
+            />
+          }
+          anchorPosition='bottom'
+        >
+          {!publicView ? (
+            <>
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  Share.share({
+                    message: `Check out my profile on Cooked.wiki!`,
+                    url: getShareableProfileUrl(username),
+                  })
+                }}
+                title='Share'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  navigation.navigate('Settings')
+                }}
+                title='Settings'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  onEditBio()
+                }}
+                title='Update bio'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  setPhotoSelectionModalVisible(true)
+                }}
+                title='Update photo'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  Linking.openURL('https://cooked.wiki/contact')
+                }}
+                title='Help'
+              />
+            </>
+          ) : (
+            <>
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  Share.share({
+                    message: `Check out ${username}'s profile on Cooked.wiki!`,
+                    url: getShareableProfileUrl(username),
+                  })
+                }}
+                title='Share'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  onBlockUser()
+                }}
+                title='Block user'
+              />
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false)
+                  onReportUser()
+                }}
+                title='Report user'
+              />
+            </>
+          )}
+        </Menu>
+        <PhotoSelectionModal
+          visible={photoSelectionModalVisible}
+          onClose={() => setPhotoSelectionModalVisible(false)}
+          onCameraPress={handleCameraPress}
+          onGalleryPress={handleGalleryPress}
         />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            navigation.navigate('Settings')
-          }}
-          title='Settings'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            onEditBio()
-          }}
-          title='Update bio'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            setPhotoSelectionModalVisible(true)
-          }}
-          title='Update photo'
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false)
-            Linking.openURL('https://cooked.wiki/contact')
-          }}
-          title='Help'
-        />
-      </Menu>
-      <PhotoSelectionModal
-        visible={photoSelectionModalVisible}
-        onClose={() => setPhotoSelectionModalVisible(false)}
-        onCameraPress={handleCameraPress}
-        onGalleryPress={handleGalleryPress}
-      />
-    </>
-  )
-})
+      </>
+    )
+  },
+)
 
 const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => {
   const showImage = true
@@ -270,6 +308,8 @@ const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => 
 
 const Profile = observer(({ route, navigation, username, publicView }) => {
   const [editBioVisible, setEditBioVisible] = useState(false)
+  const [blockUserVisible, setBlockUserVisible] = useState(false)
+  const [reportUserVisible, setReportUserVisible] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
 
   // Use both a shared value (for animations) and state (for UI updates)
@@ -330,43 +370,22 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
           navigation={navigation}
           isUploading={isUploading}
           menu={
-            !publicView ? (
-              <>
-                <TouchableOpacity
-                  onPress={() => {
-                    Share.share({
-                      message: `Check out my profile on Cooked.wiki!`,
-                      url: getShareableProfileUrl(username),
-                    })
-                  }}
-                >
-                  <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
-                </TouchableOpacity>
-                <ProfileMenu
-                  navigation={navigation}
-                  onEditBio={() => setEditBioVisible(true)}
-                  username={username}
-                  isUploading={isUploading}
-                  setIsUploading={setIsUploading}
-                />
-              </>
-            ) : (
-              <TouchableOpacity
-                style={{ padding: 16 }}
-                onPress={() => {
-                  Share.share({
-                    message: `Check out ${username}'s profile on Cooked.wiki!`,
-                    url: getShareableProfileUrl(username),
-                  })
-                }}
-              >
-                <FontAwesome name='paper-plane' size={16} color={theme.colors.softBlack} />
-              </TouchableOpacity>
-            )
+            <ProfileMenu
+              navigation={navigation}
+              onEditBio={() => setEditBioVisible(true)}
+              onBlockUser={() => setBlockUserVisible(true)}
+              onReportUser={() => setReportUserVisible(true)}
+              username={username}
+              isUploading={isUploading}
+              setIsUploading={setIsUploading}
+              publicView={publicView}
+            />
           }
         />
       </Animated.View>
       <EditBio visible={editBioVisible} onClose={() => setEditBioVisible(false)} />
+      <BlockUser visible={blockUserVisible} onClose={() => setBlockUserVisible(false)} username={username} />
+      <ReportUserModal visible={reportUserVisible} onClose={() => setReportUserVisible(false)} username={username} />
       <Animated.View style={[animatedContentStyle, styles.content]}>
         <Tab.Navigator
           screenOptions={{
