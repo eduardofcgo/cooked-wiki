@@ -1,31 +1,37 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
 import ActionToast from '../notification/ActionToast'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../../context/StoreContext'
-import { useAuth } from '../../context/AuthContext'
 import { useInAppNotification } from '../../context/NotificationContext'
+import { useApi } from '../../context/ApiContext'
 
-function ReportRecipeModal({ visible, onClose, recipeId, recipeName }) {
+function ReportRecipeModal({ visible, onClose, recipeId }) {
   const { showInAppNotification } = useInAppNotification()
-  const { credentials } = useAuth()
-  const { recipeStore } = useStore()
   const [reportReason, setReportReason] = React.useState('')
+
+  const client = useApi()
+
+  const reportRecipe = useCallback(async () => {
+    await client.post(`/saved/${recipeId}/report`, {
+      message: reportReason,
+    })
+  }, [client, recipeId, reportReason])
 
   const onConfirmReport = async () => {
     onClose()
 
     try {
-      // Report the recipe with the provided reason
-      await recipeStore.reportRecipe(credentials.username, recipeId, reportReason)
+      await reportRecipe()
 
       showInAppNotification(ActionToast, {
-        props: { message: `Recipe "${recipeName}" has been reported` },
+        props: { message: 'Recipe has been reported' },
       })
     } catch (error) {
+      console.error(error)
+
       showInAppNotification(ActionToast, {
         props: { message: 'Failed to report recipe', success: false },
       })
@@ -60,7 +66,7 @@ function ReportRecipeModal({ visible, onClose, recipeId, recipeName }) {
           style={styles.textInput}
           value={reportReason}
           onChangeText={setReportReason}
-          placeholder="Please explain why you're reporting this recipe..."
+          placeholder="Please explain why you're reporting this recipe (optional)"
           placeholderTextColor={theme.colors.gray}
           multiline={true}
           numberOfLines={4}

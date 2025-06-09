@@ -112,6 +112,7 @@ const SocialMenu = observer(({ cookedId, onSharePress, onEditPress, username }) 
         visible={reportModalVisible}
         onClose={() => setReportModalVisible(false)}
         cookedId={cookedId}
+        username={username}
       />
 
       <BlockUser visible={blockUserVisible} onClose={() => setBlockUserVisible(false)} username={username} />

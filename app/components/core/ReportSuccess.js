@@ -1,71 +1,79 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { theme } from '../../style/style'
 import { PrimaryButton, TransparentButton } from './Button'
-import ModalCard from './ModalCard'
-import ActionToast from '../notification/ActionToast'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../../context/StoreContext'
 import { useInAppNotification } from '../../context/NotificationContext'
+import { useApi } from '../../context/ApiContext'
+import ActionToast from '../notification/ActionToast'
+import Bounce from './Bounce'
 
-function BlockUser({ visible, onClose, username }) {
+function ReportSuccess({ username, onClose }) {
   const { showInAppNotification } = useInAppNotification()
-  const { profileStore } = useStore()
+  const client = useApi()
+
+  const blockUser = useCallback(async () => {
+    await client.post(`/user/${username}/block`)
+  }, [client, username])
 
   const onConfirmBlock = async () => {
     onClose()
 
     try {
-      await profileStore.blockUser(username)
+      await blockUser()
 
       showInAppNotification(ActionToast, {
         props: { message: `${username} has been blocked` },
       })
     } catch (error) {
+      console.error(error)
+
       showInAppNotification(ActionToast, {
         props: { message: 'Failed to block user', success: false },
       })
     }
   }
 
-  const handleCancel = () => {
+  const handleDone = () => {
     onClose()
   }
 
   return (
-    <ModalCard
-      closeOnOverlay={false}
-      visible={visible}
-      onClose={handleCancel}
-      disableContentUpdateAnimation={true}
-      titleComponent={
-        <View style={styles.titleContainer}>
-          <Text style={styles.modalTitle}>Block User</Text>
-        </View>
-      }
-    >
+    <>
+      <View style={styles.titleContainer}>
+        <Bounce delay={300}>
+          <FontAwesomeIcon icon={faCheck} size={24} color={theme.colors.primary} style={styles.checkIcon} />
+        </Bounce>
+        <Text style={styles.modalTitle}>Thank you</Text>
+      </View>
       <View style={styles.messageContainer}>
-        <Text style={styles.messageText}>
-          Are you sure you want to block <Text style={styles.usernameText}>{username}</Text>?
+        <Text style={styles.messageText}>Our moderation team will review this report.</Text>
+        <Text style={styles.subMessageText}>
+          Would you also like to block <Text style={styles.usernameText}>{username}</Text>? This will prevent them from
+          interacting with you.
         </Text>
-        <Text style={styles.subMessageText}>They won't be able to see your recipes or interact with your content.</Text>
       </View>
 
       <View style={styles.modalButtons}>
         <PrimaryButton title='Block User' onPress={onConfirmBlock} />
-        <TransparentButton title='Cancel' onPress={handleCancel} />
+        <TransparentButton title='Done' onPress={handleDone} />
       </View>
-    </ModalCard>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flex: 1,
-    gap: 5,
+    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  checkIcon: {
+    marginRight: 4,
   },
   modalTitle: {
     fontFamily: theme.fonts.title,
@@ -74,27 +82,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   messageContainer: {
-    marginBottom: 30,
-    gap: 10,
+    marginBottom: 24,
+    gap: 16,
   },
   messageText: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
-    color: theme.colors.black,
+    color: theme.colors.softBlack,
     textAlign: 'center',
     lineHeight: 22,
   },
   usernameText: {
     fontFamily: theme.fonts.uiBold,
-    fontSize: theme.fontSizes.default,
     fontWeight: 'bold',
   },
   subMessageText: {
     fontFamily: theme.fonts.ui,
     fontSize: theme.fontSizes.default,
     color: theme.colors.black,
-    lineHeight: 18,
     textAlign: 'center',
+    lineHeight: 20,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -102,4 +109,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default observer(BlockUser)
+export default observer(ReportSuccess)

@@ -377,7 +377,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
         visible={reportModalVisible}
         onClose={() => setReportModalVisible(false)}
         recipeId={recipeId}
-        recipeName={'Recipe name'}
       />
     </View>
   )

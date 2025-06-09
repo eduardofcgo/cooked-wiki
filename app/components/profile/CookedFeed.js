@@ -6,6 +6,7 @@ import { FlashList } from '@shopify/flash-list'
 import { useStore } from '../../context/StoreContext'
 import LoadingScreen from '../../screens/Loading'
 import GenericError from '../core/GenericError'
+import BlockedUser from './BlockedUser'
 import { theme } from '../../style/style'
 import FeedItem from '../cooked/FeedItem'
 import Loading from '../core/Loading'
@@ -14,6 +15,9 @@ import ProfileStats from './ProfileStats'
 import HeaderText from '../core/HeaderText'
 
 const FlatList = FlashList
+
+// TODO: maybe we should define the inverse, retryable status...
+const nonRetryableStatuses = new Set([401, 404, 423])
 
 const FeedHeader = observer(({ username }) => {
   return (
@@ -32,6 +36,12 @@ const ProfileCooked = observer(({ username, onScroll }) => {
   const hasMore = profileStore.hasMoreProfileCookeds(username)
 
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    return () => {
+      profileStore.reloadProfileCooked(username)
+    }
+  }, [username])
 
   useEffect(() => {
     ;(async () => {
@@ -83,12 +93,20 @@ const ProfileCooked = observer(({ username, onScroll }) => {
     return null
   }, [isLoadingProfileCookedsNextPage])
 
+  const onUnblocked = useCallback(() => {
+    setError(null)
+  }, [])
+
   if (error) {
+    if (error.code === 'USER_BLOCKED') {
+      return <BlockedUser username={username} onUnblocked={onUnblocked} />
+    }
+
     return (
       <GenericError
         status={error.status}
         customMessage={error.status === 401 && 'This user is private.'}
-        onRetry={error.status !== 401 && error.status !== 404 && onRefresh}
+        onRetry={!nonRetryableStatuses.has(error.status) && onRefresh}
       />
     )
   }

@@ -132,6 +132,33 @@ export class ProfileStore {
     })
   }
 
+  async blockUser(username) {
+    // When user is blocked, he will be removed from following and followers.
+    await this.apiClient.post(`/user/${username}/block`)
+
+    runInAction(() => {
+      this.needsRefreshCommunityFeed = true
+      this.communityFeed.replace(this.communityFeed.filter(cooked => cooked.username !== username))
+
+      const followProfileData = this.profileDataMap.get(username)
+      if (followProfileData) {
+        followProfileData.stats['following-count']--
+
+        // We dont really know if the blocked user is following or not, so the followers count might be incorrect.
+      }
+    })
+  }
+
+  async unblockUser(username) {
+    await this.apiClient.delete(`/user/${username}/block`)
+
+    this.reloadProfileCooked(username)
+
+    runInAction(() => {
+      this.needsRefreshCommunityFeed = true
+    })
+  }
+
   async loadCommunityFeed() {
     runInAction(() => {
       this.isLoadingCommunityFeed = true
