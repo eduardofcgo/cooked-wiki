@@ -37,7 +37,6 @@ function BlockedUser({ style, username, onUnblocked }) {
       <View style={styles.content}>
         <MaterialCommunityIcons name='account-cancel' size={22} color={theme.colors.softBlack} style={styles.icon} />
         <Text style={styles.message}>You have blocked this user.</Text>
-        <Text style={styles.subMessage}>You won't see their posts, comments, or be able to interact with them.</Text>
 
         <View style={styles.buttonContainer}>
           <PrimaryButton

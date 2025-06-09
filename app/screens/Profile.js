@@ -254,7 +254,7 @@ const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => 
 
   const { profileStore } = useStore()
   const bio = profileStore.getBio(username)
-  const isPatron = profileStore.isPatron(username)
+  const isPatron = false //profileStore.isPatron(username)
   const profileImageThumbnail = profileStore.getProfileImageUrl(username)
 
   return (
@@ -287,7 +287,8 @@ const ProfileHeader = observer(({ username, navigation, menu, isUploading }) => 
               imageUrl={profileImageThumbnail}
               onClose={() => setIsImageFullScreen(false)}
               bio={bio}
-              isPatron={isPatron}
+              // isPatron={isPatron}
+              isPatron={false}
             />
           </>
         ) : (

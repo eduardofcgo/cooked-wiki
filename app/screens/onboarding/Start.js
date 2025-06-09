@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View, Linking } from 'react-native'
+import React, { useEffect, useCallback, useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View, Linking, Alert } from 'react-native'
 import Logo from '../../components/core/Logo'
 import { theme } from '../../style/style'
 import { getGoogleRegisteredUsername } from '../../urls'
@@ -18,6 +18,7 @@ import {
 
 export default function Start({ navigation, route }) {
   const auth = useAuth()
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   const navigateToMain = useCallback(() => {
     navigation.reset({
@@ -103,12 +104,61 @@ export default function Start({ navigation, route }) {
   }
 
   const handlePasswordLogin = () => {
+    if (!agreedToTerms) {
+      Alert.alert('Terms and Conditions', 'Please agree to the Terms and Conditions to continue.', [{ text: 'OK' }])
+      return
+    }
     navigation.navigate('Login')
   }
 
   const handleContactPress = async () => {
     try {
       const url = getContactUrl()
+      const supported = await Linking.canOpenURL(url)
+
+      if (supported) {
+        await Linking.openURL(url)
+      } else {
+        console.error('Cannot open URL: ' + url)
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error)
+    }
+  }
+
+  const handlePrivacyPolicyPress = async () => {
+    try {
+      const url = 'https://cooked.wiki/terms/pp.txt'
+      const supported = await Linking.canOpenURL(url)
+
+      if (supported) {
+        await Linking.openURL(url)
+      } else {
+        console.error('Cannot open URL: ' + url)
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error)
+    }
+  }
+
+  const handleTermsPress = async () => {
+    try {
+      const url = 'https://cooked.wiki/terms/tos.txt'
+      const supported = await Linking.canOpenURL(url)
+
+      if (supported) {
+        await Linking.openURL(url)
+      } else {
+        console.error('Cannot open URL: ' + url)
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error)
+    }
+  }
+
+  const handleEulaPress = async () => {
+    try {
+      const url = 'https://cooked.wiki/terms/eula.txt'
       const supported = await Linking.canOpenURL(url)
 
       if (supported) {
@@ -158,16 +208,32 @@ export default function Start({ navigation, route }) {
           <Text style={styles.passwordButtonText}>Continue with Password</Text>
         </TouchableOpacity>
 
-        <Text style={styles.helpText}>
-          Help and delete account:
-          <Text
-            onPress={handleContactPress}
-            style={{ color: theme.colors.primary, fontFamily: theme.fonts.uiBold, fontWeight: 'bold' }}
-          >
-            {' '}
-            contact us
-          </Text>
-        </Text>
+        <View style={styles.termsContainer}>
+          <TouchableOpacity onPress={() => setAgreedToTerms(!agreedToTerms)} style={styles.checkboxContainer}>
+            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              {agreedToTerms && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.termsText}>
+              I agree to the{' '}
+              <Text onPress={handleTermsPress} style={styles.termsLink}>
+                Terms and Conditions
+              </Text>{' '}
+              and{' '}
+              <Text onPress={handleEulaPress} style={styles.termsLink}>
+                EULA
+              </Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.bottomLinksContainer}>
+          <TouchableOpacity onPress={handlePrivacyPolicyPress}>
+            <Text style={styles.helpText}>Privacy Policy</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleContactPress}>
+            <Text style={styles.helpText}>Help & delete account</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   )
@@ -216,10 +282,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   helpText: {
-    marginTop: 30,
-    marginBottom: 30,
+    marginTop: 5,
+    marginBottom: 16,
     color: theme.colors.softBlack,
-    fontFamily: theme.fonts.ui,
+    fontFamily: theme.fonts.uiBold,
+    fontWeight: 'bold',
     fontSize: theme.fontSizes.default,
     textAlign: 'center',
   },
@@ -332,5 +399,57 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     zIndex: 0,
+  },
+  // Terms and conditions styles
+  termsContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+    marginHorizontal: 16,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: theme.colors.softBlack,
+    borderRadius: 3,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  checkboxChecked: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  checkmark: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  termsText: {
+    fontSize: theme.fontSizes.default,
+    fontFamily: theme.fonts.ui,
+    color: theme.colors.softBlack,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
+  termsLink: {
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.uiBold,
+    fontWeight: 'bold',
+    textDecorationLine: 'none',
+  },
+  bottomLinksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom: 5,
+    gap: 20,
   },
 })
