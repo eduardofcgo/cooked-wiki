@@ -108,6 +108,7 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
               cookedId={cookedId}
               onSharePress={onSharePress}
               onEditPress={canEdit ? navigateToEditCook : undefined}
+              username={cooked['username']}
             />
           </AuthorBar>
         </View>

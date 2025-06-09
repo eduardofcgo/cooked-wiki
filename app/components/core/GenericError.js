@@ -11,6 +11,7 @@ const errorMessages = {
   404: 'Not found.',
   408: 'Request timeout.',
   429: 'Too many requests.',
+  423: 'Resource locked.',
   500: 'Internal server error.',
   502: 'Bad gateway.',
   503: 'Service unavailable.',

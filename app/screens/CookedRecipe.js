@@ -87,18 +87,9 @@ const BottomSheetHandle = observer(
   },
 )
 
-const SocialMenuCooked = observer(({ cookedId, onSharePress, onEditPress }) => (
+const SocialMenuCooked = observer(({ cookedId, onSharePress, onEditPress, username }) => (
   <View style={styles.socialMenuContainer}>
-    {onEditPress ? (
-      <TouchableOpacity style={styles.iconContainer} onPress={onEditPress}>
-        <MaterialIcons name='edit' size={18} color={`${theme.colors.primary}80`} />
-      </TouchableOpacity>
-    ) : (
-      <View style={styles.iconContainer}>
-        <View style={{ width: 18, height: 18 }} />
-      </View>
-    )}
-    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} />
+    <SocialMenu cookedId={cookedId} onSharePress={onSharePress} onEditPress={onEditPress} username={username} />
   </View>
 ))
 
@@ -118,7 +109,12 @@ const ListHeader = observer(
   ({ cookedId, cooked, photoUrls, onShare, shouldShowShareCook, onDismissShareCTA, onEditPress }) => (
     <View style={styles.cardBodyStyle}>
       <FullNotes notes={cooked?.['notes']} />
-      <SocialMenuCooked cookedId={cookedId} onSharePress={onShare} onEditPress={onEditPress} />
+      <SocialMenuCooked
+        cookedId={cookedId}
+        onSharePress={onShare}
+        onEditPress={onEditPress}
+        username={cooked?.['username']}
+      />
       {shouldShowShareCook && <ShareNewCookCTA onSharePress={onShare} onDismissPress={onDismissShareCTA} />}
       <PhotoGallery photoUrls={photoUrls} />
       <View style={styles.headerContainer}>
@@ -399,7 +395,7 @@ const styles = StyleSheet.create({
   socialMenuContainer: {
     paddingVertical: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end', // While we do not have icons at the left
   },
   iconContainer: {},
   photoContainer: {

@@ -41,6 +41,8 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   const { clearInAppNotifications } = useInAppNotification()
   const loggedInUsername = credentials.username
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(undefined)
+  const [menuVisible, setMenuVisible] = useState(false)
+  const [reportModalVisible, setReportModalVisible] = useState(false)
 
   const insets = useSafeAreaInsets()
 

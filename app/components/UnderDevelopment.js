@@ -12,12 +12,8 @@ function UnderDevelopment({ openURL, onClose }) {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.message}>
-        Not yet supported on the App. You can use the site directly instead. Sorry for the inconvenience!
-      </Text> */}
-
       <Text style={styles.message}>
-        This feature is under development. Sorry for the inconvenience!
+        Not yet supported on the App. You can use the site directly instead. Sorry for the inconvenience!
       </Text>
 
       <View style={styles.buttonsContainer}>
@@ -25,12 +21,8 @@ function UnderDevelopment({ openURL, onClose }) {
           onPress={openInBrowser}
           title={'Open in Browser'}
           icon={<MaterialCommunityIcons name='open-in-new' size={16} color={theme.colors.white} />}
-        /> */}
-
-        {/* <TransparentButton title='Cancel' onPress={onClose} /> */}
-
-        <TransparentButton title='Go back' onPress={onClose} />
-
+        />
+        <TransparentButton title='Cancel' onPress={onClose} />
       </View>
     </View>
   )
