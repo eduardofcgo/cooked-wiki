@@ -21,7 +21,7 @@ function UnderDevelopment({ openURL, onClose }) {
           onPress={openInBrowser}
           title={'Open in Browser'}
           icon={<MaterialCommunityIcons name='open-in-new' size={16} color={theme.colors.white} />}
-        />
+        /> */}
         <TransparentButton title='Cancel' onPress={onClose} />
       </View>
     </View>
