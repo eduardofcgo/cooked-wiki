@@ -1,8 +1,9 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { View, Text, SafeAreaView, StyleSheet } from 'react-native'
-import { theme } from '../../../style/style'
 import EditPreviewRecipeMenu from '../../../components/recipe/menu/EditPreviewRecipeMenu'
+
+// In the future the user will also be able to edit recipe in "preview mode"
 
 function EditRecipePreview() {
   return (

@@ -10,7 +10,7 @@ export default routes = [
   {
     path: '/saved/:id/edit',
     handler: ({ navigation, params }) => {
-      navigation.navigate('EditRecipePreview', { recipeId: params.id })
+      navigation.navigate('EditRecipeText', { recipeId: params.id })
     },
   },
   {

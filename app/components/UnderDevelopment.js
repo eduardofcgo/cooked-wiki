@@ -12,9 +12,7 @@ function UnderDevelopment({ openURL, onClose }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.message}>
-        Not yet supported on the App. You can use the site directly instead. Sorry for the inconvenience!
-      </Text>
+      <Text style={styles.message}>Not yet supported. Sorry for the inconvenience!</Text>
 
       <View style={styles.buttonsContainer}>
         {/* <PrimaryButton

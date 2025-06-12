@@ -11,6 +11,7 @@ import {
   Share,
   SafeAreaView,
   StatusBar,
+  DeviceEventEmitter,
 } from 'react-native'
 import { IconButton } from 'react-native-paper'
 import Animated, {
@@ -118,6 +119,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   const recipeId = props.recipeId || route.params?.recipeId
   const extractId = props.extractId || route.params?.extractId
+  const refreshKey = route.params?.refreshKey
 
   // Webview can pass url query params here
   const justSaved = route.params?.queryParams?.saved === 'true'
@@ -154,7 +156,17 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     }
   }, [recentlyOpenedStore, recipeId, extractId, redirectedFrom, savedExtractionId])
 
-  // Update the key whenever recipe/extract ID changes to force re-render
+  // Listen for recipe update events (when the user edits a recipe)
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('recipe.updated', event => {
+      if (event.recipeId === recipeId) {
+        setComponentKey(Date.now())
+      }
+    })
+
+    return () => subscription.remove()
+  }, [recipeId])
+
   useEffect(() => {
     setComponentKey(Date.now())
   }, [recipeId, extractId])
@@ -307,21 +319,17 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
             </View>
 
             <View style={[styles.menuBarRight, styles.menuActions]}>
-              {/* <TouchableOpacity onPress={onShare} style={styles.menuButton}>
+              <TouchableOpacity onPress={onShare} style={[styles.menuButton, { marginRight: 8 }]}>
                 <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
-              </TouchableOpacity> */}
-
-              <TouchableOpacity onPress={() => navigation.navigate('EditRecipeText', { recipeId })} style={styles.menuButton}>
-                <MaterialIcons name='edit' size={19} color={theme.colors.softBlack} />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
+              {/* <TouchableOpacity onPress={undefined} style={styles.menuButton}>
                 <MaterialIcons name='bookmark' size={20} color={theme.colors.softBlack} />
               </TouchableOpacity>
 
               <TouchableOpacity onPress={undefined} style={styles.menuButton}>
                 <MaterialIcons name='timer' size={20} color={theme.colors.softBlack} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
 
