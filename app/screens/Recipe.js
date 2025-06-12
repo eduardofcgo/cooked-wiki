@@ -13,7 +13,7 @@ import {
   StatusBar,
   DeviceEventEmitter,
 } from 'react-native'
-import { IconButton } from 'react-native-paper'
+import { IconButton, Menu } from 'react-native-paper'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -33,6 +33,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 import { useInAppNotification } from '../context/NotificationContext'
 import RecentlyOpenedCard from '../components/recipe/RecentlyOpenedCard'
+import ReportRecipeModal from '../components/recipe/ReportRecipeModal'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -319,17 +320,32 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
             </View>
 
             <View style={[styles.menuBarRight, styles.menuActions]}>
+              <Menu
+                visible={menuVisible}
+                onDismiss={() => setMenuVisible(false)}
+                anchor={
+                  <TouchableOpacity
+                    style={styles.menuButton}
+                    onPress={() => setMenuVisible(true)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <MaterialIcons name='more-vert' size={20} color={theme.colors.softBlack} />
+                  </TouchableOpacity>
+                }
+                anchorPosition='bottom'
+              >
+                <Menu.Item
+                  onPress={() => {
+                    setMenuVisible(false)
+                    setReportModalVisible(true)
+                  }}
+                  title='Report'
+                />
+              </Menu>
+
               <TouchableOpacity onPress={onShare} style={[styles.menuButton, { marginRight: 8 }]}>
                 <FontAwesome name='paper-plane' size={15} color={theme.colors.softBlack} />
               </TouchableOpacity>
-
-              {/* <TouchableOpacity onPress={undefined} style={styles.menuButton}>
-                <MaterialIcons name='bookmark' size={20} color={theme.colors.softBlack} />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={undefined} style={styles.menuButton}>
-                <MaterialIcons name='timer' size={20} color={theme.colors.softBlack} />
-              </TouchableOpacity> */}
             </View>
           </View>
 
@@ -373,6 +389,12 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           }}
         />
       </SafeAreaView>
+
+      <ReportRecipeModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        recipeId={recipeId}
+      />
     </View>
   )
 }
