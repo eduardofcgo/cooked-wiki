@@ -7,6 +7,8 @@ import { useAuth } from '../../context/AuthContext'
 import { getContactUrl } from '../../urls'
 import LottieView from 'lottie-react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import Constants from 'expo-constants'
+import CheckBox from '../../components/core/CheckBox'
 
 import {
   GoogleSignin,
@@ -180,23 +182,23 @@ export default function Start({ navigation, route }) {
       />
       <View style={styles.topSection}>
         <Logo style={styles.logo} />
-        <LottieView
+        {/* <LottieView
           source={require('../../../assets/animations/cooked_background.json')}
           style={styles.backgroundAnimation}
           autoPlay
           loop
           speed={2}
-        />
+        /> */}
       </View>
 
       <View style={styles.buttonsContainer}>
-        <Text style={styles.title}>Welcome to Cooked.wiki</Text>
+        {/* <Text style={styles.title}>Welcome to {Constants.expoConfig.name}</Text> */}
 
         {/* <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
           <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity onPress={handleFacebookLogin} style={styles.facebookButton}>
+        {/* <TouchableOpacity onPress={handleFacebookLogin} style={styles.facebookButton}>
           <Text style={styles.facebookButtonText}>Continue with Facebook</Text>
         </TouchableOpacity>
 
@@ -209,21 +211,22 @@ export default function Start({ navigation, route }) {
         </TouchableOpacity>
 
         <View style={styles.termsContainer}>
-          <TouchableOpacity onPress={() => setAgreedToTerms(!agreedToTerms)} style={styles.checkboxContainer}>
-            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-              {agreedToTerms && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.termsText}>
-              I agree to the{' '}
-              <Text onPress={handleTermsPress} style={styles.termsLink}>
-                Terms and Conditions
-              </Text>{' '}
-              and{' '}
-              <Text onPress={handleEulaPress} style={styles.termsLink}>
-                EULA
+          <CheckBox
+            isChecked={agreedToTerms}
+            onPress={() => setAgreedToTerms(!agreedToTerms)}
+            label={
+              <Text style={styles.termsText}>
+                I agree to the{' '}
+                <Text onPress={handleTermsPress} style={styles.termsLink}>
+                  Terms and Conditions
+                </Text>{' '}
+                and{' '}
+                <Text onPress={handleEulaPress} style={styles.termsLink}>
+                  EULA
+                </Text>
               </Text>
-            </Text>
-          </TouchableOpacity>
+            }
+          />
         </View>
 
         <View style={styles.bottomLinksContainer}>
@@ -231,7 +234,7 @@ export default function Start({ navigation, route }) {
             <Text style={styles.helpText}>Privacy Policy</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleContactPress}>
-            <Text style={styles.helpText}>Help & delete account</Text>
+            <Text style={styles.helpText}>Help & Delete Account</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -364,7 +367,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  // Password button
   passwordButton: {
     backgroundColor: theme.colors.softBlack,
     borderColor: '#ccc',
@@ -381,7 +383,7 @@ const styles = StyleSheet.create({
   },
   passwordButtonText: {
     color: theme.colors.white,
-    fontSize: 16,
+    fontSize: theme.fontSizes.default,
     fontWeight: '500',
   },
   backgroundAnimation: {
@@ -404,32 +406,7 @@ const styles = StyleSheet.create({
   termsContainer: {
     marginTop: 16,
     marginBottom: 8,
-    marginHorizontal: 16,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: theme.colors.softBlack,
-    borderRadius: 3,
-    marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  checkboxChecked: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  checkmark: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
+    marginHorizontal: 32,
   },
   termsText: {
     fontSize: theme.fontSizes.default,
@@ -448,8 +425,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 5,
-    marginBottom: 5,
+    marginTop: 64,
+    marginBottom: 16,
     gap: 20,
   },
 })

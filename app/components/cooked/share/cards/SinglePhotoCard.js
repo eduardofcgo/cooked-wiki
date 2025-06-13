@@ -17,7 +17,7 @@ const SinglePhotoCard = ({ cooked }) => {
   // Scale the translateY proportionally with the container size
   const baseTranslateY = 60 // Base percentage value
   const scaledTranslateY =
-    containerDimensions.width > 0 ? `${baseTranslateY * (containerDimensions.width / 300)}%` : `${baseTranslateY}%`
+    containerDimensions.width > 0 ? baseTranslateY * (containerDimensions.width / 300) : baseTranslateY
 
   return (
     <View style={styles.container} onLayout={handleLayout}>

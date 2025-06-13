@@ -5,6 +5,7 @@ import { PrimaryButton, SecondaryButton } from '../core/Button'
 import ModalCard from '../core/ModalCard'
 import { theme } from '../../style/style'
 import Bounce from '../core/Bounce'
+import Constants from 'expo-constants'
 
 const AnimatedPoint = ({ text, delay }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -59,7 +60,7 @@ const ConfirmationModal = ({ visible, onClose, onConfirm }) => {
       }
     >
       <View style={styles.confirmationPoints}>
-        <AnimatedPoint text='Will be saved on your Cooked.wiki journal.' delay={500} />
+        <AnimatedPoint text={`Will be saved on your ${Constants.expoConfig.name} journal.`} delay={500} />
         <AnimatedPoint text='Your followers will be notified.' delay={1000} />
         <AnimatedPoint text='People cooking the same recipe will get inspiration from you.' delay={1500} />
       </View>

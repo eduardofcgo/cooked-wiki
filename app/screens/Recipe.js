@@ -12,6 +12,7 @@ import {
   SafeAreaView,
   StatusBar,
   DeviceEventEmitter,
+  Platform,
 } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import Animated, {
@@ -47,6 +48,16 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   const [reportModalVisible, setReportModalVisible] = useState(false)
 
   const insets = useSafeAreaInsets()
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('transparent')
+
+      return () => {
+        StatusBar.setBackgroundColor(theme.colors.secondary)
+      }
+    }
+  }, [])
 
   const scrollY = useSharedValue(0)
   const lastScrollY = useRef(0)
@@ -90,7 +101,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           translateY: interpolate(headerVisible.value, [0, 1], [-100, 0], Extrapolate.CLAMP),
         },
       ],
-      opacity: headerVisible.value,
+      opacity: Number(headerVisible.value),
     }
   })
 
@@ -210,7 +221,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
   const onShare = useCallback(() => {
     Share.share({
-      message: `Check out this recipe on Cooked!`,
+      message: `Check out this recipe on Cooked.wiki!`,
       url: recipeId ? getSavedRecipeUrl(recipeId) : getRecentExtractUrl(extractId),
     })
   }, [recipeId, extractId])
@@ -278,7 +289,7 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           route={route}
           disableRefresh={true}
           loadingComponent={loadingComponent}
-          contentInsetTop={130}
+          contentInsetTop={Platform.OS === 'android' ? 130 - StatusBar.currentHeight : 130}
           onTouchStart={onClickRecipe}
           onScroll={handleScroll}
         />
@@ -412,7 +423,7 @@ const styles = StyleSheet.create({
   },
   menuBarContainer: {
     marginHorizontal: 16,
-    marginTop: 8,
+    marginTop: Platform.OS === 'ios' ? 8 : StatusBar.currentHeight + 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,

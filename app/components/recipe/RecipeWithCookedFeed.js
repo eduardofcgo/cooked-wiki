@@ -16,74 +16,74 @@ import GenericError from '../core/GenericError'
 
 const FlatList = FlashList
 
-const RecipeWebView = forwardRef(
-  (
-    {
-      recipeId,
-      extractId,
-      justSaved,
-      savedExtractionId,
-      cloned,
-      webViewHeight,
-      setWebViewHeight,
-      navigation,
-      onRequestPath,
-      route,
-      disableRefresh,
-      loadingComponent,
-      onWebViewReady,
-      onHttpError,
-    },
-    ref,
-  ) => {
-    const startUrl = useMemo(() => {
-      const baseUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
-      const params = {
-        ...(justSaved && { saved: 'true' }),
-        ...(cloned && { cloned: 'true' }),
-        ...(savedExtractionId && { savedExtractionId }),
-      }
-      const queryString = new URLSearchParams(params).toString()
-      return baseUrl + (queryString ? `?${queryString}` : '')
-    }, [recipeId, extractId, justSaved, cloned, savedExtractionId])
+const RecipeWebView = observer(
+  forwardRef(
+    (
+      {
+        recipeId,
+        extractId,
+        justSaved,
+        savedExtractionId,
+        cloned,
+        webViewHeight,
+        setWebViewHeight,
+        navigation,
+        onRequestPath,
+        route,
+        disableRefresh,
+        loadingComponent,
+        onWebViewReady,
+        onHttpError,
+      },
+      ref,
+    ) => {
+      const startUrl = useMemo(() => {
+        const baseUrl = extractId ? getRecentExtractUrl(extractId) : getSavedRecipeUrl(recipeId)
+        const params = {
+          ...(justSaved && { saved: 'true' }),
+          ...(cloned && { cloned: 'true' }),
+          ...(savedExtractionId && { savedExtractionId }),
+        }
+        const queryString = new URLSearchParams(params).toString()
+        return baseUrl + (queryString ? `?${queryString}` : '')
+      }, [recipeId, extractId, justSaved, cloned, savedExtractionId])
 
-    console.log('Openning recipe with url', startUrl)
-
-    return (
-      <View style={[styles.webViewContainer]}>
-        <CookedWebView
-          ref={ref}
-          startUrl={startUrl}
-          style={{ height: webViewHeight }}
-          dynamicHeight={true}
-          onHeightChange={setWebViewHeight}
-          navigation={navigation}
-          onRequestPath={onRequestPath}
-          route={route}
-          disableRefresh={disableRefresh}
-          loadingComponent={loadingComponent}
-          onWebViewReady={onWebViewReady}
-          onHttpError={onHttpError}
-        />
-        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
-            <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
-          </TouchableOpacity>
-          <Text
-            style={{
-              color: theme.colors.softBlack,
-              fontSize: 12,
-              marginTop: 8,
-              textAlign: 'center',
-              paddingHorizontal: 16,
-            }}
-          >
-            Add your own notes and save to your journal.
-          </Text>
+      return (
+        <View style={[styles.webViewContainer]}>
+          <CookedWebView
+            ref={ref}
+            startUrl={startUrl}
+            style={{ height: webViewHeight }}
+            dynamicHeight={true}
+            onHeightChange={setWebViewHeight}
+            navigation={navigation}
+            onRequestPath={onRequestPath}
+            route={route}
+            disableRefresh={disableRefresh}
+            loadingComponent={loadingComponent}
+            onWebViewReady={onWebViewReady}
+            onHttpError={onHttpError}
+          />
+          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
+              <RecordCookCTA showText={true} description='Add your own notes and save to your journal.' />
+            </TouchableOpacity>
+            <Text
+              style={{
+                color: theme.colors.softBlack,
+                fontSize: 12,
+                marginTop: 8,
+                textAlign: 'center',
+                paddingHorizontal: 16,
+              }}
+            >
+              Add your own notes and save to your journal.
+            </Text>
+          </View>
         </View>
-      </View>
-    )
-  },
+      )
+    },
+  )
 )
 
 const RecipeWithCookedFeed = observer(

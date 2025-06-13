@@ -81,9 +81,9 @@ export default function Login({ navigation, route }) {
           <View style={styles.contentContainer}>
             <View style={styles.headerContainer}>
               <Text style={styles.headerText}>Welcome back!</Text>
-              <Text style={styles.subHeaderText}>
+              {/* <Text style={styles.subHeaderText}>
                 Only for old accounts previously registered on the site with username and password.
-              </Text>
+              </Text> */}
             </View>
 
             <View style={styles.formContainer}>

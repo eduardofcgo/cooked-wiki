@@ -36,11 +36,11 @@ function PrintPDF({ navigation, route }) {
     try {
       const blob = await apiClient.downloadPdf(path)
 
-      // Convert blob to data URL
       const reader = new FileReader()
 
       reader.onload = () => {
-        setPdfSource({ uri: reader.result })
+        const base64data = reader.result.split(',')[1]
+        setPdfSource({ uri: `data:application/pdf;base64,${base64data}` })
         setLoading(false)
       }
 

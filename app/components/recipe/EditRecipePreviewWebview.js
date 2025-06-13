@@ -4,7 +4,7 @@ import CookedWebView from '../CookedWebView'
 import { getEditPreviewRecipeUrl } from '../../urls'
 
 function EditRecipePreviewWebview({ recipeId, navigation, route, editedRecipeHtml }) {
-  const routeHandler = useCallback(() => {}, [])
+  const routeHandler = useCallback(() => { }, [])
 
   return (
     <CookedWebView

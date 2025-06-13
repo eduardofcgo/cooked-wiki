@@ -86,7 +86,6 @@ const ShareCooked = observer(() => {
 
       const shareOptions = {
         social: Share.Social.INSTAGRAM_STORIES,
-        appId: ENV.FACEBOOK_APP_ID,
         stickerImage: capturedImageUri,
         backgroundBottomColor: theme.colors.background,
         backgroundTopColor: theme.colors.background,

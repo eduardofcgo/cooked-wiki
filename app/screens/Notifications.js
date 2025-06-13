@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { useCallback, useEffect } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import FastImage from 'react-native-fast-image'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -319,6 +319,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    ...(Platform.OS === 'android' && { paddingTop: 16 }),
   },
   headerContent: {
     flexDirection: 'row',

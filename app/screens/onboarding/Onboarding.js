@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import LottieView from 'lottie-react-native'
+import Constants from 'expo-constants'
 
 import { PrimaryButton } from '../../components/core/Button'
 import Logo from '../../components/core/Logo'
@@ -42,13 +43,13 @@ const OnboardingScreen = ({ navigation }) => {
     <Animated.View style={[styles.container, animatedStyle]}>
       <Animated.View style={styles.topSection} entering={FadeInDown.delay(0).duration(3000)}>
         <Logo style={styles.logo} />
-        <LottieView
+        {/* <LottieView
           source={require('../../../assets/animations/cooked_background.json')}
           style={styles.backgroundAnimation}
           autoPlay
           loop
           speed={2}
-        />
+        /> */}
       </Animated.View>
 
       <Animated.View entering={FadeIn.delay(3000).duration(1000)}>
@@ -63,7 +64,7 @@ const OnboardingScreen = ({ navigation }) => {
               paddingVertical: 16,
             }}
           >
-            From now on, when somebody asks for your cookie recipe, just say:
+            The cooking app designed for learning and accessibility.
           </Text>
           <Text
             style={{
@@ -74,7 +75,7 @@ const OnboardingScreen = ({ navigation }) => {
               paddingHorizontal: 32,
             }}
           >
-            It's on my <Text style={{ color: theme.colors.black, fontFamily: theme.fonts.title }}>Cooked</Text>!
+            {/* It's on my <Text style={{ color: theme.colors.black, fontFamily: theme.fonts.title }}>{Constants.expoConfig.name}</Text>! */}
           </Text>
         </View>
       </Animated.View>
@@ -87,7 +88,7 @@ const OnboardingScreen = ({ navigation }) => {
             style={styles.nextButton}
             icon={<Icon name='arrow-right' size={20} color='white' />}
           />
-          <Text style={styles.subtitle}>Let's see how to create a recipe!</Text>
+          {/* <Text style={styles.subtitle}>Show me a tutorial!</Text> */}
         </Animated.View>
       </View>
 

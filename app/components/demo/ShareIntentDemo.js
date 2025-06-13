@@ -8,7 +8,7 @@ import { theme } from '../../style/style'
 const ShareIntentDemo = ({
   screenshots,
   animationSource,
-  cycleDelay = 2000, // Time each screenshot is shown (in ms)
+  cycleDelay = 3500, // Time each screenshot is shown (in ms)
   initialDelay = 0, // Initial delay before starting the demo
   stickyIndex = null, // If provided, stays on this specific screenshot index
   onComplete, // Callback function that is called when the demo ends
@@ -189,7 +189,7 @@ const ShareIntentDemo = ({
                 onLoad={handleImageLoad}
               />
 
-              {currentScreenshot.animationPosition && (
+              {/* {currentScreenshot.animationPosition && (
                 <LottieView
                   source={animationSource}
                   style={[
@@ -205,7 +205,7 @@ const ShareIntentDemo = ({
                   loop
                   key={`animation-${currentIndex}`}
                 />
-              )}
+              )} */}
             </Animated.View>
           </Animated.View>
         </>

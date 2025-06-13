@@ -2,12 +2,13 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Constants from 'expo-constants'
 
 import { PrimaryButton } from '../../components/core/Button'
 import ShareIntentDemo from '../../components/demo/ShareIntentDemo'
 import { theme } from '../../style/style'
 
-const clickAnimation = require('../../../assets/animations/click.json')
+const clickAnimation = undefined //require('../../../assets/animations/click.json')
 
 const screenshots = [
   {
@@ -28,11 +29,33 @@ const screenshots = [
   {
     source: require('../../../assets/demo/frame4.png'),
     animationPosition: { top: '72%', left: '58%' },
-    label: 'Share to the Cooked.wiki app',
+    label: `Share to the ${Constants.expoConfig.name} app`,
   },
   {
     source: require('../../../assets/demo/frame5.png'),
-    label: 'And start cooking!',
+    label: 'Open recipe',
+  },
+  {
+    source: require('../../../assets/demo/frame6.png'),
+    label: "Follow along using the flowchart!",
+  },
+  {
+    source: require('../../../assets/demo/frame6.png'),
+  },
+  {
+    source: require('../../../assets/demo/frame6.png'),
+    label: "Click the Pasta Dough section",
+  },
+  {
+    source: require('../../../assets/demo/frame7.png'),
+  },
+  {
+    source: require('../../../assets/demo/frame7.png'),
+    label: "Now follow the recipe just for the Dough",
+  },
+  {
+    source: require('../../../assets/demo/frame7.png'),
+    label: "Add notes as you cook",
   },
 ]
 

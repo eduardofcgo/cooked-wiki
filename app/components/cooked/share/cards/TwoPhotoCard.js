@@ -34,15 +34,15 @@ const TwoPhotoCard = ({ cooked }) => {
   // Scale the translateY proportionally with the container size
   const baseTranslateY = 100 // Base percentage value
   const scaledTranslateY =
-    containerDimensions.width > 0 ? `${baseTranslateY * (containerDimensions.width / 300)}%` : `${baseTranslateY}%`
+    containerDimensions.width > 0 ? baseTranslateY * (containerDimensions.width / 300) : baseTranslateY
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
-      <View style={styles.photoContainer}>
-        {cooked['cooked-photos-urls']?.[0] && (
-          <Image source={{ uri: cooked['cooked-photos-urls']?.[0] }} style={styles.photo} />
-        )}
-      </View>
+      {cooked['cooked-photos-urls']?.[0] ? (
+        <Image source={{ uri: cooked['cooked-photos-urls']?.[0] }} style={styles.mainPhoto} />
+      ) : cooked['recipe-photo-url'] ? (
+        <Image source={{ uri: cooked['recipe-photo-url'] }} style={styles.recipePhoto} />
+      ) : null}
 
       <View style={styles.photoContainer}>
         {cooked['cooked-photos-urls'].length >= 2 ? (
@@ -54,8 +54,8 @@ const TwoPhotoCard = ({ cooked }) => {
 
       {cooked['cooked-photos-urls']?.length > 0 && (
         <LinearGradient
-          colors={['transparent', 'transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.95)']}
-          locations={[0, 0.55, 0.6, 1]}
+          colors={['transparent', 'transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.85)']}
+          locations={[0, 0.8, 0.9, 1]}
           style={styles.gradientOverlay}
         />
       )}
@@ -144,6 +144,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 2,
     paddingHorizontal: 16,
+  },
+  mainPhoto: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  recipePhoto: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
 })
 

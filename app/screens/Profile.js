@@ -49,6 +49,7 @@ import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import BlockUser from '../components/core/BlockUser'
 import ReportUserModal from '../components/core/ReportUserModal'
 import * as ImagePicker from 'expo-image-picker'
+import { Platform } from 'react-native'
 
 const Image = FastImage
 
@@ -365,7 +366,13 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
 
   return (
     <>
-      <Animated.View style={[styles.headerContainer, animatedHeaderStyle]}>
+      <Animated.View
+        style={[
+          styles.headerContainer,
+          animatedHeaderStyle,
+          (!publicView && Platform.OS === 'android') && { marginTop: 16 },
+        ]}
+      >
         <ProfileHeader
           username={username}
           navigation={navigation}

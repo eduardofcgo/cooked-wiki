@@ -15,11 +15,11 @@ export class ImagePreloader {
 
   preloadImageUrls(urls) {
     try {
-      // const headers = this.client.getHeaders()
-
       const preloadUrls = urls?.filter(Boolean).map(url => ({
         uri: url,
-        // headers: headers
+        headers: {
+          'User-Agent': 'app'
+        }
       }))
 
       FastImage.preload(preloadUrls)

@@ -131,17 +131,19 @@ export class ApiClient {
         'Content-Type': 'multipart/form-data',
       },
       transformRequest: (data, headers) => formData,
-      uploadProgress: progressEvent => {},
+      uploadProgress: progressEvent => { },
       data: formData,
     })
   }
 
   async downloadPdf(url) {
     return this.client.get(url, {
+      ...this.client.defaults,
       baseURL: this.baseURL, // TODO: just for now while we don't have API endpoints for pdfs
       timeout: 25000,
       responseType: 'blob',
       headers: {
+        ...this.client.defaults.headers,
         Accept: 'application/pdf',
       },
     })

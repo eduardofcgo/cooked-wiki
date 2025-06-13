@@ -5,6 +5,7 @@ import RecipeThumbnail from '../core/RecipeThumbnail'
 import { useStore } from '../../context/StoreContext'
 import { theme } from '../../style/style'
 import { observer } from 'mobx-react-lite'
+import { Platform, StatusBar } from 'react-native'
 
 const RecentlyOpenedCard = ({ isExpanded, onRecipeSelect, onClear }) => {
   const { recentlyOpenedStore } = useStore()
@@ -77,7 +78,7 @@ const RecentlyOpenedCard = ({ isExpanded, onRecipeSelect, onClear }) => {
 const styles = StyleSheet.create({
   recentContainer: {
     position: 'absolute',
-    top: 150,
+    top: Platform.OS === 'android' ? 144 - StatusBar.currentHeight : 144,
     left: 16,
     right: 16,
     height: 180, // Fixed height for the panel

@@ -102,6 +102,12 @@ export default Settings = observer(({ navigation }) => {
             onPress={() => Linking.openURL('https://cooked.wiki/team')}
           />
           <List.Item
+            title='Delete Account'
+            titleStyle={{ color: theme.colors.black, fontSize: theme.fontSizes.default, fontFamily: theme.fonts.ui }}
+            left={props => <List.Icon {...props} color={theme.colors.softBlack} icon='delete' />}
+            onPress={() => Linking.openURL('https://cooked.wiki/contact')}
+          />
+          <List.Item
             title='Contact'
             titleStyle={{ color: theme.colors.black, fontSize: theme.fontSizes.default, fontFamily: theme.fonts.ui }}
             left={props => <List.Icon {...props} color={theme.colors.softBlack} icon='help-circle' />}
