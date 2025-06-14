@@ -152,8 +152,11 @@ const RecipeWithCookedFeed = observer(
     )
 
     useEffect(() => {
-      recipeJournalStore.loadCookeds(id)
-    }, [id, recipeJournalStore])
+      if (id) {
+        console.log('loading cookeds', id)
+        recipeJournalStore.loadCookeds(id)
+      }
+    }, [id])
 
     // const debouncedSetWebViewHeight = useCallback(debounce(setWebViewHeight, 100), [])
 
@@ -187,13 +190,13 @@ const RecipeWithCookedFeed = observer(
       }
     }, [isLoadingRecipeCookedsNextPage, hasMore, id, recipeJournalStore])
 
-    const renderItem = ({ item: cooked }) => {
+    const renderItem = useCallback(({ item: cooked }) => {
       return (
         <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
           <FeedItem cooked={cooked} showRecipe={false} collapseNotes={false} />
         </View>
       )
-    }
+    }, [])
 
     if (error) {
       return <GenericError status={error.statusCode} />

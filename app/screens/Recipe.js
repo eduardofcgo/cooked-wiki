@@ -201,10 +201,6 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
   }, [recipeId])
 
   useEffect(() => {
-    setComponentKey(Date.now())
-  }, [recipeId, extractId])
-
-  useEffect(() => {
     recentlyOpenedStore.ensureLoadedMetadata()
   }, [])
 

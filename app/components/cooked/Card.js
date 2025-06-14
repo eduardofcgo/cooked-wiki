@@ -44,10 +44,10 @@ const Card = ({ cooked, collapseNotes, showCookedWithoutNotes, showRecipe }) => 
       socialMenuContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
         const startPosition = pageY - height
 
-        navigation.push('CookedRecipe', { cookedId, startPosition })
+        navigation.push('CookedRecipe', { cookedId, recipeId, extractId, startPosition })
       })
     }
-  }, [cookedId, hasRecipe])
+  }, [cookedId, hasRecipe, recipeId, extractId])
 
   const navigateToRecipe = useCallback(() => {
     navigation.navigate('Recipe', { recipeId: cooked['recipe-id'], extractId: cooked['extract-id'] })

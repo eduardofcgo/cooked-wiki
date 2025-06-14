@@ -16,6 +16,7 @@ const RecipeHeader = observer(({ cooked, rounded }) => {
   const navigation = useNavigation()
 
   const navigateToRecipe = useCallback(() => {
+    console.log('navigateToRecipe', recipeId, extractId)
     navigation.push('Recipe', { recipeId, extractId })
   }, [navigation, recipeId, extractId])
 
