@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import debounce from 'lodash.debounce'
 
@@ -63,6 +63,7 @@ const RecipeWebView = observer(
             loadingComponent={loadingComponent}
             onWebViewReady={onWebViewReady}
             onHttpError={onHttpError}
+            modalOffset={250 + StatusBar.currentHeight}
           />
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingVertical: 32 }}>
             <TouchableOpacity onPress={() => navigation.navigate('RecordCook', { recipeId, extractId })}>
@@ -83,8 +84,28 @@ const RecipeWebView = observer(
         </View>
       )
     },
-  )
+  ),
 )
+
+const ListFooter = observer(({ isLoadingRecipeCookedsNextPage, isLoadingRecipeCookeds, hasMore, id }) => {
+  if (isLoadingRecipeCookedsNextPage) {
+    return (
+      <View style={styles.footer}>
+        <Loading />
+      </View>
+    )
+  }
+
+  if (!isLoadingRecipeCookeds && !hasMore) {
+    return (
+      <View style={styles.footer}>
+        <SimilarCookedFeed recipeId={id} />
+      </View>
+    )
+  }
+
+  return null
+})
 
 const RecipeWithCookedFeed = observer(
   ({
@@ -174,26 +195,6 @@ const RecipeWithCookedFeed = observer(
       )
     }
 
-    const ListFooter = observer(() => {
-      if (isLoadingRecipeCookedsNextPage) {
-        return (
-          <View style={styles.footer}>
-            <Loading />
-          </View>
-        )
-      }
-
-      if (!isLoadingRecipeCookeds && !hasMore) {
-        return (
-          <View style={styles.footer}>
-            <SimilarCookedFeed recipeId={id} />
-          </View>
-        )
-      }
-
-      return null
-    })
-
     if (error) {
       return <GenericError status={error.statusCode} />
     }
@@ -234,7 +235,14 @@ const RecipeWithCookedFeed = observer(
               />
             </View>
           }
-          ListFooterComponent={ListFooter}
+          ListFooterComponent={
+            <ListFooter
+              isLoadingRecipeCookedsNextPage={isLoadingRecipeCookedsNextPage}
+              isLoadingRecipeCookeds={isLoadingRecipeCookeds}
+              hasMore={hasMore}
+              id={id}
+            />
+          }
           nestedScrollEnabled={false}
         />
       </View>

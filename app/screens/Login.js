@@ -14,12 +14,13 @@ import {
 } from 'react-native'
 import { IconButton } from 'react-native-paper'
 import { StatusBar } from 'react-native'
+import { observer } from 'mobx-react-lite'
 
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 
-export default function Login({ navigation, route }) {
+const Login = observer(({ navigation, route }) => {
   const auth = useAuth()
 
   const [username, setUsername] = useState(auth?.credentials?.username || '')
@@ -134,7 +135,9 @@ export default function Login({ navigation, route }) {
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   )
-}
+})
+
+export default Login
 
 const styles = StyleSheet.create({
   container: {

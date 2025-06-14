@@ -78,7 +78,7 @@ const RecentlyOpenedCard = ({ isExpanded, onRecipeSelect, onClear }) => {
 const styles = StyleSheet.create({
   recentContainer: {
     position: 'absolute',
-    top: Platform.OS === 'android' ? 144 - StatusBar.currentHeight : 144,
+    top: Platform.OS === 'android' ? 150 - StatusBar.currentHeight : 150,
     left: 16,
     right: 16,
     height: 180, // Fixed height for the panel

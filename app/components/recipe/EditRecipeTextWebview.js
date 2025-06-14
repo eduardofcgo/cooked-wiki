@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, forwardRef, useImperativeHandle, useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 import { StyleSheet } from 'react-native'
 import CookedWebView from '../CookedWebView'
 import { getEditRecipeUrl } from '../../urls'
@@ -18,7 +19,6 @@ const EditRecipeTextWebview = forwardRef(
                             window.editor.on('update', ({ editor }) => {
                                 const canUndo = editor.can().undo()
                                 const canRedo = editor.can().redo()
-                                console.log('editor update', canUndo, canRedo)
 
                                 window.ReactNativeWebView.postMessage(JSON.stringify({
                                     type: 'editorUpdate',
@@ -187,4 +187,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default EditRecipeTextWebview
+export default observer(EditRecipeTextWebview)

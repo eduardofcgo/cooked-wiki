@@ -37,25 +37,25 @@ const screenshots = [
   },
   {
     source: require('../../../assets/demo/frame6.png'),
-    label: "Follow along using the flowchart!",
+    label: 'Follow along using the flowchart!',
   },
   {
     source: require('../../../assets/demo/frame6.png'),
   },
   {
     source: require('../../../assets/demo/frame6.png'),
-    label: "Click the Pasta Dough section",
+    label: 'Click the Pasta Dough section',
   },
   {
     source: require('../../../assets/demo/frame7.png'),
   },
   {
     source: require('../../../assets/demo/frame7.png'),
-    label: "Now follow the recipe just for the Dough",
+    label: 'Now follow the recipe just for the Dough',
   },
   {
     source: require('../../../assets/demo/frame7.png'),
-    label: "Add notes as you cook",
+    label: 'Add notes as you cook',
   },
 ]
 

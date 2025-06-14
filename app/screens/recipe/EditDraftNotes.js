@@ -59,7 +59,7 @@ const EditDraftNotes = () => {
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      keyboardVerticalOffset={100}
     >
       <View style={styles.container}>
         <TextInput

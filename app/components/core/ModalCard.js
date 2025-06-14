@@ -200,7 +200,7 @@ export default function ModalCard({
           </TouchableOpacity>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+            keyboardVerticalOffset={10}
             style={styles.keyboardAvoidingContainer}
           >
             <PanGestureHandler onGestureEvent={gestureHandler}>
@@ -213,7 +213,8 @@ export default function ModalCard({
                 </View>
                 <Animated.View
                   key={childrenKey}
-                  entering={FadeIn.duration(500).delay(300)}
+                  // Not sure why, android cannot animate this, and just flashes the contents...
+                  entering={Platform.OS !== 'android' ? FadeIn.duration(500).delay(300) : undefined}
                   style={styles.childrenContainer}
                 >
                   {children}

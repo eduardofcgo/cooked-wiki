@@ -1,6 +1,6 @@
 import { useKeepAwake } from 'expo-keep-awake'
 import { observer } from 'mobx-react-lite'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 import {
   Dimensions,
   ScrollView,
@@ -31,13 +31,15 @@ import RecipeWithCookedFeed from '../components/recipe/RecipeWithCookedFeed'
 import { useAuth } from '../context/AuthContext'
 import { getSavedRecipeUrl, getRecentExtractUrl } from '../urls'
 import { MaterialIcons } from '@expo/vector-icons'
-import RecipeDraftNotesCard from '../components/recipe/RecipeDraftNotesCard'
 import { useInAppNotification } from '../context/NotificationContext'
 import RecentlyOpenedCard from '../components/recipe/RecentlyOpenedCard'
 import ReportRecipeModal from '../components/recipe/ReportRecipeModal'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
+
+const RecipeDraftNotesCard = lazy(() => import('../components/recipe/RecipeDraftNotesCard'))
 
 function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardSheetIndex, ...props }) {
   const { credentials } = useAuth()
@@ -55,9 +57,22 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
 
       return () => {
         StatusBar.setBackgroundColor(theme.colors.secondary)
+        StatusBar.setHidden(false, 'fade')
       }
     }
   }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setHidden(true, 'fade')
+      headerVisible.value = withTiming(1, { duration: 500, useNativeDriver: true })
+
+      return () => {
+        StatusBar.setHidden(false, 'fade')
+        headerVisible.value = withTiming(0, { duration: 500, useNativeDriver: true })
+      }
+    }, []),
+  )
 
   const scrollY = useSharedValue(0)
   const lastScrollY = useRef(0)
@@ -68,21 +83,25 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     const currentScrollY = event.nativeEvent.contentOffset.y
     const isScrollingDownNow = currentScrollY > lastScrollY.current
 
-    if (currentScrollY < 50) {
-      headerVisible.value = withTiming(1, { duration: 500 })
-    }
-
-    // Only update header visibility if we've scrolled more than the threshold
-    else if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
-      if (isScrollingDownNow && headerVisible.value) {
-        // Scrolling down and header is visible - hide it
-        headerVisible.value = withTiming(0, { duration: 500 })
+    // Only update if we've scrolled more than the threshold
+    if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
+      if (currentScrollY < 50) {
+        setTimeout(() => {
+          // StatusBar.setHidden(false, 'fade')
+          headerVisible.value = withTiming(1, { duration: 500, useNativeDriver: true })
+        }, 1)
+      } else if (isScrollingDownNow && headerVisible.value) {
+        setTimeout(() => {
+          // StatusBar.setHidden(true, 'fade')
+          headerVisible.value = withTiming(0, { duration: 500, useNativeDriver: true })
+        }, 1)
       } else if (!isScrollingDownNow && !headerVisible.value) {
-        // Scrolling up and header is hidden - require more intentional scroll
         const scrollDelta = lastScrollY.current - currentScrollY
         if (scrollDelta > 20) {
-          // Require 20px of upward scroll to show header
-          headerVisible.value = withTiming(1, { duration: 250 })
+          setTimeout(() => {
+            // StatusBar.setHidden(false, 'fade')
+            headerVisible.value = withTiming(1, { duration: 250, useNativeDriver: true })
+          }, 1)
         }
       }
     }
@@ -90,20 +109,22 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
     isScrollingDown.current = isScrollingDownNow
     lastScrollY.current = currentScrollY
     scrollY.value = currentScrollY
-
-    StatusBar.setHidden(currentScrollY > 100, 'fade')
   }, [])
 
   const menuBarAnimatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(headerVisible.value, [0, 1], [-120, 0], Extrapolate.CLAMP)
+
     return {
-      transform: [
-        {
-          translateY: interpolate(headerVisible.value, [0, 1], [-100, 0], Extrapolate.CLAMP),
-        },
-      ],
-      opacity: Number(headerVisible.value),
+      transform: [{ translateY }],
+
+      // Shadows break with animated opacity on android
+      ...(Platform.OS === 'ios'
+        ? {
+            opacity: interpolate(headerVisible.value, [0, 1], [0, 1], Extrapolate.CLAMP),
+          }
+        : {}),
     }
-  })
+  }, [])
 
   const hasCookedCard = Boolean(cookedCard)
 
@@ -390,15 +411,19 @@ function Recipe({ loadingComponent, navigation, route, cookedCard, cookedCardShe
           pointerEvents: 'box-none',
         }}
       >
-        <RecipeDraftNotesCard
-          recipeId={recipeId}
-          extractId={extractId}
-          isVisible={isNotesModalVisible}
-          isOnTopOfCookedCard={hasCookedCard}
-          onClose={() => {
-            setIsNotesModalVisible(false)
-          }}
-        />
+        {isNotesModalVisible && (
+          <Suspense fallback={null}>
+            <RecipeDraftNotesCard
+              recipeId={recipeId}
+              extractId={extractId}
+              isVisible={isNotesModalVisible}
+              isOnTopOfCookedCard={hasCookedCard}
+              onClose={() => {
+                setIsNotesModalVisible(false)
+              }}
+            />
+          </Suspense>
+        )}
       </SafeAreaView>
 
       <ReportRecipeModal
@@ -423,7 +448,7 @@ const styles = StyleSheet.create({
   },
   menuBarContainer: {
     marginHorizontal: 16,
-    marginTop: Platform.OS === 'ios' ? 8 : StatusBar.currentHeight + 16,
+    marginTop: Platform.OS === 'ios' ? 8 : StatusBar.currentHeight,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
@@ -485,12 +510,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: theme.fonts.title,
     color: theme.colors.black,
-  },
-  webViewContainer: {
-    flex: 1,
-    overflow: 'hidden',
-    width: '100%',
-    position: 'relative',
   },
   menuActions: {
     flexDirection: 'row',

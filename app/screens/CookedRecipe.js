@@ -231,7 +231,7 @@ const CookedRecipe = observer(({ navigation, route }) => {
   const handleSheetChanges = useCallback(index => {
     setSheetIndex(index)
 
-    StatusBar.setHidden(index >= 3, 'fade')
+    StatusBar.setHidden(index > 2 || index < 1, 'fade')
 
     if (index === 0 && flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true })

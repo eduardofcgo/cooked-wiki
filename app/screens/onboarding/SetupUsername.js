@@ -15,6 +15,7 @@ import {
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import debounce from 'lodash.debounce'
+import { observer } from 'mobx-react-lite'
 
 import { theme } from '../../style/style'
 import { PrimaryButton } from '../../components/core/Button'
@@ -25,7 +26,7 @@ import PhotoSelectionModal from '../../components/PhotoSelectionModal'
 import ModalCard from '../../components/core/ModalCard'
 import { getThumbnailUrl } from '../../urls'
 
-export default function SetupUsername({ route }) {
+const SetupUsername = observer(({ route }) => {
   const { idToken, defaultImagePath } = route.params
   const auth = useAuth()
 
@@ -334,7 +335,9 @@ export default function SetupUsername({ route }) {
       </ModalCard>
     </KeyboardAvoidingView>
   )
-}
+})
+
+export default SetupUsername
 
 const styles = StyleSheet.create({
   keyboardAvoidingView: {

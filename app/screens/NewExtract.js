@@ -3,8 +3,9 @@ import { useState, useCallback, useEffect } from 'react'
 import NewExtractLoading from './NewExtractLoading'
 import NewExtractError from './NewExtractError'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { observer } from 'mobx-react-lite'
 
-export default function NewExtract({ url }) {
+const NewExtract = observer(({ url }) => {
   const apiClient = useApi()
   const route = useRoute()
   const navigation = useNavigation()
@@ -69,4 +70,6 @@ export default function NewExtract({ url }) {
   }
 
   return null
-}
+})
+
+export default NewExtract

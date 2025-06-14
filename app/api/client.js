@@ -131,7 +131,7 @@ export class ApiClient {
         'Content-Type': 'multipart/form-data',
       },
       transformRequest: (data, headers) => formData,
-      uploadProgress: progressEvent => { },
+      uploadProgress: progressEvent => {},
       data: formData,
     })
   }

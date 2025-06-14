@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import LoadingScreen from '../screens/Loading'
 import { theme } from '../style/style'
 import env from '../config/environment'
+import { observer } from 'mobx-react-lite'
 
 const { BASE_URL } = env
 
@@ -26,6 +27,7 @@ const CookedWebView = forwardRef(
       style,
       contentInset,
       source,
+      modalOffset = 300,
     },
     ref,
   ) => {
@@ -266,8 +268,9 @@ const CookedWebView = forwardRef(
 
       window.externalScrollY = 0;
 
-      ${dynamicHeight
-        ? `
+      ${
+        dynamicHeight
+          ? `
         window.externalViewportHeight = ${windowHeight};
         
         window.setExternalScrollY = function(scrollY) {
@@ -276,7 +279,7 @@ const CookedWebView = forwardRef(
           const modals = document.querySelectorAll('.modal > .modal-content');
           modals.forEach(modal => {
               const modalHeight = modal.offsetHeight;
-              const additionalOffset = 300;
+              const additionalOffset = ${modalOffset};
               
               // Calculate the maximum scroll position to prevent modal from going off-screen
               const maxScrollY = Math.max(0, document.body.scrollHeight - window.externalViewportHeight);
@@ -297,15 +300,16 @@ const CookedWebView = forwardRef(
           
           document.dispatchEvent(scrollEvent);
         };`
-        : `
+          : `
         
           window.setExternalScrollY = function(scrollY) {
           }
         `
       }
 
-      ${dynamicHeight
-        ? `
+      ${
+        dynamicHeight
+          ? `
         let lastHeight = 0;
         const postHeight = () => {
           const currentHeight = document.body.scrollHeight;
@@ -317,7 +321,7 @@ const CookedWebView = forwardRef(
           const modals = document.querySelectorAll('.modal > .modal-content');
           modals.forEach(modal => {
               const modalHeight = modal.offsetHeight;
-              const additionalOffset = 300;
+              const additionalOffset = ${modalOffset};
               
               // Calculate the maximum scroll position to prevent modal from going off-screen
               const maxScrollY = Math.max(0, document.body.scrollHeight - window.externalViewportHeight);
@@ -350,7 +354,7 @@ const CookedWebView = forwardRef(
         setTimeout(postHeight, 100); // Small delay might be needed
         postHeight(); // Post immediately too
       `
-        : `
+          : `
 
         // Adjust modal position for the extra viewport height
         const modals = document.querySelectorAll('.modal > .modal-content');
@@ -465,7 +469,7 @@ const CookedWebView = forwardRef(
         onLoadEnd={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
         }}
-        onLoadProgress={({ nativeEvent }) => { }}
+        onLoadProgress={({ nativeEvent }) => {}}
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent
           console.warn('[WebView] onError:', nativeEvent.code, nativeEvent.description, nativeEvent.url)
@@ -500,4 +504,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default CookedWebView
+export default observer(CookedWebView)

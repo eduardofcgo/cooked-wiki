@@ -18,8 +18,8 @@ export class ImagePreloader {
       const preloadUrls = urls?.filter(Boolean).map(url => ({
         uri: url,
         headers: {
-          'User-Agent': 'app'
-        }
+          'User-Agent': 'app',
+        },
       }))
 
       FastImage.preload(preloadUrls)

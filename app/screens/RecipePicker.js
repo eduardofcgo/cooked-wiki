@@ -8,12 +8,13 @@ import moment from 'moment'
 import useUserRecipesSearch from '../hooks/api/useUserRecipesSearch'
 import Loading from '../components/core/Loading'
 import { FlashList } from '@shopify/flash-list'
+import { observer } from 'mobx-react-lite'
 
 const Image = FastImage
 
 const FlatList = FlashList
 
-const RecipeItem = ({ thumbnailUrl, title, openedAt, onSelect }) => {
+const RecipeItem = observer(({ thumbnailUrl, title, openedAt, onSelect }) => {
   const formattedTime = useMemo(() => (openedAt ? moment(openedAt).fromNow() : null), [openedAt])
 
   return (
@@ -32,9 +33,9 @@ const RecipeItem = ({ thumbnailUrl, title, openedAt, onSelect }) => {
       </View>
     </TouchableOpacity>
   )
-}
+})
 
-export default function RecipePicker({ navigation }) {
+const RecipePicker = observer(({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState(null)
   const searchInputRef = useRef(null)
 
@@ -158,7 +159,9 @@ export default function RecipePicker({ navigation }) {
       </View>
     </View>
   )
-}
+})
+
+export default RecipePicker
 
 const styles = StyleSheet.create({
   container: {

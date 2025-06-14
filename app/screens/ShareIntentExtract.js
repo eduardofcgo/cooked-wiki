@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import Loading from './Extract/Loading'
 import Error from './Extract/Error'
 import { useNavigation } from '@react-navigation/native'
+import { observer } from 'mobx-react-lite'
 
-export default function ShareIntentExtract() {
+const ShareIntentExtract = observer(() => {
   const apiClient = useApi()
   const navigation = useNavigation()
   const { hasShareIntent, shareIntent, resetShareIntent, error: shareError } = useShareIntentContext()
@@ -67,4 +68,6 @@ export default function ShareIntentExtract() {
   }
 
   return <Loading />
-}
+})
+
+export default ShareIntentExtract

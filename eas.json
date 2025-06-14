@@ -10,7 +10,11 @@
     },
     "production": {
       "distribution": "store",
-      "releaseChannel": "production"
+      "releaseChannel": "production",
+      "android": {
+        "autoIncrement": "versionCode",
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

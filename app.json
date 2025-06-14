@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Cooked.wiki",
+    "name": "CookED",
     "slug": "cooked",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -105,7 +105,8 @@
         "backgroundColor": "#efede3"
       },
       "package": "wiki.cooked",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 3
     },
     "web": {
       "favicon": "./assets/favicon.png"

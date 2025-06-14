@@ -17,6 +17,8 @@ import {
   SafeAreaView,
   Alert,
   Share,
+  Platform,
+  StatusBar,
 } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { IconButton, Menu } from 'react-native-paper'
@@ -49,7 +51,6 @@ import PhotoSelectionModal from '../components/PhotoSelectionModal'
 import BlockUser from '../components/core/BlockUser'
 import ReportUserModal from '../components/core/ReportUserModal'
 import * as ImagePicker from 'expo-image-picker'
-import { Platform } from 'react-native'
 
 const Image = FastImage
 
@@ -370,7 +371,7 @@ const Profile = observer(({ route, navigation, username, publicView }) => {
         style={[
           styles.headerContainer,
           animatedHeaderStyle,
-          (!publicView && Platform.OS === 'android') && { marginTop: 16 },
+          !publicView && Platform.OS === 'android' && { marginTop: StatusBar.currentHeight },
         ]}
       >
         <ProfileHeader
@@ -538,7 +539,8 @@ const tabStyle = {
   tabBarStyle: {
     backgroundColor: theme.colors.secondary,
   },
-  swipeEnabled: true,
+  // On Android it is too sensive and user swipes accidentally while scrolling
+  swipeEnabled: Platform.OS === 'ios',
 }
 
 const styles = StyleSheet.create({
